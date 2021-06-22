@@ -2,15 +2,17 @@
 	<PropertyGroup>
 		<TargetFrameworks>net4;net45;netstandard2.1;netcoreapp2.1;netcoreapp3.1;net5.0;</TargetFrameworks>
 		<Description>数据库ORM.Useful Database ORM Process Utilities.</Description>
-		<AssemblyName>System.Data.NDabber</AssemblyName>
+		<AssemblyName>NSystem.Data.Dabber</AssemblyName>
 		<RootNamespace>System.Data.Dabber</RootNamespace>
-		<AssemblyTitle>System.Data.NDabber</AssemblyTitle>
+		<AssemblyTitle>NSystem.Data.Dabber</AssemblyTitle>
 		<SignAssembly>true</SignAssembly>
 		<LangVersion>latest</LangVersion>
 		<PackageReleaseNotes>Copyright © 2020 版权所有</PackageReleaseNotes>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<SatelliteResourceLanguages>zh-Hans;zh-hant</SatelliteResourceLanguages>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|net4'">
 		<DefineConstants>TRACE;DEBUG;NETFrame;NET40</DefineConstants>
