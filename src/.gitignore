@@ -1,0 +1,4 @@
+# 通过Dapper移植的项目
+bin
+obj
+*.user
