@@ -3,3 +3,9 @@
 .publishes
 .svn
 .git
+
+bin
+obj
+
+*.suo
+*.user

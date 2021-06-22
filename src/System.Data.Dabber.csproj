@@ -12,7 +12,6 @@
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<SatelliteResourceLanguages>zh-Hans;zh-hant</SatelliteResourceLanguages>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|net4'">
 		<DefineConstants>TRACE;DEBUG;NETFrame;NET40</DefineConstants>
