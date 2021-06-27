@@ -4,7 +4,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Text;
 
-namespace System.Data.Dabber.Cobber
+namespace System.Data.Cobber
 {
     /// <summary>
     /// 连接创建者

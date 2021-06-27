@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace System.Data.Dabber
+namespace System.Data.Cobber
 {
     /// <summary>
     /// 静态调用扩展类

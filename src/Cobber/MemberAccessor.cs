@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
-namespace System.Data.Dabber.Cobber
+namespace System.Data.Cobber
 {
     /// <summary>
     /// 对象成员访问接口

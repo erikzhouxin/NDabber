@@ -1,17 +1,18 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace System.Data.Dabber
+namespace System.Data.Cobber
 {
     /// <summary>
-    /// 自动MySql创建者
+    /// 自动Access创建者
     /// 依赖于[DbMarkable/DbAutoable]
     /// </summary>
-    public class AutoMySqlBuilder
+    public class AutoAccessBuilder
     {
         #region // 类型定义
         /// <summary>
@@ -72,12 +73,12 @@ namespace System.Data.Dabber
                 if (value is AutoSqlModel.StringLike)
                 {
                     args[key] = value.ToString();
-                    keyPart = $"`{key}` LIKE @{key}";
+                    keyPart = $"[{key}] LIKE @{key}";
                 }
                 else if (value is AutoSqlModel.ICompare)
                 {
                     var compareObj = value as AutoSqlModel.ICompare;
-                    keyPart = $"{key} {compareObj.GetSign()} @{key}";
+                    keyPart = $"[{key}] {compareObj.GetSign()} @{key}";
                     args[key] = compareObj.Value;
                 }
                 else if (value is AutoSqlModel.ICompareRange)
@@ -86,7 +87,7 @@ namespace System.Data.Dabber
                     args[key] = null;
                     if (compareObj.IsEmpty) { continue; }
                     var objItem = compareObj.Compares[0];
-                    keyPart = $"(`{key}` {objItem.GetSign()} @{key}Item0";
+                    keyPart = $"([{key}] {objItem.GetSign()} @{key}Item0";
                     args[$"{key}Item0"] = objItem.Value;
                     if (compareObj.Compares.Count() >= 1)
                     {
@@ -95,7 +96,7 @@ namespace System.Data.Dabber
                         for (int j = 1; j < compareObj.Compares.Count(); j++)
                         {
                             objItem = compareObj.Compares[j];
-                            sb.Append(relateString).Append($"`{key}` {objItem.GetSign()} @{key}Item{j}");
+                            sb.Append(relateString).Append($"[{key}] {objItem.GetSign()} @{key}Item{j}");
                             args[$"{key}Item{j}"] = objItem.Value;
                         }
                         keyPart = sb.ToString();
@@ -105,18 +106,18 @@ namespace System.Data.Dabber
                 else if (value is AutoSqlModel.ICompareBetween)
                 {
                     var compareObj = value as AutoSqlModel.ICompareBetween;
-                    keyPart = $"`{key}` BETWEEN @{key}{nameof(compareObj.Begin)} AND @{key}{nameof(compareObj.End)}";
+                    keyPart = $"[{key}] BETWEEN @{key}{nameof(compareObj.Begin)} AND @{key}{nameof(compareObj.End)}";
                     args[key] = null;
                     args[$"{key}{nameof(compareObj.Begin)}"] = compareObj.Begin;
                     args[$"{key}{nameof(compareObj.End)}"] = compareObj.End;
                 }
                 else if (value is Array)
                 {
-                    keyPart = $"`{key}` IN @{key}";
+                    keyPart = $"[{key}] IN @{key}";
                 }
                 else
                 {
-                    keyPart = $"`{key}`=@{key}";
+                    keyPart = $"[{key}]=@{key}";
                 }
                 builder.Append(keyPart + " AND ");
             }
@@ -138,8 +139,8 @@ namespace System.Data.Dabber
             var result = new AutoSqlBuilder(type);
             var eColAttr = type.GetCustomAttribute<DbColAttribute>() ?? new DbColAttribute(type.Name);
             result.TagName = eColAttr.Name = eColAttr.Name ?? type.Name;
-            var createBuilder = new StringBuilder("CREATE TABLE IF NOT EXISTS ");
-            createBuilder.AppendFormat("`{0}`(", eColAttr.Name);
+            var createBuilder = new StringBuilder("CREATE TABLE ");
+            createBuilder.AppendFormat("[{0}](", eColAttr.Name);
             var pSql = new List<string>();
             var apSql = new List<string>();
             var pk = "ID";
@@ -150,7 +151,7 @@ namespace System.Data.Dabber
                 {
                     continue;
                 }
-                colAttr.Name = (colAttr.Name ?? prop.Name).ToLower();
+                colAttr.Name = colAttr.Name ?? prop.Name;
                 switch (colAttr.Key)
                 {
                     case DbIxType.PK:
@@ -182,32 +183,32 @@ namespace System.Data.Dabber
                 apSql.Add(prop.Name);
             }
             createBuilder.Remove(createBuilder.Length - 1, 1)
-                .AppendFormat(")ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='{0}';", GetComment(eColAttr.Display));
+                .Append(");");
 
             foreach (var item in uixList.Distinct())
             {
-                createBuilder.AppendLine().AppendFormat("CREATE UNIQUE INDEX `IX_{0}_{1}` ON `{0}`(`{2}`);", eColAttr.Name, item.Replace("|", "_"), item.Replace("|", "`,`"));
+                createBuilder.AppendLine().AppendFormat("CREATE UNIQUE INDEX [IX_{0}_{1}] ON [{0}]([{2}]);", eColAttr.Name, item.Replace("|", "_"), item.Replace("|", "],["));
             }
 
-            var commaPSql = string.Join("`,`", pSql);
+            var commaPSql = string.Join("],[", pSql);
             var commaAtPSql = string.Join(",@", pSql);
-            var commaAPSql = string.Join("`,`", apSql);
-            var commaSetValSql = string.Join(",", pSql.Where(s => !s.Equals(pk)).Select(s => string.Format("`{0}`=@{0}", s)));
+            var commaAPSql = string.Join("],[", apSql);
+            var commaSetValSql = string.Join(",", pSql.Where(s => !s.Equals(pk)).Select(s => string.Format("[{0}]=@{0}", s)));
 
             result.Create = createBuilder.ToString();
-            result.Insert = string.Format("INSERT INTO `{0}`(`{1}`) VALUES(@{2})", eColAttr.Name, commaPSql, commaAtPSql); // 无自增主键
-            result.Replace = string.Format("REPLACE INTO `{0}`(`{1}`) VALUES(@{2})", eColAttr.Name, commaPSql, commaAtPSql); // 无自增主键
-            result.DeleteID = string.Format("DELETE FROM `{0}` WHERE `{1}`=@{1}", eColAttr.Name, pk);
-            result.DeleteInID = string.Format("DELETE FROM `{0}` WHERE `{1}` IN @{1}", eColAttr.Name, pk);
-            result.UpdateID = string.Format("UPDATE `{0}` SET {1} WHERE `{2}`=@{2}", eColAttr.Name, commaSetValSql, pk);
-            result.Update = string.Format("UPDATE `{0}` SET {1}", eColAttr.Name, commaSetValSql);
-            result.Select = string.Format("SELECT `{1}` FROM `{0}`", eColAttr.Name, commaAPSql);
-            result.SelectID = string.Format("SELECT `{1}` FROM `{0}` WHERE `{2}`=@{2} LIMIT 1", eColAttr.Name, commaAPSql, pk);
-            result.SelectInID = string.Format("SELECT `{1}` FROM `{0}` WHERE `{2}` IN @{2}", eColAttr.Name, commaAPSql, pk);
-            result.SelectLimit = string.Format("SELECT `{1}` FROM `{0}` LIMIT @Skip,@Take", eColAttr.Name, commaAPSql);
-            result.SelectCount = string.Format("SELECT COUNT(*) FROM `{0}`", eColAttr.Name);
+            result.Insert = string.Format("INSERT INTO [{0}]([{1}]) VALUES(@{2})", eColAttr.Name, commaPSql, commaAtPSql); // 无自增主键
+            result.Replace = string.Format("REPLACE INTO [{0}]([{1}]) VALUES(@{2})", eColAttr.Name, commaPSql, commaAtPSql); // 无自增主键
+            result.DeleteID = string.Format("DELETE FROM [{0}] WHERE [{1}]=@{1}", eColAttr.Name, pk);
+            result.DeleteInID = string.Format("DELETE FROM [{0}] WHERE [{1}] IN @{1}", eColAttr.Name, pk);
+            result.UpdateID = string.Format("UPDATE [{0}] SET {1} WHERE [{2}]=@{2}", eColAttr.Name, commaSetValSql, pk);
+            result.Update = string.Format("UPDATE [{0}] SET {1}", eColAttr.Name, commaSetValSql);
+            result.Select = string.Format("SELECT [{1}] FROM [{0}]", eColAttr.Name, commaAPSql);
+            result.SelectID = string.Format("SELECT [{1}] FROM [{0}] WHERE [{2}]=@{2} LIMIT 1", eColAttr.Name, commaAPSql, pk);
+            result.SelectInID = string.Format("SELECT [{1}] FROM [{0}] WHERE [{2}] IN @{2}", eColAttr.Name, commaAPSql, pk);
+            result.SelectLimit = string.Format("SELECT [{1}] FROM [{0}] LIMIT @Skip,@Take", eColAttr.Name, commaAPSql);
+            result.SelectCount = string.Format("SELECT COUNT(*) FROM [{0}]", eColAttr.Name);
             result.Cols = apSql.ToArray();
-            result.WhereID = string.Format("`{0}`=@{0}", pk);
+            result.WhereID = string.Format("[{0}]=@{0}", pk);
             result.TagID = pk;
 
             return result;
@@ -218,58 +219,69 @@ namespace System.Data.Dabber
         /// <returns></returns>
         public static string GetDefinitionType(DbColAttribute dbCol)
         {
-            var defType = GetDbType(dbCol);
+            var defType = GetSQLiteType(dbCol);
             return new StringBuilder()
-                .AppendFormat("`{0}` ", dbCol.Name)
+                .AppendFormat("[{0}] ", dbCol.Name)
                 .Append(defType)
                 .Append(dbCol.Key == DbIxType.PK ? " PRIMARY KEY" : "")
-                .Append(dbCol.Key == DbIxType.APK ? " PRIMARY KEY AUTO_INCREMENT" : "")
+                .Append(dbCol.Key == DbIxType.APK ? " PRIMARY KEY AUTOINCREMENT" : "")
                 .Append(dbCol.IsReq ? " NOT NULL" : " NULL")
-                .Append(dbCol.Default == null ? "" : string.Format(" DEFAULT '{0}'", dbCol.Default))
-                .AppendFormat(" COMMENT '{0}'", GetComment(dbCol.Display)).ToString();
+                .Append(dbCol.Default == null ? "" : string.Format(" DEFAULT '{0}'", dbCol.Default)).ToString();
+            //.AppendFormat(" COMMENT '{0}'", dbCol.Display.GetMySqlComment());
         }
-
-        private static string GetComment(string display)
-        {
-            return display.Replace("'", "''").Replace("\r", "").Replace("\n", "");
-        }
-
         /// <summary>
         /// 获取MySql类型
         /// </summary>
         /// <param name="dbCol"></param>
         /// <returns></returns>
-        public static string GetDbType(DbColAttribute dbCol)
+        public static string GetSQLiteType(DbColAttribute dbCol)
         {
             switch (dbCol.Type)
             {
-                case DbColType.String: return string.Format("varchar({0})", dbCol.Len);
-                case DbColType.StringMax: return string.Format("longtext");
-                case DbColType.StringMedium: return string.Format("mediumtext");
-                case DbColType.StringNormal: return string.Format("text");
-                case DbColType.Boolean: return string.Format("bit");
-                case DbColType.Byte: return string.Format("tinyint");
-                case DbColType.Char: return string.Format("tinyint");
-                case DbColType.Int16: return string.Format("smallint");
-                case DbColType.Int32: return string.Format("int");
-                case DbColType.Int64: return string.Format("bigint");
-                case DbColType.UByte: return string.Format("tinyint unsigned");
-                case DbColType.UInt16: return string.Format("smallint unsigned");
-                case DbColType.UInt32: return string.Format("int unsigned");
-                case DbColType.UInt64: return string.Format("bigint unsigned");
+                case DbColType.String:
+                case DbColType.StringMax:
+                case DbColType.StringMedium:
+                case DbColType.StringNormal: return string.Format("TEXT");
+                case DbColType.Boolean:
+                case DbColType.Byte:
+                case DbColType.Char:
+                case DbColType.Int16:
+                case DbColType.Int32:
+                case DbColType.Int64:
+                case DbColType.UByte:
+                case DbColType.UInt16:
+                case DbColType.UInt32:
+                case DbColType.UInt64: return string.Format("INTEGER");
                 case DbColType.Single:
-                case DbColType.Double: return string.Format("double");
-                case DbColType.Decimal: return string.Format("decimal({0},{1})", dbCol.Len, dbCol.Digit);
-                case DbColType.DateTime: return string.Format("datetime");
-                case DbColType.JsonString: return string.Format("text");
-                case DbColType.Guid: return string.Format("guid");
-                case DbColType.Blob: return string.Format("blob");
-                case DbColType.XmlString: return string.Format("text");
-                case DbColType.Enum: return string.Format("varchar(10)");
-                case DbColType.Set: return string.Format("varchar(10)");
+                case DbColType.Double: return string.Format("REAL");
+                case DbColType.Decimal: return string.Format("DECIMAL({0},{1})", dbCol.Len, dbCol.Digit);
+                case DbColType.DateTime: return string.Format("DateTime");
+                case DbColType.JsonString: return string.Format("TEXT");
+                case DbColType.Guid:
+                case DbColType.Blob: return string.Format("BLOB");
+                case DbColType.Enum:
+                case DbColType.Set:
                 default: throw new Exception("未确定解决方案");
             }
         }
         #endregion
+        /// <summary>
+        /// 创建连接字符串
+        /// </summary>
+        /// <param name="fileInfo"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public static string BuilderConnString(FileInfo fileInfo, string password = null)
+        {
+            //return string.Format("Provider=Microsoft.Jet.OLEDB.4.0;Data Source={0}", fileInfo.FullName);
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                return string.Format("Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};", fileInfo.FullName);
+            }
+            else
+            {
+                return string.Format("Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Jet OLEDB:Database Password={1};Persist Security Info=False;", fileInfo.FullName, password);
+            }
+        }
     }
 }

@@ -1,18 +1,37 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
-namespace System.Data.Dabber
+namespace System.Data.Cobber
 {
     /// <summary>
-    /// 自动SQLite创建者
+    /// 自动Microsoft SQL Server创建者
     /// 依赖于[DbMarkable/DbAutoable]
+    /// 推荐使用[AutoSqlServerBuilder]
     /// </summary>
-    public sealed class AutoSQLiteBuilder
+    public class AutoMssqlBuilder
+    {
+        /// <summary>
+        /// 创建SQL Builder
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static AutoSqlBuilder Builder(Type type) => AutoSqlServerBuilder.EntitySqlDic.GetOrAdd(type, (k) => AutoSqlServerBuilder.CreateSqlModel(k));
+        /// <summary>
+        /// 创建SQL Builder
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static AutoSqlBuilder Builder<T>() => AutoSqlServerBuilder.EntitySqlDic.GetOrAdd(typeof(T), (k) => AutoSqlServerBuilder.CreateSqlModel(k));
+    }
+    /// <summary>
+    /// 自动SqlServer创建者
+    /// </summary>
+    public class AutoSqlServerBuilder
     {
         #region // 类型定义
         /// <summary>
@@ -78,7 +97,7 @@ namespace System.Data.Dabber
                 else if (value is AutoSqlModel.ICompare)
                 {
                     var compareObj = value as AutoSqlModel.ICompare;
-                    keyPart = $"{key} {compareObj.GetSign()} @{key}";
+                    keyPart = $"[{key}] {compareObj.GetSign()} @{key}";
                     args[key] = compareObj.Value;
                 }
                 else if (value is AutoSqlModel.ICompareRange)
@@ -96,7 +115,7 @@ namespace System.Data.Dabber
                         for (int j = 1; j < compareObj.Compares.Count(); j++)
                         {
                             objItem = compareObj.Compares[j];
-                            sb.Append(relateString).Append($"`{key}` {objItem.GetSign()} @{key}Item{j}");
+                            sb.Append(relateString).Append($"[{key}] {objItem.GetSign()} @{key}Item{j}");
                             args[$"{key}Item{j}"] = objItem.Value;
                         }
                         keyPart = sb.ToString();
@@ -127,26 +146,30 @@ namespace System.Data.Dabber
         /// <summary>
         /// 创建模型
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static AutoSqlBuilder CreateSqlModel<T>() => EntitySqlDic.GetOrAdd(typeof(T), (k) => CreateSqlModel(k));
         /// <summary>
-        /// 创建模型
+        /// 获取实体的创建SQL语句
         /// </summary>
-        /// <param name="type"></param>
         /// <returns></returns>
         public static AutoSqlBuilder CreateSqlModel(Type type)
         {
             var result = new AutoSqlBuilder(type);
             var eColAttr = type.GetCustomAttribute<DbColAttribute>() ?? new DbColAttribute(type.Name);
             result.TagName = eColAttr.Name = eColAttr.Name ?? type.Name;
+            var createBuilder = new StringBuilder("CREATE TABLE ");
+            createBuilder.AppendFormat("[{0}](", eColAttr.Name);
             var pSql = new List<string>();
             var apSql = new List<string>();
-            var pk = "id";
+            var pk = "ID";
             var uixList = new List<string>();
-            var colDefList = new List<String>();
             foreach (var prop in type.GetProperties())
             {
-                if (!DbColAttribute.TryGetAttribute(prop, out DbColAttribute colAttr)) { continue; }
+                if (!DbColAttribute.TryGetAttribute(prop, out DbColAttribute colAttr))
+                {
+                    continue;
+                }
                 colAttr.Name = colAttr.Name ?? prop.Name;
                 switch (colAttr.Key)
                 {
@@ -175,51 +198,15 @@ namespace System.Data.Dabber
                         pSql.Add(prop.Name);
                         break;
                 }
-                String defType;
-                switch (colAttr.Type)
-                {
-                    case DbColType.Guid:
-                    case DbColType.String:
-                    case DbColType.XmlString:
-                    case DbColType.StringMax:
-                    case DbColType.StringMedium:
-                    case DbColType.StringNormal: defType = string.Format("TEXT"); break;
-                    case DbColType.Enum:
-                    case DbColType.Boolean:
-                    case DbColType.Byte:
-                    case DbColType.Char:
-                    case DbColType.Int16:
-                    case DbColType.Int32:
-                    case DbColType.Int64:
-                    case DbColType.UByte:
-                    case DbColType.UInt16:
-                    case DbColType.UInt32:
-                    case DbColType.UInt64: defType = string.Format("INTEGER"); break;
-                    case DbColType.Single:
-                    case DbColType.Double: defType = string.Format("REAL"); break;
-                    case DbColType.Decimal: defType = string.Format("DECIMAL({0},{1})", colAttr.Len, colAttr.Digit); break;
-                    case DbColType.DateTime: defType = string.Format("DATETIME"); break;
-                    case DbColType.JsonString: defType = string.Format("TEXT"); break;
-                    case DbColType.Set:
-                    case DbColType.Blob: defType = string.Format("BLOB"); break;
-                    default: defType = string.Format("TEXT"); break;
-                }
-                var nullable = colAttr.IsReq ? "NOT" : "";
-                var keyable = colAttr.Key == DbIxType.PK ? " PRIMARY KEY" : (colAttr.Key == DbIxType.APK ? " PRIMARY KEY AUTOINCREMENT" : (colAttr.Default == null ? "" : $" DEFAULT '{colAttr.Default}'"));
-                colDefList.Add($"[{colAttr.Name}] {defType} {nullable} NULL{keyable}{{0}} -- {colAttr.Display}");
+                createBuilder.AppendFormat("{0},", GetDefinitionType(colAttr));
                 apSql.Add(prop.Name);
             }
-            var createBuilder = new StringBuilder($"CREATE TABLE IF NOT EXISTS [{eColAttr.Name}]( -- {eColAttr.Display}").AppendLine();
-            for (int i = 0; i < colDefList.Count; i++)
-            {
-                var spliter = ",";
-                if (i + 1 == colDefList.Count) { spliter = ""; }
-                createBuilder.AppendLine($"\t{string.Format(colDefList[i], spliter)}");
-            }
-            createBuilder.Append(");");
+            createBuilder.Remove(createBuilder.Length - 1, 1)
+                .Append(");");
+
             foreach (var item in uixList.Distinct())
             {
-                createBuilder.AppendLine().AppendFormat("CREATE UNIQUE INDEX IF NOT EXISTS [IX_{0}_{1}] ON [{0}]([{2}]);", eColAttr.Name, item.Replace("|", "_"), item.Replace("|", "],["));
+                createBuilder.AppendLine().AppendFormat("CREATE UNIQUE INDEX [IX_{0}_{1}] ON [{0}]([{2}]);", eColAttr.Name, item.Replace("|", "_"), item.Replace("|", "],["));
             }
 
             var commaPSql = string.Join("],[", pSql);
@@ -245,23 +232,57 @@ namespace System.Data.Dabber
 
             return result;
         }
-        #endregion
         /// <summary>
-        /// 创建连接字符串
+        /// 获取数据库类型定义
         /// </summary>
-        /// <param name="fileInfo"></param>
-        /// <param name="password"></param>
         /// <returns></returns>
-        public static string BuilderConnString(FileInfo fileInfo, string password = null)
+        public static string GetDefinitionType(DbColAttribute dbCol)
         {
-            if (string.IsNullOrWhiteSpace(password))
+            var defType = GetDbType(dbCol);
+            return new StringBuilder()
+                .AppendFormat("[{0}] ", dbCol.Name)
+                .Append(defType)
+                .Append(dbCol.Key == DbIxType.PK ? " PRIMARY KEY" : "")
+                .Append(dbCol.Key == DbIxType.APK ? " PRIMARY KEY AUTOINCREMENT" : "")
+                .Append(dbCol.IsReq ? " NOT NULL" : " NULL")
+                .Append(dbCol.Default == null ? "" : string.Format(" DEFAULT '{0}'", dbCol.Default)).ToString();
+            //.AppendFormat(" COMMENT '{0}'", dbCol.Display.GetMySqlComment());
+        }
+        /// <summary>
+        /// 获取数据库类型
+        /// </summary>
+        /// <param name="dbCol"></param>
+        /// <returns></returns>
+        public static string GetDbType(DbColAttribute dbCol)
+        {
+            switch (dbCol.Type)
             {
-                return string.Format("Data Source={0};", fileInfo.FullName);
-            }
-            else
-            {
-                return string.Format("Data Source={0};Password={1};", fileInfo.FullName, password);
+                case DbColType.String:
+                case DbColType.StringMax:
+                case DbColType.StringMedium:
+                case DbColType.StringNormal: return string.Format("TEXT");
+                case DbColType.Boolean:
+                case DbColType.Byte:
+                case DbColType.Char:
+                case DbColType.Int16:
+                case DbColType.Int32:
+                case DbColType.Int64:
+                case DbColType.UByte:
+                case DbColType.UInt16:
+                case DbColType.UInt32:
+                case DbColType.UInt64: return string.Format("INTEGER");
+                case DbColType.Single:
+                case DbColType.Double: return string.Format("REAL");
+                case DbColType.Decimal: return string.Format("DECIMAL({0},{1})", dbCol.Len, dbCol.Digit);
+                case DbColType.DateTime:
+                case DbColType.JsonString: return string.Format("TEXT");
+                case DbColType.Guid:
+                case DbColType.Blob: return string.Format("BLOB");
+                case DbColType.Enum:
+                case DbColType.Set:
+                default: throw new Exception("未确定解决方案");
             }
         }
+        #endregion
     }
 }

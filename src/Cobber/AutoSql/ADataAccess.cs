@@ -3,11 +3,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.Dabber;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace System.Data.Dabber
+namespace System.Data.Cobber
 {
     /// <summary>
     /// 抽象

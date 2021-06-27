@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace System.Data.Dabber.Cobber
+namespace System.Data.Cobber
 {
     /// <summary>
     /// 存储模型

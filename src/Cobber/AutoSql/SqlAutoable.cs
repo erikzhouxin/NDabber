@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace System.Data.Dabber
+namespace System.Data.Cobber
 {
     /// <summary>
     /// 自动SQL模板

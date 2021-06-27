@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data.Dabber;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Xml;
 
-namespace System.Data.Dabber
+namespace System.Data.Cobber
 {
     /// <summary>
     /// 哈希缓存模型(多线程)
