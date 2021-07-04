@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Data.Dabber.Cobber;
+using System.Data.Cobber;
 using System.Text;
 
 namespace System.Data.DabberUT

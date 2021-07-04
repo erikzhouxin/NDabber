@@ -13,7 +13,7 @@
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<Version>1.0.0.3</Version>
+		<Version>1.0.1</Version>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|net4'">
 		<DefineConstants>TRACE;DEBUG;NETFrame;NET40</DefineConstants>

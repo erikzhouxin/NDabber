@@ -133,6 +133,14 @@ namespace System.Data.Cobber
             return JsonConvert.DeserializeObject<T>(json, DefaultNewtonsoftSetting);
         }
         /// <summary>
+        /// 转换成对象
+        /// </summary>
+        /// <returns></returns>
+        public static object GetJsonObject(this string json, Type type)
+        {
+            return JsonConvert.DeserializeObject(json, type, DefaultNewtonsoftSetting);
+        }
+        /// <summary>
         /// 默认设置
         /// </summary>
         public static JsonSerializerSettings DefaultNewtonsoftSetting { get; } = new JsonSerializerSettings
@@ -645,7 +653,7 @@ namespace System.Data.Cobber
         /// <summary>
         /// 四舍五入
         /// </summary>
-        public static MidpointRounding DefaultMidPoint { get; set; } = MidpointRounding.AwayFromZero;
+        public static MidpointRounding DefaultMidPoint { get; set; } = MidpointRounding.ToEven;
         /// <summary>
         /// 获取数字
         /// </summary>

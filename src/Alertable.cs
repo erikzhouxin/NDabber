@@ -313,12 +313,23 @@ namespace System.Data.Dabber
         /// <param name="data"></param>
         /// <param name="msg"></param>
         /// <returns></returns>
-        public static AlertMsg<T> Get(T data, string msg) => new Tuple<T, string>(data, msg);
+        public static AlertMsg<T> Get(T data, string msg) => new AlertMsg<T>(data != null, msg) { Data = data };
         /// <summary>
         /// 隐式转换
         /// (Data为空?NotFound|数据已加载)
         /// </summary>
-        public static implicit operator AlertMsg<T>(T data) => new Tuple<T, string>(data, "NotFound");
+        public static implicit operator AlertMsg<T>(T data) => data == null ? new AlertMsg<T>(false, "NotFound") { Code = 404 } : new AlertMsg<T>(true, "数据已加载") { Data = data };
+#if NETFrame
+        /// <summary>
+        /// 隐式转换
+        /// (data.Item1为空?data.Item2|数据已加载)
+        /// </summary>
+        public static implicit operator AlertMsg<T>(Tuple<bool, string> res) => new AlertMsg<T>(res.Item1, res.Item2);
+        /// <summary>
+        /// 隐式转换
+        /// (data.Item1为空?data.Item2|数据已加载)
+        /// </summary>
+        public static implicit operator AlertMsg<T>(Tuple<bool, string, T> res) => new AlertMsg<T>(res.Item1, res.Item2) { Data = res.Item3 };
         /// <summary>
         /// 隐式转换
         /// (data.Item1为空?data.Item2|数据已加载)
@@ -334,16 +345,34 @@ namespace System.Data.Dabber
             }
             return new AlertMsg<T>(true, "数据已加载") { Data = res.Item1 };
         }
+#endif
+#if NETFx
         /// <summary>
         /// 隐式转换
         /// (data.Item1为空?data.Item2|数据已加载)
         /// </summary>
-        public static implicit operator AlertMsg<T>(Tuple<bool, string> res) => new AlertMsg<T>(res.Item1, res.Item2);
+        public static implicit operator AlertMsg<T>((bool IsSuccess, string Message) res) => new AlertMsg<T>(res.IsSuccess, res.Message);
         /// <summary>
         /// 隐式转换
         /// (data.Item1为空?data.Item2|数据已加载)
         /// </summary>
-        public static implicit operator AlertMsg<T>(Tuple<bool, string, T> res) => new AlertMsg<T>(res.Item1, res.Item2) { Data = res.Item3 };
+        public static implicit operator AlertMsg<T>((bool IsSuccess, string Message, T Data) res) => new AlertMsg<T>(res.IsSuccess, res.Message) { Data = res.Data };
+        /// <summary>
+        /// 隐式转换
+        /// (data.Item1为空?data.Item2|数据已加载)
+        /// </summary>
+        public static implicit operator AlertMsg<T>((T Data, string Message) res)
+        {
+            if (res.Data == null)
+            {
+                return new AlertMsg<T>(false, res.Message)
+                {
+                    Code = 404,
+                };
+            }
+            return new AlertMsg<T>(true, "数据已加载") { Data = res.Data };
+        }
+#endif
         /// <summary>
         /// 隐式转换
         /// </summary>
@@ -351,7 +380,7 @@ namespace System.Data.Dabber
         /// <summary>
         /// 隐式转换
         /// </summary>
-        public static implicit operator AlertMsg<T>(bool res) => new Tuple<bool, string>(res, res ? "成功" : "失败");
+        public static implicit operator AlertMsg<T>(bool res) => new AlertMsg<T>(res, res ? "成功" : "失败");
         /// <summary>
         /// 隐式转换
         /// </summary>
@@ -513,7 +542,12 @@ namespace System.Data.Dabber
         /// <summary>
         /// 获取泛型实例提示信息
         /// </summary>
-        public static AlertMsg<T> GetAlert<T>(this T data, string msg) => new Tuple<T, string>(data, msg);
+        public static AlertMsg<T> GetAlert<T>(this T data, string msg) => new AlertMsg<T>(data != null, msg) { Data = data };
+        /// <summary>
+        /// 获取动态实例提示信息
+        /// </summary>
+        public static AlertMessage GetAlertMessage<T>(this T data, string msg = null) => new AlertMessage(data != null, msg) { Data = data };
+#if NETFrame
         /// <summary>
         /// 获取动态接口提示信息
         /// </summary>
@@ -521,17 +555,70 @@ namespace System.Data.Dabber
         /// <summary>
         /// 获取动态实例提示信息
         /// </summary>
-        public static AlertMessage GetAlertMessage<T>(this T data) => new Tuple<object, string>((object)data, (string)null);
-        /// <summary>
-        /// 获取动态实例提示信息
-        /// </summary>
-        public static AlertMessage GetAlertMessage<T>(this T data, string msg) => new Tuple<object, string>((object)data, msg);
-        /// <summary>
-        /// 获取动态实例提示信息
-        /// </summary>
         public static AlertMessage GetAlertMessage(this Tuple<bool, string> res) => new AlertMessage(res.Item1, res.Item2);
+#endif
+#if NETFx
+        /// <summary>
+        /// 获取动态接口提示信息
+        /// </summary>
+        public static AlertMsg GetAlert(this (bool IsSuccess, String Message) res) => new AlertMsg(res.IsSuccess, res.Message);
+        /// <summary>
+        /// 获取动态实例提示信息
+        /// </summary>
+        public static AlertMessage GetAlertMessage(this (bool IsSuccess, String Message) res) => new AlertMessage(res.IsSuccess, res.Message);
+#endif
     }
     #region // 分页查询结果
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IPageResult<out T> : IPageResult
+    {
+        /// <summary>
+        /// 结果项
+        /// </summary>
+        new IEnumerable<T> Items { get; }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IPageResult
+    {
+        /// <summary>
+        /// 页面
+        /// </summary>
+        int Page { get; set; }
+        /// <summary>
+        /// 每页长度
+        /// </summary>
+        int Size { get; set; }
+        /// <summary>
+        /// 总数
+        /// </summary>
+        int TotalCount { get; set; }
+        /// <summary>
+        /// 总页数
+        /// </summary>
+        int TotalPage { get; }
+        /// <summary>
+        /// 查询条件
+        /// </summary>
+        string Search { get; set; }
+        /// <summary>
+        /// 结果项
+        /// </summary>
+        IEnumerable<object> Items { get;}
+        /// <summary>
+        /// 跳过
+        /// </summary>
+        int Skip { get; }
+        /// <summary>
+        /// 获取
+        /// </summary>
+        int Take { get; }
+
+    }
     /// <summary>
     /// 查询结果
     /// </summary>
@@ -563,7 +650,7 @@ namespace System.Data.Dabber
     /// <summary>
     /// 查询结果类
     /// </summary>
-    public class PagingResult<T>
+    public class PagingResult<T> : IPageResult<T>
     {
         /// <summary>
         /// 构造
@@ -610,6 +697,8 @@ namespace System.Data.Dabber
         /// 获取
         /// </summary>
         public int Take { get { return Size; } }
+
+        IEnumerable<object> IPageResult.Items => Items as IEnumerable<object>;
 
         /// <summary>
         /// 进一除法
