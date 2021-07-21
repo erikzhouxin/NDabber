@@ -276,12 +276,20 @@ namespace System.Data.Cobber
             //return string.Format("Provider=Microsoft.Jet.OLEDB.4.0;Data Source={0}", fileInfo.FullName);
             if (string.IsNullOrWhiteSpace(password))
             {
-                return string.Format("Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};", fileInfo.FullName);
+                return string.Format("Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Persist Security Info=False;", fileInfo.FullName);
             }
             else
             {
                 return string.Format("Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Jet OLEDB:Database Password={1};Persist Security Info=False;", fileInfo.FullName, password);
             }
+        }
+        /// <summary>
+        /// 创建连接字符串
+        /// </summary>
+        /// <returns></returns>
+        public static string BuilderConnString(Dictionary<string, string> dic)
+        {
+            return string.Join(";", dic.Select(s => s.Key + "=" + s.Value));
         }
     }
 }
