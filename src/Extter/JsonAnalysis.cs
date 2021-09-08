@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -106,7 +108,7 @@ namespace System.Data.Extter
 
         private static dynamic ConvertArray(JSpanString span)
         {
-            var jsonArray = new JArray();
+            var jsonArray = new List<dynamic>();
             do
             {
                 span.ReadSkipBlank();
@@ -313,7 +315,7 @@ namespace System.Data.Extter
             /// 读取数字类型
             /// </summary>
             /// <returns></returns>
-            public JNumber ReadNumber()
+            public dynamic ReadNumber()
             {
                 var i = RIndex;
                 while (i < Array.Length && (char.IsNumber(Array[i]) || Array[i] == '.'))
@@ -864,6 +866,411 @@ namespace System.Data.Extter
             {
                 return $"\"{Value}\"";
             }
+        }
+        #endregion
+    }
+    /// <summary>
+    /// 序列化
+    /// </summary>
+    public static class JsonSerials
+    {
+        /// <summary>
+        /// Serialize object to json string.
+        /// </summary>
+        /// <param name="obj">Instance of the type T.</param>
+        /// <returns>json string.</returns>
+        public static string Serialize(object obj)
+        {
+            if (obj == null)
+            {
+                return "{}";
+            }
+
+            // Get the type of obj.
+            Type t = obj.GetType();
+            PropertyInfo[] pis = t.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+            StringBuilder json = new StringBuilder("{");
+            if (pis != null && pis.Length > 0)
+            {
+                int i = 0;
+                int lastIndex = pis.Length - 1;
+                foreach (PropertyInfo p in pis)
+                {
+                    var propObj = p.GetValue(obj, null);
+
+                    switch(propObj)
+                    {
+                        case string propString:
+                            json.AppendFormat("\"{0}\":\"{1}\"", p.Name, propString.Replace("\"", "\\\""));
+                            break;
+                        case null:
+                            json.AppendFormat("\"{0}\":null", p.Name);
+                            break;
+                        default:
+                            break;
+                    }
+                    ++i;
+                }
+            }
+            json.Append("}");
+            return json.ToString();
+        }
+        /// <summary>
+        /// 序列化
+        /// </summary>
+        /// <returns></returns>
+        public static String Serialize<T>(this T model)
+        {
+            if (model == null) { return "{}"; };
+            var pis = Jsonm<T>.Properties;
+            StringBuilder json = new StringBuilder("{");
+            if (pis.Length > 0)
+            {
+                int i = 0;
+                int lastIndex = pis.Length - 1;
+                foreach (PropertyInfo p in pis)
+                {
+                    var propObj = p.GetValue(model, null);
+                    switch (propObj)
+                    {
+                        case string stringVal:
+                            json.AppendFormat("\"{0}\":\"{1}\"", p.Name, stringVal.Replace("\"", "\\\""));
+                            continue;
+                        case long:
+                        case ulong:
+                        case int:
+                        case uint:
+                        case bool:
+                        case byte:
+                        case sbyte:
+                        case short:
+                        case ushort:
+                        case double:
+                        case float:
+                        case decimal:
+                            json.AppendFormat("\"{0}\":{1}", p.Name, propObj);
+                            continue;
+                        case DateTime:
+                            json.AppendFormat("\"{0}\":{1:yyyy-MM-dd HH:mm:ss}", p.Name, propObj);
+                            continue;
+                        case TimeSpan:
+                            json.AppendFormat("\"{0}\":{1}", p.Name, propObj);
+                            continue;
+                        case null:
+                            json.AppendFormat("\"{0}\":null", p.Name);
+                            continue;
+                        default:
+                            break;
+                    }
+                    // Array.
+                    if (IsArrayType(p.PropertyType))
+                    {
+                        // Array case.
+                        object o = p.GetValue(model, null);
+
+                        if (o == null)
+                        {
+                            json.AppendFormat("\"{0}\":{1}", p.Name, "null");
+                        }
+                        else
+                        {
+                            json.AppendFormat("\"{0}\":{1}", p.Name, GetArrayValue((Array)p.GetValue(model, null)));
+                        }
+                    }
+                    // Class type. custom class, list collections and so forth.
+                    else if (IsCustomClassType(p.PropertyType))
+                    {
+                        object v = p.GetValue(model, null);
+                        if (v is IList)
+                        {
+                            IList il = v as IList;
+                            string subJsString = GetIListValue(il);
+
+                            json.AppendFormat("\"{0}\":{1}", p.Name, subJsString);
+                        }
+                        else
+                        {
+                            // Normal class type.
+                            string subJsString = Serialize(p.GetValue(model, null));
+
+                            json.AppendFormat("\"{0}\":{1}", p.Name, subJsString);
+                        }
+                    }
+                    // Datetime
+                    else if (p.PropertyType.Equals(typeof(DateTime)))
+                    {
+                        DateTime dt = (DateTime)p.GetValue(model, null);
+
+                        if (dt == default(DateTime))
+                        {
+                            json.AppendFormat("\"{0}\":\"\"", p.Name);
+                        }
+                        else
+                        {
+                            json.AppendFormat("\"{0}\":\"{1}\"", p.Name, ((DateTime)p.GetValue(model, null)).ToString("yyyy-MM-dd HH:mm:ss"));
+                        }
+                    }
+                    else
+                    {
+                        // TODO: extend.
+                    }
+
+                    if (i >= 0 && i != lastIndex)
+                    {
+                        json.Append(",");
+                    }
+                    ++i;
+                }
+            }
+            json.Append("}");
+            return json.ToString();
+        }
+
+        /// <summary>
+        /// Deserialize json string to object.
+        /// </summary>
+        /// <typeparam name="T">The type to be deserialized.</typeparam>
+        /// <param name="jsonString">json string.</param>
+        /// <returns>instance of type T.</returns>
+        public static T Deserialize<T>(string jsonString)
+        {
+            throw new NotImplementedException("Not implemented :(");
+        }
+
+        /// <summary>
+        /// Get array json format string value.
+        /// </summary>
+        /// <param name="obj">array object</param>
+        /// <returns>js format array string.</returns>
+        static string GetArrayValue(Array obj)
+        {
+            if (obj != null)
+            {
+                if (obj.Length == 0)
+                {
+                    return "[]";
+                }
+
+                object firstElement = obj.GetValue(0);
+                Type et = firstElement.GetType();
+                bool quotable = et == typeof(string);
+
+                StringBuilder sb = new StringBuilder("[");
+                int index = 0;
+                int lastIndex = obj.Length - 1;
+
+                if (quotable)
+                {
+                    foreach (var item in obj)
+                    {
+                        sb.AppendFormat("\"{0}\"", item.ToString());
+
+                        if (index >= 0 && index != lastIndex)
+                        {
+                            sb.Append(",");
+                        }
+
+                        ++index;
+                    }
+                }
+                else
+                {
+                    foreach (var item in obj)
+                    {
+                        sb.Append(item.ToString());
+
+                        if (index >= 0 && index != lastIndex)
+                        {
+                            sb.Append(",");
+                        }
+
+                        ++index;
+                    }
+                }
+
+                sb.Append("]");
+
+                return sb.ToString();
+            }
+
+            return "null";
+        }
+
+        /// <summary>
+        /// Get Ilist json format string value.
+        /// </summary>
+        /// <param name="obj">IList object</param>
+        /// <returns>js format IList string.</returns>
+        static string GetIListValue(IList obj)
+        {
+            if (obj != null)
+            {
+                if (obj.Count == 0)
+                {
+                    return "[]";
+                }
+
+                object firstElement = obj[0];
+                Type et = firstElement.GetType();
+                bool quotable = et == typeof(string);
+
+                StringBuilder sb = new StringBuilder("[");
+                int index = 0;
+                int lastIndex = obj.Count - 1;
+
+                if (quotable)
+                {
+                    foreach (var item in obj)
+                    {
+                        sb.AppendFormat("\"{0}\"", item.ToString());
+
+                        if (index >= 0 && index != lastIndex)
+                        {
+                            sb.Append(",");
+                        }
+
+                        ++index;
+                    }
+                }
+                else
+                {
+                    foreach (var item in obj)
+                    {
+                        sb.Append(item.ToString());
+
+                        if (index >= 0 && index != lastIndex)
+                        {
+                            sb.Append(",");
+                        }
+
+                        ++index;
+                    }
+                }
+
+                sb.Append("]");
+
+                return sb.ToString();
+            }
+
+            return "null";
+        }
+
+        /// <summary>
+        /// Check whether t is array type.
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        static bool IsArrayType(Type t)
+        {
+            if (t != null)
+            {
+                return t.IsArray;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Check whether t is custom class type.
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        static bool IsCustomClassType(Type t)
+        {
+            if (t != null)
+            {
+                return t.IsClass && t != typeof(string);
+            }
+
+            return false;
+        }
+    }
+    /// <summary>
+    /// 序列化的Json泛型类
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class Jsonm<T>
+    {
+        /// <summary>
+        /// 属性内容
+        /// </summary>
+        public static PropertyInfo[] Properties { get; }
+        /// <summary>
+        /// 类型
+        /// </summary>
+        public static Type Type { get; } = typeof(T);
+        /// <summary>
+        /// 获取值(instance,memberName,return)
+        /// </summary>
+        public static Func<T, string, object> GetValue;
+        /// <summary>
+        /// 设置值(instance,memberName,newValue)
+        /// </summary>
+        public static Action<T, string, object> SetValue;
+        static Jsonm()
+        {
+            GetValue = GenerateGetValue();
+            SetValue = GenerateSetValue();
+            Properties = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public);
+        }
+        #region // 辅助方法
+        private static Func<T, string, object> GenerateGetValue()
+        {
+            var type = typeof(T);
+            var instance = Expression.Parameter(type, "instance");
+            var memberName = Expression.Parameter(typeof(string), "memberName");
+            var nameHash = Expression.Variable(typeof(int), "nameHash");
+            var calHash = Expression.Assign(nameHash, Expression.Call(memberName, typeof(object).GetMethod("GetHashCode")));
+            var cases = new List<SwitchCase>();
+            foreach (var propertyInfo in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            {
+                var property = Expression.Property(Expression.Convert(instance, type), propertyInfo.Name);
+                var propertyHash = Expression.Constant(propertyInfo.Name.GetHashCode(), typeof(int));
+
+                cases.Add(Expression.SwitchCase(Expression.Convert(property, typeof(object)), propertyHash));
+            }
+            foreach (var propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Static))
+            {
+                var property = Expression.Property(null, type, propertyInfo.Name);
+                var propertyHash = Expression.Constant(propertyInfo.Name.GetHashCode(), typeof(int));
+                cases.Add(Expression.SwitchCase(Expression.Convert(property, typeof(object)), propertyHash));
+            }
+            var switchEx = Expression.Switch(nameHash, Expression.Constant(null), cases.ToArray());
+            var methodBody = Expression.Block(typeof(object), new[] { nameHash }, calHash, switchEx);
+
+            return Expression.Lambda<Func<T, string, object>>(methodBody, instance, memberName).Compile();
+        }
+        private static Action<T, string, object> GenerateSetValue()
+        {
+            var type = typeof(T);
+            var instance = Expression.Parameter(type, "instance");
+            var memberName = Expression.Parameter(typeof(string), "memberName");
+            var newValue = Expression.Parameter(typeof(object), "newValue");
+            var nameHash = Expression.Variable(typeof(int), "nameHash");
+            var calHash = Expression.Assign(nameHash, Expression.Call(memberName, typeof(object).GetMethod("GetHashCode")));
+            var cases = new List<SwitchCase>();
+            foreach (var propertyInfo in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            {
+                if (!propertyInfo.CanWrite) { continue; }
+                var property = Expression.Property(Expression.Convert(instance, type), propertyInfo.Name);
+                var setValue = Expression.Assign(property, Expression.Convert(newValue, propertyInfo.PropertyType));
+                var propertyHash = Expression.Constant(propertyInfo.Name.GetHashCode(), typeof(int));
+
+                cases.Add(Expression.SwitchCase(Expression.Convert(setValue, typeof(object)), propertyHash));
+            }
+            foreach (var propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Static))
+            {
+                if (!propertyInfo.CanWrite) { continue; }
+                var property = Expression.Property(null, propertyInfo);
+                var setValue = Expression.Assign(property, Expression.Convert(newValue, propertyInfo.PropertyType));
+                var propertyHash = Expression.Constant(propertyInfo.Name.GetHashCode(), typeof(int));
+
+                cases.Add(Expression.SwitchCase(Expression.Convert(setValue, typeof(object)), propertyHash));
+            }
+            var switchEx = Expression.Switch(nameHash, Expression.Constant(null), cases.ToArray());
+            var methodBody = Expression.Block(typeof(object), new[] { nameHash }, calHash, switchEx);
+
+            return Expression.Lambda<Action<T, string, object>>(methodBody, instance, memberName, newValue).Compile();
         }
         #endregion
     }

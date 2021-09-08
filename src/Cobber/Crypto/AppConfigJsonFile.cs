@@ -10,7 +10,7 @@ using System.Text;
 namespace System.Data.Cobber
 {
     /// <summary>
-    /// 应用加密配置
+    /// 应用文件配置
     /// </summary>
     public abstract class AppConfigJsonFile
     {

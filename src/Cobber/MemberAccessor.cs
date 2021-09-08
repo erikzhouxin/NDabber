@@ -29,6 +29,16 @@ namespace System.Data.Cobber
         /// <param name="memberName">成员名称</param>
         /// <param name="newValue">成员值</param>
         void SetValue<T>(T instance, string memberName, object newValue);
+
+        /// <summary>
+        /// 比较
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="target"></param>
+        /// <param name="ignores"></param>
+        /// <returns></returns>
+        bool Compare<T>(T source, T target, params string[] ignores);
     }
     /// <summary>
     /// 反射对象成员访问
@@ -64,6 +74,30 @@ namespace System.Data.Cobber
             {
                 propertyInfo.SetValue(instance, newValue, null);
             }
+        }
+        /// <summary>
+        /// 比较
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="target"></param>
+        /// <param name="ignores"></param>
+        /// <returns></returns>
+        public bool Compare<T>(T source, T target, params string[] ignores)
+        {
+            var property = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            foreach (var item in property)
+            {
+                if (ignores.Any(s => item.Name.Equals(s, StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+                if (item.GetValue(source, null) != item.GetValue(target, null))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
     /// <summary>
@@ -125,7 +159,32 @@ namespace System.Data.Cobber
 
             return getValueDelegate;
         }
-
+        /// <summary>
+        /// 比较
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="target"></param>
+        /// <param name="ignores"></param>
+        /// <returns></returns>
+        public bool Compare<T>(T source, T target, params string[] ignores)
+        {
+            var type = typeof(T);
+            var property = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            foreach (var item in property)
+            {
+                if (ignores.Any(s => item.Name.Equals(s, StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+                var func = GetValue(type, item.Name);
+                if (func(source) != func(target))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
         /// <summary>
         /// 设置对象的成员属性值
         /// </summary>
@@ -196,7 +255,8 @@ namespace System.Data.Cobber
         /// <returns>成员值</returns>
         public object GetValue<T>(T instance, string memberName)
         {
-            return FindAccessor(instance, memberName).GetValue(instance);
+            var type = instance == null ? typeof(T) : instance.GetType();
+            return FindAccessor(type, memberName).GetValue(instance);
         }
         /// <summary>
         /// 设置对象的成员属性值
@@ -207,12 +267,12 @@ namespace System.Data.Cobber
         /// <param name="newValue">成员值</param>
         public void SetValue<T>(T instance, string memberName, object newValue)
         {
-            FindAccessor(instance, memberName).SetValue(instance, newValue);
+            var type = instance == null ? typeof(T) : instance.GetType();
+            FindAccessor(type, memberName).SetValue(instance, newValue);
         }
 
-        private INamedMemberAccessor FindAccessor<T>(T instance, string memberName)
+        private INamedMemberAccessor FindAccessor(Type type, string memberName)
         {
-            var type = instance == null ? typeof(T) : instance.GetType();
             var key = type.FullName + memberName;
             INamedMemberAccessor accessor;
             AccessorCache.TryGetValue(key, out accessor);
@@ -223,6 +283,32 @@ namespace System.Data.Cobber
                 AccessorCache.Add(key, accessor);
             }
             return accessor;
+        }
+        /// <summary>
+        /// 比较
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="target"></param>
+        /// <param name="ignores"></param>
+        /// <returns></returns>
+        public bool Compare<T>(T source, T target, params string[] ignores)
+        {
+            var type = typeof(T);
+            var property = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            foreach (var item in property)
+            {
+                if (ignores.Any(s => item.Name.Equals(s, StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+                var func = FindAccessor(type, item.Name);
+                if (func.GetValue(source) != func.GetValue(target))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
         internal interface INamedMemberAccessor
         {
@@ -286,6 +372,32 @@ namespace System.Data.Cobber
         public void SetValue<T>(T instance, string memberName, object newValue)
         {
             MemberExpressionAccessor<T>.SetValue(instance, memberName, newValue);
+        }
+        /// <summary>
+        /// 比较
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="target"></param>
+        /// <param name="ignores"></param>
+        /// <returns></returns>
+        public bool Compare<T>(T source, T target, params string[] ignores)
+        {
+            var type = typeof(T);
+            var property = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            Func<T,string, object> Get = MemberExpressionAccessor<T>.GetValue;
+            foreach (var item in property)
+            {
+                if (ignores.Any(s => item.Name.Equals(s, StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+                if (Get(source, item.Name) != Get(source, item.Name))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
     /// <summary>

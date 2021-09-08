@@ -10,7 +10,7 @@ namespace System.Data.Cobber
     /// <summary>
     /// 静态调用扩展类
     /// </summary>
-    public static class CobberCaller
+    public static partial class CobberCaller
     {
         /// <summary>
         /// 获取数据表

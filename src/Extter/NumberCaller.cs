@@ -3,6 +3,223 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+namespace System.Data.Cobber
+{
+    /// <summary>
+    /// 数字调用
+    /// </summary>
+    public static partial class CobberCaller
+    {
+        /// <summary>
+        /// 四舍五入
+        /// </summary>
+        public static MidpointRounding DefaultMidPoint { get; set; } = MidpointRounding.ToEven;
+        /// <summary>
+        /// 获取数字
+        /// </summary>
+        /// <returns></returns>
+        public static double GetDouble(this double value, int digit = 2)
+        {
+            return Math.Round(value, digit, DefaultMidPoint);
+        }
+        /// <summary>
+        /// 获取数字
+        /// </summary>
+        /// <returns></returns>
+        public static double GetDouble(this decimal value, int digit = 2)
+        {
+            return (double)Math.Round(value, digit, DefaultMidPoint);
+        }
+        /// <summary>
+        /// 获取数字
+        /// </summary>
+        /// <returns></returns>
+        public static decimal GetDecimal(this decimal value, int digit = 2)
+        {
+            return Math.Round(value, digit, DefaultMidPoint);
+        }
+        /// <summary>
+        /// 获取数字
+        /// </summary>
+        /// <returns></returns>
+        public static decimal GetDecimal(this double value, int digit = 2)
+        {
+            return Math.Round((decimal)value, digit, DefaultMidPoint);
+        }
+        /// <summary>
+        /// 获取数字
+        /// </summary>
+        /// <returns></returns>
+        public static double GetDouble(this float value, int digit = 2)
+        {
+            return Math.Round(value, digit, DefaultMidPoint);
+        }
+        /// <summary>
+        /// 获取数字
+        /// </summary>
+        /// <returns></returns>
+        public static decimal GetDecimal(this float value, int digit = 2)
+        {
+            return Math.Round((decimal)value, digit, DefaultMidPoint);
+        }
+        /// <summary>
+        /// 逻辑且一个值
+        /// </summary>
+        /// <param name="firstVal"></param>
+        /// <param name="second"></param>
+        /// <returns></returns>
+        public static int AndValue(this int firstVal, int second)
+        {
+            return firstVal & second;
+        }
+        /// <summary>
+        /// 逻辑且一个值
+        /// </summary>
+        /// <param name="firstVal"></param>
+        /// <param name="second"></param>
+        /// <returns></returns>
+        public static bool IsAndValue(this int firstVal, int second)
+        {
+            return (firstVal & second) > 0;
+        }
+        /// <summary>
+        /// 逻辑或一个值
+        /// </summary>
+        /// <param name="firstVal"></param>
+        /// <param name="second"></param>
+        /// <returns></returns>
+        public static bool IsOrValue(this int firstVal, int second)
+        {
+            return (firstVal | second) > 0;
+        }
+        /// <summary>
+        /// 逻辑或一个值
+        /// </summary>
+        /// <param name="firstVal"></param>
+        /// <param name="second"></param>
+        /// <returns></returns>
+        public static int OrValue(this int firstVal, int second)
+        {
+            return firstVal | second;
+        }
+        /// <summary>
+        /// 尝试转换成整型
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool TryToInt32(this string key, out int value)
+        {
+            return int.TryParse(key, out value);
+        }
+        /// <summary>
+        /// 尝试转换成浮点型
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool TryToDouble(this string key, out double value)
+        {
+            return double.TryParse(key, out value);
+        }
+        /// <summary>
+        /// 尝试转换成浮点型
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool TryToDecimal(this string key, out decimal value)
+        {
+            return decimal.TryParse(key, out value);
+        }
+        /// <summary>
+        /// 转换成整型
+        /// </summary>
+        /// <returns></returns>
+        public static int ToCInt32(this string value, int defVal = 0)
+        {
+            return string.IsNullOrEmpty(value) ? defVal : Convert.ToInt32(value);
+        }
+        /// <summary>
+        /// 转换成整型
+        /// </summary>
+        /// <returns></returns>
+        public static int ToPInt32(this string value, int defVal = 0)
+        {
+            if (int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return defVal;
+        }
+        /// <summary>
+        /// 转换成浮点型
+        /// </summary>
+        /// <returns></returns>
+        public static double ToCDouble(this string value, double defVal = 0)
+        {
+            return string.IsNullOrEmpty(value) ? defVal : Convert.ToDouble(value);
+        }
+        /// <summary>
+        /// 转换成浮点型
+        /// </summary>
+        /// <returns></returns>
+        public static double ToPDouble(this string value, double defVal = 0)
+        {
+            if (double.TryParse(value, out double result))
+            {
+                return result;
+            }
+            return defVal;
+        }
+        /// <summary>
+        /// 转换成浮点型
+        /// </summary>
+        /// <returns></returns>
+        public static double? ToNullableDouble(this string value, double? defVal = null)
+        {
+            if (double.TryParse(value, out double result))
+            {
+                return result;
+            }
+            return defVal;
+        }
+        /// <summary>
+        /// 转换成浮点型
+        /// </summary>
+        /// <returns></returns>
+        public static decimal ToCDecimal(this string value, decimal defVal = 0)
+        {
+            return string.IsNullOrEmpty(value) ? defVal : Convert.ToDecimal(value);
+        }
+        /// <summary>
+        /// 转换成浮点型
+        /// </summary>
+        /// <returns></returns>
+        public static decimal? ToNullableDecimal(this string value, decimal? defVal = null)
+        {
+            if (string.IsNullOrEmpty(value)) { return defVal; }
+            if (decimal.TryParse(value, out decimal result))
+            {
+                return result;
+            }
+            return defVal;
+        }
+        /// <summary>
+        /// 转换成浮点型
+        /// </summary>
+        /// <returns></returns>
+        public static decimal ToPDecimal(this string value, decimal defVal = 0)
+        {
+            if (decimal.TryParse(value, out decimal result))
+            {
+                return result;
+            }
+            return defVal;
+        }
+    }
+}
+
 namespace System.Data.Extter
 {
     /// <summary>

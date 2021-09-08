@@ -170,4 +170,58 @@ namespace System.Data.Cobber
         /// </summary>
         public bool IsThreadSafe => _lazy.IsThreadSafe;
     }
+    /// <summary>
+    /// 懒加载调用
+    /// </summary>
+    public static partial class CobberCaller
+    {
+        /// <summary>
+        /// 获取一个Lazy模型
+        /// </summary>
+        /// <returns></returns>
+        public static Lazy<T> GetLazy<T>(this T model, bool isThreadSafe = true)
+        {
+            return new Lazy<T>(() => model, isThreadSafe);
+        }
+        /// <summary>
+        /// 获取一个Lazy模型
+        /// </summary>
+        /// <returns></returns>
+        public static Lazy<T> GetLazy<T>(this T model, Func<T> GetValue, bool isThreadSafe = true)
+        {
+            return model == null ? new Lazy<T>(GetValue, isThreadSafe) : new Lazy<T>(() => model, isThreadSafe);
+        }
+        /// <summary>
+        /// 获取一个Lazy模型
+        /// </summary>
+        /// <returns></returns>
+        public static Lazy<T> GetLazy<T>(this Func<T> GetValue, bool isThreadSafe = true)
+        {
+            return new Lazy<T>(GetValue, isThreadSafe);
+        }
+        /// <summary>
+        /// 获取一个Lazy模型
+        /// </summary>
+        /// <returns></returns>
+        public static LazyBone<T> GetLazyBone<T>(this T model, bool isThreadSafe = true)
+        {
+            return new LazyBone<T>(() => model, isThreadSafe);
+        }
+        /// <summary>
+        /// 获取一个Lazy模型
+        /// </summary>
+        /// <returns></returns>
+        public static LazyBone<T> GetLazyBone<T>(this T model, Func<T> GetValue, bool isThreadSafe = true)
+        {
+            return model == null ? new LazyBone<T>(GetValue, isThreadSafe) : new LazyBone<T>(() => model, isThreadSafe);
+        }
+        /// <summary>
+        /// 获取一个Lazy模型
+        /// </summary>
+        /// <returns></returns>
+        public static LazyBone<T> GetLazyBone<T>(this Func<T> GetValue, bool isThreadSafe = true)
+        {
+            return new LazyBone<T>(GetValue, isThreadSafe);
+        }
+    }
 }
