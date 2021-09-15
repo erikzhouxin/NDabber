@@ -13,6 +13,24 @@ using System.Xml;
 namespace System.Data.Cobber
 {
     /// <summary>
+    /// 缓存模型
+    /// </summary>
+    public static class CacheModel
+    {
+        /// <summary>
+        /// Concurrent字典(线程安全)
+        /// </summary>
+        public static ICacheModel Concurrent { get; } = new CacheConcurrentModel();
+        /// <summary>
+        /// HashTable字典(线程安全)
+        /// </summary>
+        public static ICacheModel HashTable { get; } = new CacheHashTableModel();
+        /// <summary>
+        /// Dictionary字典(非线程安全)
+        /// </summary>
+        public static ICacheModel Dictionary { get; } = new CacheDictionaryModel();
+    }
+    /// <summary>
     /// 哈希缓存模型(多线程)
     /// </summary>
     public sealed class CacheHashTableModel : ACacheHashTable { }
