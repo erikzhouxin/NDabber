@@ -100,7 +100,5 @@ namespace System.Data.Dabber
             return type.GetMethod(name, BindingFlags.Instance | BindingFlags.Public, null, types, null);
 #endif
         }
-
-
     }
 }

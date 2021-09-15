@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>net4;net45;netstandard2.1;netcoreapp2.1;netcoreapp3.1;net5.0;</TargetFrameworks>
-		<Description>数据库ORM.Useful Database ORM Process Utilities.</Description>
+		<Description>兼容低版本.NET数据库ORM的Dapper为Dabber，常用帮助Cobber，扩展Extter，日志Logger等工具库内容</Description>
 		<AssemblyName>NSystem.Data.Dabber</AssemblyName>
 		<RootNamespace>System.Data</RootNamespace>
 		<AssemblyTitle>NSystem.Data.Dabber</AssemblyTitle>
@@ -12,73 +12,53 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<Version>2021.9.15</Version>
 		<FileVersion>2021.9.15.823</FileVersion>
 		<AssemblyVersion>2021.9.15.823</AssemblyVersion>
 		<EmbedAllSources>true</EmbedAllSources>
 		<RepositoryUrl>https://gitee.com/erikzhouxin/ndabber.git</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageTags>dapper;dabber;autosql;utilities;orm;sqlite;mysql;sqlserver;oracle;</PackageTags>
+		<PackageDescription>兼容低版本.NET数据库ORM的Dapper为Dabber，常用帮助Cobber，扩展Extter，日志Logger等工具库内容</PackageDescription>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|net4'">
 		<DefineConstants>TRACE;DEBUG;NETFrame;NET40</DefineConstants>
-		<DocumentationFile>bin\System.Data.NDabberNet40.xml</DocumentationFile>
-		<OutputPath>bin</OutputPath>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|net45'">
 		<DefineConstants>TRACE;DEBUG;NETFrame;NET45</DefineConstants>
-		<DocumentationFile>bin\System.Data.NDabberNet45.xml</DocumentationFile>
-		<OutputPath>bin</OutputPath>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|netstandard2.1'">
 		<DefineConstants>TRACE;DEBUG;NETFx;NETStd</DefineConstants>
-		<DocumentationFile>bin\System.Data.NDabberNetStd.xml</DocumentationFile>
-		<OutputPath>bin</OutputPath>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|netcoreapp2.1'">
 		<DefineConstants>TRACE;DEBUG;NETFx;NETCore</DefineConstants>
 		<DocumentationFile>bin\System.Data.NDabberNetCore2.xml</DocumentationFile>
-		<OutputPath>bin</OutputPath>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|netcoreapp3.1'">
 		<DefineConstants>TRACE;DEBUG;NETFx;NETCore</DefineConstants>
-		<DocumentationFile>bin\System.Data.NDabberNetCore.xml</DocumentationFile>
-		<OutputPath>bin</OutputPath>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|net5.0'">
 		<DefineConstants>TRACE;DEBUG;NETFx;NET50</DefineConstants>
-		<DocumentationFile>bin\System.Data.NDabber.xml</DocumentationFile>
-		<OutputPath>bin</OutputPath>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net4'">
 		<DefineConstants>TRACE;NETFrame;NET40</DefineConstants>
-		<DocumentationFile>bin\System.Data.NDabberNet40.xml</DocumentationFile>
-		<OutputPath>bin</OutputPath>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net45'">
 		<DefineConstants>TRACE;NETFrame;NET45</DefineConstants>
-		<DocumentationFile>bin\System.Data.NDabberNet45.xml</DocumentationFile>
-		<OutputPath>bin</OutputPath>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|netstandard2.1'">
 		<DefineConstants>TRACE;NETFx;NETStd</DefineConstants>
-		<DocumentationFile>bin\System.Data.NDabberNetStandard.xml</DocumentationFile>
-		<OutputPath>bin</OutputPath>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|netcoreapp2.1'">
 		<DefineConstants>TRACE;NETFx;NETCore</DefineConstants>
-		<DocumentationFile>bin\System.Data.NDabberNetCore2.xml</DocumentationFile>
-		<OutputPath>bin</OutputPath>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|netcoreapp3.1'">
 		<DefineConstants>TRACE;NETFx;NETCore</DefineConstants>
-		<DocumentationFile>bin\System.Data.NDabberNetCore.xml</DocumentationFile>
-		<OutputPath>bin</OutputPath>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net5.0'">
 		<DefineConstants>TRACE;NETFx;NET50</DefineConstants>
-		<DocumentationFile>bin\System.Data.NDabber.xml</DocumentationFile>
-		<OutputPath>bin</OutputPath>
 	</PropertyGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net4'">
 		<COMReference Include="IWshRuntimeLibrary">
@@ -90,12 +70,11 @@
 			<Isolated>false</Isolated>
 			<EmbedInteropTypes>true</EmbedInteropTypes>
 		</COMReference>
-		<!--<PackageReference Include="Microsoft.Bcl" Version="1.1.10" />
-		<PackageReference Include="Microsoft.Bcl.Async" Version="1.0.168" />-->
+		<PackageReference Include="Microsoft.Bcl" Version="1.1.10" />
+		<PackageReference Include="Microsoft.Bcl.Async" Version="1.0.168" />
 		<Reference Include="Microsoft.CSharp" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<Reference Include="System.ComponentModel.DataAnnotations" />
-		<!--<Reference Include="System.Runtime" />-->
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net45'">
 		<COMReference Include="IWshRuntimeLibrary">
@@ -110,7 +89,6 @@
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-		<!--<PackageReference Include="System.Runtime" Version="4.3.1" />-->
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
 		<COMReference Include="IWshRuntimeLibrary">
@@ -124,10 +102,8 @@
 		</COMReference>
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-		<PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
 		<PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
-		<PackageReference Include="System.Runtime" Version="4.3.1" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
 		<COMReference Include="IWshRuntimeLibrary">
@@ -141,10 +117,8 @@
 		</COMReference>
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-		<PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
 		<PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
-		<PackageReference Include="System.Runtime" Version="4.3.1" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
 		<COMReference Include="IWshRuntimeLibrary">
@@ -158,10 +132,8 @@
 		</COMReference>
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-		<PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
 		<PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
-		<PackageReference Include="System.Runtime" Version="4.3.1" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
 		<COMReference Include="IWshRuntimeLibrary">
@@ -176,7 +148,5 @@
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-		<PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
-		<!--<PackageReference Include="System.Runtime" Version="4.3.1" />-->
 	</ItemGroup>
 </Project>

@@ -12,27 +12,18 @@ using ApplicationException = System.InvalidOperationException;
 
 namespace System.Data.Dabber
 {
-
     /// <summary>
     /// A bag of parameters that can be passed to the Dapper Query and Execute methods
     /// </summary>
     public partial class DynamicParameters : SqlMapper.IDynamicParameters, SqlMapper.IParameterLookup, SqlMapper.IParameterCallbacks
     {
         internal const DbType EnumerableMultiParameter = (DbType)(-1);
-        static Dictionary<SqlMapper.Identity, Action<IDbCommand, object>> paramReaderCache = new Dictionary<SqlMapper.Identity, Action<IDbCommand, object>>();
+        private static readonly Dictionary<SqlMapper.Identity, Action<IDbCommand, object>> paramReaderCache = new Dictionary<SqlMapper.Identity, Action<IDbCommand, object>>();
+        private readonly Dictionary<string, ParamInfo> parameters = new Dictionary<string, ParamInfo>();
+        private List<object> templates;
 
-        Dictionary<string, ParamInfo> parameters = new Dictionary<string, ParamInfo>();
-        List<object> templates;
-
-        object SqlMapper.IParameterLookup.this[string member]
-        {
-            get
-            {
-                ParamInfo param;
-                return parameters.TryGetValue(member, out param) ? param.Value : null;
-            }
-        }
-
+        object SqlMapper.IParameterLookup.this[string name] =>
+            parameters.TryGetValue(name, out ParamInfo param) ? param.Value : null;
 
         /// <summary>
         /// construct a dynamic parameter bag
@@ -62,24 +53,7 @@ namespace System.Data.Dabber
             var obj = param;
             if (obj != null)
             {
-                var subDynamic = obj as DynamicParameters;
-                if (subDynamic == null)
-                {
-                    var dictionary = obj as IEnumerable<KeyValuePair<string, object>>;
-                    if (dictionary == null)
-                    {
-                        templates = templates ?? new List<object>();
-                        templates.Add(obj);
-                    }
-                    else
-                    {
-                        foreach (var kvp in dictionary)
-                        {
-                            Add(kvp.Key, kvp.Value, null, null, null);
-                        }
-                    }
-                }
-                else
+                if (obj is DynamicParameters subDynamic)
                 {
                     if (subDynamic.parameters != null)
                     {
@@ -91,19 +65,39 @@ namespace System.Data.Dabber
 
                     if (subDynamic.templates != null)
                     {
-                        templates = templates ?? new List<object>();
+                        templates ??= new List<object>();
                         foreach (var t in subDynamic.templates)
                         {
                             templates.Add(t);
                         }
                     }
                 }
+                else
+                {
+                    if (obj is IEnumerable<KeyValuePair<string, object>> dictionary)
+                    {
+                        foreach (var kvp in dictionary)
+                        {
+                            Add(kvp.Key, kvp.Value, null, null, null);
+                        }
+                    }
+                    else
+                    {
+                        templates ??= new List<object>();
+                        templates.Add(obj);
+                    }
+                }
             }
         }
 
         /// <summary>
-        /// Add a parameter to this dynamic parameter list
+        /// Add a parameter to this dynamic parameter list.
         /// </summary>
+        /// <param name="name">The name of the parameter.</param>
+        /// <param name="value">The value of the parameter.</param>
+        /// <param name="dbType">The type of the parameter.</param>
+        /// <param name="direction">The in or out direction of the parameter.</param>
+        /// <param name="size">The size of the parameter.</param>
         public void Add(string name, object value, DbType? dbType, ParameterDirection? direction, int? size)
         {
             parameters[Clean(name)] = new ParamInfo
@@ -117,11 +111,16 @@ namespace System.Data.Dabber
         }
 
         /// <summary>
-        /// Add a parameter to this dynamic parameter list
+        /// Add a parameter to this dynamic parameter list.
         /// </summary>
-        public void Add(
-            string name, object value = null, DbType? dbType = null, ParameterDirection? direction = null, int? size = null, byte? precision = null, byte? scale = null
-)
+        /// <param name="name">The name of the parameter.</param>
+        /// <param name="value">The value of the parameter.</param>
+        /// <param name="dbType">The type of the parameter.</param>
+        /// <param name="direction">The in or out direction of the parameter.</param>
+        /// <param name="size">The size of the parameter.</param>
+        /// <param name="precision">The precision of the parameter.</param>
+        /// <param name="scale">The scale of the parameter.</param>
+        public void Add(string name, object value = null, DbType? dbType = null, ParameterDirection? direction = null, int? size = null, byte? precision = null, byte? scale = null)
         {
             parameters[Clean(name)] = new ParamInfo
             {
@@ -135,7 +134,7 @@ namespace System.Data.Dabber
             };
         }
 
-        static string Clean(string name)
+        private static string Clean(string name)
         {
             if (!string.IsNullOrEmpty(name))
             {
@@ -249,7 +248,6 @@ namespace System.Data.Dabber
                 }
                 else
                 {
-
                     bool add = !command.Parameters.Contains(name);
                     IDbDataParameter p;
                     if (add)
@@ -298,7 +296,7 @@ namespace System.Data.Dabber
                 }
             }
 
-            // note: most non-priveleged implementations would use: this.ReplaceLiterals(command);
+            // note: most non-privileged implementations would use: this.ReplaceLiterals(command);
             if (literals.Count != 0) SqlMapper.ReplaceLiterals(this, command, literals);
         }
 
@@ -306,7 +304,6 @@ namespace System.Data.Dabber
         /// All the names of the param in the bag, use Get to yank them out
         /// </summary>
         public IEnumerable<string> ParameterNames => parameters.Select(p => p.Key);
-
 
         /// <summary>
         /// Get the value of a parameter
@@ -325,7 +322,7 @@ namespace System.Data.Dabber
                 {
                     throw new ApplicationException("Attempting to cast a DBNull to a non nullable type! Note that out/return parameters will not have updated values until the data stream completes (after the 'foreach' for Query(..., buffered: false), or after the GridReader has been disposed for QueryMultiple)");
                 }
-                return default(T);
+                return default;
             }
             return (T)val;
         }
@@ -342,25 +339,29 @@ namespace System.Data.Dabber
         /// <returns>The DynamicParameters instance</returns>
         public DynamicParameters Output<T>(T target, Expression<Func<T, object>> expression, DbType? dbType = null, int? size = null)
         {
-            var failMessage = "Expression must be a property/field chain off of a(n) {0} instance";
-            failMessage = string.Format(failMessage, typeof(T).Name);
-            Action @throw = () => { throw new InvalidOperationException(failMessage); };
+            static void ThrowInvalidChain()
+                => throw new InvalidOperationException($"Expression must be a property/field chain off of a(n) {typeof(T).Name} instance");
 
             // Is it even a MemberExpression?
+#pragma warning disable IDE0019 // Use pattern matching - already complex enough
             var lastMemberAccess = expression.Body as MemberExpression;
+#pragma warning restore IDE0019 // Use pattern matching
 
-            if (lastMemberAccess == null ||
-                (!(lastMemberAccess.Member is PropertyInfo) &&
-                !(lastMemberAccess.Member is FieldInfo)))
+            if (lastMemberAccess == null
+                || (!(lastMemberAccess.Member is PropertyInfo)
+                    && !(lastMemberAccess.Member is FieldInfo)))
             {
-                if (expression.Body.NodeType == ExpressionType.Convert &&
-                    expression.Body.Type == typeof(object) &&
-                    ((UnaryExpression)expression.Body).Operand is MemberExpression)
+                if (expression.Body.NodeType == ExpressionType.Convert
+                    && expression.Body.Type == typeof(object)
+                    && ((UnaryExpression)expression.Body).Operand is MemberExpression member)
                 {
                     // It's got to be unboxed
-                    lastMemberAccess = (MemberExpression)((UnaryExpression)expression.Body).Operand;
+                    lastMemberAccess = member;
                 }
-                else @throw();
+                else
+                {
+                    ThrowInvalidChain();
+                }
             }
 
             // Does the chain consist of MemberExpressions leading to a ParameterExpression of type T?
@@ -376,24 +377,25 @@ namespace System.Data.Dabber
                 names.Insert(0, diving?.Member.Name);
                 chain.Insert(0, diving);
 
+#pragma warning disable IDE0019 // use pattern matching; this is fine!
                 var constant = diving?.Expression as ParameterExpression;
                 diving = diving?.Expression as MemberExpression;
+#pragma warning restore IDE0019 // use pattern matching
 
-                if (constant != null &&
-                    constant.Type == typeof(T))
+                if (constant is object && constant.Type == typeof(T))
                 {
                     break;
                 }
-                else if (diving == null ||
-                    (!(diving.Member is PropertyInfo) &&
-                    !(diving.Member is FieldInfo)))
+                else if (diving == null
+                    || (!(diving.Member is PropertyInfo)
+                        && !(diving.Member is FieldInfo)))
                 {
-                    @throw();
+                    ThrowInvalidChain();
                 }
             }
             while (diving != null);
 
-            var dynamicParamName = string.Join(string.Empty, names.ToArray());
+            var dynamicParamName = string.Concat(names.ToArray());
 
             // Before we get all emitty...
             var lookup = string.Join("|", names.ToArray());
@@ -410,19 +412,18 @@ namespace System.Data.Dabber
             il.Emit(OpCodes.Castclass, typeof(T));    // [T]
 
             // Count - 1 to skip the last member access
-            var i = 0;
-            for (; i < (chain.Count - 1); i++)
+            for (var i = 0; i < chain.Count - 1; i++)
             {
-                var member = chain[0].Member;
+                var member = chain[i].Member;
 
-                if (member is PropertyInfo)
+                if (member is PropertyInfo info)
                 {
-                    var get = ((PropertyInfo)member).GetGetMethod(true);
+                    var get = info.GetGetMethod(true);
                     il.Emit(OpCodes.Callvirt, get); // [Member{i}]
                 }
                 else // Else it must be a field!
                 {
-                    il.Emit(OpCodes.Ldfld, ((FieldInfo)member)); // [Member{i}]
+                    il.Emit(OpCodes.Ldfld, (FieldInfo)member); // [Member{i}]
                 }
             }
 
@@ -434,14 +435,14 @@ namespace System.Data.Dabber
 
             // GET READY
             var lastMember = lastMemberAccess.Member;
-            if (lastMember is PropertyInfo)
+            if (lastMember is PropertyInfo property)
             {
-                var set = ((PropertyInfo)lastMember).GetSetMethod(true);
+                var set = property.GetSetMethod(true);
                 il.Emit(OpCodes.Callvirt, set); // SET
             }
             else
             {
-                il.Emit(OpCodes.Stfld, ((FieldInfo)lastMember)); // SET
+                il.Emit(OpCodes.Stfld, (FieldInfo)lastMember); // SET
             }
 
             il.Emit(OpCodes.Ret); // GO
@@ -452,16 +453,15 @@ namespace System.Data.Dabber
                 cache[lookup] = setter;
             }
 
-            // Queue the preparation to be fired off when adding parameters to the DbCommand
-            MAKECALLBACK:
-            (outputCallbacks ?? (outputCallbacks = new List<Action>())).Add(() =>
+        // Queue the preparation to be fired off when adding parameters to the DbCommand
+        MAKECALLBACK:
+            (outputCallbacks ??= new List<Action>()).Add(() =>
             {
                 // Finally, prep the parameter and attach the callback to it
-                ParamInfo parameter;
                 var targetMemberType = lastMemberAccess?.Type;
                 int sizeToSet = (!size.HasValue && targetMemberType == typeof(string)) ? DbString.DefaultLength : size ?? 0;
 
-                if (parameters.TryGetValue(dynamicParamName, out parameter))
+                if (parameters.TryGetValue(dynamicParamName, out ParamInfo parameter))
                 {
                     parameter.ParameterDirection = parameter.AttachedParam.Direction = ParameterDirection.InputOutput;
 
@@ -472,10 +472,9 @@ namespace System.Data.Dabber
                 }
                 else
                 {
-                    SqlMapper.ITypeHandler handler;
                     dbType = (!dbType.HasValue)
 #pragma warning disable 618
-                    ? SqlMapper.LookupDbType(targetMemberType, targetMemberType?.Name, true, out handler)
+                    ? SqlMapper.LookupDbType(targetMemberType, targetMemberType?.Name, true, out SqlMapper.ITypeHandler handler)
 #pragma warning restore 618
                     : dbType;
 
@@ -493,10 +492,10 @@ namespace System.Data.Dabber
         }
 
         private List<Action> outputCallbacks;
-        
+
         void SqlMapper.IParameterCallbacks.OnCompleted()
         {
-            foreach (var param in (from p in parameters select p.Value))
+            foreach (var param in from p in parameters select p.Value)
             {
                 param.OutputCallback?.Invoke(param.OutputTarget, this);
             }

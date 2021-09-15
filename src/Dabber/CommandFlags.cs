@@ -2,7 +2,6 @@
 
 namespace System.Data.Dabber
 {
-
     /// <summary>
     /// Additional state flags that control command behaviour
     /// </summary>

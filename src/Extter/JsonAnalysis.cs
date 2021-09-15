@@ -128,20 +128,19 @@ namespace System.Data.Extter
         /// <summary>
         /// 元组
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         public class JSpanString : JSpan<char>
         {
             /// <summary>
             /// 字符串
             /// </summary>
-            /// <param name="array"></param>
+            /// <param name="json"></param>
             public JSpanString(string json) : this(json.ToArray())
             {
             }
             /// <summary>
             /// 数组
             /// </summary>
-            /// <param name="array"></param>
+            /// <param name="json"></param>
             public JSpanString(char[] json) : base(json)
             {
             }

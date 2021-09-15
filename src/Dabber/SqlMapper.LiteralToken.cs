@@ -2,7 +2,7 @@
 
 namespace System.Data.Dabber
 {
-    partial class SqlMapper
+    public static partial class SqlMapper
     {
         /// <summary>
         /// Represents a placeholder for a value that should be replaced as a literal value in the resulting sql
@@ -24,8 +24,11 @@ namespace System.Data.Dabber
                 Token = token;
                 Member = member;
             }
-
-            internal static readonly IList<LiteralToken> None = new LiteralToken[0];
+#if NETFrame
+            internal static IList<LiteralToken> None => new LiteralToken[0];
+#else
+            internal static IList<LiteralToken> None => Array.Empty<LiteralToken>();
+#endif
         }
     }
 }

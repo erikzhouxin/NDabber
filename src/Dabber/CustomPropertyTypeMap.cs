@@ -3,7 +3,6 @@ using System.Reflection;
 
 namespace System.Data.Dabber
 {
-
     /// <summary>
     /// Implements custom property mapping by user provided criteria (usually presence of some custom attribute with column to member mapping)
     /// </summary>
@@ -19,14 +18,8 @@ namespace System.Data.Dabber
         /// <param name="propertySelector">Property selector based on target type and DataReader column name</param>
         public CustomPropertyTypeMap(Type type, Func<Type, string, PropertyInfo> propertySelector)
         {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            if (propertySelector == null)
-                throw new ArgumentNullException(nameof(propertySelector));
-
-            _type = type;
-            _propertySelector = propertySelector;
+            _type = type ?? throw new ArgumentNullException(nameof(type));
+            _propertySelector = propertySelector ?? throw new ArgumentNullException(nameof(propertySelector));
         }
 
         /// <summary>
@@ -35,19 +28,18 @@ namespace System.Data.Dabber
         /// <param name="names">DataReader column names</param>
         /// <param name="types">DataReader column types</param>
         /// <returns>Default constructor</returns>
-        public ConstructorInfo FindConstructor(string[] names, Type[] types)
-        {
-            return _type.GetConstructor(new Type[0]);
-        }
+        public ConstructorInfo FindConstructor(string[] names, Type[] types) =>
+#if NETFx
+            _type.GetConstructor(Array.Empty<Type>());
+#else
+            _type.GetConstructor(new Type[] { });
+#endif
 
         /// <summary>
         /// Always returns null
         /// </summary>
         /// <returns></returns>
-        public ConstructorInfo FindExplicitConstructor()
-        {
-            return null;
-        }
+        public ConstructorInfo FindExplicitConstructor() => null;
 
         /// <summary>
         /// Not implemented as far as default constructor used for all cases
@@ -64,7 +56,7 @@ namespace System.Data.Dabber
         /// Returns property based on selector strategy
         /// </summary>
         /// <param name="columnName">DataReader column name</param>
-        /// <returns>Poperty member map</returns>
+        /// <returns>Property member map</returns>
         public SqlMapper.IMemberMap GetMember(string columnName)
         {
             var prop = _propertySelector(_type, columnName);

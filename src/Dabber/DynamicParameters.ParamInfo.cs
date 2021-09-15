@@ -3,9 +3,9 @@ using System.Data;
 
 namespace System.Data.Dabber
 {
-    partial class DynamicParameters
+    public partial class DynamicParameters
     {
-        sealed class ParamInfo
+        private sealed class ParamInfo
         {
             public string Name { get; set; }
             public object Value { get; set; }

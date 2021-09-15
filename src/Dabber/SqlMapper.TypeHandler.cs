@@ -3,11 +3,12 @@ using System.Data;
 
 namespace System.Data.Dabber
 {
-    partial class SqlMapper
+    public static partial class SqlMapper
     {
         /// <summary>
         /// Base-class for simple type-handlers
         /// </summary>
+        /// <typeparam name="T">This <see cref="Type"/> this handler is for.</typeparam>
         public abstract class TypeHandler<T> : ITypeHandler
         {
             /// <summary>
@@ -41,19 +42,25 @@ namespace System.Data.Dabber
                 return Parse(value);
             }
         }
+
         /// <summary>
         /// Base-class for simple type-handlers that are based around strings
         /// </summary>
+        /// <typeparam name="T">This <see cref="Type"/> this handler is for.</typeparam>
         public abstract class StringTypeHandler<T> : TypeHandler<T>
         {
             /// <summary>
             /// Parse a string into the expected type (the string will never be null)
             /// </summary>
+            /// <param name="xml">The string to parse.</param>
             protected abstract T Parse(string xml);
+
             /// <summary>
-            /// Format an instace into a string (the instance will never be null)
+            /// Format an instance into a string (the instance will never be null)
             /// </summary>
+            /// <param name="xml">The string to format.</param>
             protected abstract string Format(T xml);
+
             /// <summary>
             /// Assign the value of a parameter before a command executes
             /// </summary>
@@ -63,6 +70,7 @@ namespace System.Data.Dabber
             {
                 parameter.Value = value == null ? (object)DBNull.Value : Format(value);
             }
+
             /// <summary>
             /// Parse a database value back to a typed value
             /// </summary>
@@ -70,7 +78,7 @@ namespace System.Data.Dabber
             /// <returns>The typed value</returns>
             public override T Parse(object value)
             {
-                if (value == null || value is DBNull) return default(T);
+                if (value == null || value is DBNull) return default;
                 return Parse((string)value);
             }
         }

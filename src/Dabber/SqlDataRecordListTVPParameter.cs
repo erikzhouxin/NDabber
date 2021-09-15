@@ -1,35 +1,32 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Reflection;
-#if !NETFx
+using System.Reflection.Emit;
+
 namespace System.Data.Dabber
 {
     /// <summary>
     /// Used to pass a IEnumerable&lt;SqlDataRecord&gt; as a SqlDataRecordListTVPParameter
     /// </summary>
-    sealed class SqlDataRecordListTVPParameter : SqlMapper.ICustomQueryParameter
+    internal sealed class SqlDataRecordListTVPParameter<T> : SqlMapper.ICustomQueryParameter
+        where T : IDataRecord
     {
-        private readonly IEnumerable<Microsoft.SqlServer.Server.SqlDataRecord> data;
+        private readonly IEnumerable<T> data;
         private readonly string typeName;
         /// <summary>
-        /// Create a new instance of SqlDataRecordListTVPParameter
+        /// Create a new instance of <see cref="SqlDataRecordListTVPParameter&lt;T&gt;"/>.
         /// </summary>
-        public SqlDataRecordListTVPParameter(IEnumerable<Microsoft.SqlServer.Server.SqlDataRecord> data, string typeName)
+        /// <param name="data">The data records to convert into TVPs.</param>
+        /// <param name="typeName">The parameter type name.</param>
+        public SqlDataRecordListTVPParameter(IEnumerable<T> data, string typeName)
         {
             this.data = data;
             this.typeName = typeName;
         }
-        static readonly Action<System.Data.SqlClient.SqlParameter, string> setTypeName;
-        static SqlDataRecordListTVPParameter()
-        {
-            var prop = typeof(System.Data.SqlClient.SqlParameter).GetProperty(nameof(System.Data.SqlClient.SqlParameter.TypeName), BindingFlags.Instance | BindingFlags.Public);
-            if (prop != null && prop.PropertyType == typeof(string) && prop.CanWrite)
-            {
-                setTypeName = (Action<System.Data.SqlClient.SqlParameter, string>)
-                    Delegate.CreateDelegate(typeof(Action<System.Data.SqlClient.SqlParameter, string>), prop.GetSetMethod());
-            }
-        }
+
         void SqlMapper.ICustomQueryParameter.AddParameter(IDbCommand command, string name)
         {
             var param = command.CreateParameter();
@@ -37,16 +34,73 @@ namespace System.Data.Dabber
             Set(param, data, typeName);
             command.Parameters.Add(param);
         }
-        internal static void Set(IDbDataParameter parameter, IEnumerable<Microsoft.SqlServer.Server.SqlDataRecord> data, string typeName)
+
+        internal static void Set(IDbDataParameter parameter, IEnumerable<T> data, string typeName)
         {
-            parameter.Value = (object)data ?? DBNull.Value;
-            var sqlParam = parameter as System.Data.SqlClient.SqlParameter;
-            if (sqlParam != null)
-            {
-                sqlParam.SqlDbType = SqlDbType.Structured;
-                sqlParam.TypeName = typeName;
-            }
+            parameter.Value = data != null && data.Any() ? data : null;
+            StructuredHelper.ConfigureTVP(parameter, typeName);
         }
     }
+    static class StructuredHelper
+    {
+        private static readonly Hashtable s_udt = new Hashtable(), s_tvp = new Hashtable();
+
+        private static Action<IDbDataParameter, string> GetUDT(Type type)
+            => (Action<IDbDataParameter, string>)s_udt[type] ?? SlowGetHelper(type, s_udt, "UdtTypeName", 29); // 29 = SqlDbType.Udt (avoiding ref)
+        private static Action<IDbDataParameter, string> GetTVP(Type type)
+            => (Action<IDbDataParameter, string>)s_tvp[type] ?? SlowGetHelper(type, s_tvp, "TypeName", 30); // 30 = SqlDbType.Structured (avoiding ref)
+
+        static Action<IDbDataParameter, string> SlowGetHelper(Type type, Hashtable hashtable, string nameProperty, int sqlDbType)
+        {
+            lock (hashtable)
+            {
+                var helper = (Action<IDbDataParameter, string>)hashtable[type];
+                if (helper == null)
+                {
+                    helper = CreateFor(type, nameProperty, sqlDbType);
+                    hashtable.Add(type, helper);
+                }
+                return helper;
+            }
+        }
+
+        static Action<IDbDataParameter, string> CreateFor(Type type, string nameProperty, int sqlDbType)
+        {
+            var name = type.GetProperty(nameProperty, BindingFlags.Public | BindingFlags.Instance);
+            if (name == null || !name.CanWrite)
+            {
+                return (p, n) => { };
+            }
+
+            var dbType = type.GetProperty("SqlDbType", BindingFlags.Public | BindingFlags.Instance);
+            if (dbType != null && !dbType.CanWrite) dbType = null;
+
+            var dm = new DynamicMethod(nameof(CreateFor) + "_" + type.Name, null,
+                new[] { typeof(IDbDataParameter), typeof(string) }, true);
+            var il = dm.GetILGenerator();
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Castclass, type);
+            il.Emit(OpCodes.Ldarg_1);
+            il.EmitCall(OpCodes.Callvirt, name.GetSetMethod(), null);
+
+            if (dbType != null)
+            {
+                il.Emit(OpCodes.Ldarg_0);
+                il.Emit(OpCodes.Castclass, type);
+                il.Emit(OpCodes.Ldc_I4, sqlDbType);
+                il.EmitCall(OpCodes.Callvirt, dbType.GetSetMethod(), null);
+            }
+
+            il.Emit(OpCodes.Ret);
+            return (Action<IDbDataParameter, string>)dm.CreateDelegate(typeof(Action<IDbDataParameter, string>));
+
+        }
+
+        // this needs to be done per-provider; "dynamic" doesn't work well on all runtimes, although that
+        // would be a fair option otherwise
+        internal static void ConfigureUDT(IDbDataParameter parameter, string typeName)
+            => GetUDT(parameter.GetType())(parameter, typeName);
+        internal static void ConfigureTVP(IDbDataParameter parameter, string typeName)
+            => GetTVP(parameter.GetType())(parameter, typeName);
+    }
 }
-#endif

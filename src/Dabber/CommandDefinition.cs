@@ -19,7 +19,7 @@ namespace System.Data.Dabber
             }
             else
             {
-                return default(CommandDefinition);
+                return default;
             }
         }
 
@@ -76,11 +76,16 @@ namespace System.Data.Dabber
         /// <summary>
         /// Initialize the command definition
         /// </summary>
+        /// <param name="commandText">The text for this command.</param>
+        /// <param name="parameters">The parameters for this command.</param>
+        /// <param name="transaction">The transaction for this command to participate in.</param>
+        /// <param name="commandTimeout">The timeout (in seconds) for this command.</param>
+        /// <param name="commandType">The <see cref="CommandType"/> for this command.</param>
+        /// <param name="flags">The behavior flags for this command.</param>
+        /// <param name="cancellationToken">The cancellation token for this command.</param>
         public CommandDefinition(string commandText, object parameters = null, IDbTransaction transaction = null, int? commandTimeout = null,
                                  CommandType? commandType = null, CommandFlags flags = CommandFlags.Buffered
-#if !NET40
-                                 , CancellationToken cancellationToken = default(CancellationToken)
-#endif
+                                 , CancellationToken cancellationToken = default
             )
         {
             CommandText = commandText;
@@ -89,9 +94,7 @@ namespace System.Data.Dabber
             CommandTimeout = commandTimeout;
             CommandType = commandType;
             Flags = flags;
-#if !NET40
             CancellationToken = cancellationToken;
-#endif
         }
 
         private CommandDefinition(object parameters) : this()
@@ -99,13 +102,10 @@ namespace System.Data.Dabber
             Parameters = parameters;
         }
 
-#if !NET40
-
         /// <summary>
         /// For asynchronous operations, the cancellation-token
         /// </summary>
         public CancellationToken CancellationToken { get; }
-#endif
 
         internal IDbCommand SetupCommand(IDbConnection cnn, Action<IDbCommand, object> paramReader)
         {
@@ -135,8 +135,7 @@ namespace System.Data.Dabber
         {
             if (commandType == null)
                 return null; // GIGO
-            Action<IDbCommand> action;
-            if (SqlMapper.Link<Type, Action<IDbCommand>>.TryGet(commandInitCache, commandType, out action))
+            if (SqlMapper.Link<Type, Action<IDbCommand>>.TryGet(commandInitCache, commandType, out Action<IDbCommand> action))
             {
                 return action;
             }
@@ -176,7 +175,7 @@ namespace System.Data.Dabber
         private static MethodInfo GetBasicPropertySetter(Type declaringType, string name, Type expectedType)
         {
             var prop = declaringType.GetProperty(name, BindingFlags.Public | BindingFlags.Instance);
-            if (prop != null && prop.CanWrite && prop.PropertyType == expectedType && prop.GetIndexParameters().Length == 0)
+            if (prop?.CanWrite == true && prop.PropertyType == expectedType && prop.GetIndexParameters().Length == 0)
             {
                 return prop.GetSetMethod();
             }

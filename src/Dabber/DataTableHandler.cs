@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Data;
-#if !NETFx
+
 namespace System.Data.Dabber
 {
-    sealed class DataTableHandler : SqlMapper.ITypeHandler
+    internal sealed class DataTableHandler : SqlMapper.ITypeHandler
     {
         public object Parse(Type destinationType, object value)
         {
@@ -16,4 +16,3 @@ namespace System.Data.Dabber
         }
     }
 }
-#endif

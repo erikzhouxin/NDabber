@@ -5,27 +5,27 @@ using System.Linq;
 
 namespace System.Data.Dabber
 {
-    partial class SqlMapper
+    public static partial class SqlMapper
     {
-        private sealed class DapperRow
-            : System.Dynamic.IDynamicMetaObjectProvider
-            , IDictionary<string, object>
+        private sealed partial class DapperRow
+            : IDictionary<string, object>
+            , IReadOnlyDictionary<string, object>
         {
-            readonly DapperTable table;
-            object[] values;
+            private readonly DapperTable table;
+            private object[] values;
 
             public DapperRow(DapperTable table, object[] values)
             {
-                if (table == null) throw new ArgumentNullException(nameof(table));
-                if (values == null) throw new ArgumentNullException(nameof(values));
-                this.table = table;
-                this.values = values;
+                this.table = table ?? throw new ArgumentNullException(nameof(table));
+                this.values = values ?? throw new ArgumentNullException(nameof(values));
             }
+
             private sealed class DeadValue
             {
                 public static readonly DeadValue Default = new DeadValue();
-                private DeadValue() { }
+                private DeadValue() { /* hiding constructor */ }
             }
+
             int ICollection<KeyValuePair<string, object>>.Count
             {
                 get
@@ -39,9 +39,11 @@ namespace System.Data.Dabber
                 }
             }
 
-            public bool TryGetValue(string name, out object value)
+            public bool TryGetValue(string key, out object value)
+                => TryGetValue(table.IndexOfName(key), out value);
+
+            internal bool TryGetValue(int index, out object value)
             {
-                var index = table.IndexOfName(name);
                 if (index < 0)
                 { // doesn't exist
                     value = null;
@@ -74,13 +76,7 @@ namespace System.Data.Dabber
                     }
                 }
 
-                return sb.Append('}').__ToStringRecycle();
-            }
-
-            System.Dynamic.DynamicMetaObject System.Dynamic.IDynamicMetaObjectProvider.GetMetaObject(
-                System.Linq.Expressions.Expression parameter)
-            {
-                return new DapperRowMetaObject(parameter, System.Dynamic.BindingRestrictions.Empty, this);
+                return sb.Append('}').ToStringRecycle();
             }
 
             public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
@@ -117,8 +113,7 @@ namespace System.Data.Dabber
 
             bool ICollection<KeyValuePair<string, object>>.Contains(KeyValuePair<string, object> item)
             {
-                object value;
-                return TryGetValue(item.Key, out value) && Equals(value, item.Value);
+                return TryGetValue(item.Key, out object value) && Equals(value, item.Value);
             }
 
             void ICollection<KeyValuePair<string, object>>.CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
@@ -153,8 +148,10 @@ namespace System.Data.Dabber
             }
 
             bool IDictionary<string, object>.Remove(string key)
+                => Remove(table.IndexOfName(key));
+
+            internal bool Remove(int index)
             {
-                int index = table.IndexOfName(key);
                 if (index < 0 || index >= values.Length || values[index] is DeadValue) return false;
                 values[index] = DeadValue.Default;
                 return true;
@@ -162,7 +159,7 @@ namespace System.Data.Dabber
 
             object IDictionary<string, object>.this[string key]
             {
-                get { object val; TryGetValue(key, out val); return val; }
+                get { TryGetValue(key, out object val); return val; }
                 set { SetValue(key, value, false); }
             }
 
@@ -184,6 +181,10 @@ namespace System.Data.Dabber
                     // then semantically, this value already exists
                     throw new ArgumentException("An item with the same key has already been added", nameof(key));
                 }
+                return SetValue(index, value);
+            }
+            internal object SetValue(int index, object value)
+            {
                 int oldLength = values.Length;
                 if (oldLength <= index)
                 {
@@ -206,6 +207,41 @@ namespace System.Data.Dabber
             ICollection<object> IDictionary<string, object>.Values
             {
                 get { return this.Select(kv => kv.Value).ToArray(); }
+            }
+
+            #endregion
+
+
+            #region Implementation of IReadOnlyDictionary<string,object>
+
+
+            int IReadOnlyCollection<KeyValuePair<string, object>>.Count
+            {
+                get
+                {
+                    return values.Count(t => !(t is DeadValue));
+                }
+            }
+
+            bool IReadOnlyDictionary<string, object>.ContainsKey(string key)
+            {
+                int index = table.IndexOfName(key);
+                return index >= 0 && index < values.Length && !(values[index] is DeadValue);
+            }
+
+            object IReadOnlyDictionary<string, object>.this[string key]
+            {
+                get { TryGetValue(key, out object val); return val; }
+            }
+
+            IEnumerable<string> IReadOnlyDictionary<string, object>.Keys
+            {
+                get { return this.Select(kv => kv.Key); }
+            }
+
+            IEnumerable<object> IReadOnlyDictionary<string, object>.Values
+            {
+                get { return this.Select(kv => kv.Value); }
             }
 
             #endregion

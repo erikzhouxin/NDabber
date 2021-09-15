@@ -1,14 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+
 namespace System.Data.Dabber
 {
-    partial class SqlMapper
+    public static partial class SqlMapper
     {
-        sealed class DapperRowMetaObject : System.Dynamic.DynamicMetaObject
+        private sealed partial class DapperRow : System.Dynamic.IDynamicMetaObjectProvider
         {
-            static readonly MethodInfo getValueMethod = typeof(IDictionary<string, object>).GetProperty("Item").GetGetMethod();
-            static readonly MethodInfo setValueMethod = typeof(DapperRow).GetMethod("SetValue", new Type[] { typeof(string), typeof(object) });
+            System.Dynamic.DynamicMetaObject System.Dynamic.IDynamicMetaObjectProvider.GetMetaObject(
+    System.Linq.Expressions.Expression parameter)
+            {
+                return new DapperRowMetaObject(parameter, System.Dynamic.BindingRestrictions.Empty, this);
+            }
+        }
+
+        private sealed class DapperRowMetaObject : System.Dynamic.DynamicMetaObject
+        {
+            private static readonly MethodInfo getValueMethod = typeof(IDictionary<string, object>).GetProperty("Item").GetGetMethod();
+            private static readonly MethodInfo setValueMethod = typeof(DapperRow).GetMethod("SetValue", new Type[] { typeof(string), typeof(object) });
 
             public DapperRowMetaObject(
                 System.Linq.Expressions.Expression expression,
@@ -27,7 +37,7 @@ namespace System.Data.Dabber
             {
             }
 
-            System.Dynamic.DynamicMetaObject CallMethod(
+            private System.Dynamic.DynamicMetaObject CallMethod(
                 MethodInfo method,
                 System.Linq.Expressions.Expression[] parameters
                 )
@@ -78,6 +88,16 @@ namespace System.Data.Dabber
                 var callMethod = CallMethod(setValueMethod, parameters);
 
                 return callMethod;
+            }
+
+            public override IEnumerable<string> GetDynamicMemberNames()
+            {
+                if (HasValue && Value is IDictionary<string, object> lookup) return lookup.Keys;
+#if NETFrame
+                return new string[0];
+#else
+                return Array.Empty<string>();
+#endif
             }
         }
     }
