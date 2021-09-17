@@ -103,7 +103,7 @@
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-		<PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
+		<PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
 		<COMReference Include="IWshRuntimeLibrary">
@@ -118,7 +118,7 @@
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-		<PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
+		<PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
 		<COMReference Include="IWshRuntimeLibrary">
@@ -133,7 +133,7 @@
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-		<PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
+		<PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
 		<COMReference Include="IWshRuntimeLibrary">
@@ -148,5 +148,6 @@
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+		<PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
 	</ItemGroup>
 </Project>
