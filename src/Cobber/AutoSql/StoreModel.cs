@@ -63,62 +63,74 @@ namespace System.Data.Cobber
     /// <summary>
     /// 数据服务类型
     /// </summary>
+    [EDisplay("数据服务类型")]
     public enum StoreType : byte
     {
         /// <summary>
         /// 未知
         /// </summary>
         [Display(Name = nameof(Unknown))]
+        [EDisplay("未知")]
         Unknown = 0,
         /// <summary>
         /// SQLite
         /// </summary>
         [Display(Name = nameof(SQLite))]
+        [EDisplay("SQLite")]
         SQLite = 1,
         /// <summary>
         /// Microsoft SQL Server
         /// </summary>
         [Display(Name = nameof(SqlServer))]
+        [EDisplay("Microsoft SQL Server")]
         SqlServer = 2,
         /// <summary>
         /// MySQL
         /// </summary>
         [Display(Name = nameof(MySQL))]
+        [EDisplay("MySQL")]
         MySQL = 3,
         /// <summary>
         /// Oracle
         /// </summary>
         [Display(Name = nameof(Oracle))]
+        [EDisplay("Oracle")]
         Oracle = 4,
         /// <summary>
         /// PostgreSQL
         /// </summary>
         [Display(Name = nameof(PostgreSQL))]
+        [EDisplay("PostgreSQL")]
         PostgreSQL = 5,
         /// <summary>
         /// Redis
         /// </summary>
         [Display(Name = nameof(Redis))]
+        [EDisplay("Redis")]
         Redis = 6,
         /// <summary>
         /// Access
         /// </summary>
         [Display(Name = nameof(Access))]
+        [EDisplay("Access")]
         Access = 7,
         /// <summary>
         /// Excel
         /// </summary>
         [Display(Name = nameof(Excel))]
+        [EDisplay("Excel")]
         Excel = 8,
         /// <summary>
         /// XML
         /// </summary>
         [Display(Name = nameof(Xml))]
+        [EDisplay("Xml")]
         Xml = 9,
         /// <summary>
         /// 内存
         /// </summary>
         [Display(Name = nameof(Memory))]
+        [EDisplay("Memory")]
         Memory = 20,
     }
     /// <summary>

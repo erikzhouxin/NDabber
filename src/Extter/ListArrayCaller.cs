@@ -88,7 +88,7 @@ namespace System.Data.Cobber
             var result = new int[array.Length];
             for (int i = 0; i < array.Length; i++)
             {
-                result[i] = (int)array.GetValue(i);
+                result[i] = Convert.ToInt32(array.GetValue(i));
             }
             return result;
         }
