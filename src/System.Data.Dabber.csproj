@@ -14,9 +14,9 @@
 		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>2021.9.15</Version>
-		<FileVersion>2021.9.15.823</FileVersion>
-		<AssemblyVersion>2021.9.15.823</AssemblyVersion>
+		<Version>2021.9.21</Version>
+		<FileVersion>2021.9.21.829</FileVersion>
+		<AssemblyVersion>2021.9.21.829</AssemblyVersion>
 		<EmbedAllSources>true</EmbedAllSources>
 		<RepositoryUrl>https://gitee.com/erikzhouxin/ndabber.git</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>

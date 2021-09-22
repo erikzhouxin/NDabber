@@ -41,219 +41,8 @@ namespace System.Data.Dabber
         }
     }
     /// <summary>
-    /// 数据库连接池(不推荐使用)
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class DbConnPool<T> where T : DbConnection
-    {
-        private static ConcurrentDictionary<string, DbConnPool<T>> _poolDic = new();
-        /// <summary>
-        /// 获取实例
-        /// </summary>
-        /// <returns></returns>
-        public static DbConnection GetConnection(string connString, Func<String, T> CreateConn)
-        {
-            return GetPool(connString).GetInstance(CreateConn);
-        }
-        /// <summary>
-        /// 获取实例
-        /// </summary>
-        /// <param name="connString"></param>
-        /// <returns></returns>
-        public static DbConnPool<T> GetPool(string connString)
-        {
-            DbConnPool<T> pool;
-            if (Monitor.TryEnter(_poolDic, TimeSpan.FromSeconds(5)))
-            {
-                pool = _poolDic.GetOrAdd(connString, (k) => new DbConnPool<T>(connString));
-                Monitor.Exit(_poolDic);
-            }
-            else
-            {
-                pool = new DbConnPool<T>(connString);
-            }
-            return pool;
-        }
-        #region // 内部实现
-        /// <summary>
-        /// 连接池队列
-        /// </summary>
-        private ConcurrentQueue<DbConnProxy> _connPool = new();
-        private Timer _clearTimer = new Timer
-        {
-            Enabled = true, // 启用执行
-            Interval = 3600000, // 一小时执行一次
-            AutoReset = true, // 一直执行
-        };
-        /// <summary>
-        /// 连接字符串
-        /// </summary>
-        public string ConnString { get; }
-        /// <summary>
-        /// 私有构造
-        /// </summary>
-        /// <param name="connString"></param>
-        private DbConnPool(string connString)
-        {
-            ConnString = connString;
-            // 定时清理连接池
-            _clearTimer.Elapsed += (s, e) =>
-            {
-                if (_connPool.TryDequeue(out DbConnProxy curr)) // 池子里还有东西就继续清理
-                {
-                    curr.Release();
-                }
-            };
-            _clearTimer.Start();
-        }
-        /// <summary>
-        /// 获取实例
-        /// </summary>
-        /// <returns></returns>
-        public DbConnection GetInstance(Func<string, T> CreateConn)
-        {
-            if (_connPool.IsEmpty || !_connPool.TryDequeue(out DbConnProxy result))
-            {
-                result = new DbConnProxy(CreateConn(ConnString));
-            }
-            return result;
-        }
-        /// <summary>
-        /// 入队
-        /// </summary>
-        /// <param name="instance"></param>
-        public void Recycle(T instance)
-        {
-            if (instance is DbConnProxy conn)
-            {
-                _connPool.Enqueue(conn);
-            }
-        }
-        #endregion
-        #region // 内部类
-        /// <summary>
-        /// 带有连接池的连接
-        /// </summary>
-        private class DbConnProxy : DbConnection
-        {
-            public T RealConnection { get; }
-            /// <summary>
-            /// 构造
-            /// </summary>
-            public DbConnProxy(T model)
-            {
-                RealConnection = model;
-            }
-            /// <summary>
-            /// 不释放资源
-            /// </summary>
-            /// <param name="disposing"></param>
-            protected override void Dispose(bool disposing)
-            {
-                GetPool(ConnectionString).Recycle(RealConnection);
-            }
-            /// <summary>
-            /// 释放资源
-            /// </summary>
-            public virtual void Release()
-            {
-                base.Dispose();
-            }
-            #region // 抽象方法实现
-            public override string ConnectionString { get => RealConnection.ConnectionString; set => RealConnection.ConnectionString = value; }
-
-            public override string Database => RealConnection.Database;
-
-            public override string DataSource => RealConnection.DataSource;
-
-            public override string ServerVersion => RealConnection.ServerVersion;
-
-            public override ConnectionState State => RealConnection.State;
-
-            protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
-            {
-                return RealConnection.BeginTransaction(isolationLevel);
-            }
-
-            public override void ChangeDatabase(string databaseName)
-            {
-                RealConnection.ChangeDatabase(databaseName);
-            }
-
-            public override void Close()
-            {
-                RealConnection.Close();
-            }
-
-            protected override DbCommand CreateDbCommand()
-            {
-                return RealConnection.CreateCommand();
-            }
-
-            public override void Open()
-            {
-                RealConnection.Open();
-            }
-            #endregion
-            #region // 重写方法
-            //protected override bool CanRaiseEvents => RealConnection.CanRaiseEvents;
-            public override int ConnectionTimeout => RealConnection.ConnectionTimeout;
-            //protected override DbProviderFactory DbProviderFactory => RealConnection.DbProviderFactory;
-#if NETFx
-            public override void EnlistTransaction(System.Transactions.Transaction transaction)
-            {
-                RealConnection.EnlistTransaction(transaction);
-            }
-#endif
-            public override bool Equals(object obj)
-            {
-                return RealConnection.Equals(obj);
-            }
-            public override int GetHashCode()
-            {
-                return RealConnection.GetHashCode();
-            }
-            public override DataTable GetSchema()
-            {
-                return RealConnection.GetSchema();
-            }
-            public override DataTable GetSchema(string collectionName)
-            {
-                return RealConnection.GetSchema(collectionName);
-            }
-            public override DataTable GetSchema(string collectionName, string[] restrictionValues)
-            {
-                return RealConnection.GetSchema(collectionName, restrictionValues);
-            }
-            //protected override object GetService(Type service)
-            //{
-            //    return RealConnection.GetService(service);
-            //}
-            public override object InitializeLifetimeService()
-            {
-                return RealConnection.InitializeLifetimeService();
-            }
-            //protected override void OnStateChange(StateChangeEventArgs stateChange)
-            //{
-            //    RealConnection.OnStateChange(stateChange);
-            //}
-#if NETFx
-            public override Task OpenAsync(CancellationToken cancellationToken)
-            {
-                return RealConnection.OpenAsync(cancellationToken);
-            }
-#endif
-            public override ISite Site { get => RealConnection.Site; set => RealConnection.Site = value; }
-            public override string ToString()
-            {
-                return RealConnection.ToString();
-            }
-            #endregion
-        }
-        #endregion
-    }
-    /// <summary>
     /// 自动生成泛型继承类的通用数据库连接池(推荐使用)
+    /// 当数据库连接为sealed class时请使用DbConnPool
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class DbConnectionPool<T> where T : DbConnection
@@ -411,5 +200,226 @@ namespace System.Data.Dabber
             /// </summary>
             void Release();
         }
+    }
+    /// <summary>
+    /// 再次封装的数据库代理连接池(不推荐使用)
+    /// 如果数据库连接为sealed class时推荐使用
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class DbConnPool<T> where T : DbConnection
+    {
+        private static ConcurrentDictionary<string, DbConnPool<T>> _poolDic = new();
+        /// <summary>
+        /// 获取实例
+        /// </summary>
+        /// <returns></returns>
+        public static DbConnection GetConnection(string connString, Func<String, T> CreateConn)
+        {
+            return GetPool(connString).GetInstance(CreateConn);
+        }
+        /// <summary>
+        /// 获取实例
+        /// </summary>
+        /// <param name="connString"></param>
+        /// <returns></returns>
+        public static DbConnPool<T> GetPool(string connString)
+        {
+            DbConnPool<T> pool;
+            if (Monitor.TryEnter(_poolDic, TimeSpan.FromSeconds(5)))
+            {
+                pool = _poolDic.GetOrAdd(connString, (k) => new DbConnPool<T>(connString));
+                Monitor.Exit(_poolDic);
+            }
+            else
+            {
+                pool = new DbConnPool<T>(connString);
+            }
+            return pool;
+        }
+        #region // 内部实现
+        /// <summary>
+        /// 连接池队列
+        /// </summary>
+        private ConcurrentQueue<DbConnProxy> _connPool = new();
+        private Timer _clearTimer = new Timer
+        {
+            Enabled = true, // 启用执行
+            Interval = 1800000, // 半小时执行一次
+            AutoReset = true, // 一直执行
+        };
+        /// <summary>
+        /// 连接字符串
+        /// </summary>
+        public string ConnString { get; }
+        /// <summary>
+        /// 私有构造
+        /// </summary>
+        /// <param name="connString"></param>
+        private DbConnPool(string connString)
+        {
+            ConnString = connString;
+            // 定时清理连接池
+            _clearTimer.Elapsed += (s, e) =>
+            {
+                if (_connPool.TryDequeue(out DbConnProxy curr)) // 池子里还有东西就继续清理
+                {
+                    curr.Release();
+                }
+            };
+            _clearTimer.Start();
+        }
+        /// <summary>
+        /// 获取实例
+        /// </summary>
+        /// <returns></returns>
+        public DbConnection GetInstance(Func<string, T> CreateConn)
+        {
+            if (_connPool.IsEmpty || !_connPool.TryDequeue(out DbConnProxy result))
+            {
+                result = new DbConnProxy(CreateConn(ConnString));
+            }
+            return result;
+        }
+        /// <summary>
+        /// 入队
+        /// </summary>
+        /// <param name="instance"></param>
+        public void Recycle(DbConnection instance)
+        {
+            if (instance is DbConnProxy conn)
+            {
+                _connPool.Enqueue(conn);
+            }
+        }
+        #endregion
+        #region // 内部类
+        /// <summary>
+        /// 带有连接池的连接
+        /// </summary>
+        internal class DbConnProxy : DbConnection
+        {
+            public T RealConnection { get; }
+            /// <summary>
+            /// 构造
+            /// </summary>
+            public DbConnProxy(T model)
+            {
+                RealConnection = model;
+            }
+            /// <summary>
+            /// 不释放资源
+            /// </summary>
+            /// <param name="disposing"></param>
+            protected override void Dispose(bool disposing)
+            {
+                if (disposing)
+                {
+                    GetPool(ConnectionString).Recycle(this);
+                }
+                else
+                {
+                    RealConnection.Dispose();
+                    base.Dispose(true);
+                }
+            }
+            /// <summary>
+            /// 释放资源
+            /// </summary>
+            public virtual void Release()
+            {
+                Dispose(false);
+            }
+            #region // 抽象方法实现
+            public override string ConnectionString { get => RealConnection.ConnectionString; set => RealConnection.ConnectionString = value; }
+
+            public override string Database => RealConnection.Database;
+
+            public override string DataSource => RealConnection.DataSource;
+
+            public override string ServerVersion => RealConnection.ServerVersion;
+
+            public override ConnectionState State => RealConnection.State;
+
+            protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
+            {
+                return RealConnection.BeginTransaction(isolationLevel);
+            }
+
+            public override void ChangeDatabase(string databaseName)
+            {
+                RealConnection.ChangeDatabase(databaseName);
+            }
+
+            public override void Close()
+            {
+                RealConnection.Close();
+            }
+
+            protected override DbCommand CreateDbCommand()
+            {
+                return RealConnection.CreateCommand();
+            }
+
+            public override void Open()
+            {
+                RealConnection.Open();
+            }
+            #endregion
+            #region // 重写方法
+            //protected override bool CanRaiseEvents => RealConnection.CanRaiseEvents;
+            public override int ConnectionTimeout => RealConnection.ConnectionTimeout;
+            //protected override DbProviderFactory DbProviderFactory => RealConnection.DbProviderFactory;
+#if NETFx
+            public override void EnlistTransaction(System.Transactions.Transaction transaction)
+            {
+                RealConnection.EnlistTransaction(transaction);
+            }
+#endif
+            public override bool Equals(object obj)
+            {
+                return RealConnection.Equals(obj);
+            }
+            public override int GetHashCode()
+            {
+                return RealConnection.GetHashCode();
+            }
+            public override DataTable GetSchema()
+            {
+                return RealConnection.GetSchema();
+            }
+            public override DataTable GetSchema(string collectionName)
+            {
+                return RealConnection.GetSchema(collectionName);
+            }
+            public override DataTable GetSchema(string collectionName, string[] restrictionValues)
+            {
+                return RealConnection.GetSchema(collectionName, restrictionValues);
+            }
+            //protected override object GetService(Type service)
+            //{
+            //    return RealConnection.GetService(service);
+            //}
+            public override object InitializeLifetimeService()
+            {
+                return RealConnection.InitializeLifetimeService();
+            }
+            //protected override void OnStateChange(StateChangeEventArgs stateChange)
+            //{
+            //    RealConnection.OnStateChange(stateChange);
+            //}
+#if NETFx
+            public override Task OpenAsync(CancellationToken cancellationToken)
+            {
+                return RealConnection.OpenAsync(cancellationToken);
+            }
+#endif
+            public override ISite Site { get => RealConnection.Site; set => RealConnection.Site = value; }
+            public override string ToString()
+            {
+                return RealConnection.ToString();
+            }
+            #endregion
+        }
+        #endregion
     }
 }

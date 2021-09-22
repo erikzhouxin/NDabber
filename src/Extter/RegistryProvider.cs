@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.Data.Extter
@@ -161,13 +162,12 @@ namespace System.Data.Extter
                     }
                 }
             }
-            private AssemblyName _assemblyName;
             /// <summary>
             /// 程序集名称
             /// </summary>
             public AssemblyName AssemblyName
             {
-                get => _assemblyName;
+                get => Assembly?.GetName();
                 set
                 {
                     try
@@ -182,7 +182,7 @@ namespace System.Data.Extter
             /// </summary>
             public string AssemblyShortName
             {
-                get => _assemblyName.Name;
+                get => AssemblyName?.Name;
                 set
                 {
                     try
@@ -198,6 +198,7 @@ namespace System.Data.Extter
         /// </summary>
         internal class InnerLoader
         {
+            private object _locked = new object();
             /// <summary>
             /// 映射字典
             /// </summary>
@@ -205,7 +206,7 @@ namespace System.Data.Extter
             /// <summary>
             /// 内部类型
             /// </summary>
-            public HashSet<Type> Types { get; private set; } = new();
+            public HashSet<Type> Types { get; } = new();
             /// <summary>
             /// 获取映射类实例
             /// </summary>
@@ -261,17 +262,21 @@ namespace System.Data.Extter
             public void Append(string tag, Assembly assembly)
             {
                 if (assembly == null) { return; }
-                try
+                if (Monitor.TryEnter(_locked, TimeSpan.FromSeconds(5))) // HashSet不加锁时并发会出现null值
                 {
-                    foreach (var type in assembly.GetTypes())
+                    try
                     {
-                        if (type.IsClass && Contains(type.FullName, tag))
+                        foreach (var type in assembly.GetTypes())
                         {
-                            Types.Add(type);
+                            if (type.IsClass && Contains(type.FullName, tag))
+                            {
+                                Types.Add(type);
+                            }
                         }
                     }
+                    catch (Exception ex) { Console.WriteLine(ex.Message); }
+                    Monitor.Exit(_locked);
                 }
-                catch (Exception ex) { Console.WriteLine(ex.Message); }
             }
         }
         /// <summary>
