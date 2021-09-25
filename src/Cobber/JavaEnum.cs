@@ -163,23 +163,41 @@ namespace System.Data.Cobber
         /// <returns></returns>
         public static StringBuilder BuilderContent(Type type)
         {
+            var sb = GetUsingContent();
+            sb.AppendLine($"namespace {type.Namespace}").AppendLine("{");
+            sb.Append(GetClassContent(type));
+            sb.AppendLine("}");
+            return sb;
+        }
+        /// <summary>
+        /// 创建内容
+        /// </summary>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public static StringBuilder BuilderContent(params Type[] types)
+        {
+            if (types.IsEmpty()) { return new StringBuilder(); }
+            var sb = GetUsingContent();
+            foreach (var item in types.GroupBy(s => s.Namespace))
+            {
+                sb.AppendLine($"namespace {item.Key}").AppendLine("{");
+                foreach (Type type in item)
+                {
+                    sb.Append(GetClassContent(type));
+                }
+                sb.AppendLine("}");
+            }
+            return sb;
+        }
+
+        private static StringBuilder GetClassContent(Type type)
+        {
             var className = $"JEnum{type.Name}";
             var typeDescr = JavaEnum.GetClassDisplay(type);
             var block4 = "    ";
-            var sb = new StringBuilder()
-                   .AppendLine("using System;")
-                   .AppendLine("using System.Collections.Generic;")
-                   .AppendLine("using System.Collections.ObjectModel;")
-                   .AppendLine("using System.Data.Cobber;")
-                   .AppendLine("using System.Linq;")
-                   .AppendLine("using System.Runtime.CompilerServices;")
-                   .AppendLine("using System.Text;")
-                   .AppendLine()
-                   .AppendLine("#pragma warning disable")
-                   .AppendLine($"namespace {type.Namespace}")
-                   .AppendLine("{");
             var preblock = block4;
-            sb.AppendLine($"{preblock}/// <summary>")
+            var sb = new StringBuilder()
+              .AppendLine($"{preblock}/// <summary>")
               .AppendLine($"{preblock}/// {typeDescr}")
               .AppendLine($"{preblock}/// </summary>")
               .AppendLine($"{preblock}public partial struct {className} : IJavaEnum")
@@ -284,7 +302,7 @@ namespace System.Data.Cobber
               .AppendLine($"{preblock}/// </summary>")
               .AppendLine($"{preblock}public static implicit operator {className}(int value)")
               .AppendLine($"{preblock}{{")
-              .AppendLine($"{preblock}    switch(value)")
+              .AppendLine($"{preblock}    switch (value)")
               .AppendLine($"{preblock}    {{");
             foreach (var item in props)
             {
@@ -302,7 +320,7 @@ namespace System.Data.Cobber
               .AppendLine($"{preblock}/// </summary>")
               .AppendLine($"{preblock}public static implicit operator {className}(string name)")
               .AppendLine($"{preblock}{{")
-              .AppendLine($"{preblock}    switch(name)")
+              .AppendLine($"{preblock}    switch (name)")
               .AppendLine($"{preblock}    {{");
             foreach (var item in props)
             {
@@ -322,9 +340,9 @@ namespace System.Data.Cobber
             }
             sb.AppendLine($"{preblock}        default: break;")
               .AppendLine($"{preblock}    }}")
-              .AppendLine($"{preblock}    foreach(var item in Items)")
+              .AppendLine($"{preblock}    foreach (var item in Items)")
               .AppendLine($"{preblock}    {{")
-              .AppendLine($"{preblock}        if(item.Name == name || item.EnumName.Equals(name, StringComparison.OrdinalIgnoreCase)) {{ return item; }}")
+              .AppendLine($"{preblock}        if (item.Name == name || item.EnumName.Equals(name, StringComparison.OrdinalIgnoreCase)) {{ return item; }}")
               .AppendLine($"{preblock}    }}")
               .AppendLine($"{preblock}    return {first.Value.Key};")
               .AppendLine($"{preblock}}}")
@@ -333,7 +351,7 @@ namespace System.Data.Cobber
               .AppendLine($"{preblock}/// </summary>")
               .AppendLine($"{preblock}public static implicit operator {className}({type.Name} value)")
               .AppendLine($"{preblock}{{")
-              .AppendLine($"{preblock}    switch(value)")
+              .AppendLine($"{preblock}    switch (value)")
               .AppendLine($"{preblock}    {{");
             foreach (var item in props)
             {
@@ -426,7 +444,7 @@ namespace System.Data.Cobber
               .AppendLine($"{preblock}/// </summary>")
               .AppendLine($"{preblock}public static {type.Name} Get{type.Name}Enum(string value)")
               .AppendLine($"{preblock}{{")
-              .AppendLine($"{preblock}    switch(value)")
+              .AppendLine($"{preblock}    switch (value)")
               .AppendLine($"{preblock}    {{");
             foreach (var item in props)
             {
@@ -447,9 +465,21 @@ namespace System.Data.Cobber
             sb.AppendLine($"{preblock}        default: return {type.Name}.{first.Value.Key};")
               .AppendLine($"{preblock}    }}")
               .AppendLine($"{preblock}}}")
-              .AppendLine($"{block4}}}")
-              .AppendLine("}");
+              .AppendLine($"{block4}}}");
             return sb;
+        }
+        private static StringBuilder GetUsingContent()
+        {
+            return new StringBuilder()
+                .AppendLine("using System;")
+                .AppendLine("using System.Collections.Generic;")
+                .AppendLine("using System.Collections.ObjectModel;")
+                .AppendLine("using System.Data.Cobber;")
+                .AppendLine("using System.Linq;")
+                .AppendLine("using System.Runtime.CompilerServices;")
+                .AppendLine("using System.Text;")
+                .AppendLine()
+                .AppendLine("#pragma warning disable");
         }
     }
 }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>net4;net45;netstandard2.1;netcoreapp2.1;netcoreapp3.1;net5.0;</TargetFrameworks>
 		<Description>兼容低版本.NET数据库ORM的Dapper为Dabber，常用帮助Cobber，扩展Extter，日志Logger等工具库内容</Description>
@@ -14,9 +14,9 @@
 		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>2021.9.21</Version>
-		<FileVersion>2021.9.21.829</FileVersion>
-		<AssemblyVersion>2021.9.21.829</AssemblyVersion>
+		<Version>2021.10.1</Version>
+		<FileVersion>2021.10.1.639</FileVersion>
+		<AssemblyVersion>2021.10.1.639</AssemblyVersion>
 		<EmbedAllSources>true</EmbedAllSources>
 		<RepositoryUrl>https://gitee.com/erikzhouxin/ndabber.git</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -34,7 +34,6 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|netcoreapp2.1'">
 		<DefineConstants>TRACE;DEBUG;NETFx;NETCore</DefineConstants>
-		<DocumentationFile>bin\System.Data.NDabberNetCore2.xml</DocumentationFile>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|netcoreapp3.1'">
 		<DefineConstants>TRACE;DEBUG;NETFx;NETCore</DefineConstants>
