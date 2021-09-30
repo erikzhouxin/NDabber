@@ -385,7 +385,7 @@ namespace System.Data.Cobber
         {
             var type = typeof(T);
             var property = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            Func<T,string, object> Get = MemberExpressionAccessor<T>.GetValue;
+            Func<T, string, object> Get = MemberExpressionAccessor<T>.GetValue;
             foreach (var item in property)
             {
                 if (ignores.Any(s => item.Name.Equals(s, StringComparison.OrdinalIgnoreCase)))
@@ -415,6 +415,10 @@ namespace System.Data.Cobber
         /// 设置值(instance,memberName,newValue)
         /// </summary>
         public static Action<T, string, object> SetValue;
+        /// <summary>
+        /// 设置值(instance,memberName,newValue,propertyInfo)
+        /// </summary>
+        public static Func<T, string, object, PropertyInfo> SetProperty;
         static MemberExpressionAccessor()
         {
             GetValue = GenerateGetValue();
@@ -435,7 +439,7 @@ namespace System.Data.Cobber
 
                 cases.Add(Expression.SwitchCase(Expression.Convert(property, typeof(object)), propertyHash));
             }
-            foreach (var propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Static))
+            foreach (var propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy))
             {
                 var property = Expression.Property(null, type, propertyInfo.Name);
                 var propertyHash = Expression.Constant(propertyInfo.Name.GetHashCode(), typeof(int));
@@ -464,7 +468,7 @@ namespace System.Data.Cobber
 
                 cases.Add(Expression.SwitchCase(Expression.Convert(setValue, typeof(object)), propertyHash));
             }
-            foreach (var propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Static))
+            foreach (var propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy))
             {
                 if (!propertyInfo.CanWrite) { continue; }
                 var property = Expression.Property(null, propertyInfo);

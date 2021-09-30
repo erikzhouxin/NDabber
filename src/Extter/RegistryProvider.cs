@@ -320,6 +320,20 @@ namespace System.Data.Extter
             });
         }
         /// <summary>
+        /// 测试
+        /// </summary>
+        /// <param name="store"></param>
+        /// <param name="Regist"></param>
+        /// <returns></returns>
+        public static RegistryProviderProxy Test(StoreType store, Func<RegistryProvider.TypeLoader> Regist)
+        {
+            return TestStoreDic.GetOrAdd(store, (k) =>
+            {
+                Regist();
+                return new RegistryProviderProxy();
+            });
+        }
+        /// <summary>
         /// 内部构造
         /// </summary>
         protected RegistryProviderProxy()

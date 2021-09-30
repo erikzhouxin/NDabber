@@ -68,7 +68,24 @@ namespace System.Data.Extter
         /// </summary>
         /// <param name="name">进程名称</param>
         /// <param name="status">状态</param>
-        public static void ShowName(string name, int status = SW_SHOW)
+        public static IntPtr ShowName(string name, int status = SW_SHOW)
+        {
+            Process tagProcess = GetOtherProcess(name);
+            if (tagProcess != null)
+            {
+                var hwnd = tagProcess.MainWindowHandle;
+                ShowWindowAsync(hwnd, status);
+                SetForegroundWindow(hwnd);
+                return hwnd;
+            }
+            return IntPtr.Zero;
+        }
+        /// <summary>
+        /// 获取指定其他进程
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static Process GetOtherProcess(string name)
         {
             var processes = Process.GetProcessesByName(name);
             var currentProcess = Process.GetCurrentProcess();
@@ -81,13 +98,7 @@ namespace System.Data.Extter
                     break;
                 }
             }
-            if (tagProcess != null)
-            {
-                var hwnd = tagProcess.MainWindowHandle;
-                ShowWindowAsync(hwnd, status);
-                SetForegroundWindow(hwnd);
-            }
+            return tagProcess;
         }
-
     }
 }

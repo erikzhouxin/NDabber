@@ -84,20 +84,20 @@ namespace System.Data.Extter
         /// <summary>
         /// 获取Base64编码
         /// </summary>
-        /// <see cref="SerialCaller.GetBinBytes{T}(T)"/>
+        /// <see cref="SerialCaller.GetModelBytes{T}(T)"/>
         /// <returns></returns>
         public static String GetBase64<T>(this T model)
         {
-            return Convert.ToBase64String(model.GetBinBytes());
+            return Convert.ToBase64String(model.GetModelBytes());
         }
         /// <summary>
         /// 获取Base64解码
         /// </summary>
-        /// <see cref="SerialCaller.GetBinModel{T}(byte[])"/>
+        /// <see cref="SerialCaller.GetBytesModel{T}(byte[])"/>
         /// <returns></returns>
         public static T GetDebase64<T>(this string base64)
         {
-            return Convert.FromBase64String(base64).GetBinModel<T>();
+            return Convert.FromBase64String(base64).GetBytesModel<T>();
         }
         /// <summary>
         /// 获取Base64编码

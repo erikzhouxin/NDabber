@@ -103,7 +103,7 @@ namespace System.Data.Cobber
                 {
                     item = conn.QueryFirstOrDefault<T>(sql, args);
                 }
-                return new AlertMsg<T>(true, "")
+                return new AlertMsg<T>(item.IsNotDefault(), "")
                 {
                     Data = item,
                 };

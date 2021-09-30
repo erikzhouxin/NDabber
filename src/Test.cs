@@ -75,4 +75,11 @@ public static class TestTry
         }
         catch (Exception ex) { return ex; }
     }
+    /// <summary>
+    /// 创建数组
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="models"></param>
+    /// <returns></returns>
+    public static T[] CreateArray<T>(params T[] models) => models;
 }
