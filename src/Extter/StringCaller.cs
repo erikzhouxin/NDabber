@@ -63,6 +63,24 @@ namespace System.Data.Cobber
             }
             return sb.ToString();
         }
+        /// <summary>
+        /// 转换成大写
+        /// </summary>
+        /// <param name="cha"></param>
+        /// <returns></returns>
+        public static Char ToUpper(this char cha)
+        {
+            return Char.ToUpper(cha);
+        }
+        /// <summary>
+        /// 转换成小写
+        /// </summary>
+        /// <param name="cha"></param>
+        /// <returns></returns>
+        public static Char ToLower(this char cha)
+        {
+            return Char.ToLower(cha);
+        }
     }
 }
 namespace System.Data.Extter
@@ -72,6 +90,178 @@ namespace System.Data.Extter
     /// </summary>
     public static class StringCaller
     {
+        /// <summary>
+        /// 转换成蛇形
+        /// ATest=>a_test
+        /// </summary>
+        /// <param name="str">字符串</param>
+        /// <returns></returns>
+        public static string ToSnakeCase(this string str)
+        {
+            if (string.IsNullOrWhiteSpace(str)) { return str; }
+            List<char> list = new List<char>(str.Length * 2);
+            list.Add(char.ToLower(str[0]));
+            char curr;
+            for (int i = 1; i < str.Length; i++)
+            {
+                curr = str[i];
+                if (Char.IsUpper(curr))
+                {
+                    list.Add('_');
+                    list.Add(Char.ToLower(curr));
+                }
+                else
+                {
+                    list.Add(curr);
+                }
+            }
+            return new String(list.ToArray());
+        }
+        /// <summary>
+        /// 驼峰转换成蛇形
+        /// aTest=>a_test
+        /// </summary>
+        /// <param name="str">字符串</param>
+        /// <returns></returns>
+        public static string CamelToSnakeCase(this string str)
+        {
+            if (string.IsNullOrWhiteSpace(str)) { return str; }
+            List<char> list = new List<char>(str.Length * 2);
+            char curr;
+            for (int i = 0; i < str.Length; i++)
+            {
+                curr = str[i];
+                if (Char.IsUpper(curr))
+                {
+                    list.Add('_');
+                    list.Add(Char.ToLower(curr));
+                }
+                else
+                {
+                    list.Add(curr);
+                }
+            }
+            return new String(list.ToArray());
+        }
+        /// <summary>
+        /// 帕斯卡(大驼峰)转换成蛇形
+        /// ATest=>a_test
+        /// </summary>
+        /// <param name="str">字符串</param>
+        /// <returns></returns>
+        public static string PascalToSnakeCase(this string str)
+        {
+            if (string.IsNullOrWhiteSpace(str)) { return str; }
+            List<char> list = new List<char>(str.Length * 2);
+            list.Add(char.ToLower(str[0]));
+            char curr;
+            for (int i = 1; i < str.Length; i++)
+            {
+                curr = str[i];
+                if (char.IsUpper(curr))
+                {
+                    list.Add('_');
+                    list.Add(char.ToLower(curr));
+                }
+                else
+                {
+                    list.Add(curr);
+                }
+            }
+            return new String(list.ToArray());
+        }
+        /// <summary>
+        /// 帕斯卡(大驼峰)转换成驼峰
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string PascalToCamelCase(this string str)
+        {
+            if (string.IsNullOrWhiteSpace(str)) { return str; }
+            char curr = Char.ToLower(str[0]);
+            StringBuilder sb = new StringBuilder().Append(curr);
+            for (int i = 0; i < str.Length; i++)
+            {
+                sb.Append(str[i]);
+            }
+            return sb.ToString();
+        }
+        /// <summary>
+        /// 驼峰转换成帕斯卡(大驼峰)
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string CamelToPascalCase(this string str)
+        {
+            if (string.IsNullOrWhiteSpace(str)) { return str; }
+            char curr = Char.ToUpper(str[0]);
+            StringBuilder sb = new StringBuilder().Append(curr);
+            for (int i = 0; i < str.Length; i++)
+            {
+                sb.Append(str[i]);
+            }
+            return sb.ToString();
+        }
+        /// <summary>
+        /// 蛇形转换成驼峰
+        /// a_test=>aTest
+        /// </summary>
+        /// <param name="str">字符串</param>
+        /// <returns></returns>
+        public static string SnakeToCamelCase(this string str)
+        {
+            if (string.IsNullOrWhiteSpace(str)) { return str; }
+            List<char> list = new List<char>(str.Length);
+            char curr;
+            for (int i = 0; i < str.Length; i++)
+            {
+                curr = str[i];
+                if (curr == '_')
+                {
+                    i++;
+                    if (i >= str.Length) { break; }
+                    curr = Char.ToUpper(str[i]);
+                }
+                list.Add(curr);
+            }
+            return new String(list.ToArray());
+        }
+        /// <summary>
+        /// 蛇形转换成帕斯卡(大驼峰)
+        /// a_test=>ATest
+        /// </summary>
+        /// <param name="str">字符串</param>
+        /// <returns></returns>
+        public static string SnakeToPascalCase(this string str)
+        {
+            if (string.IsNullOrWhiteSpace(str)) { return str; }
+            List<char> list = new List<char>(str.Length);
+            char curr = str[0];
+            int start;
+            if (curr == '_')
+            {
+                if (str.Length == 1) { return str; }
+                start = 2;
+                list.Add(Char.ToUpper(curr));
+            }
+            else
+            {
+                start = 1;
+                list.Add(char.ToUpper(curr));
+            }
+            for (int i = start; i < str.Length; i++)
+            {
+                curr = str[i];
+                if (curr == '_')
+                {
+                    i++;
+                    if (i >= str.Length) { break; }
+                    curr = Char.ToUpper(str[i]);
+                }
+                list.Add(curr);
+            }
+            return new String(list.ToArray());
+        }
         #region // Base64
         /// <summary>
         /// 获取Base64编码

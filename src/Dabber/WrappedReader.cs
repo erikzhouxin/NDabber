@@ -22,19 +22,26 @@ namespace System.Data.Dabber
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static T ThrowDisposed<T>() => throw new ObjectDisposedException(nameof(DbDataReader));
+#if NET40
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static Task<T> ThrowDisposedAsync<T>()
+        {
+            return new Task<T>(() => ThrowDisposed<T>());
+        }
+#else
         [MethodImpl(MethodImplOptions.NoInlining)]
         private async static Task<T> ThrowDisposedAsync<T>()
         {
             var result = ThrowDisposed<T>();
-#if !NET40
             await Task.Yield(); // will never hit this - already thrown and handled
-#endif
             return result;
         }
+#endif
+
         public override void Close() { }
         public override DataTable GetSchemaTable() => ThrowDisposed<DataTable>();
 
-#if PLAT_NO_REMOTING
+#if NET50
         [Obsolete("This Remoting API is not supported and throws PlatformNotSupportedException.", DiagnosticId = "SYSLIB0010", UrlFormat = "https://aka.ms/dotnet-warnings/{0}")]
 #endif
         public override object InitializeLifetimeService() => ThrowDisposed<object>();
@@ -139,7 +146,7 @@ namespace System.Data.Dabber
         public override void Close() => _reader.Close();
         public override DataTable GetSchemaTable() => _reader.GetSchemaTable();
 
-#if PLAT_NO_REMOTING
+#if NET50
         [Obsolete("This Remoting API is not supported and throws PlatformNotSupportedException.", DiagnosticId = "SYSLIB0010", UrlFormat = "https://aka.ms/dotnet-warnings/{0}")]
 #endif
         public override object InitializeLifetimeService() => _reader.InitializeLifetimeService();

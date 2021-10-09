@@ -455,7 +455,6 @@ namespace System.Data.Dabber
         bool ICollection<T>.Remove(T value)
         {
             throw new NotSupportedException("尝试修改只读集合");
-            return false;
         }
 
         void IList<T>.RemoveAt(int index)
@@ -587,7 +586,6 @@ namespace System.Data.Dabber
         int IList.Add(object value)
         {
             throw new NotSupportedException("尝试修改只读集合");
-            return -1;
         }
 
         void IList.Clear()
@@ -758,7 +756,6 @@ namespace System.Data.Dabber
         bool IDictionary<TKey, TValue>.Remove(TKey key)
         {
             throw new NotSupportedException("尝试修改只读字典");
-            return false;
         }
 
         TValue IDictionary<TKey, TValue>.this[TKey key]
@@ -812,7 +809,6 @@ namespace System.Data.Dabber
         bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
         {
             throw new NotSupportedException("尝试修改只读字典");
-            return false;
         }
 
         #endregion
@@ -1135,7 +1131,6 @@ namespace System.Data.Dabber
             bool ICollection<TKey>.Remove(TKey item)
             {
                 throw new NotSupportedException("尝试修改只读字典键");
-                return false;
             }
 
             #endregion
@@ -1255,7 +1250,6 @@ namespace System.Data.Dabber
             bool ICollection<TValue>.Remove(TValue item)
             {
                 throw new NotSupportedException("尝试修改只读字典值");
-                return false;
             }
 
             #endregion

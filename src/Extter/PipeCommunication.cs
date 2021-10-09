@@ -42,7 +42,9 @@ namespace System.Data.Extter
         /// </summary>
         public static NamedPipeServerStream ReceiveNamed<T>(string pipeName, Action<Model<T>> Callback, int size = 65535)
         {
+#pragma warning disable CA1416 // 验证平台兼容性
             var serverPipe = new NamedPipeServerStream(pipeName, PipeDirection.In, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
+#pragma warning restore CA1416 // 验证平台兼容性
             serverPipe.BeginWaitForConnection((ar) =>
             {
                 var ps = (NamedPipeServerStream)ar.AsyncState;
@@ -63,7 +65,9 @@ namespace System.Data.Extter
         /// </summary>
         public static NamedPipeServerStream ReceiveNamed(string pipeName, Action<ModelString> Callback, int size = 65535)
         {
+#pragma warning disable CA1416 // 验证平台兼容性
             var serverPipe = new NamedPipeServerStream(pipeName, PipeDirection.In, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
+#pragma warning restore CA1416 // 验证平台兼容性
             serverPipe.BeginWaitForConnection((ar) =>
             {
                 var ps = (NamedPipeServerStream)ar.AsyncState;

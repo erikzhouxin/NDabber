@@ -399,6 +399,9 @@ namespace System.Data.Dabber
             //{
             //    return RealConnection.GetService(service);
             //}
+#if NET50
+            [Obsolete]
+#endif
             public override object InitializeLifetimeService()
             {
                 return RealConnection.InitializeLifetimeService();
@@ -418,8 +421,8 @@ namespace System.Data.Dabber
             {
                 return RealConnection.ToString();
             }
-            #endregion
+#endregion
         }
-        #endregion
+#endregion
     }
 }
