@@ -72,6 +72,11 @@ namespace System.Data.Cobber
         /// <returns></returns>
         T GetOrAdd<T>(string key, Func<T> func);
         /// <summary>
+        /// 获取缓存,不存在时执行func存后返回
+        /// </summary>
+        /// <returns></returns>
+        T GetOrAdd<T>(string key, Func<T> func, TimeSpan? sliding = null, DateTimeOffset? expire = null);
+        /// <summary>
         /// 设置缓存
         /// </summary>
         /// <param name="key"></param>
@@ -295,7 +300,7 @@ namespace System.Data.Cobber
         /// <returns></returns>
         public bool Exists(string key)
         {
-            return InternalDb.ContainsKey(key);
+            return InternalDb.ContainsKey(key) && (InternalDb[key] as ICacheDicValue).IsValid();
         }
         /// <summary>
         /// 获取
@@ -373,6 +378,51 @@ namespace System.Data.Cobber
             }
             T result = func();
             Task.Factory.StartNew(() => { Set(key, result); });
+            return result;
+        }
+        /// <summary>
+        /// 获取或添加
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="func"></param>
+        /// <param name="sliding"></param>
+        /// <param name="expire"></param>
+        /// <returns></returns>
+        public T GetOrAdd<T>(string key, Func<T> func, TimeSpan? sliding = null, DateTimeOffset? expire = null)
+        {
+            if (InternalDb.ContainsKey(key))
+            {
+                ICacheDicValue item = InternalDb[key] as ICacheDicValue;
+                // 判断过期
+                if (item.IsValid())
+                {
+                    if (item is ECacheDicValue<T>)
+                    {
+                        return (item as ECacheDicValue<T>).Value;
+                    }
+                    if (item.Value is T)
+                    {
+                        return (T)item.Value;
+                    }
+                }
+            }
+            T result = func();
+            Task.Factory.StartNew(() =>
+            {
+                if (sliding.HasValue)
+                {
+                    Set(key, result, sliding.Value);
+                }
+                else if (expire.HasValue)
+                {
+                    Set(key, result, expire.Value);
+                }
+                else
+                {
+                    Set(key, result);
+                }
+            });
             return result;
         }
         /// <summary>
@@ -604,7 +654,7 @@ namespace System.Data.Cobber
         /// <returns></returns>
         public bool Exists(string key)
         {
-            return InternalDb.ContainsKey(key);
+            return InternalDb.TryGetValue(key, out ICacheDicValue item) && item.IsValid();
         }
         /// <summary>
         /// 获取内容
@@ -676,13 +726,53 @@ namespace System.Data.Cobber
                         return (T)item.Value;
                     }
                 }
-                else
-                {
-                    InternalDb.TryRemove(key, out _);
-                }
             }
             T result = func();
             Task.Factory.StartNew(() => { Set(key, result); });
+            return result;
+        }
+        /// <summary>
+        /// 获取或添加
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="func"></param>
+        /// <param name="sliding"></param>
+        /// <param name="expire"></param>
+        /// <returns></returns>
+        public T GetOrAdd<T>(string key, Func<T> func, TimeSpan? sliding = null, DateTimeOffset? expire = null)
+        {
+            if (InternalDb.TryGetValue(key, out ICacheDicValue item))
+            {
+                // 判断过期
+                if (item.IsValid())
+                {
+                    if (item is ECacheDicValue<T>)
+                    {
+                        return (item as ECacheDicValue<T>).Value;
+                    }
+                    if (item.Value is T)
+                    {
+                        return (T)item.Value;
+                    }
+                }
+            }
+            T result = func();
+            Task.Factory.StartNew(() =>
+            {
+                if (sliding.HasValue)
+                {
+                    Set(key, result, sliding.Value);
+                }
+                else if (expire.HasValue)
+                {
+                    Set(key, result, expire.Value);
+                }
+                else
+                {
+                    Set(key, result);
+                }
+            });
             return result;
         }
         /// <summary>
@@ -913,7 +1003,7 @@ namespace System.Data.Cobber
         /// <returns></returns>
         public bool Exists(string key)
         {
-            return InternalDb.ContainsKey(key);
+            return InternalDb.TryGetValue(key, out ICacheDicValue item) && item.IsValid();
         }
         /// <summary>
         /// 获取内容
@@ -993,17 +1083,53 @@ namespace System.Data.Cobber
                         return (T)item.Value;
                     }
                 }
-                else
-                {
-#if NET40 || NET45
-                    InternalDb.Remove(key);
-#else
-                    InternalDb.Remove(key, out _);
-#endif
-                }
             }
             T result = func();
             Task.Factory.StartNew(() => { Set(key, result); });
+            return result;
+        }
+        /// <summary>
+        /// 获取或添加
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="func"></param>
+        /// <param name="sliding"></param>
+        /// <param name="expire"></param>
+        /// <returns></returns>
+        public T GetOrAdd<T>(string key, Func<T> func, TimeSpan? sliding = null, DateTimeOffset? expire = null)
+        {
+            if (InternalDb.TryGetValue(key, out ICacheDicValue item))
+            {
+                // 判断过期
+                if (item.IsValid())
+                {
+                    if (item is ECacheDicValue<T>)
+                    {
+                        return (item as ECacheDicValue<T>).Value;
+                    }
+                    if (item.Value is T)
+                    {
+                        return (T)item.Value;
+                    }
+                }
+            }
+            T result = func();
+            Task.Factory.StartNew(() =>
+            {
+                if (sliding.HasValue)
+                {
+                    Set(key, result, sliding.Value);
+                }
+                else if (expire.HasValue)
+                {
+                    Set(key, result, expire.Value);
+                }
+                else
+                {
+                    Set(key, result);
+                }
+            });
             return result;
         }
         /// <summary>

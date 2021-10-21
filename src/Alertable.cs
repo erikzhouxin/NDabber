@@ -85,17 +85,17 @@ namespace System.Data.Dabber
         /// 操作未实现
         /// </summary>
         /// <returns></returns>
-        public static AlertMsg NotImplement => new AlertMsg(false, "操作未实现");
+        public static new AlertMsg NotImplement { get => new AlertMsg(false, "操作未实现"); }
         /// <summary>
         /// 操作失败
         /// </summary>
         /// <returns></returns>
-        public static AlertMsg OperError => new AlertMsg(false, "操作失败");
+        public static AlertMsg OperError { get => new AlertMsg(false, "操作失败"); }
         /// <summary>
         /// 操作成功
         /// </summary>
         /// <returns></returns>
-        public static AlertMsg OperSuccess => new AlertMsg(true, "操作成功");
+        public static AlertMsg OperSuccess { get => new AlertMsg(true, "操作成功"); }
     }
     /// <summary>
     /// 提示信息动态实现类
@@ -261,7 +261,6 @@ namespace System.Data.Dabber
         dynamic IAlertMsg.Data { get => Data; set => Data = value; }
         dynamic IAlertResult.Data { get => Data; }
         object IAlert.Data { get => Data; }
-
         /// <summary>
         /// 添加信息
         /// </summary>
@@ -385,6 +384,12 @@ namespace System.Data.Dabber
         /// 隐式转换
         /// </summary>
         public static implicit operator AlertMsg<T>(Exception ex) => new AlertMsg<T>(false, "操作失败,错误:{0}", ex.Message);
+
+        /// <summary>
+        /// 操作未实现
+        /// </summary>
+        /// <returns></returns>
+        public static AlertMsg<T> NotImplement => new AlertMsg<T>(false, "操作未实现");
         #endregion
     }
     /// <summary>
@@ -608,7 +613,7 @@ namespace System.Data.Dabber
         /// <summary>
         /// 结果项
         /// </summary>
-        IEnumerable<object> Items { get;}
+        IEnumerable<object> Items { get; }
         /// <summary>
         /// 跳过
         /// </summary>

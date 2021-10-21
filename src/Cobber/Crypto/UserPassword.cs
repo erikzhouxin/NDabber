@@ -130,8 +130,8 @@ namespace System.Data.Cobber
         /// <returns>加密字符</returns>
         public static string GetMd5Hash(string pass, Encoding encode)
         {
-            var md5 = new MD5CryptoServiceProvider();
             var passSalt = encode.GetBytes(pass);
+            var md5 = new MD5CryptoServiceProvider();
             var hashData = md5.ComputeHash(passSalt);
             return GetByte16String(hashData);
         }

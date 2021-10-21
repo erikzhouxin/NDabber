@@ -205,7 +205,7 @@ namespace System.Data.Cobber
             }
         }
         /// <summary>
-        /// 执行SQL语句
+        /// 执行SQL语句(无事务)
         /// </summary>
         /// <param name="sql"></param>
         /// <param name="args"></param>
@@ -218,7 +218,35 @@ namespace System.Data.Cobber
             }
         }
         /// <summary>
+        /// 执行SQL语句(事务执行)
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public virtual int ExecuteTransaction(string sql, object args = null)
+        {
+            using (var conn = Connection)
+            {
+                DbTransaction trans = null;
+                try
+                {
+                    trans = conn.BeginTransaction();
+                    var effLine = conn.Execute(sql, args);
+                    trans.Commit();
+                    return effLine;
+                }
+                catch (Exception ex)
+                {
+                    trans?.Rollback();
+                    Console.WriteLine(ex);
+                    return -1;
+                }
+            }
+        }
+        /// <summary>
         /// 安全执行SQL语句
+        /// 无影响行数判断
+        /// 无Connection异常
         /// </summary>
         /// <param name="sql"></param>
         /// <param name="args"></param>
@@ -242,12 +270,14 @@ namespace System.Data.Cobber
             }
             catch (Exception ex)
             {
-                Console.Write(ex);
+                Console.WriteLine(ex);
                 return new AlertMsg(false, "执行错误:{0}", ex.Message);
             }
         }
         /// <summary>
         /// 安全执行SQL语句
+        /// 影响行数判断
+        /// 无Connection异常
         /// </summary>
         /// <param name="sql"></param>
         /// <param name="args"></param>
@@ -277,6 +307,50 @@ namespace System.Data.Cobber
         }
         /// <summary>
         /// 安全执行SQL语句
+        /// 带事务的影响行数判断批量执行
+        /// 无Connection异常
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public virtual IAlertMsg TryExecuteLine<T>(string sql, IEnumerable<T> args)
+        {
+            try
+            {
+                var effLine = 0;
+                using (var conn = Connection)
+                {
+                    IDbTransaction trans = null;
+                    try
+                    {
+                        trans = conn.BeginTransaction();
+                        effLine = conn.Execute(sql, args);
+                        trans.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        trans?.Rollback();
+                        Console.WriteLine(ex);
+                    }
+                }
+                return new AlertMsg(effLine > 0, $"执行成功，影响行数{effLine}")
+                {
+                    Data = new
+                    {
+                        EffLine = effLine,
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex);
+                return new AlertMsg(false, "执行错误:{0}", ex.Message);
+            }
+        }
+        /// <summary>
+        /// 安全执行SQL语句
+        /// 带事务的影响行数判断单条执行
+        /// 有Connection异常
         /// </summary>
         /// <param name="sql"></param>
         /// <param name="args"></param>
@@ -305,7 +379,7 @@ namespace System.Data.Cobber
                 }
                 catch (Exception ex)
                 {
-                    if (trans != null) { trans.Rollback(); }
+                    trans?.Rollback();
                     Console.Write(ex);
                     return new AlertMsg(false, "执行错误:{0}", ex.Message);
                 }

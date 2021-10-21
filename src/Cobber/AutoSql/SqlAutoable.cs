@@ -91,6 +91,10 @@ namespace System.Data.Cobber
         /// 主键WHERE(不包括WHERE关键字)[?...=@...]
         /// </summary>
         string WhereID { get; }
+        /// <summary>
+        /// 表信息
+        /// </summary>
+        DbTableModel Table { get; }
     }
     /// <summary>
     /// 自动SQL类型
@@ -107,6 +111,7 @@ namespace System.Data.Cobber
         public AutoSqlModel(Type type)
         {
             Type = type;
+            Table = new DbTableModel(type);
         }
         /// <summary>
         /// 类型
@@ -175,19 +180,23 @@ namespace System.Data.Cobber
         /// <summary>
         /// 获取列的集合
         /// </summary>
-        public string[] Cols { get; set; }
+        public string[] Cols { get => Table.ColumnNames; }
         /// <summary>
         /// 标记名称(不包括分隔符)
         /// </summary>
-        public virtual String TagName { get; set; }
+        public virtual String TagName { get => Table.TableName; }
         /// <summary>
         /// 标记主键名称(不包括分隔符)
         /// </summary>
-        public virtual String TagID { get; set; }
+        public virtual String TagID { get => Table.DefaultTableKey; }
         /// <summary>
         /// 主键WHERE(不包括WHERE关键字)[?...=@...]
         /// </summary>
         public virtual string WhereID { get; set; }
+        /// <summary>
+        /// 表信息模型
+        /// </summary>
+        public virtual DbTableModel Table { get; }
 
         #region // 参数模型
         /// <summary>

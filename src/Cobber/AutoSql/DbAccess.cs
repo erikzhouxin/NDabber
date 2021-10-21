@@ -138,7 +138,7 @@ namespace System.Data.Cobber
         {
             var result = new AutoSqlBuilder(type);
             var eColAttr = type.GetCustomAttribute<DbColAttribute>() ?? new DbColAttribute(type.Name);
-            result.TagName = eColAttr.Name = eColAttr.Name ?? type.Name;
+            //result.TagName = eColAttr.Name = eColAttr.Name ?? type.Name;
             var createBuilder = new StringBuilder("CREATE TABLE ");
             createBuilder.AppendFormat("[{0}](", eColAttr.Name);
             var pSql = new List<string>();
@@ -207,9 +207,9 @@ namespace System.Data.Cobber
             result.SelectInID = string.Format("SELECT [{1}] FROM [{0}] WHERE [{2}] IN @{2}", eColAttr.Name, commaAPSql, pk);
             result.SelectLimit = string.Format("SELECT [{1}] FROM [{0}] LIMIT @Skip,@Take", eColAttr.Name, commaAPSql);
             result.SelectCount = string.Format("SELECT COUNT(*) FROM [{0}]", eColAttr.Name);
-            result.Cols = apSql.ToArray();
+            //result.Cols = apSql.ToArray();
             result.WhereID = string.Format("[{0}]=@{0}", pk);
-            result.TagID = pk;
+            //result.TagID = pk;
 
             return result;
         }

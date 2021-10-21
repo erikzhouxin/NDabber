@@ -194,6 +194,17 @@ namespace System.Data.Cobber
         {
             return new ObservableCollection<TResult>(list.Select(func));
         }
+        /// <summary>
+        /// 反转数组
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static T[] Reverse<T>(this T[] list)
+        {
+            Array.Reverse(list);
+            return list;
+        }
     }
 }
 namespace System.Data.Extter

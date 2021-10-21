@@ -11,7 +11,7 @@ namespace System.Data.Cobber
     /// 默认SQL语句属性
     /// 自动生成SQL语句标签
     /// </summary>
-    public class DbColAttribute : Attribute
+    public class DbColAttribute : Attribute, IDbColInfo
     {
         /// <summary>
         /// 默认构造
@@ -65,10 +65,6 @@ namespace System.Data.Cobber
         /// </summary>
         public int Digit { get; set; }
         /// <summary>
-        /// 默认值
-        /// </summary>
-        public string Defalut { get; set; }
-        /// <summary>
         /// 获取属性注解
         /// </summary>
         /// <param name="prop"></param>
@@ -76,13 +72,53 @@ namespace System.Data.Cobber
         /// <returns></returns>
         public static bool TryGetAttribute(PropertyInfo prop, out DbColAttribute colAttr)
         {
-            if (prop.HasIgnoreAttribute())
+            colAttr = null;
+            foreach (var item in prop.GetCustomAttributes(false))
             {
-                colAttr = null;
-                return false;
+                var typeName = item.GetType().Name;
+                switch (typeName)
+                {
+                    case "NotMappedAttribute":
+                    case "IgnoreAttribute":
+                        return false;
+                    case "DbColAttribute":
+                        colAttr = item as DbColAttribute;
+                        break;
+                    default:
+                        break;
+                }
+
             }
-            colAttr = prop.GetCustomAttribute<DbColAttribute>();
             return colAttr != null && !colAttr.Ignore;
+        }
+        /// <summary>
+        /// 获取属性内容
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <returns></returns>
+        public static DbColAttribute GetAttribute(PropertyInfo prop)
+        {
+            foreach (var item in prop.GetCustomAttributes(false))
+            {
+                var typeName = item.GetType().Name;
+                switch (typeName)
+                {
+                    case "NotMappedAttribute":
+                    case "IgnoreAttribute":
+                        return GetIgnore(prop.Name);
+                    case "DbColAttribute":
+                        return item as DbColAttribute;
+                    default:
+                        break;
+                }
+
+            }
+            return GetIgnore(prop.Name);
+        }
+
+        private static DbColAttribute GetIgnore(String display)
+        {
+            return new DbColAttribute(display) { Ignore = true };
         }
     }
     /// <summary>
@@ -358,5 +394,55 @@ namespace System.Data.Cobber
         /// 备注
         /// </summary>
         public string Memo { get; set; }
+    }
+    /// <summary>
+    /// 数据列信息
+    /// </summary>
+    public interface IDbColInfo
+    {
+        /// <summary>
+        /// 显示名默认类名
+        /// </summary>
+        string Display { get; }
+        /// <summary>
+        /// 列名默认是属性名
+        /// </summary>
+        string Name { get; }
+        /// <summary>
+        /// 类型
+        /// </summary>
+        DbColType Type { get; }
+        /// <summary>
+        /// 长度默认64位
+        /// </summary>
+        long Len { get; }
+        /// <summary>
+        /// 必填项
+        /// </summary>
+        bool IsReq { get; }
+        /// <summary>
+        /// 默认值
+        /// </summary>
+        object Default { get; }
+        /// <summary>
+        /// 是否主键
+        /// 0=>无
+        /// 10=>主键
+        /// 20=>主键+外键
+        /// 30=>外键
+        /// </summary>
+        DbIxType Key { get; }
+        /// <summary>
+        /// 索引名,使用|分割
+        /// </summary>
+        string Index { get; }
+        /// <summary>
+        /// 忽略映射
+        /// </summary>
+        bool Ignore { get; }
+        /// <summary>
+        /// 精度
+        /// </summary>
+        int Digit { get; }
     }
 }

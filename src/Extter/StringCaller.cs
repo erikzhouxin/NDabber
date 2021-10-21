@@ -81,6 +81,17 @@ namespace System.Data.Cobber
         {
             return Char.ToLower(cha);
         }
+        /// <summary>
+        /// 反转字符串
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static string Reverse(this string data)
+        {
+            var chars = data.ToCharArray();
+            Array.Reverse(chars);
+            return new String(chars);
+        }
     }
 }
 namespace System.Data.Extter

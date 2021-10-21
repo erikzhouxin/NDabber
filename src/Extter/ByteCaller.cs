@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace System.Data.Cobber
@@ -37,6 +38,104 @@ namespace System.Data.Extter
     /// </summary>
     public static class ByteCaller
     {
+        /// <summary>
+        /// 获取MD5加密值
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static byte[] GetMd5(this byte[] bytes)
+        {
+            return new MD5CryptoServiceProvider().ComputeHash(bytes);
+        }
+        /// <summary>
+        /// 获取MD5加密值
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static string GetMd5String(this byte[] bytes)
+        {
+            return GetHexString(GetMd5(bytes));
+        }
+        /// <summary>
+        /// 将字节数组转换成16进制字符串
+        /// </summary>
+        /// <param name="hashData">字节数组</param>
+        /// <returns>16进制字符串(大写字母)</returns>
+        public static string GetHexString(this byte[] hashData)
+        {
+            StringBuilder sBuilder = new StringBuilder();
+            foreach (var hash in hashData)
+            {
+                sBuilder.AppendFormat("{0:X2}", hash);
+            }
+            return sBuilder.ToString();
+        }
+        /// <summary>
+        /// 将16进制字符串转换成字节数组
+        /// </summary>
+        /// <param name="hexString"></param>
+        /// <returns></returns>
+        public static byte[] GetHexByte(this string hexString)
+        {
+            if ((hexString.Length % 2) != 0) { hexString += " "; }
+            byte[] returnBytes = new byte[hexString.Length / 2];
+            for (int i = 0; i < returnBytes.Length; i++)
+            {
+                returnBytes[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
+            }
+            return returnBytes;
+        }
+        /// <summary>
+        /// 将16进制字符串转换成字节数组
+        /// </summary>
+        /// <param name="hexString"></param>
+        /// <param name="fix"></param>
+        /// <param name="replace"></param>
+        /// <returns></returns>
+        public static byte[] GetHexByte(this string hexString, char fix, char replace = ' ')
+        {
+            hexString.Replace(replace.ToString(), "");
+            if ((hexString.Length % 2) != 0) { hexString += fix; }
+            byte[] returnBytes = new byte[hexString.Length / 2];
+            for (int i = 0; i < returnBytes.Length; i++)
+            {
+                returnBytes[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
+            }
+            return returnBytes;
+        }
+        /// <summary>
+        /// 将16进制字符串转换成字节数组
+        /// </summary>
+        /// <returns></returns>
+        public static byte[] GetHexByte(this string hexString, char fix = ' ', string replace = " ")
+        {
+            hexString.Replace(replace, "");
+            if ((hexString.Length % 2) != 0) { hexString += fix; }
+            byte[] returnBytes = new byte[hexString.Length / 2];
+            for (int i = 0; i < returnBytes.Length; i++)
+            {
+                returnBytes[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
+            }
+            return returnBytes;
+        }
+        /// <summary>
+        /// 将16进制字符串转换成字节数组
+        /// </summary>
+        /// <returns></returns>
+        public static byte[] GetHexByte(this string hexString, char fix, params char[] replaces)
+        {
+            foreach (var item in replaces)
+            {
+                hexString.Replace(item.ToString(), "");
+            }
+            if ((hexString.Length % 2) != 0) { hexString += fix; }
+            byte[] returnBytes = new byte[hexString.Length / 2];
+            for (int i = 0; i < returnBytes.Length; i++)
+            {
+                returnBytes[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
+            }
+            return returnBytes;
+        }
         #region // 压缩
         /// <summary>
         /// 压缩字节

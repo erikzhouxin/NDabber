@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Dabber;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -138,53 +140,89 @@ namespace System.Data.Cobber
     /// </summary>
     public class StoreBuilder
     {
+        private string _server;
         /// <summary>
         /// 服务器
         /// </summary>
-        public string Server { get; set; }
+        public string Server
+        {
+            get => _server;
+            set => _extra[nameof(Server)] = _server = value;
+        }
+        private string _dataSource;
         /// <summary>
         /// 数据源
         /// </summary>
-        public string DataSource { get; set; }
+        public string DataSource
+        {
+            get => _dataSource;
+            set => _extra[nameof(DataSource)] = _dataSource = value;
+        }
+        private string _userID;
         /// <summary>
         /// 用户名
         /// </summary>
-        public string UserID { get; set; }
+        public string UserID
+        {
+            get => _userID;
+            set => _extra[nameof(UserID)] = _userID = value;
+        }
         /// <summary>
         /// 用户名
         /// </summary>
-        public string UID { get => UserID; set => UserID = value; }
+        public string UID
+        {
+            get => _userID;
+            set => _extra[nameof(UID)] = _userID = value;
+        }
+        private string _password;
         /// <summary>
         /// 密码
         /// </summary>
-        public string Password { get; set; }
+        public string Password
+        {
+            get => _password;
+            set => _extra[nameof(Password)] = _password = value;
+        }
         /// <summary>
         /// 用户名
         /// </summary>
-        public string Pwd { get => Password; set => Password = value; }
+        public string Pwd { get => Password; set => _extra[nameof(Pwd)] = _password = value; }
+        private string _provider;
         /// <summary>
         /// 提供者
         /// </summary>
-        public string Provider { get; set; }
+        public string Provider { get => _provider; set => _origin[nameof(Provider)] = _provider = value; }
+        private string _version;
         /// <summary>
         /// 版本
         /// </summary>
-        public string Version { get; set; }
+        public string Version { get => _version; set => _origin[nameof(Version)] = _version = value; }
+        private string _port;
+        /// <summary>
+        /// 端口
+        /// </summary>
+        public string Port { get=> _port; set => _origin[nameof(Port)] = _port = value; }
+        private string _database;
+        /// <summary>
+        /// 数据库
+        /// </summary>
+        public string Database { get => _database; set =>_origin[nameof(Database)] = _database = value; }
+        private Dictionary<string, string> _extra = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         /// <summary>
         /// 附加字典
         /// </summary>
-        public Dictionary<string, string> Extra { get; }
+        public ReadOnlyDictionary<string, string> Extra { get => new ReadOnlyDictionary<string, string>(_extra); }
+        private Dictionary<string, string> _origin = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         /// <summary>
         /// 全部字典
         /// </summary>
-        public Dictionary<string, string> Origin { get; }
+        public ReadOnlyDictionary<string, string> Origin { get => new ReadOnlyDictionary<string, string>(_origin); }
         /// <summary>
         /// 构造
         /// </summary>
         public StoreBuilder()
         {
-            Extra = new Dictionary<string, string>();
-            Origin = new Dictionary<string, string>();
         }
         /// <summary>
         /// 同连接字符串中提取
@@ -195,34 +233,68 @@ namespace System.Data.Cobber
         {
             var builder = new StoreBuilder();
             if (string.IsNullOrEmpty(connString)) { return builder; }
-            var array = connString.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var item in array)
+            var array = new List<string>();
+            var isBracket = false;
+            StringBuilder section = new StringBuilder();
+            foreach (var item in connString)
             {
-                var kv = item.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
-                if (kv == null || kv.Length == 0) { continue; }
-                if (kv.Length == 1) { builder.Origin.Add(kv[0].Trim(), string.Empty); }
-                if (kv.Length == 2) { builder.Origin.Add(kv[0].Trim(), kv[1].Trim()); }
+                if (item.Equals('\''))
+                {
+                    isBracket = !isBracket;
+                }
+                if (isBracket || !item.Equals(';'))
+                {
+                    section.Append(item);
+                }
+                else
+                {
+                    var temp = section.ToString();
+                    if (string.IsNullOrEmpty(temp)) { continue; }
+                    array.Add(temp);
+                    section.Clear();
+                }
             }
             var extraProps = new List<string> { nameof(Origin), nameof(Extra) };
             var props = typeof(StoreBuilder).GetProperties()
                 .Where(s => !extraProps.Contains(s.Name));
-            foreach (var item in builder.Origin)
+            var SetValue = MemberExpressionAccessor<StoreBuilder>.SetValue;
+            foreach (var temp in array)
             {
-                var newKey = Regex.Replace(item.Key, "\\s+", "").ToLower();
+                var index = temp.IndexOf("=");
+                if (index <= 0) { continue; }
+                string key = temp.Substring(0, index).Trim();
+                string value = string.Empty;
+                if (index + 1 < temp.Length)
+                {
+                    value = temp.Substring(index + 1, temp.Length - index - 1).Trim();
+                }
+                var newKey = Regex.Replace(key, "\\s+", ""); // 替换掉所有空格
                 var prop = props.FirstOrDefault(s => s.CanWrite && s.Name.Equals(newKey, StringComparison.OrdinalIgnoreCase));
                 if (prop != null)
                 {
                     try
                     {
-                        prop.SetValue(builder, item.Value, null);
+                        SetValue(builder, prop.Name, value);
                         continue;
                     }
                     catch { }
                 }
-                builder.Extra[item.Key] = item.Value;
+                builder.AddExtra(key, value);
             }
             return builder;
         }
+        /// <summary>
+        /// 添加附加值
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public StoreBuilder AddExtra(string key, string value)
+        {
+            _origin[key] = _extra[key] = value;
+            return this;
+        }
+
         /// <summary>
         /// 从存储类模型中提取(使用其连接字符串)
         /// </summary>

@@ -35,15 +35,10 @@ namespace System.Data.Logger
         [DbCol("操作的数据集", Type = DbColType.StringNormal, IsReq = false)]
         public virtual String Data { get; set; }
         /// <summary>
-        /// 用户标识
+        /// 操作的数据集
         /// </summary>
-        [DbCol("用户标识", Len = 64)]
-        public virtual String UserID { get; set; }
-        /// <summary>
-        /// 用户名称
-        /// </summary>
-        [DbCol("用户名称", Len = 255)]
-        public virtual String UserName { get; set; }
+        [DbCol("操作的数据集", Type = DbColType.StringMax, IsReq = false)]
+        public virtual String Extra { get; set; }
         /// <summary>
         /// 创建时间
         /// </summary>

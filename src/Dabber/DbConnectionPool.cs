@@ -83,7 +83,7 @@ namespace System.Data.Dabber
         private Timer _clearTimer = new Timer
         {
             Enabled = true, // 启用执行
-            Interval = 1800000, // 一小时执行一次
+            Interval = 1800000, // 半小时执行一次
             AutoReset = true, // 一直执行
         };
         /// <summary>
