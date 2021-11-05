@@ -11,11 +11,21 @@ namespace System.Data.DabberUT
     public class AutoSqlUT
     {
         [TestMethod]
-        public void MyTestMethod()
+        public void TestSQLite()
         {
             Console.WriteLine(AutoSQLiteBuilder.Builder<TSysSettings>().Create);
             Console.WriteLine(AutoSQLiteBuilder.Builder<TSysSettings>().Update);
             Console.WriteLine(AutoSQLiteBuilder.Builder<TSysSettings>().Select);
+        }
+        [TestMethod]
+        public void TestMySQL()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                Console.WriteLine(AutoMySqlBuilder.Builder<TSysSettings>().Create);
+                Console.WriteLine(AutoMySqlBuilder.Builder<TSysSettings>().Update);
+                Console.WriteLine(AutoMySqlBuilder.Builder<TSysSettings>().Select);
+            }
         }
     }
 }

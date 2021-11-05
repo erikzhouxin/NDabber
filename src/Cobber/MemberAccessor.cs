@@ -42,6 +42,7 @@ namespace System.Data.Cobber
     }
     /// <summary>
     /// 反射对象成员访问
+    /// 支持object访问
     /// 能效等级四级,不推荐使用
     /// </summary>
     public class MemberReflectionAccessor : IMemberAccessor
@@ -102,6 +103,7 @@ namespace System.Data.Cobber
     }
     /// <summary>
     /// 委托表达式树成员访问
+    /// 支持object访问
     /// 能效等级三级,不推荐使用
     /// </summary>
     public class MemberDelegatedExpressionAccessor : IMemberAccessor
@@ -241,6 +243,7 @@ namespace System.Data.Cobber
     }
     /// <summary>
     /// 委托反射成员访问
+    /// 支持object访问
     /// 能效等级三级,不推荐使用
     /// </summary>
     public class MemberDelegatedReflectionAccessor : IMemberAccessor
@@ -344,6 +347,7 @@ namespace System.Data.Cobber
     }
     /// <summary>
     /// 动态生成方法成员访问
+    /// 泛型不支持object
     /// 能效等级二级,推荐使用
     /// </summary>
     public class MemberExpressionAccessor : IMemberAccessor
@@ -403,6 +407,7 @@ namespace System.Data.Cobber
     /// <summary>
     /// 表达式树生成case字段泛型获取
     /// 能效等级二级,推荐使用
+    /// 泛型不支持object
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public static class MemberExpressionAccessor<T>

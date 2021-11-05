@@ -115,6 +115,15 @@ namespace System.Data.Cobber
             }
         }
         /// <summary>
+        /// 查询
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public virtual IEnumerable<T> Query<T>()
+        {
+            return Query<T>(GetSqlModel<T>().Select);
+        }
+        /// <summary>
         /// 获取泛型类型对象列表
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -421,6 +430,105 @@ namespace System.Data.Cobber
                     Console.Write(ex);
                     return new DataTable("Empty");
                 }
+            }
+        }
+        /// <summary>
+        /// 获取SQL模型
+        /// </summary>
+        /// <typeparam name="T">带有DbCol标记的实体类</typeparam>
+        /// <returns></returns>
+        public virtual AutoSqlModel GetSqlModel<T>() => GetSqlModel(typeof(T));
+        /// <summary>
+        /// 获取SQL模型
+        /// </summary>
+        /// <returns></returns>
+        public abstract AutoSqlModel GetSqlModel(Type type);
+        /// <summary>
+        /// 获取检查类型
+        /// 不管成功与否都返回自动SQL模型
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public virtual AutoSqlModel CheckTable<T>()
+        {
+            var type = typeof(T);
+            var sqlModel = GetSqlModel<T>();
+            if (CheckedDic.ContainsKey(type))
+            {
+                return sqlModel;
+            }
+            try
+            {
+                var effLine = 0;
+                using (var conn = Connection)
+                {
+                    effLine = conn.Execute(sqlModel.Create);
+                }
+                CheckedDic.TryAdd(type, true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            return sqlModel;
+        }
+        /// <summary>
+        /// 获取检查类型
+        /// 不管成功与否都返回自动SQL模型
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public virtual IAlertMsg<AutoSqlModel> CheckTable(Type type)
+        {
+            var sqlModel = GetSqlModel(type);
+            if (CheckedDic.TryGetValue(type, out bool isChecked))
+            {
+                return new AlertMsg<AutoSqlModel>(isChecked, "") { Data = sqlModel };
+            }
+            try
+            {
+                var effLine = 0;
+                using (var conn = Connection)
+                {
+                    effLine = conn.Execute(sqlModel.Create);
+                }
+                CheckedDic.TryAdd(type, true);
+                return new AlertMsg<AutoSqlModel>(true, "") { Data = sqlModel };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return new AlertMsg<AutoSqlModel>(false, ex.Message) { Data = sqlModel };
+            }
+        }
+        /// <summary>
+        /// 获取检查类型
+        /// 不管成功与否都输出自动SQL模型
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public virtual bool CheckTable<T>(out AutoSqlModel sqlModel)
+        {
+            var type = typeof(T);
+            sqlModel = GetSqlModel<T>();
+            if (CheckedDic.TryGetValue(type, out bool isChecked))
+            {
+                return isChecked;
+            }
+            try
+            {
+                var effLine = 0;
+                using (var conn = Connection)
+                {
+                    effLine = conn.Execute(sqlModel.Create);
+                }
+                CheckedDic.TryAdd(type, true);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return false;
             }
         }
     }

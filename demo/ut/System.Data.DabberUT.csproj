@@ -24,7 +24,7 @@
 		<PackageReference Include="MSTest.TestAdapter" Version="2.1.2" />
 		<PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
 		<PackageReference Include="MySql.Data" Version="8.0.16" />
-		<PackageReference Include="NSystem.Data.SQLiteCipher" Version="2021.10.1" />
+		<PackageReference Include="NSystem.Data.SQLiteCipher" Version="2021.9.15" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\src\System.Data.Dabber.csproj" />

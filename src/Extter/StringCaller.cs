@@ -92,6 +92,28 @@ namespace System.Data.Cobber
             Array.Reverse(chars);
             return new String(chars);
         }
+        /// <summary>
+        /// 格式化字符串
+        /// String.FormatString
+        /// </summary>
+        /// <param name="fmt"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static String FString(this string fmt, params object[] args)
+        {
+            return string.Format(fmt, args);
+        }
+        /// <summary>
+        /// 格式化字符串
+        /// String.FormatString
+        /// </summary>
+        /// <param name="fmt"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static String FormatString(this string fmt, params object[] args)
+        {
+            return string.Format(fmt, args);
+        }
     }
 }
 namespace System.Data.Extter

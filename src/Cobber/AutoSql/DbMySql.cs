@@ -151,7 +151,21 @@ namespace System.Data.Cobber
 
                 if (i + 1 == colLength) // 最后一个进行特殊处理
                 {
-                    createBuilder.AppendLine($"\t{colDefine}");
+                    if (result.Table.Indexes.Length == 0)
+                    {
+                        createBuilder.AppendLine($"\t{colDefine}");
+                    }
+                    else
+                    {
+                        var idxLen = result.Table.Indexes.Length;
+                        createBuilder.AppendLine($"\t{colDefine},");
+                        for (int j = 0; j < idxLen;)
+                        { 
+                            var item = result.Table.Indexes[j];
+                            var split = ++j == idxLen ? "" : ",";
+                            createBuilder.AppendLine($"\t{(item.IsUnique ? " UNIQUE " : " ")}KEY `IX_{tableName}_{item.IndexName.Replace("|", "_")}` (`{item.IndexName.Replace("|", "`,`")}`) USING BTREE{split}");
+                        }
+                    }
                     if (!prop.IsAuto)
                     {
                         insertIgApkColumns.Append($"`{prop.ColumnName}`");
@@ -179,10 +193,6 @@ namespace System.Data.Cobber
                 }
             }
             createBuilder.Append($")ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='{tableComment}';");
-            foreach (var item in result.Table.Indexes)
-            {
-                createBuilder.AppendLine().Append($"CREATE{(item.IsUnique ? " UNIQUE " : " ")}INDEX IF NOT EXISTS `IX_{tableName}_{item.IndexName.Replace("|", "_")}` ON `{tableName}`(`{item.IndexName.Replace("|", "`,`")}`);");
-            }
 
             result.Create = createBuilder.ToString();
             result.Insert = string.Format("INSERT INTO `{0}`({1}) VALUES({2})", tableName, insertIgApkColumns, insertIgApkValues); // 无自增主键

@@ -205,6 +205,38 @@ namespace System.Data.Cobber
             Array.Reverse(list);
             return list;
         }
+        /// <summary>
+        /// 数组相同
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="curr"></param>
+        /// <param name="tag"></param>
+        /// <param name="isNull">当同时为NULL时是否相等,默认相等</param>
+        /// <returns></returns>
+        public static bool EqualArray<T>(this T[] curr, T[] tag, bool isNull = true)
+        {
+            if (curr == null && tag == null) { return isNull; }
+            if (curr == null || tag == null) { return false; }
+            if (curr.Length != tag.Length) { return false; }
+            for (int i = 0; i < curr.Length; i++)
+            {
+                var c = curr[i];
+                var t = tag[i];
+                if (c == null && t == null)
+                {
+                    continue;
+                }
+                if (c == null || t == null)
+                {
+                    return false;
+                }
+                if (!c.Equals(t))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }
 namespace System.Data.Extter

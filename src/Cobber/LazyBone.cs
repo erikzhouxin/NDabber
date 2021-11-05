@@ -63,19 +63,24 @@ namespace System.Data.Cobber
         {
             if (!_isThreadSafe)
             {
-                return _value = _factory();
+                _value = _factory();
+                _isCreated = true;
             }
-            try
+            else
             {
-                lock (_lockObj)
+                try
                 {
-                    if (!_isCreated)
+                    lock (_lockObj)
                     {
-                        _value = _factory();
+                        if (!_isCreated)
+                        {
+                            _value = _factory();
+                            _isCreated = true;
+                        }
                     }
                 }
+                catch { }
             }
-            catch { }
             return _value;
         }
         /// <summary>

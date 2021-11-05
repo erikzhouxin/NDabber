@@ -29,6 +29,27 @@ namespace System.Data.Cobber
         {
             return encoding.GetBytes(content);
         }
+        /// <summary>
+        /// 比较两个字节数组是否相同内容
+        /// </summary>
+        /// <param name="curr"></param>
+        /// <param name="tag"></param>
+        /// <param name="isNull">同时为NULL时是否相等,默认相等</param>
+        /// <returns></returns>
+        public static bool EqualBytes(this byte[] curr, byte[] tag, bool isNull = true)
+        {
+            if (curr == null && tag == null) { return isNull; }
+            if (curr == null || tag == null) { return false; }
+            if (curr.Length != tag.Length) { return false; }
+            for (int i = 0; i < curr.Length; i++)
+            {
+                if (curr[i] != tag[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }
 namespace System.Data.Extter
