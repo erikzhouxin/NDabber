@@ -100,12 +100,10 @@ namespace System.Data.Cobber
         /// <param name="version">版本号,19490101000000-99991231235959</param>
         /// <param name="Migration">返回值为true时下次启动不进行,返回值为false时,下次还要执行</param>
         /// <returns></returns>
-        [Obsolete("替代方案:Regist(Version,FullName,Migration)")]
         public DbAutoMigration Regist(long version, Func<DbConnection, DbTransaction, IAlertMsg> Migration)
         {
-            return Regist(version, FullName, Migration);
+            return Regist(version, Migration.GetMethodFullName(), Migration);
         }
-        const string FullName = nameof(DbAutoMigration) + "." + nameof(Regist) + "." + nameof(IDbAutoMigration.Migration);
         /// <summary>
         /// 注册版本方法
         /// </summary>
@@ -122,7 +120,7 @@ namespace System.Data.Cobber
             Migrations[version] = new InterDbMigrationModel()
             {
                 Version = version,
-                Name = fullName ?? FullName,
+                Name = fullName ?? Migration.GetMethodFullName(),
                 Memo = Version,
                 Migration = Migration,
             };
