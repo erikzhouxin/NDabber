@@ -17,8 +17,6 @@ namespace System.Data.DabberUT
         [TestMethod]
         public void MyTestMethod()
         {
-            var test = TestTry.GetMemberFullName(() => Name);
-            Console.WriteLine(test);
         }
 
         public void TestClass(string name)

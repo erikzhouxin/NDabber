@@ -17,7 +17,6 @@
 		<Version>2021.11.11</Version>
 		<FileVersion>2021.11.11.666</FileVersion>
 		<AssemblyVersion>2021.11.11.666</AssemblyVersion>
-		<EmbedAllSources>true</EmbedAllSources>
 		<RepositoryUrl>https://gitee.com/erikzhouxin/ndabber.git</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageTags>dapper;dabber;autosql;utilities;orm;sqlite;mysql;sqlserver;oracle;</PackageTags>

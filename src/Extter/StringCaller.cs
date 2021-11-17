@@ -295,6 +295,28 @@ namespace System.Data.Extter
             }
             return new String(list.ToArray());
         }
+        /// <summary>
+        /// 相等忽略大小写
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static bool EqualsIgnoreCase(this string src, string tag)
+        {
+            if (src == null) { return src == tag; }
+            return src.Equals(tag, StringComparison.OrdinalIgnoreCase);
+        }
+        /// <summary>
+        /// 相等忽略大小写
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static bool EqualIgnoreCase(this string src, string tag)
+        {
+            if (src == null) { return src == tag; }
+            return src.Equals(tag, StringComparison.OrdinalIgnoreCase);
+        }
         #region // Base64
         /// <summary>
         /// 获取Base64编码
