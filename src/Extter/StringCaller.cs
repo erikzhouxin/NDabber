@@ -317,6 +317,28 @@ namespace System.Data.Extter
             if (src == null) { return src == tag; }
             return src.Equals(tag, StringComparison.OrdinalIgnoreCase);
         }
+        /// <summary>
+        /// 相等忽略大小写
+        /// 无null判断
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static bool EqualsIgnoreCase2(this string src, string tag)
+        {
+            return src.Equals(tag, StringComparison.OrdinalIgnoreCase);
+        }
+        /// <summary>
+        /// 相等忽略大小写
+        /// 无null判断
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static bool EqualIgnoreCase2(this string src, string tag)
+        {
+            return src.Equals(tag, StringComparison.OrdinalIgnoreCase);
+        }
         #region // Base64
         /// <summary>
         /// 获取Base64编码

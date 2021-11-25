@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data.Extter;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -45,6 +47,7 @@ namespace System.Data.Cobber
     /// 支持object访问
     /// 能效等级四级,不推荐使用
     /// </summary>
+    [Obsolete("替代方案:PropertyAccess")]
     public class MemberReflectionAccessor : IMemberAccessor
     {
         /// <summary>
@@ -106,6 +109,7 @@ namespace System.Data.Cobber
     /// 支持object访问
     /// 能效等级三级,不推荐使用
     /// </summary>
+    [Obsolete("替代方案:PropertyAccess")]
     public class MemberDelegatedExpressionAccessor : IMemberAccessor
     {
         /// <summary>
@@ -246,6 +250,7 @@ namespace System.Data.Cobber
     /// 支持object访问
     /// 能效等级三级,不推荐使用
     /// </summary>
+    [Obsolete("替代方案:PropertyAccess")]
     public class MemberDelegatedReflectionAccessor : IMemberAccessor
     {
         private static Dictionary<string, INamedMemberAccessor> AccessorCache = new();
@@ -350,6 +355,7 @@ namespace System.Data.Cobber
     /// 泛型不支持object
     /// 能效等级二级,推荐使用
     /// </summary>
+    [Obsolete("替代方案:PropertyAccess")]
     public class MemberExpressionAccessor : IMemberAccessor
     {
         /// <summary>
@@ -396,7 +402,7 @@ namespace System.Data.Cobber
                 {
                     continue;
                 }
-                if (Get(source, item.Name) != Get(source, item.Name))
+                if (Get(source, item.Name) != Get(target, item.Name))
                 {
                     return false;
                 }
@@ -410,6 +416,7 @@ namespace System.Data.Cobber
     /// 泛型不支持object
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    [Obsolete("替代方案:PropertyAccess<T>")]
     public static class MemberExpressionAccessor<T>
     {
         /// <summary>
@@ -421,32 +428,32 @@ namespace System.Data.Cobber
         /// </summary>
         public static Action<T, string, object> SetValue;
         /// <summary>
-        /// 设置值(instance,memberName,newValue,propertyInfo)
+        /// 类型
         /// </summary>
-        public static Func<T, string, object, PropertyInfo> SetProperty;
+        public static Type Type;
         static MemberExpressionAccessor()
         {
+            Type = typeof(T);
             GetValue = GenerateGetValue();
             SetValue = GenerateSetValue();
         }
         private static Func<T, string, object> GenerateGetValue()
         {
-            var type = typeof(T);
-            var instance = Expression.Parameter(type, "instance");
+            var instance = Expression.Parameter(Type, "instance");
             var memberName = Expression.Parameter(typeof(string), "memberName");
             var nameHash = Expression.Variable(typeof(int), "nameHash");
             var calHash = Expression.Assign(nameHash, Expression.Call(memberName, typeof(object).GetMethod("GetHashCode")));
             var cases = new List<SwitchCase>();
-            foreach (var propertyInfo in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            foreach (var propertyInfo in Type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
-                var property = Expression.Property(Expression.Convert(instance, type), propertyInfo.Name);
+                var property = Expression.Property(Expression.Convert(instance, Type), propertyInfo.Name);
                 var propertyHash = Expression.Constant(propertyInfo.Name.GetHashCode(), typeof(int));
 
                 cases.Add(Expression.SwitchCase(Expression.Convert(property, typeof(object)), propertyHash));
             }
-            foreach (var propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy))
+            foreach (var propertyInfo in Type.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy))
             {
-                var property = Expression.Property(null, type, propertyInfo.Name);
+                var property = Expression.Property(null, Type, propertyInfo.Name);
                 var propertyHash = Expression.Constant(propertyInfo.Name.GetHashCode(), typeof(int));
                 cases.Add(Expression.SwitchCase(Expression.Convert(property, typeof(object)), propertyHash));
             }
@@ -457,23 +464,22 @@ namespace System.Data.Cobber
         }
         private static Action<T, string, object> GenerateSetValue()
         {
-            var type = typeof(T);
-            var instance = Expression.Parameter(type, "instance");
+            var instance = Expression.Parameter(Type, "instance");
             var memberName = Expression.Parameter(typeof(string), "memberName");
             var newValue = Expression.Parameter(typeof(object), "newValue");
             var nameHash = Expression.Variable(typeof(int), "nameHash");
             var calHash = Expression.Assign(nameHash, Expression.Call(memberName, typeof(object).GetMethod("GetHashCode")));
             var cases = new List<SwitchCase>();
-            foreach (var propertyInfo in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            foreach (var propertyInfo in Type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
                 if (!propertyInfo.CanWrite) { continue; }
-                var property = Expression.Property(Expression.Convert(instance, type), propertyInfo.Name);
+                var property = Expression.Property(Expression.Convert(instance, Type), propertyInfo.Name);
                 var setValue = Expression.Assign(property, Expression.Convert(newValue, propertyInfo.PropertyType));
                 var propertyHash = Expression.Constant(propertyInfo.Name.GetHashCode(), typeof(int));
 
                 cases.Add(Expression.SwitchCase(Expression.Convert(setValue, typeof(object)), propertyHash));
             }
-            foreach (var propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy))
+            foreach (var propertyInfo in Type.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy))
             {
                 if (!propertyInfo.CanWrite) { continue; }
                 var property = Expression.Property(null, propertyInfo);
@@ -486,6 +492,187 @@ namespace System.Data.Cobber
             var methodBody = Expression.Block(typeof(object), new[] { nameHash }, calHash, switchEx);
 
             return Expression.Lambda<Action<T, string, object>>(methodBody, instance, memberName, newValue).Compile();
+        }
+    }
+    /// <summary>
+    /// 表达式树生成case字段泛型获取
+    /// 能效等级二级,推荐使用
+    /// 泛型支持object
+    /// </summary>
+    public interface IPropertyAccess
+    {
+        /// <summary>
+        /// 获取值(instance,memberName,return)
+        /// </summary>
+        Func<object, string, object> FuncGetValue { get; }
+        /// <summary>
+        /// 设置值(instance,memberName,newValue)
+        /// </summary>
+        Action<object, string, object> FuncSetValue { get; }
+    }
+    /// <summary>
+    /// 表达式树生成case字段获取
+    /// 能效等级二级,推荐使用
+    /// 泛型不支持object
+    /// </summary>
+    public class PropertyAccess : IPropertyAccess
+    {
+        internal static Dictionary<Type, IPropertyAccess> MemberDic = new Dictionary<Type, IPropertyAccess>();
+        internal IPropertyAccess Access { get; }
+        /// <summary>
+        /// 获取值(instance,memberName,return)
+        /// </summary>
+        public Func<object, string, object> FuncGetValue { get => Access.FuncGetValue; }
+        /// <summary>
+        /// 设置值(instance,memberName,newValue)
+        /// </summary>
+        public Action<object, string, object> FuncSetValue { get => Access.FuncSetValue; }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public PropertyAccess(Type type)
+        {
+            Access = Get(type);
+        }
+        /// <summary>
+        /// 获取访问类接口实例
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static IPropertyAccess Get(Type type)
+        {
+            if (MemberDic.TryGetValue(type, out var value))
+            {
+                return value;
+            }
+            return (IPropertyAccess)Activator.CreateInstance(typeof(PropertyAccess<>).MakeGenericType(type));
+        }
+        /// <summary>
+        /// 获取对象的成员属性值
+        /// </summary>
+        /// <param name="instance">实例对象</param>
+        /// <param name="memberName">成员名称</param>
+        /// <returns>成员值</returns>
+        public object GetValue(object instance, string memberName)
+        {
+            return Access.FuncGetValue(instance, memberName);
+        }
+
+        /// <summary>
+        /// 设置对象的成员属性值
+        /// </summary>
+        /// <param name="instance">实例对象</param>
+        /// <param name="memberName">成员名称</param>
+        /// <param name="newValue">成员值</param>
+        public void SetValue(object instance, string memberName, object newValue)
+        {
+            Access.FuncSetValue(instance, memberName, newValue);
+        }
+    }
+    /// <summary>
+    /// 表达式树生成case字段泛型获取
+    /// 能效等级二级,推荐使用
+    /// 泛型不支持object
+    /// </summary>
+    public class PropertyAccess<T> : IPropertyAccess
+    {
+        #region // 静态内容
+        /// <summary>
+        /// 获取值(instance,memberName,return)
+        /// </summary>
+        public static Func<T, string, object> InternalGetValue { get; }
+        /// <summary>
+        /// 设置值(instance,memberName,newValue)
+        /// </summary>
+        public static Action<T, string, object> InternalSetValue { get; }
+        /// <summary>
+        /// 内部获取字典
+        /// </summary>
+        public static ReadOnlyDictionary<string, Func<T, object>> InternalGetDic { get; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public static ReadOnlyDictionary<string, Action<T, object>> InternalSetDic { get; }
+        /// <summary>
+        /// 类型
+        /// </summary>
+        public static Type Type { get; }
+        static PropertyAccess()
+        {
+            Type = typeof(T);
+
+            var instance = Expression.Parameter(Type, "instance");
+            var memberName = Expression.Parameter(typeof(string), "memberName");
+            var setNewValue = Expression.Parameter(typeof(object), "newValue");
+            var nameHash = Expression.Variable(typeof(int), "nameHash");
+            var calHash = Expression.Assign(nameHash, Expression.Call(memberName, typeof(object).GetMethod("GetHashCode")));
+            var getCases = new List<SwitchCase>();
+            var setCases = new List<SwitchCase>();
+            var getDic = new Dictionary<string, Func<T, object>>();
+            var setDic = new Dictionary<string, Action<T, object>>();
+            foreach (var propertyInfo in Type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            {
+                var property = Expression.Property(Expression.Convert(instance, Type), propertyInfo);
+                var propertyHash = Expression.Constant(propertyInfo.Name.GetHashCode(), typeof(int));
+
+                getCases.Add(Expression.SwitchCase(Expression.Convert(property, typeof(object)), propertyHash));
+
+                getDic.Add(propertyInfo.Name, (Func<T, object>)Expression.Lambda(typeof(Func<T, object>), Expression.Convert(property, typeof(object)), instance).Compile());
+
+                if (!propertyInfo.CanWrite) { continue; }
+                var setValue = Expression.Assign(property, Expression.Convert(setNewValue, propertyInfo.PropertyType));
+                setCases.Add(Expression.SwitchCase(Expression.Convert(setValue, typeof(object)), propertyHash));
+
+                setDic.Add(propertyInfo.Name, (Action<T, object>)Expression.Lambda(typeof(Action<T, object>), setValue, instance, setNewValue).Compile());
+            }
+            foreach (var propertyInfo in Type.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy))
+            {
+                var property = Expression.Property(null, propertyInfo);
+                var propertyHash = Expression.Constant(propertyInfo.Name.GetHashCode(), typeof(int));
+
+                getCases.Add(Expression.SwitchCase(Expression.Convert(property, typeof(object)), propertyHash));
+
+                getDic.Add(propertyInfo.Name, (Func<T, object>)Expression.Lambda(typeof(Func<T, object>), Expression.Convert(property, typeof(object)), instance).Compile());
+
+                if (!propertyInfo.CanWrite) { continue; }
+                var setValue = Expression.Assign(property, Expression.Convert(setNewValue, propertyInfo.PropertyType));
+
+                setCases.Add(Expression.SwitchCase(Expression.Convert(setValue, typeof(object)), propertyHash));
+
+                setDic.Add(propertyInfo.Name, (Action<T, object>)Expression.Lambda(typeof(Action<T, object>), setValue, instance, setNewValue).Compile());
+            }
+            var getMethodBody = Expression.Block(typeof(object), new[] { nameHash }, calHash, Expression.Switch(nameHash, Expression.Constant(null), getCases.ToArray()));
+            InternalGetValue = Expression.Lambda<Func<T, string, object>>(getMethodBody, instance, memberName).Compile();
+
+            var setMethodBody = Expression.Block(typeof(object), new[] { nameHash }, calHash, Expression.Switch(nameHash, Expression.Constant(null), setCases.ToArray()));
+            InternalSetValue = Expression.Lambda<Action<T, string, object>>(setMethodBody, instance, memberName, setNewValue).Compile();
+
+            InternalGetDic = new(getDic);
+            InternalSetDic = new(setDic);
+            PropertyAccess.MemberDic[Type] = new PropertyAccess<T>();
+        }
+        #endregion
+        Func<object, string, object> IPropertyAccess.FuncGetValue => (instance, memberName) => InternalGetValue((T)instance, memberName);
+
+        Action<object, string, object> IPropertyAccess.FuncSetValue => (instance, memberName, newValue) => InternalSetValue((T)instance, memberName, newValue);
+
+        /// <summary>
+        /// 获取值(instance,memberName,return)
+        /// </summary>
+        public object GetValue(T instance, string memberName) => InternalGetValue(instance, memberName);
+        /// <summary>
+        /// 获取值(instance,memberName,return)
+        /// </summary>
+        public P GetValue<P>(T instance, string memberName) => (P)InternalGetValue(instance, memberName);
+        /// <summary>
+        /// 设置值(instance,memberName,newValue)
+        /// </summary>
+        public void SetValue(T instance, string memberName, object newValue) => InternalSetValue(instance, memberName, newValue);
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public PropertyAccess()
+        {
         }
     }
 }

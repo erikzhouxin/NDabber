@@ -57,38 +57,6 @@ namespace System.Data.Cobber
             }
             return false;
         }
-#if NET40
-        /// <summary>
-        /// 获取用户属性
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="prop"></param>
-        /// <param name="inherit"></param>
-        /// <returns></returns>
-        internal static T GetCustomAttribute<T>(this PropertyInfo prop, bool inherit = false) where T : Attribute
-        {
-            foreach (var item in prop.GetCustomAttributes(inherit))
-            {
-                if (item is T) { return item as T; }
-            }
-            return default(T);
-        }
-        /// <summary>
-        /// 获取用户属性
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="type"></param>
-        /// <param name="inherit"></param>
-        /// <returns></returns>
-        internal static T GetCustomAttribute<T>(this Type type, bool inherit = false) where T : Attribute
-        {
-            foreach (var item in type.GetCustomAttributes(inherit))
-            {
-                if (item is T) { return item as T; }
-            }
-            return default(T);
-        }
-#endif
         /// <summary>
         /// 是主键
         /// </summary>

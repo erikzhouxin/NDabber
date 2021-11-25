@@ -4,10 +4,24 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.Dabber;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace System.Data.Cobber
 {
+    /// <summary>
+    /// 迁移类实现
+    /// </summary>
+    public interface IDbAMigration
+    {
+        /// <summary>
+        /// 迁移内容
+        /// </summary>
+        /// <param name="conn"></param>
+        /// <param name="trans"></param>
+        /// <returns></returns>
+        IAlertMsg Migration(DbConnection conn, DbTransaction trans);
+    }
     /// <summary>
     /// 迁移类实现
     /// </summary>
@@ -94,6 +108,27 @@ namespace System.Data.Cobber
             return Regist(model.Version, $"{model.GetType().FullName}.{nameof(IDbAutoMigration.Migration)}", model.Migration);
         }
         /// <summary>
+        /// 注册实现类
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public DbAutoMigration RegistAttribute<T>() where T : IDbAMigration, new() => RegistAttribute(new T());
+        /// <summary>
+        /// 注册实现类
+        /// </summary>
+        /// <returns></returns>
+        public DbAutoMigration RegistAttribute<T>(T model) where T : IDbAMigration
+        {
+            if (model == null) { return this; }
+            var type = model.GetType();
+            var attr = type.GetCustomAttribute<DbMigrationAttribute>(false);
+            if (attr == null)
+            {
+                throw new NotImplementedException($"类型【{type.Name}】未包含【{nameof(DbMigrationAttribute)}】定义");
+            }
+            return Regist(attr.Version, $"{model.GetType().FullName}.{nameof(IDbAutoMigration.Migration)}", model.Migration);
+        }
+        /// <summary>
         /// 注册版本方法
         /// 推荐使用(Version,FullName,Migration)全面的方法
         /// </summary>
@@ -103,6 +138,19 @@ namespace System.Data.Cobber
         public DbAutoMigration Regist(long version, Func<DbConnection, DbTransaction, IAlertMsg> Migration)
         {
             return Regist(version, Migration.GetMethodFullName(), Migration);
+        }
+        /// <summary>
+        /// 注册版本方法
+        /// 推荐使用(FullName,Migration)全面的方法
+        /// </summary>
+        /// <param name="Migration">返回值为true时下次启动不进行,返回值为false时,下次还要执行</param>
+        /// <returns></returns>
+        public DbAutoMigration RegistAttribute(Func<DbConnection, DbTransaction, IAlertMsg> Migration)
+        {
+            var member = Migration.Method;
+            var attr = member.GetCustomAttribute<DbMigrationAttribute>(false);
+            if (attr == null) { throw new NotImplementedException($"方法【{member.Name}】未包含【{nameof(DbMigrationAttribute)}】定义"); }
+            return Regist(attr.Version, $"{member.DeclaringType?.FullName}.{member.Name}", Migration);
         }
         /// <summary>
         /// 注册版本方法
@@ -305,9 +353,20 @@ namespace System.Data.Cobber
     /// <summary>
     /// 数据库迁移属性
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method, Inherited = true, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
     public class DbMigrationAttribute : Attribute
     {
-
+        /// <summary>
+        /// 版本号,19490101000000-99991231235959
+        /// </summary>
+        /// <param name="version"></param>
+        public DbMigrationAttribute(long version)
+        {
+            Version = version;
+        }
+        /// <summary>
+        /// 版本号,19490101000000-99991231235959
+        /// </summary>
+        public long Version { get; }
     }
 }

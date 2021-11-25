@@ -157,6 +157,182 @@ namespace System.Data.Extter
             }
             return returnBytes;
         }
+        /// <summary>
+        /// 读短整型数字
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static Int16 ReadInt16(this byte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0) { return 0; }
+            if (bytes.Length == 1) { return bytes[0]; }
+            return (Int16)((bytes[0] << 8) + bytes[1]);
+        }
+        /// <summary>
+        /// 读短整型数字
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static UInt16 ReadUInt16(this byte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0) { return 0; }
+            if (bytes.Length == 1) { return bytes[0]; }
+            return (UInt16)((bytes[0] << 8) + bytes[1]);
+        }
+        /// <summary>
+        /// 读整型数字
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static Int32 ReadInt32(this byte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0) { return 0; }
+            if (bytes.Length == 1) { return bytes[0]; }
+            if (bytes.Length == 2) { return (bytes[0] << 8) + bytes[1]; }
+            if (bytes.Length == 3) { return (bytes[0] << 16) + (bytes[1] << 8) + bytes[2]; }
+            return (bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + bytes[3];
+        }
+        /// <summary>
+        /// 读无符号整型数字
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static UInt32 ReadUInt32(this byte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0) { return 0; }
+            if (bytes.Length == 1) { return bytes[0]; }
+            if (bytes.Length == 2) { return ((uint)bytes[0] << 8) + bytes[1]; }
+            if (bytes.Length == 3) { return ((uint)bytes[0] << 16) + ((uint)bytes[1] << 8) + bytes[2]; }
+            return ((uint)bytes[0] << 24) + ((uint)bytes[1] << 16) + ((uint)bytes[2] << 8) + bytes[3];
+        }
+        /// <summary>
+        /// 读长整型数字
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static Int64 ReadInt64(this byte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0) { return 0; }
+            if (bytes.Length <= 4)
+            {
+                if (bytes.Length == 1) { return bytes[0]; }
+                if (bytes.Length == 2) { return ((uint)bytes[0] << 8) + bytes[1]; }
+                if (bytes.Length == 3) { return ((uint)bytes[0] << 16) + ((uint)bytes[1] << 8) + bytes[2]; }
+                return ((uint)bytes[0] << 24) + ((uint)bytes[1] << 16) + ((uint)bytes[2] << 8) + bytes[3];
+            }
+            if (bytes.Length == 5) { return ((long)bytes[0] << 32) + ((uint)bytes[1] << 24) + (bytes[2] << 16) + (bytes[3] << 8) + bytes[4]; }
+            if (bytes.Length == 6) { return ((long)bytes[0] << 40) + ((long)bytes[1] << 32) + ((uint)bytes[2] << 24) + (bytes[3] << 16) + (bytes[4] << 8) + bytes[5]; }
+            if (bytes.Length == 7) { return ((long)bytes[0] << 48) + ((long)bytes[1] << 40) + ((long)bytes[2] << 32) + ((uint)bytes[3] << 24) + (bytes[4] << 16) + (bytes[5] << 8) + bytes[6]; }
+            return ((long)bytes[0] << 56) + ((long)bytes[1] << 48) + ((long)bytes[2] << 40) + ((long)bytes[3] << 32) + ((uint)bytes[4] << 24) + (bytes[5] << 16) + (bytes[6] << 8) + bytes[7];
+        }
+        /// <summary>
+        /// 读无符号长整型数字
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static UInt64 ReadUInt64(this byte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0) { return 0; }
+            if (bytes.Length <= 4)
+            {
+                if (bytes.Length == 1) { return bytes[0]; }
+                if (bytes.Length == 2) { return ((uint)bytes[0] << 8) + bytes[1]; }
+                if (bytes.Length == 3) { return ((uint)bytes[0] << 16) + ((uint)bytes[1] << 8) + bytes[2]; }
+                return ((uint)bytes[0] << 24) + ((uint)bytes[1] << 16) + ((uint)bytes[2] << 8) + bytes[3];
+            }
+            if (bytes.Length == 5) { return ((ulong)bytes[0] << 32) + ((uint)bytes[1] << 24) + ((uint)bytes[2] << 16) + ((uint)bytes[3] << 8) + bytes[4]; }
+            if (bytes.Length == 6) { return ((ulong)bytes[0] << 40) + ((ulong)bytes[1] << 32) + ((uint)bytes[2] << 24) + ((uint)bytes[3] << 16) + ((uint)bytes[4] << 8) + bytes[5]; }
+            if (bytes.Length == 7) { return ((ulong)bytes[0] << 48) + ((ulong)bytes[1] << 40) + ((ulong)bytes[2] << 32) + ((uint)bytes[3] << 24) + ((uint)bytes[4] << 16) + ((uint)bytes[5] << 8) + bytes[6]; }
+            return ((ulong)bytes[0] << 56) + ((ulong)bytes[1] << 48) + ((ulong)bytes[2] << 40) + ((ulong)bytes[3] << 32) + ((uint)bytes[4] << 24) + ((uint)bytes[5] << 16) + ((uint)bytes[6] << 8) + bytes[7];
+        }
+        /// <summary>
+        /// 读短整型数字
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static Int16 ReadInt16(this sbyte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0) { return 0; }
+            if (bytes.Length == 1) { return (Int16)((byte)bytes[0]); }
+            return (Int16)((((byte)bytes[0]) << 8) + ((byte)bytes[1]));
+        }
+        /// <summary>
+        /// 读短整型数字
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static UInt16 ReadUInt16(this sbyte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0) { return 0; }
+            if (bytes.Length == 1) { return (UInt16)((byte)bytes[0]); }
+            return (UInt16)((((byte)bytes[0]) << 8) + ((byte)bytes[1]));
+        }
+        /// <summary>
+        /// 读整型数字
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static Int32 ReadInt32(this sbyte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0) { return 0; }
+            if (bytes.Length == 1) { return (byte)bytes[0]; }
+            if (bytes.Length == 2) { return (((byte)bytes[0]) << 8) + ((byte)bytes[1]); }
+            if (bytes.Length == 3) { return (((byte)bytes[0]) << 16) + (((byte)bytes[1]) << 8) + ((byte)bytes[2]); }
+            return (((byte)bytes[0]) << 24) + (((byte)bytes[1]) << 16) + (((byte)bytes[2]) << 8) + ((byte)bytes[3]);
+        }
+        /// <summary>
+        /// 读无符号整型数字
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static UInt32 ReadUInt32(this sbyte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0) { return 0; }
+            if (bytes.Length == 1) { return ((byte)bytes[0]); }
+            if (bytes.Length == 2) { return ((uint)((byte)bytes[0]) << 8) + ((byte)bytes[1]); }
+            if (bytes.Length == 3) { return ((uint)((byte)bytes[0]) << 16) + ((uint)((byte)bytes[1]) << 8) + ((byte)bytes[2]); }
+            return ((uint)((byte)bytes[0]) << 24) + ((uint)((byte)bytes[1]) << 16) + ((uint)((byte)bytes[2]) << 8) + ((byte)bytes[3]);
+        }
+        /// <summary>
+        /// 读长整型数字
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static Int64 ReadInt64(this sbyte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0) { return 0; }
+            if (bytes.Length <= 4)
+            {
+                if (bytes.Length == 1) { return ((byte)bytes[0]); }
+                if (bytes.Length == 2) { return ((uint)((byte)bytes[0]) << 8) + ((byte)bytes[1]); }
+                if (bytes.Length == 3) { return ((uint)((byte)bytes[0]) << 16) + ((uint)((byte)bytes[1]) << 8) + ((byte)bytes[2]); }
+                return ((uint)((byte)bytes[0]) << 24) + ((uint)((byte)bytes[1]) << 16) + ((uint)((byte)bytes[2]) << 8) + ((byte)bytes[3]);
+            }
+            if (bytes.Length == 5) { return ((long)((byte)bytes[0]) << 32) + ((uint)((byte)bytes[1]) << 24) + (((byte)bytes[2]) << 16) + (((byte)bytes[3]) << 8) + ((byte)bytes[4]); }
+            if (bytes.Length == 6) { return ((long)((byte)bytes[0]) << 40) + ((long)((byte)bytes[1]) << 32) + ((uint)((byte)bytes[2]) << 24) + (((byte)bytes[3]) << 16) + (((byte)bytes[4]) << 8) + ((byte)bytes[5]); }
+            if (bytes.Length == 7) { return ((long)((byte)bytes[0]) << 48) + ((long)((byte)bytes[1]) << 40) + ((long)((byte)bytes[2]) << 32) + ((uint)((byte)bytes[3]) << 24) + (((byte)bytes[4]) << 16) + (((byte)bytes[5]) << 8) + ((byte)bytes[6]); }
+            return ((long)((byte)bytes[0]) << 56) + ((long)((byte)bytes[1]) << 48) + ((long)((byte)bytes[2]) << 40) + ((long)((byte)bytes[3]) << 32) + ((uint)((byte)bytes[4]) << 24) + (((byte)bytes[5]) << 16) + (((byte)bytes[6]) << 8) + ((byte)bytes[7]);
+        }
+        /// <summary>
+        /// 读无符号整型数字
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static UInt64 ReadUInt64(this sbyte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0) { return 0; }
+            if (bytes.Length <= 4)
+            {
+                if (bytes.Length == 1) { return ((byte)bytes[0]); }
+                if (bytes.Length == 2) { return ((uint)((byte)bytes[0]) << 8) + ((byte)bytes[1]); }
+                if (bytes.Length == 3) { return ((uint)((byte)bytes[0]) << 16) + ((uint)((byte)bytes[1]) << 8) + ((byte)bytes[2]); }
+                return ((uint)((byte)bytes[0]) << 24) + ((uint)((byte)bytes[1]) << 16) + ((uint)((byte)bytes[2]) << 8) + ((byte)bytes[3]);
+            }
+            if (bytes.Length == 5) { return ((ulong)((byte)bytes[0]) << 32) + ((uint)((byte)bytes[1]) << 24) + ((uint)((byte)bytes[2]) << 16) + ((uint)((byte)bytes[3]) << 8) + ((byte)bytes[4]); }
+            if (bytes.Length == 6) { return ((ulong)((byte)bytes[0]) << 40) + ((ulong)((byte)bytes[1]) << 32) + ((uint)((byte)bytes[2]) << 24) + ((uint)((byte)bytes[3]) << 16) + ((uint)((byte)bytes[4]) << 8) + ((byte)bytes[5]); }
+            if (bytes.Length == 7) { return ((ulong)((byte)bytes[0]) << 48) + ((ulong)((byte)bytes[1]) << 40) + ((ulong)((byte)bytes[2]) << 32) + ((uint)((byte)bytes[3]) << 24) + ((uint)((byte)bytes[4]) << 16) + ((uint)((byte)bytes[5]) << 8) + ((byte)bytes[6]); }
+            return ((ulong)((byte)bytes[0]) << 56) + ((ulong)((byte)bytes[1]) << 48) + ((ulong)((byte)bytes[2]) << 40) + ((ulong)((byte)bytes[3]) << 32) + ((uint)((byte)bytes[4]) << 24) + ((uint)((byte)bytes[5]) << 16) + ((uint)((byte)bytes[6]) << 8) + ((byte)bytes[7]);
+        }
         #region // 压缩
         /// <summary>
         /// 压缩字节

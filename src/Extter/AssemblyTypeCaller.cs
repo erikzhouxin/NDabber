@@ -44,5 +44,21 @@ namespace System.Data.Extter
             var types = isExport ? type.Assembly.GetExportedTypes() : type.Assembly.GetTypes();
             return types.Where(s => s.Namespace == type.Namespace);
         }
+        /// <summary>
+        /// 获取类型所在程序集的名称类型
+        /// </summary>
+        /// <param name="type">当前类型</param>
+        /// <param name="name">全称时使用[Type.Assembly.GetType],非全称使用遍历</param>
+        /// <returns></returns>
+        public static Type GetSameAssemblyType(this Type type, string name)
+        {
+            var fType = type.Assembly.GetType(name);
+            if (fType != null) { return fType; }
+            foreach (var item in type.Assembly.GetTypes())
+            {
+                if (item.Name == name) { return item; }
+            }
+            return null;
+        }
     }
 }

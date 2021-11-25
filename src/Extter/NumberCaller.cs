@@ -244,6 +244,21 @@ namespace System.Data.Extter
             };
         }
         /// <summary>
+        /// 读取整型字节
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static sbyte[] ReadSBytes(this Int32 number)
+        {
+            return new SByte[4]
+            {
+                (sbyte)(number>>24),
+                (sbyte)(number>>16),
+                (sbyte)(number>>8),
+                (sbyte)(number>>0),
+            };
+        }
+        /// <summary>
         /// 读取无符号整型字节
         /// </summary>
         /// <param name="number"></param>
@@ -256,6 +271,21 @@ namespace System.Data.Extter
                 (byte)(number>>16),
                 (byte)(number>>8),
                 (byte)(number>>0),
+            };
+        }
+        /// <summary>
+        /// 读取无符号整型字节
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static sbyte[] ReadSBytes(this UInt32 number)
+        {
+            return new SByte[4]
+            {
+                (sbyte)(number>>24),
+                (sbyte)(number>>16),
+                (sbyte)(number>>8),
+                (sbyte)(number>>0),
             };
         }
         /// <summary>
@@ -280,6 +310,27 @@ namespace System.Data.Extter
             };
         }
         /// <summary>
+        /// 读取长整型字节
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static sbyte[] ReadSBytes(this Int64 number)
+        {
+            var num1 = number >> 32;
+            var num2 = (int)number;
+            return new sbyte[8]
+            {
+                (sbyte)(num1>>24),
+                (sbyte)(num1>>16),
+                (sbyte)(num1>>8),
+                (sbyte)num1,
+                (sbyte)(num2>>24),
+                (sbyte)(num2>>16),
+                (sbyte)(num2>>8),
+                (sbyte)num2,
+            };
+        }
+        /// <summary>
         /// 读取无符号长整型字节
         /// </summary>
         /// <param name="number"></param>
@@ -301,6 +352,27 @@ namespace System.Data.Extter
             };
         }
         /// <summary>
+        /// 读取无符号长整型字节
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static sbyte[] ReadSBytes(this UInt64 number)
+        {
+            UInt32 num1 = (UInt32)(number >> 32);
+            UInt32 num2 = (UInt32)number;
+            return new sbyte[8]
+            {
+                (sbyte)(num1>>24),
+                (sbyte)(num1>>16),
+                (sbyte)(num1>>8),
+                (sbyte)num1,
+                (sbyte)(num2>>24),
+                (sbyte)(num2>>16),
+                (sbyte)(num2>>8),
+                (sbyte)num2,
+            };
+        }
+        /// <summary>
         /// 读取短整型字节
         /// </summary>
         /// <param name="number"></param>
@@ -314,6 +386,19 @@ namespace System.Data.Extter
             };
         }
         /// <summary>
+        /// 读取短整型字节
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static sbyte[] ReadSBytes(this Int16 number)
+        {
+            return new sbyte[2]
+            {
+                (sbyte)(number>>8),
+                (sbyte)number,
+            };
+        }
+        /// <summary>
         /// 读取无符号短整型字节
         /// </summary>
         /// <param name="number"></param>
@@ -324,6 +409,19 @@ namespace System.Data.Extter
             {
                 (byte)(number>>8),
                 (byte)number,
+            };
+        }
+        /// <summary>
+        /// 读取无符号短整型字节
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static sbyte[] ReadSBytes(this UInt16 number)
+        {
+            return new sbyte[2]
+            {
+                (sbyte)(number>>8),
+                (sbyte)number,
             };
         }
         #endregion 读取字节

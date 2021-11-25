@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.Extter;
 using System.Linq;
 using System.Text;
 
@@ -236,6 +237,131 @@ namespace System.Data.Cobber
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// 获取元素内容
+        /// 无null判断
+        /// </summary>
+        /// <returns></returns>
+        public static T2 GetElement<T2>(this IEnumerable<object> objs)
+        {
+            foreach (var item in objs)
+            {
+                if (item is T2 attr)
+                {
+                    return attr;
+                }
+            }
+            return default;
+        }
+        /// <summary>
+        /// 获取元素内容
+        /// 无null判断
+        /// </summary>
+        /// <returns></returns>
+        public static T2 GetElement<T, T2>(this T[] objs) where T2 : T
+        {
+            foreach (var item in objs)
+            {
+                if (item is T2 attr)
+                {
+                    return attr;
+                }
+            }
+            return default;
+        }
+        /// <summary>
+        /// 获取元素内容
+        /// 无null判断
+        /// </summary>
+        /// <returns></returns>
+        public static T GetElement<T>(this T[] objs, string name)
+        {
+            foreach (var item in objs)
+            {
+                if (item.GetType().Name.EqualIgnoreCase2(name))
+                {
+                    return item;
+                }
+            }
+            return default;
+        }
+        /// <summary>
+        /// 获取元素内容
+        /// 无null判断
+        /// </summary>
+        /// <returns></returns>
+        public static T GetElement<T>(this T[] objs, Type type)
+        {
+            foreach (var item in objs)
+            {
+                if (item.GetType().Equals(type))
+                {
+                    return item;
+                }
+            }
+            return default;
+        }
+        /// <summary>
+        /// 获取元素内容
+        /// 无null判断
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<T2> GetElements<T2>(this IEnumerable<object> objs)
+        {
+            foreach (var item in objs)
+            {
+                if (item is T2 attr)
+                {
+                    yield return attr;
+                }
+            }
+        }
+        /// <summary>
+        /// 获取元素内容
+        /// 无null判断
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<T2> GetElements<T, T2>(this T[] objs) where T2 : T
+        {
+            foreach (var item in objs)
+            {
+                if (item is T2 attr)
+                {
+                    yield return attr;
+                }
+            }
+        }
+        /// <summary>
+        /// 获取元素内容
+        /// 无null判断
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<T> GetElements<T>(this T[] objs, string typeName)
+        {
+            foreach (var item in objs)
+            {
+                if (item.GetType().Name.EqualIgnoreCase2(typeName))
+                {
+                    yield return item;
+                }
+            }
+        }
+        /// <summary>
+        /// 获取元素内容
+        /// 无null判断
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<T> GetElements<T>(this T[] objs, Type type)
+        {
+            foreach (var item in objs)
+            {
+                if (item.GetType().Equals(type))
+                {
+                    yield return item;
+                }
+            }
         }
     }
 }

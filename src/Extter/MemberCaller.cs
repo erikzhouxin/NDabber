@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Cobber;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -76,6 +77,86 @@ namespace System.Data.Extter
         public static String GetFullName(this MemberInfo method)
         {
             return $"{method.DeclaringType?.FullName}.{method.Name}";
+        }
+        /// <summary>
+        /// 获取属性访问
+        /// </summary>
+        /// <see cref="PropertyAccess{T}"/>
+        /// <returns></returns>
+        public static IPropertyAccess GetPropertyAccess<T>() => new PropertyAccess<T>();
+        /// <summary>
+        /// 获取属性访问
+        /// </summary>
+        /// <see cref="PropertyAccess.Get"/>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static IPropertyAccess GetPropertyAccess(Type type) => PropertyAccess.Get(type);
+        /// <summary>
+        /// 获取静态的成员属性值
+        /// </summary>
+        /// <param name="type">类型</param>
+        /// <param name="memberName">成员名称</param>
+        /// <returns>成员值</returns>
+        public static object GetPropertyValue(this Type type, string memberName)
+        {
+            return PropertyAccess.Get(type).FuncGetValue.Invoke(null, memberName);
+        }
+        /// <summary>
+        /// 设置静态的成员属性值
+        /// </summary>
+        /// <param name="type">类型</param>
+        /// <param name="memberName">成员名称</param>
+        /// <param name="newValue">新值</param>
+        /// <returns>成员值</returns>
+        public static void SetPropertyValue(this Type type, string memberName, object newValue)
+        {
+            PropertyAccess.Get(type).FuncSetValue.Invoke(null, memberName, newValue);
+        }
+        /// <summary>
+        /// 获取静态的成员属性值
+        /// <see cref="PropertyAccess{T}.InternalGetValue"/>
+        /// </summary>
+        /// <param name="memberName">成员名称</param>
+        /// <returns>成员值</returns>
+        public static object GetPropertyValue<T>(string memberName)
+        {
+            return PropertyAccess<T>.InternalGetValue(default(T), memberName);
+        }
+        /// <summary>
+        /// 设置静态的成员属性值
+        /// <see cref="PropertyAccess{T}.InternalSetValue"/>
+        /// </summary>
+        /// <param name="memberName">成员名称</param>
+        /// <param name="newValue">新值</param>
+        /// <returns>成员值</returns>
+        public static void SetPropertyValue<T>(string memberName, object newValue)
+        {
+            PropertyAccess<T>.InternalSetValue(default(T), memberName, newValue);
+        }
+        /// <summary>
+        /// 获取静态的成员属性值
+        /// 如果Type和对象能匹配请使用<see cref="PropertyAccess{T}.InternalGetValue"/>
+        /// </summary>
+        /// <param name="instance">实例对象,为null时使用泛型类的静态内容</param>
+        /// <param name="memberName">成员名称</param>
+        /// <returns>成员值</returns>
+        public static object GetPropertyValue<T>(this T instance, string memberName) where T : class
+        {
+            if (instance == null || instance.GetType() == typeof(T)) { return PropertyAccess<T>.InternalGetValue(instance, memberName); }
+            return PropertyAccess.Get(instance.GetType()).FuncGetValue(instance, memberName);
+        }
+        /// <summary>
+        /// 设置静态的成员属性值
+        /// 如果Type和对象能匹配请使用<see cref="PropertyAccess{T}.InternalSetValue"/>
+        /// </summary>
+        /// <param name="instance">实例对象,为null时使用泛型类的静态内容</param>
+        /// <param name="memberName">成员名称</param>
+        /// <param name="newValue">新值</param>
+        /// <returns>成员值</returns>
+        public static void SetPropertyValue<T>(this T instance, string memberName, object newValue) where T : class
+        {
+            if (instance == null || instance.GetType() == typeof(T)) { PropertyAccess<T>.InternalSetValue(instance, memberName, newValue); return; }
+            PropertyAccess.Get(instance.GetType()).FuncSetValue(instance, memberName, newValue);
         }
         #region // 获取Action/Func表达式的方法全称或方法信息
         /// <summary>
