@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Cobber;
+using System.Data.Extter;
 using System.Text;
 
 namespace System.Data.DabberUT
@@ -9,6 +10,39 @@ namespace System.Data.DabberUT
     [TestClass]
     public class MemberAccessorUT
     {
+        [TestMethod]
+        public void TestAccess()
+        {
+            var testObject = new TestMan("ErikZhouXin") { Name = "ErikZhouXin" };
+            MemberCaller.GetPropertyAccess(typeof(TestMan)).FuncSetValue(null, nameof(TestMan.Value), "姓名");
+            Console.WriteLine(MemberCaller.GetPropertyAccess(typeof(TestMan)).FuncGetValue(null, nameof(TestMan.Value)));
+            MemberCaller.SetPropertyValue(typeof(TestMan), nameof(TestMan.Value), "名字");
+            Console.WriteLine(MemberCaller.GetPropertyValue(typeof(TestMan), nameof(TestMan.Value)));
+            MemberCaller.SetPropertyValue<TestMan>(nameof(TestMan.Value), "名儿");
+            Console.WriteLine(MemberCaller.GetPropertyValue<TestMan>(nameof(TestMan.Value)));
+
+            MemberCaller.GetPropertyAccess(typeof(TestMan)).FuncSetValue(testObject, nameof(TestMan.Name), "姓名");
+            Console.WriteLine(MemberCaller.GetPropertyAccess(typeof(TestMan)).FuncGetValue(testObject, nameof(TestMan.Name)));
+            MemberCaller.SetPropertyValue<TestMan>(testObject, nameof(TestMan.Name), "名儿");
+            Console.WriteLine(MemberCaller.GetPropertyValue<TestMan>(testObject, nameof(TestMan.Value)));
+
+            foreach (var item in PropertyAccess<TestMan>.InternalSetDic)
+            {
+                item.Value.Invoke(testObject, item.Key);
+            }
+
+            foreach (var item in PropertyAccess<TestMan>.InternalGetDic)
+            {
+                Console.WriteLine(item.Value.Invoke(testObject));
+            }
+        }
+
+        [TestMethod]
+        public void TestColors()
+        {
+
+        }
+
         [TestMethod]
         public void TestEqual()
         {
@@ -39,24 +73,28 @@ namespace System.Data.DabberUT
         public void PerformanceTest()
         {
             var runTime = 10000000;
-            var testObject = new TestMan100("ErikZhouXin") { Name90 = "ErikZhouXin"};
+            var testObject = new TestMan100("ErikZhouXin") { Name90 = "ErikZhouXin" };
 
             var ra = new MemberReflectionAccessor();
             var ea = new MemberDelegatedExpressionAccessor();
             var da = new MemberDelegatedReflectionAccessor();
             var ma = new MemberExpressionAccessor();
             var testMemberName = nameof(TestMan100.Name90);
+            var pa = MemberCaller.GetPropertyAccess(testObject.GetType());
+            var ga = new PropertyAccess<TestMan100>();
 
             new TimeProfiler(() => testObject.Name90 = testObject.Name90, "直接调用").Run(runTime);
-            TestClassMember(runTime, testObject, ra, ea, da, ma, testMemberName);
+            TestClassMember(runTime, testObject, ra, ea, da, ma, pa, ga, testMemberName);
         }
 
-        private static void TestClassMember<T>(int runTime, T testObject, MemberReflectionAccessor ra, MemberDelegatedExpressionAccessor ea, MemberDelegatedReflectionAccessor da, MemberExpressionAccessor ma, string testMemberName)
+        private static void TestClassMember<T>(int runTime, T testObject, MemberReflectionAccessor ra, MemberDelegatedExpressionAccessor ea, MemberDelegatedReflectionAccessor da, MemberExpressionAccessor ma, IPropertyAccess pa,PropertyAccess<T> ga, string testMemberName)
         {
             new TimeProfiler(() => ra.SetValue(testObject, testMemberName, ra.GetValue(testObject, testMemberName)), "反射调用").Run(runTime);
             new TimeProfiler(() => ea.SetValue(testObject, testMemberName, ea.GetValue(testObject, testMemberName)), "Expression委托调用").Run(runTime);
             new TimeProfiler(() => da.SetValue(testObject, testMemberName, da.GetValue(testObject, testMemberName)), "CreateDelegate委托调用").Run(runTime);
             new TimeProfiler(() => ma.SetValue(testObject, testMemberName, ma.GetValue(testObject, testMemberName)), "动态生成函数调用").Run(runTime);
+            new TimeProfiler(() => pa.FuncSetValue(testObject, testMemberName, pa.FuncGetValue(testObject, testMemberName)), "动态生成函数优化").Run(runTime);
+            new TimeProfiler(() => ga.SetValue(testObject, testMemberName, ga.GetValue(testObject, testMemberName)), "动态生成函数泛型优化").Run(runTime);
         }
         #region // 测试类
         /// <summary>
