@@ -14,9 +14,9 @@
 		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>2021.12.12</Version>
-		<FileVersion>2021.12.12.678</FileVersion>
-		<AssemblyVersion>2021.12.12.678</AssemblyVersion>
+		<Version>2021.11.22</Version>
+		<FileVersion>2021.11.22.680</FileVersion>
+		<AssemblyVersion>2021.11.22.680</AssemblyVersion>
 		<RepositoryUrl>https://gitee.com/erikzhouxin/ndabber.git</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageTags>dapper;dabber;autosql;utilities;orm;sqlite;mysql;sqlserver;oracle;</PackageTags>

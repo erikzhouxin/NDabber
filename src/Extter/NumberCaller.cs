@@ -63,6 +63,60 @@ namespace System.Data.Cobber
             return Math.Round((decimal)value, digit, DefaultMidPoint);
         }
         /// <summary>
+        /// 获取数字
+        /// </summary>
+        /// <returns></returns>
+        public static double? GetDouble(this double? value, int digit = 2)
+        {
+            if (value == null) { return null; }
+            return Math.Round(value.Value, digit, DefaultMidPoint);
+        }
+        /// <summary>
+        /// 获取数字
+        /// </summary>
+        /// <returns></returns>
+        public static double? GetDouble(this decimal? value, int digit = 2)
+        {
+            if (value == null) { return null; }
+            return (double)Math.Round(value.Value, digit, DefaultMidPoint);
+        }
+        /// <summary>
+        /// 获取数字
+        /// </summary>
+        /// <returns></returns>
+        public static decimal? GetDecimal(this decimal? value, int digit = 2)
+        {
+            if (value == null) { return null; }
+            return Math.Round(value.Value, digit, DefaultMidPoint);
+        }
+        /// <summary>
+        /// 获取数字
+        /// </summary>
+        /// <returns></returns>
+        public static decimal? GetDecimal(this double? value, int digit = 2)
+        {
+            if (value == null) { return null; }
+            return Math.Round((decimal)value.Value, digit, DefaultMidPoint);
+        }
+        /// <summary>
+        /// 获取数字
+        /// </summary>
+        /// <returns></returns>
+        public static double? GetDouble(this float? value, int digit = 2)
+        {
+            if (value == null) { return null; }
+            return Math.Round(value.Value, digit, DefaultMidPoint);
+        }
+        /// <summary>
+        /// 获取数字
+        /// </summary>
+        /// <returns></returns>
+        public static decimal? GetDecimal(this float? value, int digit = 2)
+        {
+            if (value == null) { return null; }
+            return Math.Round((decimal)value.Value, digit, DefaultMidPoint);
+        }
+        /// <summary>
         /// 逻辑且一个值
         /// </summary>
         /// <param name="firstVal"></param>
@@ -517,5 +571,61 @@ namespace System.Data.Extter
             }
         }
         #endregion 转换类型
+        #region // 16进制
+        /// <summary>
+        /// 读十六进制数
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static String ReadHex(this Int32 val)
+        {
+            return val.ToString("X8");
+        }
+        /// <summary>
+        /// 读十六进制数
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static String ReadHex(this UInt32 val)
+        {
+            return val.ToString("X8");
+        }
+        /// <summary>
+        /// 读十六进制数
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static String ReadHex(this Int16 val)
+        {
+            return val.ToString("X4");
+        }
+        /// <summary>
+        /// 读十六进制数
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static String ReadHex(this UInt16 val)
+        {
+            return val.ToString("X4");
+        }
+        /// <summary>
+        /// 读十六进制数
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static String ReadHex(this Int64 val)
+        {
+            return val.ToString("X16");
+        }
+        /// <summary>
+        /// 读十六进制数
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static String ReadHex(this UInt64 val)
+        {
+            return val.ToString("X16");
+        }
+        #endregion // 16进制
     }
 }

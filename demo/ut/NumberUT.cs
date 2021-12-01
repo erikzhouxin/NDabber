@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Extter;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace System.Data.DabberUT
 {
@@ -47,6 +48,30 @@ namespace System.Data.DabberUT
             var sb = (sbyte)intMax;
             Console.WriteLine(sb);
             Console.WriteLine(((byte)sb));
+        }
+
+        [TestMethod]
+        public void TestTimes()
+        {
+            var times = 100000;
+            UnitTestCaller.TestAction("地址反转=>{0}", () =>
+            {
+                var intBytes = BitConverter.GetBytes(Int32.MaxValue);
+                Array.Reverse(intBytes);
+            }, times);
+            UnitTestCaller.TestAction("逻辑强转=>{0}", () =>
+            {
+                NumberCaller.ReadBytes(int.MaxValue);
+            }, times);
+            UnitTestCaller.TestAction("地址反转=>{0}", () =>
+            {
+                var intBytes = BitConverter.GetBytes(Int32.MaxValue);
+                Array.Reverse(intBytes);
+            }, times);
+            UnitTestCaller.TestAction("逻辑强转=>{0}", () =>
+            {
+                var intBytes = NumberCaller.ReadBytes(int.MaxValue);
+            }, times);
         }
 
         [TestMethod]
