@@ -339,6 +339,18 @@ namespace System.Data.Extter
         {
             return src.Equals(tag, StringComparison.OrdinalIgnoreCase);
         }
+        /// <summary>
+        /// 获取文本的指定长度
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="len"></param>
+        /// <returns></returns>
+        public static string TakeString(this string text, int len)
+        {
+            if (text == null || len <= 0) { return text; }
+            if (text.Length > len) { return text.Substring(0, len); }
+            return text;
+        }
         #region // Base64
         /// <summary>
         /// 获取Base64编码
