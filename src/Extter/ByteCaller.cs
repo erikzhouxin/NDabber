@@ -87,7 +87,7 @@ namespace System.Data.Extter
             StringBuilder sBuilder = new StringBuilder();
             foreach (var hash in hashData)
             {
-                sBuilder.AppendFormat("{0:X2}", hash);
+                sBuilder.Append(hash.ToString("X2"));
             }
             return sBuilder.ToString();
         }
@@ -157,11 +157,26 @@ namespace System.Data.Extter
             }
             return returnBytes;
         }
+        #region // 转数字
+        /// <summary>
+        /// 读短整型数字
+        /// </summary>
+        /// <returns></returns>
+        unsafe public static Int16 GetInt16(this byte[] bytes, bool isBigEndian = true)
+        {
+            if (bytes == null) { return 0; }
+            if (isBigEndian) { Array.Reverse(bytes); }
+            fixed (byte* ptr = bytes)
+            {
+                return *(short*)ptr;
+            }
+        }
         /// <summary>
         /// 读短整型数字
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetInt16))]
         public static Int16 ReadInt16(this byte[] bytes)
         {
             if (bytes == null || bytes.Length == 0) { return 0; }
@@ -169,10 +184,24 @@ namespace System.Data.Extter
             return (Int16)((bytes[0] << 8) + bytes[1]);
         }
         /// <summary>
+        /// 读无符号短整型数字
+        /// </summary>
+        /// <returns></returns>
+        unsafe public static UInt16 GetUInt16(this byte[] bytes, bool isBigEndian = true)
+        {
+            if (bytes == null) { return 0; }
+            if (isBigEndian) { Array.Reverse(bytes); }
+            fixed (byte* ptr = bytes)
+            {
+                return *(ushort*)ptr;
+            }
+        }
+        /// <summary>
         /// 读短整型数字
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetUInt16))]
         public static UInt16 ReadUInt16(this byte[] bytes)
         {
             if (bytes == null || bytes.Length == 0) { return 0; }
@@ -182,8 +211,22 @@ namespace System.Data.Extter
         /// <summary>
         /// 读整型数字
         /// </summary>
+        /// <returns></returns>
+        unsafe public static Int32 GetInt32(this byte[] bytes, bool isBigEndian = true)
+        {
+            if (bytes == null) { return 0; }
+            if (isBigEndian) { Array.Reverse(bytes); }
+            fixed (byte* ptr = bytes)
+            {
+                return *(int*)ptr;
+            }
+        }
+        /// <summary>
+        /// 读整型数字
+        /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetInt32))]
         public static Int32 ReadInt32(this byte[] bytes)
         {
             if (bytes == null || bytes.Length == 0) { return 0; }
@@ -195,8 +238,22 @@ namespace System.Data.Extter
         /// <summary>
         /// 读无符号整型数字
         /// </summary>
+        /// <returns></returns>
+        unsafe public static UInt32 GetUInt32(this byte[] bytes, bool isBigEndian = true)
+        {
+            if (bytes == null) { return 0; }
+            if (isBigEndian) { Array.Reverse(bytes); }
+            fixed (byte* ptr = bytes)
+            {
+                return *(uint*)ptr;
+            }
+        }
+        /// <summary>
+        /// 读无符号整型数字
+        /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetUInt32))]
         public static UInt32 ReadUInt32(this byte[] bytes)
         {
             if (bytes == null || bytes.Length == 0) { return 0; }
@@ -208,8 +265,22 @@ namespace System.Data.Extter
         /// <summary>
         /// 读长整型数字
         /// </summary>
+        /// <returns></returns>
+        unsafe public static Int64 GetInt64(this byte[] bytes, bool isBigEndian = true)
+        {
+            if (bytes == null) { return 0; }
+            if (isBigEndian) { Array.Reverse(bytes); }
+            fixed (byte* ptr = bytes)
+            {
+                return *(long*)ptr;
+            }
+        }
+        /// <summary>
+        /// 读长整型数字
+        /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetInt64))]
         public static Int64 ReadInt64(this byte[] bytes)
         {
             if (bytes == null || bytes.Length == 0) { return 0; }
@@ -228,8 +299,22 @@ namespace System.Data.Extter
         /// <summary>
         /// 读无符号长整型数字
         /// </summary>
+        /// <returns></returns>
+        unsafe public static UInt64 GetUInt64(this byte[] bytes, bool isBigEndian = true)
+        {
+            if (bytes == null) { return 0; }
+            if (isBigEndian) { Array.Reverse(bytes); }
+            fixed (byte* ptr = bytes)
+            {
+                return *(ulong*)ptr;
+            }
+        }
+        /// <summary>
+        /// 读无符号长整型数字
+        /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetUInt64))]
         public static UInt64 ReadUInt64(this byte[] bytes)
         {
             if (bytes == null || bytes.Length == 0) { return 0; }
@@ -248,8 +333,22 @@ namespace System.Data.Extter
         /// <summary>
         /// 读短整型数字
         /// </summary>
+        /// <returns></returns>
+        unsafe public static Int16 GetInt16(this sbyte[] bytes, bool isBigEndian = true)
+        {
+            if (bytes == null) { return 0; }
+            if (isBigEndian) { Array.Reverse(bytes); }
+            fixed (sbyte* ptr = bytes)
+            {
+                return *(short*)ptr;
+            }
+        }
+        /// <summary>
+        /// 读短整型数字
+        /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetInt16))]
         public static Int16 ReadInt16(this sbyte[] bytes)
         {
             if (bytes == null || bytes.Length == 0) { return 0; }
@@ -257,10 +356,24 @@ namespace System.Data.Extter
             return (Int16)((((byte)bytes[0]) << 8) + ((byte)bytes[1]));
         }
         /// <summary>
+        /// 读无符号短整型数字
+        /// </summary>
+        /// <returns></returns>
+        unsafe public static UInt16 GetUInt16(this sbyte[] bytes, bool isBigEndian = true)
+        {
+            if (bytes == null) { return 0; }
+            if (isBigEndian) { Array.Reverse(bytes); }
+            fixed (sbyte* ptr = bytes)
+            {
+                return *(ushort*)ptr;
+            }
+        }
+        /// <summary>
         /// 读短整型数字
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetUInt16))]
         public static UInt16 ReadUInt16(this sbyte[] bytes)
         {
             if (bytes == null || bytes.Length == 0) { return 0; }
@@ -270,8 +383,22 @@ namespace System.Data.Extter
         /// <summary>
         /// 读整型数字
         /// </summary>
+        /// <returns></returns>
+        unsafe public static Int32 GetInt32(this sbyte[] bytes, bool isBigEndian = true)
+        {
+            if (bytes == null) { return 0; }
+            if (isBigEndian) { Array.Reverse(bytes); }
+            fixed (sbyte* ptr = bytes)
+            {
+                return *(int*)ptr;
+            }
+        }
+        /// <summary>
+        /// 读整型数字
+        /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetInt32))]
         public static Int32 ReadInt32(this sbyte[] bytes)
         {
             if (bytes == null || bytes.Length == 0) { return 0; }
@@ -283,8 +410,22 @@ namespace System.Data.Extter
         /// <summary>
         /// 读无符号整型数字
         /// </summary>
+        /// <returns></returns>
+        unsafe public static UInt32 GetUInt32(this sbyte[] bytes, bool isBigEndian = true)
+        {
+            if (bytes == null) { return 0; }
+            if (isBigEndian) { Array.Reverse(bytes); }
+            fixed (sbyte* ptr = bytes)
+            {
+                return *(uint*)ptr;
+            }
+        }
+        /// <summary>
+        /// 读无符号整型数字
+        /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetUInt32))]
         public static UInt32 ReadUInt32(this sbyte[] bytes)
         {
             if (bytes == null || bytes.Length == 0) { return 0; }
@@ -296,8 +437,22 @@ namespace System.Data.Extter
         /// <summary>
         /// 读长整型数字
         /// </summary>
+        /// <returns></returns>
+        unsafe public static Int64 GetInt64(this sbyte[] bytes, bool isBigEndian = true)
+        {
+            if (bytes == null) { return 0; }
+            if (isBigEndian) { Array.Reverse(bytes); }
+            fixed (sbyte* ptr = bytes)
+            {
+                return *(long*)ptr;
+            }
+        }
+        /// <summary>
+        /// 读长整型数字
+        /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetInt64))]
         public static Int64 ReadInt64(this sbyte[] bytes)
         {
             if (bytes == null || bytes.Length == 0) { return 0; }
@@ -314,10 +469,24 @@ namespace System.Data.Extter
             return ((long)((byte)bytes[0]) << 56) + ((long)((byte)bytes[1]) << 48) + ((long)((byte)bytes[2]) << 40) + ((long)((byte)bytes[3]) << 32) + ((uint)((byte)bytes[4]) << 24) + (((byte)bytes[5]) << 16) + (((byte)bytes[6]) << 8) + ((byte)bytes[7]);
         }
         /// <summary>
+        /// 读无符号长整型数字
+        /// </summary>
+        /// <returns></returns>
+        unsafe public static UInt64 GetUInt64(this sbyte[] bytes, bool isBigEndian = true)
+        {
+            if (bytes == null) { return 0; }
+            if (isBigEndian) { Array.Reverse(bytes); }
+            fixed (sbyte* ptr = bytes)
+            {
+                return *(ulong*)ptr;
+            }
+        }
+        /// <summary>
         /// 读无符号整型数字
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetUInt64))]
         public static UInt64 ReadUInt64(this sbyte[] bytes)
         {
             if (bytes == null || bytes.Length == 0) { return 0; }
@@ -333,6 +502,7 @@ namespace System.Data.Extter
             if (bytes.Length == 7) { return ((ulong)((byte)bytes[0]) << 48) + ((ulong)((byte)bytes[1]) << 40) + ((ulong)((byte)bytes[2]) << 32) + ((uint)((byte)bytes[3]) << 24) + ((uint)((byte)bytes[4]) << 16) + ((uint)((byte)bytes[5]) << 8) + ((byte)bytes[6]); }
             return ((ulong)((byte)bytes[0]) << 56) + ((ulong)((byte)bytes[1]) << 48) + ((ulong)((byte)bytes[2]) << 40) + ((ulong)((byte)bytes[3]) << 32) + ((uint)((byte)bytes[4]) << 24) + ((uint)((byte)bytes[5]) << 16) + ((uint)((byte)bytes[6]) << 8) + ((byte)bytes[7]);
         }
+        #endregion
         #region // 压缩
         /// <summary>
         /// 压缩字节

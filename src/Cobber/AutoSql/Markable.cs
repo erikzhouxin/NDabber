@@ -11,6 +11,7 @@ namespace System.Data.Cobber
     /// 默认SQL语句属性
     /// 自动生成SQL语句标签
     /// </summary>
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
     public class DbColAttribute : Attribute, IDbColInfo
     {
         /// <summary>
@@ -69,36 +70,38 @@ namespace System.Data.Cobber
         /// </summary>
         /// <param name="prop"></param>
         /// <param name="colAttr"></param>
+        /// <param name="inherit"></param>
         /// <returns></returns>
-        public static bool TryGetAttribute(PropertyInfo prop, out DbColAttribute colAttr)
+        public static bool TryGetAttribute(PropertyInfo prop, out DbColAttribute colAttr, bool inherit = false)
         {
-            colAttr = null;
-            foreach (var item in prop.GetCustomAttributes(false))
+            foreach (var item in prop.GetCustomAttributes(inherit))
             {
-                var typeName = item.GetType().Name;
+                string typeName = item.GetType().Name;
                 switch (typeName)
                 {
                     case "NotMappedAttribute":
                     case "IgnoreAttribute":
+                        colAttr = null;
                         return false;
-                    case "DbColAttribute":
+                    case nameof(DbColAttribute):
                         colAttr = item as DbColAttribute;
-                        break;
+                        return colAttr != null && !colAttr.Ignore;
                     default:
                         break;
                 }
-
             }
-            return colAttr != null && !colAttr.Ignore;
+            colAttr = null;
+            return false;
         }
         /// <summary>
         /// 获取属性内容
         /// </summary>
         /// <param name="prop"></param>
+        /// <param name="inherit"></param>
         /// <returns></returns>
-        public static DbColAttribute GetAttribute(PropertyInfo prop)
+        public static DbColAttribute GetAttribute(PropertyInfo prop, bool inherit = false)
         {
-            foreach (var item in prop.GetCustomAttributes(false))
+            foreach (var item in prop.GetCustomAttributes(inherit))
             {
                 var typeName = item.GetType().Name;
                 switch (typeName)
@@ -111,7 +114,6 @@ namespace System.Data.Cobber
                     default:
                         break;
                 }
-
             }
             return GetIgnore(prop.Name);
         }

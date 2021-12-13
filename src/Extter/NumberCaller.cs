@@ -283,10 +283,131 @@ namespace System.Data.Extter
     {
         #region // 读取字节
         /// <summary>
-        /// 读取整型字节
+        /// 读取短整型字节
+        /// </summary>
+        /// <returns></returns>
+        unsafe public static byte[] GetBytes(this Int16 number, bool isBigEndian = true)
+        {
+            byte[] array = new byte[2];
+            fixed (byte* ptr = array)
+            {
+                *(short*)ptr = number;
+            }
+            return isBigEndian ? new byte[2] { array[1], array[0] } : array;
+        }
+        /// <summary>
+        /// 读取短整型字节
+        /// </summary>
+        /// <returns></returns>
+        [Obsolete(nameof(GetBytes))]
+        public static byte[] ReadBytes(this Int16 number)
+        {
+            return new byte[2]
+            {
+                (byte)(number>>8),
+                (byte)number,
+            };
+        }
+        /// <summary>
+        /// 读取无符号短整型字节
+        /// </summary>
+        /// <returns></returns>
+        unsafe public static byte[] GetBytes(this UInt16 number, bool isBigEndian = true)
+        {
+            byte[] array = new byte[2];
+            fixed (byte* ptr = array)
+            {
+                *(ushort*)ptr = number;
+            }
+            return isBigEndian ? new byte[2] { array[1], array[0] } : array;
+        }
+        /// <summary>
+        /// 读取无符号短整型字节
         /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetBytes))]
+        public static byte[] ReadBytes(this UInt16 number)
+        {
+            return new byte[2]
+            {
+                (byte)(number>>8),
+                (byte)number,
+            };
+        }
+        /// <summary>
+        /// 读取短整型字节
+        /// </summary>
+        /// <returns></returns>
+        unsafe public static sbyte[] GetSBytes(this Int16 number, bool isBigEndian = true)
+        {
+            sbyte[] array = new sbyte[2];
+            fixed (sbyte* ptr = array)
+            {
+                *(short*)ptr = number;
+            }
+            return isBigEndian ? new sbyte[2] { array[1], array[0] } : array;
+        }
+        /// <summary>
+        /// 读取短整型字节
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        [Obsolete(nameof(GetSBytes))]
+        public static sbyte[] ReadSBytes(this Int16 number)
+        {
+            return new sbyte[2]
+            {
+                (sbyte)(number>>8),
+                (sbyte)number,
+            };
+        }
+        /// <summary>
+        /// 读取无符号短整型字节
+        /// </summary>
+        /// <returns></returns>
+        unsafe public static sbyte[] GetSBytes(this UInt16 number, bool isBigEndian = true)
+        {
+            sbyte[] array = new sbyte[2];
+            fixed (sbyte* ptr = array)
+            {
+                *(ushort*)ptr = number;
+            }
+            return isBigEndian ? new sbyte[2] { array[1], array[0] } : array;
+        }
+        /// <summary>
+        /// 读取无符号短整型字节
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        [Obsolete(nameof(GetSBytes))]
+        public static sbyte[] ReadSBytes(this UInt16 number)
+        {
+            return new sbyte[2]
+            {
+                (sbyte)(number>>8),
+                (sbyte)number,
+            };
+        }
+        /// <summary>
+        /// 读取整型字节
+        /// </summary>
+        /// <returns></returns>
+        unsafe public static byte[] GetBytes(this Int32 number, bool isBigEndian = true)
+        {
+            byte[] array = new byte[4];
+            fixed (byte* ptr = array)
+            {
+                *(int*)ptr = number;
+            }
+            return isBigEndian ? new byte[4] { array[3], array[2], array[1], array[0] } : array;
+        }
+        /// <summary>
+        /// 读取整型字节(高位开始)
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        [Obsolete(nameof(GetBytes))]
         public static byte[] ReadBytes(this Int32 number)
         {
             return new Byte[4]
@@ -300,8 +421,22 @@ namespace System.Data.Extter
         /// <summary>
         /// 读取整型字节
         /// </summary>
+        /// <returns></returns>
+        unsafe public static sbyte[] GetSBytes(this Int32 number, bool isBigEndian = true)
+        {
+            sbyte[] array = new sbyte[4];
+            fixed (sbyte* ptr = array)
+            {
+                *(int*)ptr = number;
+            }
+            return isBigEndian ? new sbyte[4] { array[3], array[2], array[1], array[0] } : array;
+        }
+        /// <summary>
+        /// 读取整型字节
+        /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetSBytes))]
         public static sbyte[] ReadSBytes(this Int32 number)
         {
             return new SByte[4]
@@ -315,8 +450,22 @@ namespace System.Data.Extter
         /// <summary>
         /// 读取无符号整型字节
         /// </summary>
+        /// <returns></returns>
+        unsafe public static byte[] GetBytes(this UInt32 number, bool isBigEndian = true)
+        {
+            byte[] array = new byte[4];
+            fixed (byte* ptr = array)
+            {
+                *(uint*)ptr = number;
+            }
+            return isBigEndian ? new byte[4] { array[3], array[2], array[1], array[0] } : array;
+        }
+        /// <summary>
+        /// 读取无符号整型字节
+        /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetBytes))]
         public static byte[] ReadBytes(this UInt32 number)
         {
             return new Byte[4]
@@ -330,8 +479,22 @@ namespace System.Data.Extter
         /// <summary>
         /// 读取无符号整型字节
         /// </summary>
+        /// <returns></returns>
+        unsafe public static sbyte[] GetSBytes(this UInt32 number, bool isBigEndian = true)
+        {
+            sbyte[] array = new sbyte[4];
+            fixed (sbyte* ptr = array)
+            {
+                *(uint*)ptr = number;
+            }
+            return isBigEndian ? new sbyte[4] { array[3], array[2], array[1], array[0] } : array;
+        }
+        /// <summary>
+        /// 读取无符号整型字节
+        /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetSBytes))]
         public static sbyte[] ReadSBytes(this UInt32 number)
         {
             return new SByte[4]
@@ -345,8 +508,22 @@ namespace System.Data.Extter
         /// <summary>
         /// 读取长整型字节
         /// </summary>
+        /// <returns></returns>
+        unsafe public static byte[] GetBytes(this Int64 number, bool isBigEndian = true)
+        {
+            byte[] array = new byte[8];
+            fixed (byte* ptr = array)
+            {
+                *(long*)ptr = number;
+            }
+            return isBigEndian ? new byte[8] { array[7], array[6], array[5], array[4], array[3], array[2], array[1], array[0] } : array;
+        }
+        /// <summary>
+        /// 读取长整型字节
+        /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetBytes))]
         public static byte[] ReadBytes(this Int64 number)
         {
             var num1 = number >> 32;
@@ -366,8 +543,22 @@ namespace System.Data.Extter
         /// <summary>
         /// 读取长整型字节
         /// </summary>
+        /// <returns></returns>
+        unsafe public static sbyte[] GetSBytes(this Int64 number, bool isBigEndian = true)
+        {
+            sbyte[] array = new sbyte[8];
+            fixed (sbyte* ptr = array)
+            {
+                *(long*)ptr = number;
+            }
+            return isBigEndian ? new sbyte[8] { array[7], array[6], array[5], array[4], array[3], array[2], array[1], array[0] } : array;
+        }
+        /// <summary>
+        /// 读取长整型字节
+        /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetSBytes))]
         public static sbyte[] ReadSBytes(this Int64 number)
         {
             var num1 = number >> 32;
@@ -387,8 +578,22 @@ namespace System.Data.Extter
         /// <summary>
         /// 读取无符号长整型字节
         /// </summary>
+        /// <returns></returns>
+        unsafe public static byte[] GetBytes(this UInt64 number, bool isBigEndian = true)
+        {
+            byte[] array = new byte[8];
+            fixed (byte* ptr = array)
+            {
+                *(ulong*)ptr = number;
+            }
+            return isBigEndian ? new byte[8] { array[7], array[6], array[5], array[4], array[3], array[2], array[1], array[0] } : array;
+        }
+        /// <summary>
+        /// 读取无符号长整型字节
+        /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetBytes))]
         public static byte[] ReadBytes(this UInt64 number)
         {
             UInt32 num1 = (UInt32)(number >> 32);
@@ -408,8 +613,22 @@ namespace System.Data.Extter
         /// <summary>
         /// 读取无符号长整型字节
         /// </summary>
+        /// <returns></returns>
+        unsafe public static sbyte[] GetSBytes(this UInt64 number, bool isBigEndian = true)
+        {
+            sbyte[] array = new sbyte[8];
+            fixed (sbyte* ptr = array)
+            {
+                *(ulong*)ptr = number;
+            }
+            return isBigEndian ? new sbyte[8] { array[7], array[6], array[5], array[4], array[3], array[2], array[1], array[0] } : array;
+        }
+        /// <summary>
+        /// 读取无符号长整型字节
+        /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
+        [Obsolete(nameof(GetSBytes))]
         public static sbyte[] ReadSBytes(this UInt64 number)
         {
             UInt32 num1 = (UInt32)(number >> 32);
@@ -424,58 +643,6 @@ namespace System.Data.Extter
                 (sbyte)(num2>>16),
                 (sbyte)(num2>>8),
                 (sbyte)num2,
-            };
-        }
-        /// <summary>
-        /// 读取短整型字节
-        /// </summary>
-        /// <param name="number"></param>
-        /// <returns></returns>
-        public static byte[] ReadBytes(this Int16 number)
-        {
-            return new byte[2]
-            {
-                (byte)(number>>8),
-                (byte)number,
-            };
-        }
-        /// <summary>
-        /// 读取短整型字节
-        /// </summary>
-        /// <param name="number"></param>
-        /// <returns></returns>
-        public static sbyte[] ReadSBytes(this Int16 number)
-        {
-            return new sbyte[2]
-            {
-                (sbyte)(number>>8),
-                (sbyte)number,
-            };
-        }
-        /// <summary>
-        /// 读取无符号短整型字节
-        /// </summary>
-        /// <param name="number"></param>
-        /// <returns></returns>
-        public static byte[] ReadBytes(this UInt16 number)
-        {
-            return new byte[2]
-            {
-                (byte)(number>>8),
-                (byte)number,
-            };
-        }
-        /// <summary>
-        /// 读取无符号短整型字节
-        /// </summary>
-        /// <param name="number"></param>
-        /// <returns></returns>
-        public static sbyte[] ReadSBytes(this UInt16 number)
-        {
-            return new sbyte[2]
-            {
-                (sbyte)(number>>8),
-                (sbyte)number,
             };
         }
         #endregion 读取字节

@@ -524,10 +524,6 @@ namespace System.Data.Cobber
     public class AutoSqlBuilder : AutoSqlModel, IAutoSqlModel
     {
         /// <summary>
-        /// 缓存字典
-        /// </summary>
-        protected ConcurrentDictionary<string, string> CacheDic = new ConcurrentDictionary<string, string>();
-        /// <summary>
         /// 构造
         /// </summary>
         /// <param name="type"></param>

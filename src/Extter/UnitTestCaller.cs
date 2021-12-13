@@ -27,6 +27,19 @@ namespace System.Data.Extter
         /// <summary>
         /// 测试方法
         /// </summary>
+        public static void TestFunc<T>(string consoleFmt, Func<T> action, int times = 10000)
+        {
+            action.Invoke();
+            var now = DateTime.Now;
+            for (int i = 0; i < times; i++)
+            {
+                action.Invoke();
+            }
+            Console.WriteLine(consoleFmt, DateTime.Now - now);
+        }
+        /// <summary>
+        /// 测试方法
+        /// </summary>
         public static async Task TestActionAsync(string consoleFmt, Action action, int times = 10000)
         {
             await Task.Factory.StartNew(() => TestAction(consoleFmt, action, times));
