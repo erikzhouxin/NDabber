@@ -47,6 +47,15 @@ namespace System.Data.Cobber
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static AutoSqlBuilder Builder<T>() => BuilderModel<T>.SqlModel;
+        /// <summary>
+        /// 获取带括号的内容
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static string GetQuot(string text)
+        {
+            return $"[{text}]";
+        }
         #region // 辅助方法        
         /// <summary>
         /// 获取标记参数的Where及处理后的参数字典
@@ -137,79 +146,83 @@ namespace System.Data.Cobber
         public static AutoSqlBuilder CreateSqlModel(Type type)
         {
             var result = new AutoSqlBuilder(type);
-            var eColAttr = type.GetCustomAttribute<DbColAttribute>() ?? new DbColAttribute(type.Name);
-            //result.TagName = eColAttr.Name = eColAttr.Name ?? type.Name;
-            var createBuilder = new StringBuilder("CREATE TABLE ");
-            createBuilder.AppendFormat("[{0}](", eColAttr.Name);
-            var pSql = new List<string>();
-            var apSql = new List<string>();
-            var pk = "ID";
-            var uixList = new List<string>();
-            foreach (var prop in type.GetProperties())
+            var tableName = result.Table.TableName;
+            var tableComment = result.Table.TableComment;
+            var createBuilder = new StringBuilder($"CREATE TABLE [{tableName}](");
+            var colLength = result.Table.Columns.Length;
+            StringBuilder insertIgApkColumns = new StringBuilder();
+            StringBuilder insertIgApkValues = new StringBuilder();
+            StringBuilder updateSetValue = new StringBuilder();
+            StringBuilder selectAsValue = new StringBuilder();
+            for (int i = 0; i < colLength; i++)
             {
-                if (!DbColAttribute.TryGetAttribute(prop, out DbColAttribute colAttr))
+                var prop = result.Table.Columns[i];
+                var colDefine = GetDefinitionType(prop.DbCol);
+                if (i + 1 == colLength) // 最后一个进行特殊处理
                 {
-                    continue;
+                    if (result.Table.Indexes.Length == 0)
+                    {
+                        createBuilder.AppendLine($"\t{colDefine}");
+                    }
+                    else
+                    {
+                        var idxLen = result.Table.Indexes.Length;
+                        createBuilder.AppendLine($"\t{colDefine},");
+                        for (int j = 0; j < idxLen;)
+                        {
+                            var item = result.Table.Indexes[j];
+                            var split = ++j == idxLen ? "" : ",";
+                            if (item.IsUnique)
+                            {
+                                createBuilder.AppendLine($"\tCONSTRAINT [IX_{tableName}_{item.IndexName.Replace("|", "_")}] UNIQUE ([{item.IndexName.Replace("|", "],[")}])");
+                            }
+                            else
+                            {
+                                createBuilder.AppendLine($"\tINDEX [IX_{tableName}_{item.IndexName.Replace("|", "_")}] NONCLUSTERED ([{item.IndexName.Replace("|", "],[")}])");
+                            }
+                        }
+                    }
+                    if (!prop.IsAuto)
+                    {
+                        insertIgApkColumns.Append($"[{prop.ColumnName}]");
+                        insertIgApkValues.Append($"@{prop.PropertyName}");
+                    }
+                    if (!prop.IsPK)
+                    {
+                        updateSetValue.Append($"[{prop.ColumnName}]=@{prop.PropertyName}");
+                    }
+                    selectAsValue.Append($"[{prop.ColumnName}] AS [{prop.PropertyName}]");
                 }
-                colAttr.Name = colAttr.Name ?? prop.Name;
-                switch (colAttr.Key)
+                else
                 {
-                    case DbIxType.PK:
-                        pSql.Add(prop.Name);
-                        pk = prop.Name;
-                        break;
-                    case DbIxType.APK: // 自增主键
-                        pk = prop.Name;
-                        break;
-                    case DbIxType.PFK:
-                        pSql.Add(prop.Name);
-                        pk = prop.Name;
-                        break;
-                    case DbIxType.FK:
-                        pSql.Add(prop.Name);
-                        break;
-                    case DbIxType.IX:
-                        pSql.Add(prop.Name);
-                        break;
-                    case DbIxType.UIX:
-                        pSql.Add(prop.Name);
-                        uixList.Add(string.IsNullOrEmpty(colAttr.Index) ? prop.Name : colAttr.Index);
-                        break;
-                    default:
-                        pSql.Add(prop.Name);
-                        break;
+                    createBuilder.AppendLine($"\t{colDefine},");
+                    if (!prop.IsAuto)
+                    {
+                        insertIgApkColumns.Append($"[{prop.ColumnName}],");
+                        insertIgApkValues.Append($"@{prop.PropertyName},");
+                    }
+                    if (!prop.IsPK)
+                    {
+                        updateSetValue.Append($"[{prop.ColumnName}]=@{prop.PropertyName},");
+                    }
+                    selectAsValue.Append($"[{prop.ColumnName}] AS [{prop.PropertyName}],");
                 }
-                createBuilder.AppendFormat("{0},", GetDefinitionType(colAttr));
-                apSql.Add(prop.Name);
             }
-            createBuilder.Remove(createBuilder.Length - 1, 1)
-                .Append(");");
-
-            foreach (var item in uixList.Distinct())
-            {
-                createBuilder.AppendLine().AppendFormat("CREATE UNIQUE INDEX [IX_{0}_{1}] ON [{0}]([{2}]);", eColAttr.Name, item.Replace("|", "_"), item.Replace("|", "],["));
-            }
-
-            var commaPSql = string.Join("],[", pSql);
-            var commaAtPSql = string.Join(",@", pSql);
-            var commaAPSql = string.Join("],[", apSql);
-            var commaSetValSql = string.Join(",", pSql.Where(s => !s.Equals(pk)).Select(s => string.Format("[{0}]=@{0}", s)));
+            createBuilder.Append(");");
 
             result.Create = createBuilder.ToString();
-            result.Insert = string.Format("INSERT INTO [{0}]([{1}]) VALUES(@{2})", eColAttr.Name, commaPSql, commaAtPSql); // 无自增主键
-            result.Replace = string.Format("REPLACE INTO [{0}]([{1}]) VALUES(@{2})", eColAttr.Name, commaPSql, commaAtPSql); // 无自增主键
-            result.DeleteID = string.Format("DELETE FROM [{0}] WHERE [{1}]=@{1}", eColAttr.Name, pk);
-            result.DeleteInID = string.Format("DELETE FROM [{0}] WHERE [{1}] IN @{1}", eColAttr.Name, pk);
-            result.UpdateID = string.Format("UPDATE [{0}] SET {1} WHERE [{2}]=@{2}", eColAttr.Name, commaSetValSql, pk);
-            result.Update = string.Format("UPDATE [{0}] SET {1}", eColAttr.Name, commaSetValSql);
-            result.Select = string.Format("SELECT [{1}] FROM [{0}]", eColAttr.Name, commaAPSql);
-            result.SelectID = string.Format("SELECT [{1}] FROM [{0}] WHERE [{2}]=@{2} LIMIT 1", eColAttr.Name, commaAPSql, pk);
-            result.SelectInID = string.Format("SELECT [{1}] FROM [{0}] WHERE [{2}] IN @{2}", eColAttr.Name, commaAPSql, pk);
-            result.SelectLimit = string.Format("SELECT [{1}] FROM [{0}] LIMIT @Skip,@Take", eColAttr.Name, commaAPSql);
-            result.SelectCount = string.Format("SELECT COUNT(*) FROM [{0}]", eColAttr.Name);
-            //result.Cols = apSql.ToArray();
-            result.WhereID = string.Format("[{0}]=@{0}", pk);
-            //result.TagID = pk;
+            result.Insert = string.Format("INSERT INTO [{0}]({1}) VALUES({2})", tableName, insertIgApkColumns, insertIgApkValues); // 无自增主键
+            result.Replace = string.Format("REPLACE INTO [{0}]({1}) VALUES({2})", tableName, insertIgApkColumns, insertIgApkValues); // 无自增主键
+            result.DeleteID = string.Format("DELETE FROM [{0}] WHERE [{1}]=@{2}", tableName, result.Table.DefaultTableKey, result.Table.DefaultPropertyKey);
+            result.DeleteInID = string.Format("DELETE FROM [{0}] WHERE [{1}] IN @{2}", tableName, result.Table.DefaultTableKey, result.Table.DefaultPropertyKey);
+            result.UpdateID = string.Format("UPDATE [{0}] SET {1} WHERE [{2}]=@{3}", tableName, updateSetValue, result.Table.DefaultTableKey, result.Table.DefaultPropertyKey);
+            result.Update = string.Format("UPDATE [{0}] SET {1}", tableName, updateSetValue);
+            result.Select = string.Format("SELECT {1} FROM [{0}]", tableName, selectAsValue);
+            result.SelectID = string.Format("SELECT TOP 1 {1} FROM [{0}] WHERE [{2}]=@{3}", tableName, selectAsValue, result.Table.DefaultTableKey, result.Table.DefaultPropertyKey);
+            result.SelectInID = string.Format("SELECT {1} FROM [{0}] WHERE [{2}] IN @{3}", tableName, selectAsValue, result.Table.DefaultTableKey, result.Table.DefaultPropertyKey);
+            result.SelectLimit = string.Format("SELECT {1} FROM [{0}] OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY", tableName, selectAsValue);
+            result.SelectCount = string.Format("SELECT COUNT(*) FROM [{0}]", tableName);
+            result.WhereID = string.Format("[{0}]=@{1}", result.Table.DefaultTableKey, result.Table.DefaultPropertyKey);
 
             return result;
         }

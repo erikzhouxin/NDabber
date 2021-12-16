@@ -42,6 +42,37 @@ namespace System.Data.DabberUT
             Console.WriteLine(ulongsBytes.ReadUInt64());
         }
         [TestMethod]
+        public void MyTestMethod2()
+        {
+            var intBytes = Int32.MaxValue.GetBytes();
+            Console.WriteLine(intBytes.GetInt32());
+            var uintBytes = uint.MaxValue.GetBytes();
+            Console.WriteLine(uintBytes.GetUInt32());
+            var shortBytes = short.MaxValue.GetBytes();
+            Console.WriteLine(shortBytes.GetInt16());
+            var ushortBytes = ushort.MaxValue.GetBytes();
+            Console.WriteLine(ushortBytes.GetUInt16());
+            var longBytes = long.MaxValue.GetBytes();
+            Console.WriteLine(longBytes.GetInt64());
+            var ulongBytes = ulong.MaxValue.GetBytes();
+            Console.WriteLine(ulongBytes.GetUInt64());
+
+            Console.WriteLine("-----------------------------");
+
+            var intsBytes = Int32.MaxValue.GetSBytes();
+            Console.WriteLine(intsBytes.GetInt32());
+            var uintsBytes = uint.MaxValue.GetSBytes();
+            Console.WriteLine(uintsBytes.GetUInt32());
+            var shortsBytes = short.MaxValue.GetSBytes();
+            Console.WriteLine(shortsBytes.GetInt16());
+            var ushortsBytes = ushort.MaxValue.GetSBytes();
+            Console.WriteLine(ushortsBytes.GetUInt16());
+            var longsBytes = long.MaxValue.GetSBytes();
+            Console.WriteLine(longsBytes.GetInt64());
+            var ulongsBytes = ulong.MaxValue.GetSBytes();
+            Console.WriteLine(ulongsBytes.GetUInt64());
+        }
+        [TestMethod]
         public void TestLogicMath()
         {
             var intMax = Int64.MaxValue;
@@ -54,24 +85,20 @@ namespace System.Data.DabberUT
         public void TestTimes()
         {
             var times = 100000;
-            UnitTestCaller.TestAction("地址反转=>{0}", () =>
+            UnitTestCaller.TestFunc("地址反转=>{0}", () =>
             {
                 var intBytes = BitConverter.GetBytes(Int32.MaxValue);
                 Array.Reverse(intBytes);
+                return intBytes;
             }, times);
-            UnitTestCaller.TestAction("逻辑强转=>{0}", () =>
-            {
-                NumberCaller.ReadBytes(int.MaxValue);
-            }, times);
-            UnitTestCaller.TestAction("地址反转=>{0}", () =>
+            UnitTestCaller.TestFunc("地址反转=>{0}", () =>
             {
                 var intBytes = BitConverter.GetBytes(Int32.MaxValue);
                 Array.Reverse(intBytes);
+                return intBytes;
             }, times);
-            UnitTestCaller.TestAction("逻辑强转=>{0}", () =>
-            {
-                var intBytes = NumberCaller.ReadBytes(int.MaxValue);
-            }, times);
+            UnitTestCaller.TestFunc("逻辑强转=>{0}", () => NumberCaller.GetBytes(int.MaxValue), times);
+            UnitTestCaller.TestFunc("逻辑强转=>{0}", () => NumberCaller.GetBytes(int.MaxValue), times);
         }
 
         [TestMethod]

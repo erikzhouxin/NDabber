@@ -48,6 +48,15 @@ namespace System.Data.Cobber
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static AutoSqlBuilder Builder<T>() => BuilderModel<T>.SqlModel;
+        /// <summary>
+        /// 获取带括号的内容
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static string GetQuot(string text)
+        {
+            return $"[{text}]";
+        }
         #region // 辅助方法        
         /// <summary>
         /// 获取标记参数的Where及处理后的参数字典

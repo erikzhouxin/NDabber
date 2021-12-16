@@ -33,6 +33,15 @@ namespace System.Data.Cobber
                 return SqlModel;
             }
         }
+        /// <summary>
+        /// 获取带括号的内容
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static string GetQuot(string text)
+        {
+            return $"`{text}`";
+        }
         #endregion
         /// <summary>
         /// 创建SQL Builder

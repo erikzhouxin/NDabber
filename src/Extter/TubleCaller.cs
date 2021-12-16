@@ -132,6 +132,90 @@ namespace System.Data.Extter
         public T2 Item2 { get; set; }
     }
     /// <summary>
+    /// 二元组SQL脚本结果项
+    /// </summary>
+    public class Tuble2SqlArgs : Tuble<string, Dictionary<string, object>>
+    {
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        public Tuble2SqlArgs() { }
+        /// <summary>
+        /// 参数构造
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="parameters"></param>
+        public Tuble2SqlArgs(string sql, Dictionary<string, object> parameters)
+        {
+            Item1 = sql;
+            Item2 = parameters;
+        }
+        /// <summary>
+        /// SQL脚本
+        /// </summary>
+        public string Sql => Item1;
+        /// <summary>
+        /// 参数列表
+        /// </summary>
+        public Dictionary<string, object> Parameters => Item2;
+    }
+    /// <summary>
+    /// 二元组类型标记
+    /// </summary>
+    public class Tuble2TypeTag : Tuble<Type, string>
+    {
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        public Tuble2TypeTag() { }
+        /// <summary>
+        /// 参数构造
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="tag"></param>
+        public Tuble2TypeTag(Type type, string tag)
+        {
+            Item1 = type;
+            Item2 = tag;
+        }
+        /// <summary>
+        /// 类型
+        /// </summary>
+        public Type Type => Item1;
+        /// <summary>
+        /// 标记
+        /// </summary>
+        public string Tag => Item2;
+    }
+    /// <summary>
+    /// 二元组键名
+    /// </summary>
+    public class Tuble2KeyName : Tuble<string, string>
+    {
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public Tuble2KeyName() { }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="name"></param>
+        public Tuble2KeyName(string key, string name)
+        {
+            Item1 = key;
+            Item2 = name;
+        }
+        /// <summary>
+        /// 键
+        /// </summary>
+        public string Key => Item1;
+        /// <summary>
+        /// 名
+        /// </summary>
+        public String Name => Item2;
+    }
+    /// <summary>
     /// 三元组
     /// </summary>
     /// <typeparam name="T1"></typeparam>

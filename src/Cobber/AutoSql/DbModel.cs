@@ -21,7 +21,7 @@ namespace System.Data.Cobber
             ClassName = type.Name;
             ClassType = type;
             DbCol = type.GetCustomAttribute<DbColAttribute>() ?? throw new NotSupportedException("当前类没有【DbColAttribute】标记");
-            TableName = DbCol.Name = DbCol.Name ?? type.Name;
+            TableName = (DbCol.Name ??= type.Name);
             TableComment = Regex.Replace(DbCol.Display, "\\s+", " ");
             var cols = new List<DbColumnModel>();
             var props = new List<PropertyInfo>();

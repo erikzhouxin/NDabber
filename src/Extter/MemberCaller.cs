@@ -19,7 +19,7 @@ namespace System.Data.Extter
         /// <typeparam name="T"></typeparam>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public static FieldInfo GetFieldInfo<T>(Expression<Func<T>> expression)
+        public static FieldInfo GetFieldInfo<T>(this Expression<Func<T>> expression)
         {
             MemberExpression body = (MemberExpression)expression.Body;
             return (FieldInfo)body.Member;
@@ -30,7 +30,7 @@ namespace System.Data.Extter
         /// <typeparam name="T"></typeparam>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public static PropertyInfo GetPropertyInfo<T>(Expression<Func<T>> expression)
+        public static PropertyInfo GetPropertyInfo<T>(this Expression<Func<T>> expression)
         {
             MemberExpression body = (MemberExpression)expression.Body;
             return (PropertyInfo)body.Member;
@@ -38,13 +38,30 @@ namespace System.Data.Extter
         /// <summary>
         /// 属性信息
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public static PropertyInfo GetPropInfo<T>(Expression<Func<T>> expression)
+        public static PropertyInfo GetPropertyInfo<TM, TP>(this Expression<Func<TM, TP>> expression)
         {
             MemberExpression body = (MemberExpression)expression.Body;
             return (PropertyInfo)body.Member;
+        }
+        /// <summary>
+        /// 属性信息
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public static PropertyInfo GetPropertyInfo<TM>(this Expression<Func<TM, object>> expression)
+        {
+            var body = expression.Body;
+            if (body is MemberExpression member)
+            {
+                return (PropertyInfo)member.Member;
+            }
+            if (body is UnaryExpression unary)
+            {
+                return (PropertyInfo)((MemberExpression)unary.Operand).Member;
+            }
+            return null;
         }
         /// <summary>
         /// 成员信息
@@ -52,7 +69,7 @@ namespace System.Data.Extter
         /// <typeparam name="T"></typeparam>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public static MemberInfo GetMemberInfo<T>(Expression<Func<T>> expression)
+        public static MemberInfo GetMemberInfo<T>(this Expression<Func<T>> expression)
         {
             MemberExpression body = (MemberExpression)expression.Body;
             return body.Member;
@@ -63,7 +80,7 @@ namespace System.Data.Extter
         /// <typeparam name="T"></typeparam>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public static String GetFullName<T>(Expression<Func<T>> expression)
+        public static String GetFullName<T>(this Expression<Func<T>> expression)
         {
             MemberExpression body = (MemberExpression)expression.Body;
             var member = body.Member;
@@ -132,6 +149,16 @@ namespace System.Data.Extter
         public static void SetPropertyValue<T>(string memberName, object newValue)
         {
             PropertyAccess<T>.InternalSetValue(default(T), memberName, newValue);
+        }
+        /// <summary>
+        /// 转换成属性字典
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static Dictionary<string, object> ToParameters<T>(this T model)
+        {
+            return PropertyAccess<T>.InternalGetDic.ToDictionary(s => s.Key, s => s.Value(model));
         }
         /// <summary>
         /// 获取静态的成员属性值

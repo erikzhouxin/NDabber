@@ -509,6 +509,14 @@ namespace System.Data.Cobber
         /// 设置值(instance,memberName,newValue)
         /// </summary>
         Action<object, string, object> FuncSetValue { get; }
+        /// <summary>
+        /// 获取字典
+        /// </summary>
+        ReadOnlyDictionary<string, Func<object, object>> FuncGetDic { get; }
+        /// <summary>
+        /// 设置字典
+        /// </summary>
+        ReadOnlyDictionary<string, Action<object, object>> FuncSetDic { get; }
     }
     /// <summary>
     /// 表达式树生成case字段获取
@@ -527,6 +535,14 @@ namespace System.Data.Cobber
         /// 设置值(instance,memberName,newValue)
         /// </summary>
         public Action<object, string, object> FuncSetValue { get => Access.FuncSetValue; }
+        /// <summary>
+        /// 获取字典
+        /// </summary>
+        public ReadOnlyDictionary<string, Func<object, object>> FuncGetDic { get => Access.FuncGetDic; }
+        /// <summary>
+        /// 设置字典
+        /// </summary>
+        public ReadOnlyDictionary<string, Action<object, object>> FuncSetDic { get => Access.FuncSetDic; }
         /// <summary>
         /// 构造
         /// </summary>
@@ -655,6 +671,10 @@ namespace System.Data.Cobber
         Func<object, string, object> IPropertyAccess.FuncGetValue => (instance, memberName) => InternalGetValue((T)instance, memberName);
 
         Action<object, string, object> IPropertyAccess.FuncSetValue => (instance, memberName, newValue) => InternalSetValue((T)instance, memberName, newValue);
+
+        ReadOnlyDictionary<string, Func<object, object>> IPropertyAccess.FuncGetDic => new(InternalGetDic.ToDictionary(s => s.Key, s => new Func<object, object>((m) => s.Value((T)m))));
+
+        ReadOnlyDictionary<string, Action<object, object>> IPropertyAccess.FuncSetDic => new(InternalSetDic.ToDictionary(s => s.Key, s => new Action<object, object>((m, v) => s.Value((T)m, v))));
 
         /// <summary>
         /// 获取值(instance,memberName,return)

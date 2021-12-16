@@ -28,4 +28,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\System.Data.Dabber.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="CodeGeners\" />
+	</ItemGroup>
 </Project>

@@ -85,6 +85,7 @@ namespace System.Data.Cobber
                         return false;
                     case nameof(DbColAttribute):
                         colAttr = item as DbColAttribute;
+                        colAttr.Name ??= prop.Name;
                         return colAttr != null && !colAttr.Ignore;
                     default:
                         break;
@@ -109,13 +110,81 @@ namespace System.Data.Cobber
                     case "NotMappedAttribute":
                     case "IgnoreAttribute":
                         return GetIgnore(prop.Name);
-                    case "DbColAttribute":
-                        return item as DbColAttribute;
+                    case nameof(DbColAttribute):
+                        var colAttr = item as DbColAttribute;
+                        colAttr.Name ??= prop.Name;
+                        return colAttr;
                     default:
                         break;
                 }
             }
             return GetIgnore(prop.Name);
+        }
+        /// <summary>
+        /// 获取属性内容
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="inherit"></param>
+        /// <returns></returns>
+        public static DbColAttribute GetAttribute(Type type, bool inherit = false)
+        {
+            foreach (var item in type.GetCustomAttributes(inherit))
+            {
+                var typeName = item.GetType().Name;
+                switch (typeName)
+                {
+                    case "NotMappedAttribute":
+                    case "IgnoreAttribute":
+                        return GetIgnore(type.Name);
+                    case nameof(DbColAttribute):
+                        var result = item as DbColAttribute;
+                        result.Name ??= type.Name;
+                        return result;
+                    default:
+                        break;
+                }
+            }
+            return GetIgnore(type.Name);
+        }
+        /// <summary>
+        /// 尝试获取列名
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="keyName"></param>
+        /// <param name="inherit"></param>
+        /// <returns></returns>
+        public static bool TryGetColName(PropertyInfo prop, out Extter.Tuble2KeyName keyName, bool inherit = false)
+        {
+            if (prop == null)
+            {
+                keyName = null;
+                return false;
+            }
+            foreach (var item in prop.GetCustomAttributes(inherit))
+            {
+                string typeName = item.GetType().Name;
+                switch (typeName)
+                {
+                    case "NotMappedAttribute":
+                    case "IgnoreAttribute":
+                        keyName = null;
+                        return false;
+                    case nameof(DbColAttribute):
+                        var attr = item as DbColAttribute;
+                        attr.Name ??= prop.Name;
+                        if (attr.Ignore)
+                        {
+                            keyName = null;
+                            return false;
+                        }
+                        keyName = new Extter.Tuble2KeyName(attr.Name ?? prop.Name, prop.Name);
+                        return true;
+                    default:
+                        break;
+                }
+            }
+            keyName = null;
+            return false;
         }
 
         private static DbColAttribute GetIgnore(String display)
