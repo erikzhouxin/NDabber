@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Builbber;
+using System.Data.Cobber;
 using System.Data.Extter;
 using System.Data.Sqller;
 using System.IO;
@@ -45,6 +46,23 @@ namespace System.Data.DabberUT
             var path = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "CodeGeners"));
             var typeBuilder = ExpressionPropertyBuilder.BuilderContent(typeof(TSysParams));
             File.WriteAllText(Path.Combine(path, "ExpressionLambda.cs"), typeBuilder.ToString());
+        }
+        [TestMethod]
+        public void TestExpressionToSql()
+        {
+            ITestClass model = SampleClassBuilder<ITestClass>.CreateInstance();
+            model.ID = 1;
+            model.Name = "周鑫";
+            Console.WriteLine(model.GetJsonString());
+        }
+
+        public interface ITestClass 
+        {
+            string Name { get; set; }
+            int ID { get; set; }
+            int Age { get; set; }
+            DateTime DateTime { get; set; }
+
         }
     }
 }
