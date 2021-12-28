@@ -216,6 +216,7 @@ namespace System.Data.Cobber
                                     conn.Execute(sqlModel.Insert, new TDbMigrations { ID = item.Version, Name = item.Name, Time = DateTime.Now, Memo = item.Memo }, trans);
                                 }
                                 trans.Commit();
+                                trans = conn.BeginTransaction();
                             }
                             catch (Exception ex)
                             {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace System.Data.ShenBanReader
+namespace System.Data.Extter
 {
     /// <summary>
     /// DLLWrapper

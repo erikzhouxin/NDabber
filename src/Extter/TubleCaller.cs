@@ -123,6 +123,20 @@ namespace System.Data.Extter
     public class Tuble<T1, T2>
     {
         /// <summary>
+        /// 构造
+        /// </summary>
+        public Tuble() { }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="item1"></param>
+        /// <param name="item2"></param>
+        public Tuble(T1 item1, T2 item2)
+        {
+            Item1 = item1;
+            Item2 = item2;
+        }
+        /// <summary>
         /// 项一
         /// </summary>
         public T1 Item1 { get; set; }
@@ -130,6 +144,102 @@ namespace System.Data.Extter
         /// 项二
         /// </summary>
         public T2 Item2 { get; set; }
+    }
+    /// <summary>
+    /// 二元组
+    /// </summary>
+    public class TubleInt32 : Tuble<int, int>
+    {
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public TubleInt32() { }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public TubleInt32(int key, int value) : base(key, value) { }
+        /// <summary>
+        /// 键
+        /// </summary>
+        public int Key { get => Item1; set => Item1 = value; }
+        /// <summary>
+        /// 值
+        /// </summary>
+        public int Value { get => Item2; set => Item2 = value; }
+    }
+    /// <summary>
+    /// 二元组
+    /// </summary>
+    public class TubleString : Tuble<string, string>
+    {
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public TubleString() { }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public TubleString(string key, string value) : base(key, value) { }
+        /// <summary>
+        /// 键
+        /// </summary>
+        public string Key { get => Item1; set => Item1 = value; }
+        /// <summary>
+        /// 值
+        /// </summary>
+        public string Value { get => Item2; set => Item2 = value; }
+    }
+    /// <summary>
+    /// 二元组
+    /// </summary>
+    public class TubleStringInt : Tuble<string, int>
+    {
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public TubleStringInt() { }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public TubleStringInt(string key, int value) : base(key, value) { }
+        /// <summary>
+        /// 键
+        /// </summary>
+        public string Key { get => Item1; set => Item1 = value; }
+        /// <summary>
+        /// 值
+        /// </summary>
+        public int Value { get => Item2; set => Item2 = value; }
+    }
+    /// <summary>
+    /// 二元组
+    /// </summary>
+    public class TubleIntString : Tuble<int, string>
+    {
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public TubleIntString() { }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public TubleIntString(int key, string value) : base(key, value) { }
+        /// <summary>
+        /// 键
+        /// </summary>
+        public int Key { get => Item1; set => Item1 = value; }
+        /// <summary>
+        /// 值
+        /// </summary>
+        public string Value { get => Item2; set => Item2 = value; }
     }
     /// <summary>
     /// 二元组SQL脚本结果项

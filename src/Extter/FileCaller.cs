@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -81,6 +82,32 @@ namespace System.Data.Extter
             decimal res = fileSize / clusterSize;
             int clu = Convert.ToInt32(Math.Ceiling(res)) + 1;
             return clusterSize * clu;
+        }
+        #endregion
+        #region // 判断文件夹
+        /// <summary>
+        /// 尝试打开文件夹
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <returns></returns>
+        public static bool TryOpenDirectory(string dir)
+        {
+            try
+            {
+                if (File.Exists(dir))
+                {
+                    Process.Start("explorer.exe", $"/e,/select,{dir}");
+                }
+                else
+                {
+                    Process.Start("explorer.exe", $"/e,{dir}");
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
         #endregion
     }

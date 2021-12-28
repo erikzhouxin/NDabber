@@ -14,9 +14,9 @@
 		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>2021.12.12</Version>
-		<FileVersion>2021.12.12.690</FileVersion>
-		<AssemblyVersion>2021.12.12.690</AssemblyVersion>
+		<Version>2021.12.20</Version>
+		<FileVersion>2021.12.20.690</FileVersion>
+		<AssemblyVersion>2021.12.20.690</AssemblyVersion>
 		<RepositoryUrl>https://gitee.com/erikzhouxin/ndabber.git</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageTags>dapper;dabber;autosql;utilities;orm;sqlite;mysql;sqlserver;oracle;</PackageTags>
@@ -168,5 +168,8 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
 		<PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Builbber\" />
 	</ItemGroup>
 </Project>

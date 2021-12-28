@@ -6,6 +6,9 @@ using System.Text;
 
 namespace System.Data.Sqller
 {
+    /// <summary>
+    /// SQL表达式调用
+    /// </summary>
     public class SqlExpressionCaller
     {
         public static string DealExpress(Expression exp)
@@ -33,7 +36,7 @@ namespace System.Data.Sqller
             }
             return "";
         }
-        public static string DealBoolExp(Expression exp)
+        internal static string DealBoolExp(Expression exp)
         {
             if (exp == null)
             {
