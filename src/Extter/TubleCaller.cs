@@ -339,6 +339,40 @@ namespace System.Data.Extter
         public T3 Item3 { get; set; }
     }
     /// <summary>
+    /// 二元组类型标记
+    /// </summary>
+    public class Tuble3TypeKeyTag : Tuble<Type, string, string>
+    {
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        public Tuble3TypeKeyTag() { }
+        /// <summary>
+        /// 参数构造
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="key"></param>
+        /// <param name="tag"></param>
+        public Tuble3TypeKeyTag(Type type, string key, string tag)
+        {
+            Item1 = type;
+            Item2 = key;
+            Item3 = tag;
+        }
+        /// <summary>
+        /// 类型
+        /// </summary>
+        public Type Type => Item1;
+        /// <summary>
+        /// 键
+        /// </summary>
+        public string Key => Item2;
+        /// <summary>
+        /// 标记
+        /// </summary>
+        public string Tag => Item3;
+    }
+    /// <summary>
     /// 三元组[标识:ID,名称:Name,值:Value]
     /// </summary>
     public class Tuble3A001 : Tuble<String, String, int>

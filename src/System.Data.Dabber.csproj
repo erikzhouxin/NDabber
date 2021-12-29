@@ -170,6 +170,8 @@
 		<PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Builbber\" />
+	  <Compile Remove="Builbber\**" />
+	  <EmbeddedResource Remove="Builbber\**" />
+	  <None Remove="Builbber\**" />
 	</ItemGroup>
 </Project>
