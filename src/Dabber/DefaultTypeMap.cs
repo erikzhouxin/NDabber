@@ -65,19 +65,15 @@ namespace System.Data.Dabber
             foreach (ConstructorInfo ctor in constructors.OrderBy(c => c.IsPublic ? 0 : (c.IsPrivate ? 2 : 1)).ThenBy(c => c.GetParameters().Length))
             {
                 ParameterInfo[] ctorParameters = ctor.GetParameters();
-                if (ctorParameters.Length == 0)
-                    return ctor;
+                if (ctorParameters.Length == 0) { return ctor; }
 
-                if (ctorParameters.Length != types.Length)
-                    continue;
+                if (ctorParameters.Length != types.Length) { continue; }
 
                 int i = 0;
                 for (; i < ctorParameters.Length; i++)
                 {
-                    if (!string.Equals(ctorParameters[i].Name, names[i], StringComparison.OrdinalIgnoreCase))
-                        break;
-                    if (types[i] == typeof(byte[]) && ctorParameters[i].ParameterType.FullName == SqlMapper.LinqBinary)
-                        continue;
+                    if (!string.Equals(ctorParameters[i].Name, names[i], StringComparison.OrdinalIgnoreCase)) { break; }
+                    if (types[i] == typeof(byte[]) && ctorParameters[i].ParameterType.FullName == SqlMapper.LinqBinary) { continue; }
                     var unboxedType = Nullable.GetUnderlyingType(ctorParameters[i].ParameterType) ?? ctorParameters[i].ParameterType;
                     if ((unboxedType != types[i] && !SqlMapper.HasTypeHandler(unboxedType))
                         && !(unboxedType.IsEnum && Enum.GetUnderlyingType(unboxedType) == types[i])
@@ -88,8 +84,7 @@ namespace System.Data.Dabber
                     }
                 }
 
-                if (i == ctorParameters.Length)
-                    return ctor;
+                if (i == ctorParameters.Length) { return ctor; }
             }
 
             return null;

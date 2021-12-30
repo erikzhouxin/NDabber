@@ -4,116 +4,198 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace System.Data.Sqller
+namespace System.Data.Dabber
 {
     /// <summary>
     /// SQL表达式调用
     /// </summary>
-    public class SqlExpressionCaller
+    public static class SqlScriptExpressionCaller
     {
-        public static string DealExpress(Expression exp)
+        /// <summary>
+        /// 解析SQL
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns></returns>
+        public static string ResolveSql(this Expression exp)
         {
-            if (exp is LambdaExpression)
+            if (exp is LambdaExpression lambdaExp)
             {
-                LambdaExpression l_exp = exp as LambdaExpression;
-                return DealBoolExp(l_exp.Body);
+                return ResolveBooleanSql(lambdaExp.Body);
             }
-            if (exp is BinaryExpression)
+            if (exp is BinaryExpression binaryExp)
             {
-                return DealBinaryExpression(exp as BinaryExpression);
+                return ResolveBinarySql(binaryExp);
             }
-            if (exp is MemberExpression)
+            if (exp is MemberExpression memberExp)
             {
-                return DealMemberExpression(exp as MemberExpression);
+                return ResolveMemberSql(memberExp);
             }
-            if (exp is ConstantExpression)
+            if (exp is ConstantExpression constantExp)
             {
-                return DealConstantExpression(exp as ConstantExpression);
+                return ResolveConstantSql(constantExp);
             }
-            if (exp is UnaryExpression)
+            if (exp is UnaryExpression unaryExp)
             {
-                return DealUnaryExpression(exp as UnaryExpression);
+                return ResolveUnarySql(unaryExp);
             }
             return "";
         }
-        internal static string DealBoolExp(Expression exp)
+        /// <summary>
+        /// 布尔运算符
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns></returns>
+        public static string ResolveBooleanSql(Expression exp)
         {
-            if (exp == null)
-            {
-                var t = 1;
-            }
+            if (exp == null) { return null; }
             // 关于bool类型特殊处理
-            if (exp is BinaryExpression)
+            if (exp is BinaryExpression binaryExp)
             {
-                return DealExpress(exp);
+                return ResolveBinarySql(binaryExp);
             }
-            if (exp is MemberExpression) // n.isDelete
+            if (exp is MemberExpression memberExp) // n.isDelete
             {
-                return DealMemberExpression(exp as MemberExpression) + "=1";
+                return ResolveMemberSql(memberExp) + "=1";
             }
-            if (exp is UnaryExpression) //!n.isDelete
+            if (exp is UnaryExpression unaryExp) //!n.isDelete
             {
-                return DealUnaryExpression(exp as UnaryExpression) + "<>1";
+                return ResolveUnarySql(unaryExp) + "<>1";
             }
-            if (exp is ConstantExpression) //
+            if (exp is ConstantExpression constantExp) //
             {
-                var str = DealConstantExpression(exp as ConstantExpression);
+                var str = ResolveConstantSql(constantExp);
                 return str == "1" ? "1==1" : "1!=1";
             }
             return "";
         }
-        public static string DealUnaryExpression(UnaryExpression exp)
+        /// <summary>
+        /// 一元运算解析
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns></returns>
+        public static string ResolveUnarySql(UnaryExpression exp)
         {
-            return DealExpress(exp.Operand);
+            return ResolveSql(exp.Operand);
         }
-        public static string DealConstantExpression(ConstantExpression exp)
+        /// <summary>
+        /// 恒值解析
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns></returns>
+        public static string ResolveConstantSql(ConstantExpression exp)
         {
             object vaule = exp.Value;
-            string v_str = string.Empty;
-            if (vaule == null)
-            {
-                return "NULL";
-            }
-            if (vaule is string)
-            {
-                v_str = string.Format("'{0}'", vaule.ToString());
-            }
-            else if (vaule is DateTime)
-            {
-                DateTime time = (DateTime)vaule;
-                v_str = string.Format("'{0}'", time.ToString("yyyy-MM-dd HH:mm:ss"));
-            }
-            else if (vaule is Boolean)
-            {
-                Boolean data = Convert.ToBoolean(vaule);
-                v_str = data ? "1" : "0";
-            }
-            else
-            {
-                v_str = vaule.ToString();
-            }
-            return v_str;
+            if (vaule == null) { return "NULL"; }
+            if (vaule is string valStr) { return $"'{valStr}'"; }
+            if (vaule is DateTime valDt) { return valDt.ToString("'yyyy-MM-dd HH:mm:ss'"); }
+            if (vaule is Boolean valBool) { return valBool ? "1" : "0"; }
+            return vaule.ToString();
         }
-        public static string DealBinaryExpression(BinaryExpression exp)
+        /// <summary>
+        /// 二元运算
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns></returns>
+        public static string ResolveBinarySql(BinaryExpression exp)
         {
-
             switch (exp.NodeType)
             {
                 case ExpressionType.OrElse:
                 case ExpressionType.AndAlso:
                     {
-                        string left = DealBoolExp(exp.Left);
+                        string left = ResolveBooleanSql(exp.Left);
                         string oper = GetOperStr(exp.NodeType);
-                        string right = DealBoolExp(exp.Right);
+                        string right = ResolveBooleanSql(exp.Right);
                         return left + oper + right;
-
                     }
-
+                case ExpressionType.Add:
+                case ExpressionType.AddChecked:
+                case ExpressionType.And:
+                case ExpressionType.ArrayLength:
+                case ExpressionType.ArrayIndex:
+                case ExpressionType.Call:
+                case ExpressionType.Coalesce:
+                case ExpressionType.Conditional:
+                case ExpressionType.Constant:
+                case ExpressionType.Convert:
+                case ExpressionType.ConvertChecked:
+                case ExpressionType.Divide:
+                case ExpressionType.Equal:
+                case ExpressionType.ExclusiveOr:
+                case ExpressionType.GreaterThan:
+                case ExpressionType.GreaterThanOrEqual:
+                case ExpressionType.Invoke:
+                case ExpressionType.Lambda:
+                case ExpressionType.LeftShift:
+                case ExpressionType.LessThan:
+                case ExpressionType.LessThanOrEqual:
+                case ExpressionType.ListInit:
+                case ExpressionType.MemberAccess:
+                case ExpressionType.MemberInit:
+                case ExpressionType.Modulo:
+                case ExpressionType.Multiply:
+                case ExpressionType.MultiplyChecked:
+                case ExpressionType.Negate:
+                case ExpressionType.UnaryPlus:
+                case ExpressionType.NegateChecked:
+                case ExpressionType.New:
+                case ExpressionType.NewArrayInit:
+                case ExpressionType.NewArrayBounds:
+                case ExpressionType.Not:
+                case ExpressionType.NotEqual:
+                case ExpressionType.Or:
+                case ExpressionType.Parameter:
+                case ExpressionType.Power:
+                case ExpressionType.Quote:
+                case ExpressionType.RightShift:
+                case ExpressionType.Subtract:
+                case ExpressionType.SubtractChecked:
+                case ExpressionType.TypeAs:
+                case ExpressionType.TypeIs:
+                case ExpressionType.Assign:
+                case ExpressionType.Block:
+                case ExpressionType.DebugInfo:
+                case ExpressionType.Decrement:
+                case ExpressionType.Dynamic:
+                case ExpressionType.Default:
+                case ExpressionType.Extension:
+                case ExpressionType.Goto:
+                case ExpressionType.Increment:
+                case ExpressionType.Index:
+                case ExpressionType.Label:
+                case ExpressionType.RuntimeVariables:
+                case ExpressionType.Loop:
+                case ExpressionType.Switch:
+                case ExpressionType.Throw:
+                case ExpressionType.Try:
+                case ExpressionType.Unbox:
+                case ExpressionType.AddAssign:
+                case ExpressionType.AndAssign:
+                case ExpressionType.DivideAssign:
+                case ExpressionType.ExclusiveOrAssign:
+                case ExpressionType.LeftShiftAssign:
+                case ExpressionType.ModuloAssign:
+                case ExpressionType.MultiplyAssign:
+                case ExpressionType.OrAssign:
+                case ExpressionType.PowerAssign:
+                case ExpressionType.RightShiftAssign:
+                case ExpressionType.SubtractAssign:
+                case ExpressionType.AddAssignChecked:
+                case ExpressionType.MultiplyAssignChecked:
+                case ExpressionType.SubtractAssignChecked:
+                case ExpressionType.PreIncrementAssign:
+                case ExpressionType.PreDecrementAssign:
+                case ExpressionType.PostIncrementAssign:
+                case ExpressionType.PostDecrementAssign:
+                case ExpressionType.TypeEqual:
+                case ExpressionType.OnesComplement:
+                case ExpressionType.IsTrue:
+                case ExpressionType.IsFalse:
                 default:
                     {
-                        string left = DealExpress(exp.Left);
+                        string left = ResolveSql(exp.Left);
                         string oper = GetOperStr(exp.NodeType);
-                        string right = DealExpress(exp.Right);
+                        string right = ResolveSql(exp.Right);
                         if (right == "NULL")
                         {
                             if (oper == "=")
@@ -127,21 +209,22 @@ namespace System.Data.Sqller
                         }
                         return left + oper + right;
                     }
-
-
             }
-
-
         }
-        public static string DealMemberExpression(MemberExpression exp)
+        /// <summary>
+        /// 成员SQL
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns></returns>
+        public static string ResolveMemberSql(MemberExpression exp)
         {
-            var name = exp.Member.Name;
-            if (name == "delete")
-            {
-                var t = name;
-            }
             return exp.Member.Name;
         }
+        /// <summary>
+        /// 连接符
+        /// </summary>
+        /// <param name="e_type"></param>
+        /// <returns></returns>
         public static string GetOperStr(ExpressionType e_type)
         {
             switch (e_type)
@@ -161,7 +244,6 @@ namespace System.Data.Sqller
                 case ExpressionType.Divide: return "/";
                 case ExpressionType.Modulo: return "%";
                 case ExpressionType.Equal: return "=";
-
             }
             return "";
         }

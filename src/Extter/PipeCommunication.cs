@@ -16,11 +16,19 @@ namespace System.Data.Extter
         /// <summary>
         /// 命名管道发送
         /// </summary>
-        public static void SendNamed<T>(string pipeName, Model<T> model)
+        public static void SendNamed<T>(string pipeName, Model<T> model) => SendClientNamed(".", pipeName, model);
+        /// <summary>
+        /// 命名管道指定机子
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="serverName"></param>
+        /// <param name="pipeName"></param>
+        /// <param name="model"></param>
+        public static void SendClientNamed<T>(string serverName, string pipeName, Model<T> model)
         {
             try
             {
-                using (var pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.Out, PipeOptions.Asynchronous | PipeOptions.WriteThrough))
+                using (var pipe = new NamedPipeClientStream(serverName, pipeName, PipeDirection.Out, PipeOptions.Asynchronous | PipeOptions.WriteThrough))
                 {
                     pipe.Connect();
                     byte[] data = Encoding.UTF8.GetBytes(model?.GetJsonString() ?? string.Empty);

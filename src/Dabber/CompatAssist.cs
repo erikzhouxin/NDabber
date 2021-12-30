@@ -66,14 +66,7 @@ namespace System.Data.Dabber
         }
         public static TextReader GetTextReader(this DbDataReader _reader, int ordinal)
         {
-            if (_reader.IsDBNull(ordinal))
-            {
-                return new StringReader(String.Empty);
-            }
-            else
-            {
-                return new StringReader(_reader.GetString(ordinal));
-            }
+            return _reader.IsDBNull(ordinal) ? new StringReader(String.Empty) : new StringReader(_reader.GetString(ordinal));
         }
         public static Task<bool> IsDBNullAsync(this DbDataReader _reader, int ordinal, CancellationToken cancellationToken)
         {

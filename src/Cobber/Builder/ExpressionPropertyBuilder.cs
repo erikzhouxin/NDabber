@@ -4,7 +4,7 @@ using System.Data.Cobber;
 using System.Linq;
 using System.Text;
 
-namespace System.Data.Builbber
+namespace System.Data.Cobber
 {
     /// <summary>
     /// 表达式属性创建者
