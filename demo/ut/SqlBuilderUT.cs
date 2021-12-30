@@ -1,10 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Data.Builbber;
 using System.Data.Cobber;
+using System.Data.Dabber;
 using System.Data.Extter;
-using System.Data.Sqller;
 using System.IO;
 using System.Text;
 
@@ -19,7 +18,7 @@ namespace System.Data.DabberUT
         [TestMethod]
         public void MyTestMethod()
         {
-            var times = 100000;
+            var times = 10000;
             var now = DateTime.Now;
             var sql = string.Empty;
             var typeSql = string.Empty;
@@ -27,13 +26,13 @@ namespace System.Data.DabberUT
             now = DateTime.Now;
             for (int i = 0; i < times; i++)
             {
-                sql = SqlScriptBuilder.CreateSimpleSelect(Cobber.StoreType.SQLite)
+                sql = SqlScriptBuilder.CreateSimpleSelect(StoreType.SQLite)
                     .From<TSysParams>()
                     .Select.Add(nameof(TSysParams.Key), nameof(TSysParams.Key))
                     .Column(ExpressionTSysParams.ID)
                     .Column<TSysParams>(m => m.ID)
                     .Where.AndEqual(nameof(TSysParams.ID), 123).SqlScript;
-                typeSql = SqlScriptBuilder.CreateSimpleSelect(Cobber.StoreType.SQLite).FromWhere<TSysParams>().SqlScript;
+                typeSql = SqlScriptBuilder.CreateSimpleSelect(StoreType.SQLite).FromWhere<TSysParams>().SqlScript;
             }
             Console.WriteLine(DateTime.Now - now);
             Console.WriteLine(sql);

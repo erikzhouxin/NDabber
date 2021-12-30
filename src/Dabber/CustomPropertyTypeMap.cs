@@ -32,7 +32,7 @@ namespace System.Data.Dabber
 #if NETFx
             _type.GetConstructor(Array.Empty<Type>());
 #else
-            _type.GetConstructor(new Type[] { });
+            _type.GetConstructor(new Type[0]);
 #endif
 
         /// <summary>

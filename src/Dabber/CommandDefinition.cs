@@ -133,8 +133,7 @@ namespace System.Data.Dabber
 
         private static Action<IDbCommand> GetInit(Type commandType)
         {
-            if (commandType == null)
-                return null; // GIGO
+            if (commandType == null) { return null; } // GIGO
             if (SqlMapper.Link<Type, Action<IDbCommand>>.TryGet(commandInitCache, commandType, out Action<IDbCommand> action))
             {
                 return action;
@@ -147,7 +146,6 @@ namespace System.Data.Dabber
             {
                 var method = new DynamicMethod(commandType.Name + "_init", null, new Type[] { typeof(IDbCommand) });
                 var il = method.GetILGenerator();
-
                 if (bindByName != null)
                 {
                     // .BindByName = true

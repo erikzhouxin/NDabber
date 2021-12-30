@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 
-namespace System.Data.Builbber
+namespace System.Data.Cobber
 {
     internal class ClassSampleTypeBuilder : IClassCreateBuilder
     {
