@@ -6,7 +6,7 @@ using System.Data.Extter;
 using System.Linq;
 using System.Text;
 
-namespace System.Data.Dabber
+namespace System.Data.Sqller
 {
     /// <summary>
     /// SQL脚本标记模型
@@ -26,30 +26,35 @@ namespace System.Data.Dabber
         /// </summary>
         public AutoSqlModel SqlModel { get; set; }
         /// <summary>
-        /// 表名
+        /// 加括号表名
+        /// 没括号的使用[SqlModel.TagName]
         /// </summary>
         public String Table { get; set; }
         /// <summary>
-        /// 加括号表名
+        /// 加括号表序别名
         /// </summary>
-        public String TKey { get; set; }
+        public String TAlias { get; set; }
         /// <summary>
-        /// 加括号表别名
-        /// </summary>
-        public String TValue { get; set; }
-        /// <summary>
-        /// 自定义表名
+        /// 自定义表别名
         /// </summary>
         public string TNamed { get; set; }
         /// <summary>
         /// 计数
         /// </summary>
         public int TCount { get; set; }
+        /// <summary>
+        /// 获取命名的标记
+        /// </summary>
+        /// <returns></returns>
+        public string GetTableTag()
+        {
+            return TNamed ?? TAlias;
+        }
     }
     /// <summary>
     /// SQL脚本绑定创建者
     /// </summary>
-    internal abstract class ASqlScriptBindBuilder
+    internal abstract class ASqlScriptBindBuilder : ISqlScriptParameters
     {
         protected StringBuilder _columnsClause;
         protected StringBuilder _fromClause;
@@ -88,7 +93,7 @@ namespace System.Data.Dabber
         /// <summary>
         /// SQL脚本
         /// </summary>
-        public virtual String SqlScript => GetSqlScript();
+        public virtual String SqlScript => ToString();
         /// <summary>
         /// 构造
         /// </summary>
@@ -122,11 +127,6 @@ namespace System.Data.Dabber
             };
             StoreType = storeType;
         }
-        /// <summary>
-        /// 获取SQL脚本
-        /// </summary>
-        /// <returns></returns>
-        public abstract String GetSqlScript();
         /// <summary>
         /// 添加From子句
         /// </summary>
@@ -181,9 +181,10 @@ namespace System.Data.Dabber
         /// 添加表
         /// </summary>
         /// <param name="type"></param>
+        /// <param name="tag"></param>
         /// <exception cref="NotSupportedException" />
         /// <returns></returns>
-        protected virtual SqlScriptTagModel AddTable(Type type)
+        protected virtual SqlScriptTagModel AddTable(Type type, string tag = null)
         {
             if (type == null)
             {
@@ -196,9 +197,71 @@ namespace System.Data.Dabber
                 SqlModel = GetSqlModel(type),
                 TCount = Tags.Count,
             });
-            CurrentTag.TKey = GetQuot(CurrentTag.Table = CurrentTag.SqlModel.TagName);
-            CurrentTag.TValue = GetQuot($"t{CurrentTag.TCount}");
+            CurrentTag.Table = GetQuot(CurrentTag.SqlModel.TagName);
+            CurrentTag.TAlias = GetQuot($"t{CurrentTag.TCount}");
+            CurrentTag.TNamed = tag;
             return CurrentTag;
+        }
+        /// <summary>
+        /// 获取懒加载内容
+        /// </summary>
+        /// <returns></returns>
+        public Tuble2SqlArgs GetSqlWithArgs(object args)
+        {
+            SetParameter(args);
+            return new Tuble2SqlArgs(ToString(), Parameters);
+        }
+        /// <summary>
+        /// 获取懒加载内容
+        /// </summary>
+        /// <returns></returns>
+        public Tuble2SqlArgs GetSqlAndArgs(IDictionary<string, object> args)
+        {
+            if (args != null)
+            {
+                foreach (var arg in args)
+                {
+                    Parameters[arg.Key] = arg.Value;
+                }
+            }
+            return new Tuble2SqlArgs(ToString(), Parameters);
+        }
+        /// <summary>
+        /// 获取懒加载内容
+        /// </summary>
+        /// <returns></returns>
+        public Tuble2SqlArgs GetSqlAndArgs(params KeyValuePair<string, object>[] args)
+        {
+            if (args != null)
+            {
+                foreach (var arg in args)
+                {
+                    Parameters[arg.Key] = arg.Value;
+                }
+            }
+            return new Tuble2SqlArgs(ToString(), Parameters);
+        }
+        /// <summary>
+        /// 设置参数
+        /// </summary>
+        /// <param name="args"></param>
+        public ISqlScriptParameters SetParameter<T>(T args) where T : class
+        {
+            if (args == null) { return this; }
+            if (args is IEnumerable<KeyValuePair<string, object>> list)
+            {
+                foreach (KeyValuePair<string, object> item in list)
+                {
+                    Parameters[item.Key] = item.Value;
+                }
+                return this;
+            }
+            var access = PropertyAccess.Get(args.GetType());
+            foreach (var item in Parameters)
+            {
+                access.FuncGetValue(args, item.Key);
+            }
+            return this;
         }
     }
 }

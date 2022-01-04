@@ -476,7 +476,6 @@ namespace System.Data.Cobber
         /// 获取检查类型
         /// 不管成功与否都返回自动SQL模型
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public virtual IAlertMsg<AutoSqlModel> CheckTable(Type type)
         {

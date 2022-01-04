@@ -525,7 +525,7 @@ namespace System.Data.Cobber
     /// </summary>
     public class PropertyAccess : IPropertyAccess
     {
-        internal static Dictionary<Type, IPropertyAccess> MemberDic = new Dictionary<Type, IPropertyAccess>();
+        internal readonly static Dictionary<Type, IPropertyAccess> MemberDic = new Dictionary<Type, IPropertyAccess>();
         internal IPropertyAccess Access { get; }
         /// <summary>
         /// 获取值(instance,memberName,return)
@@ -562,6 +562,14 @@ namespace System.Data.Cobber
                 return value;
             }
             return (IPropertyAccess)Activator.CreateInstance(typeof(PropertyAccess<>).MakeGenericType(type));
+        }
+        /// <summary>
+        /// 获取访问类接口实例
+        /// </summary>
+        /// <returns></returns>
+        public static IPropertyAccess Get<T>(T model)
+        {
+            return Get(model?.GetType() ?? typeof(T));
         }
         /// <summary>
         /// 获取对象的成员属性值

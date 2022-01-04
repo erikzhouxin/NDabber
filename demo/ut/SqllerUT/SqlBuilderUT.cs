@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data.Cobber;
 using System.Data.Dabber;
 using System.Data.Extter;
+using System.Data.Sqller;
 using System.IO;
 using System.Text;
 
@@ -22,6 +23,7 @@ namespace System.Data.DabberUT
             var now = DateTime.Now;
             var sql = string.Empty;
             var typeSql = string.Empty;
+            var updateSql = string.Empty;
 
             now = DateTime.Now;
             for (int i = 0; i < times; i++)
@@ -33,10 +35,16 @@ namespace System.Data.DabberUT
                     .Column<TSysParams>(m => m.ID)
                     .Where.AndEqual(nameof(TSysParams.ID), 123).SqlScript;
                 typeSql = SqlScriptBuilder.CreateSimpleSelect(StoreType.SQLite).FromWhere<TSysParams>().SqlScript;
+                updateSql = SqlScriptBuilder.CreateUpdate(StoreType.SQLite)
+                    .From<TSysParams>()
+                    .SetBParam(nameof(TSysParams.Key),nameof(TSysParams.Key))
+                    .Where().AndEqualAParam(nameof(TSysParams.ID), 123)
+                    .SqlScript;
             }
             Console.WriteLine(DateTime.Now - now);
             Console.WriteLine(sql);
             Console.WriteLine(typeSql);
+            Console.WriteLine(updateSql);
         }
 
         [TestMethod]

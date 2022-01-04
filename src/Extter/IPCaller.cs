@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 
 namespace System.Data.Cobber
@@ -11,6 +12,56 @@ namespace System.Data.Cobber
     /// </summary>
     public static partial class CobberCaller
     {
+        /// <summary>
+        /// 取本机主机ip
+        /// </summary>
+        /// <returns></returns>
+        public static IPAddress GetCurrent()
+        {
+            try
+            {
+                IPHostEntry ipEntry = Dns.GetHostEntry(Dns.GetHostName());
+                foreach (var ip in ipEntry.AddressList)
+                {
+                    //从IP地址列表中筛选出IPv4类型的IP地址
+                    //AddressFamily.InterNetwork表示此IP为IPv4
+                    if (ip.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        return ip;
+                    }
+                }
+                foreach (var ip in ipEntry.AddressList)
+                {
+                    //从IP地址列表中筛选出IPv6类型的IP地址
+                    //AddressFamily.InterNetworkV6表示此地址为IPv6类型
+                    if (ip.AddressFamily == AddressFamily.InterNetworkV6)
+                    {
+                        return ip;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex);
+            }
+            return IPAddress.Parse("127.0.0.1");
+        }
+        /// <summary>
+        /// 取本机主机ip
+        /// </summary>
+        /// <returns></returns>
+        public static IPAddress[] GetList()
+        {
+            try
+            {
+                return Dns.GetHostEntry(Dns.GetHostName()).AddressList;
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex);
+            }
+            return new IPAddress[] { IPAddress.Parse("127.0.0.1") };
+        }
         /// <summary>
         /// 获取IPv4的值
         /// </summary>
