@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
-namespace System.Data.Dabber
+namespace System.Data.Sqller
 {
     /// <summary>
     /// SQL的参数字典
@@ -28,11 +28,18 @@ namespace System.Data.Dabber
         /// <param name="model"></param>
         /// <returns></returns>
         Tuble2SqlArgs GetSqlWithArgs(object model);
+        /// <summary>
+        /// 设置参数
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        ISqlScriptParameters SetParameter<T>(T model) where T : class;
     }
     /// <summary>
     /// 查询创建
     /// </summary>
-    public interface ISqlScriptSelectBuilder : ISqlScriptParameters
+    public interface ISqlScriptSelectBuilder
     {
         /// <summary>
         /// 添加查询分句
@@ -98,7 +105,7 @@ namespace System.Data.Dabber
     /// <summary>
     /// From创建者
     /// </summary>
-    public interface ISqlScriptFromBuilder : ISqlScriptParameters
+    public interface ISqlScriptFromBuilder
     {
         /// <summary>
         /// 添加自动类
@@ -181,7 +188,7 @@ namespace System.Data.Dabber
     /// <summary>
     /// SQL脚本创建者
     /// </summary>
-    internal class SqlScriptSimpleSelectBuilder : ISqlScriptSelectBuilder, ISqlScriptFromBuilder, ISqlScriptWhereBuilder
+    internal class SqlScriptSimpleSelectBuilder : ASqlScriptBindBuilder, ISqlScriptSelectBuilder, ISqlScriptFromBuilder, ISqlScriptWhereBuilder
     {
         #region // 静态定义
         /// <summary>
@@ -198,62 +205,8 @@ namespace System.Data.Dabber
         /// 构造
         /// </summary>
         /// <param name="storeType"></param>
-        protected SqlScriptSimpleSelectBuilder(StoreType storeType)
+        private SqlScriptSimpleSelectBuilder(StoreType storeType) : base(storeType)
         {
-            SetStoreType(storeType);
-        }
-        /// <summary>
-        /// 获取SQL模型
-        /// </summary>
-        public Func<Type, AutoSqlBuilder> GetSqlModel { get; private set; }
-        /// <summary>
-        /// 获取括号类型
-        /// </summary>
-        public Func<string, string> GetQuot { get; private set; }
-        /// <summary>
-        /// 存储类型
-        /// </summary>
-        public StoreType StoreType { get; private set; }
-        /// <summary>
-        /// 类型及标记字典
-        /// </summary>
-        public List<Tuble2TypeTag> TypeTags { get; } = new();
-        /// <summary>
-        /// 当前
-        /// </summary>
-        public Tuble2TypeTag CurrentTag { get; private set; }
-        /// <summary>
-        /// 参数列表
-        /// </summary>
-
-        public Dictionary<string, object> Parameters { get; } = new Dictionary<string, object>();
-        /// <summary>
-        /// SQL脚本
-        /// </summary>
-        public String SqlScript { get => GetSqlScript(); }
-        private StringBuilder _columnsClause;
-        private StringBuilder _fromClause;
-        private StringBuilder _whereClause;
-        private ISqlScriptFromBuilder SetStoreType(StoreType storeType)
-        {
-            GetSqlModel = storeType switch
-            {
-                StoreType.SQLite => AutoSQLiteBuilder.Builder,
-                StoreType.SqlServer => AutoSqlServerBuilder.Builder,
-                StoreType.MySQL => AutoMySqlBuilder.Builder,
-                StoreType.Access => AutoAccessBuilder.Builder,
-                _ => throw new NotSupportedException(),
-            };
-            GetQuot = storeType switch
-            {
-                StoreType.SQLite => AutoSQLiteBuilder.GetQuot,
-                StoreType.SqlServer => AutoSqlServerBuilder.GetQuot,
-                StoreType.MySQL => AutoMySqlBuilder.GetQuot,
-                StoreType.Access => AutoAccessBuilder.GetQuot,
-                _ => throw new NotSupportedException(),
-            };
-            StoreType = storeType;
-            return this;
         }
         /// <summary>
         /// 获取查询内容语句
@@ -267,44 +220,7 @@ namespace System.Data.Dabber
         /// 获取From语句
         /// </summary>
         public ISqlScriptFromBuilder From { get => StoreType == StoreType.Unknown ? throw new NotSupportedException() : this; }
-        /// <summary>
-        /// 获取懒加载内容
-        /// </summary>
-        /// <returns></returns>
-        public Tuble2SqlArgs GetSqlWithArgs(object args)
-        {
-            return new Tuble2SqlArgs(GetSqlScript(), SetParameter(args).Parameters);
-        }
-        /// <summary>
-        /// 获取懒加载内容
-        /// </summary>
-        /// <returns></returns>
-        public Tuble2SqlArgs GetSqlAndArgs(IDictionary<string, object> args)
-        {
-            if (args != null)
-            {
-                foreach (var arg in args)
-                {
-                    Parameters[arg.Key] = arg.Value;
-                }
-            }
-            return new Tuble2SqlArgs(GetSqlScript(), Parameters);
-        }
-        /// <summary>
-        /// 获取懒加载内容
-        /// </summary>
-        /// <returns></returns>
-        public Tuble2SqlArgs GetSqlAndArgs(params KeyValuePair<string, object>[] args)
-        {
-            if (args != null)
-            {
-                foreach (var arg in args)
-                {
-                    Parameters[arg.Key] = arg.Value;
-                }
-            }
-            return new Tuble2SqlArgs(GetSqlScript(), Parameters);
-        }
+
         public ISqlScriptWhereBuilder SetParameter(object args)
         {
             if (args == null) { return this; }
@@ -327,7 +243,7 @@ namespace System.Data.Dabber
         /// 获取SQL脚本
         /// </summary>
         /// <returns></returns>
-        public string GetSqlScript()
+        public override string ToString()
         {
             return new StringBuilder("SELECT ")
                 .Append(_columnsClause)
@@ -373,13 +289,13 @@ namespace System.Data.Dabber
         }
         public ISqlScriptWhereBuilder AddFromSelect(Type type, string tag = null)
         {
-            TypeTags.Add(CurrentTag = new Tuble2TypeTag(type, tag ?? $"t{TypeTags.Count}"));
+            AddTable(type, tag);
             var sqlModel = GetSqlModel(CurrentTag.Type);
             foreach (var item in sqlModel.Table.Columns)
             {
-                AddSelectClause($"{CurrentTag.Tag}.{GetQuot(item.ColumnName)} AS {GetQuot(item.PropertyName)}");
+                AddSelectClause($"{CurrentTag.TAlias}.{GetQuot(item.ColumnName)} AS {GetQuot(item.PropertyName)}");
             }
-            AddFromTable($"{GetQuot(sqlModel.TagName)} AS {CurrentTag.Tag}");
+            AddFromTable($"{GetQuot(sqlModel.TagName)} AS {CurrentTag.GetTableTag()}");
             return this;
         }
         /// <summary>
@@ -388,9 +304,9 @@ namespace System.Data.Dabber
         /// <returns></returns>
         public ISqlScriptFromBuilder AddFromTable(Type type, string tag)
         {
-            TypeTags.Add(CurrentTag = new Tuble2TypeTag(type, tag ?? $"t{TypeTags.Count}"));
+            AddTable(type, tag);
             var sqlModel = GetSqlModel(CurrentTag.Type);
-            return AddFromTable($"{GetQuot(sqlModel.TagName)} AS {CurrentTag.Tag}");
+            return AddFromTable($"{GetQuot(sqlModel.TagName)} AS {CurrentTag.GetTableTag()}");
         }
         /// <summary>
         /// 添加表
@@ -412,7 +328,7 @@ namespace System.Data.Dabber
         /// <returns></returns>
         ISqlScriptSelectBuilder ISqlScriptSelectBuilder.Add(string name)
         {
-            return AddSelectClause($"{CurrentTag.Item2}.{GetQuot(name)}");
+            return AddSelectClause($"{CurrentTag.GetTableTag()}.{GetQuot(name)}");
         }
         /// <summary>
         /// 添加字段及属性名
@@ -422,7 +338,7 @@ namespace System.Data.Dabber
         ISqlScriptSelectBuilder ISqlScriptSelectBuilder.Add<T>(string tag)
         {
             var sqlModel = GetSqlModel(typeof(T));
-            tag ??= CurrentTag.Tag;
+            tag ??= CurrentTag.GetTableTag();
             foreach (var item in sqlModel.Table.Columns)
             {
                 AddSelectClause($"{tag}.{GetQuot(item.ColumnName)} AS {GetQuot(item.PropertyName)}");
@@ -449,12 +365,12 @@ namespace System.Data.Dabber
 
         ISqlScriptSelectBuilder ISqlScriptSelectBuilder.Add(string cName, string pName)
         {
-            return AddSelectClause($"{CurrentTag.Tag}.{GetQuot(cName)} AS {GetQuot(pName)}");
+            return AddSelectClause($"{CurrentTag.GetTableTag()}.{GetQuot(cName)} AS {GetQuot(pName)}");
         }
 
         ISqlScriptSelectBuilder ISqlScriptSelectBuilder.Add(string tag, string cName, string pName)
         {
-            return AddSelectClause($"{tag ?? CurrentTag.Tag}.{GetQuot(cName)} AS {GetQuot(pName)}");
+            return AddSelectClause($"{tag ?? CurrentTag.GetTableTag()}.{GetQuot(cName)} AS {GetQuot(pName)}");
         }
         /// <summary>
         /// 列名
@@ -467,7 +383,7 @@ namespace System.Data.Dabber
         {
             if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
             {
-                return AddSelectClause($"{CurrentTag.Tag}.{GetQuot(keyName.Key)} AS {pName ?? GetQuot(keyName.Name)}");
+                return AddSelectClause($"{CurrentTag.GetTableTag()}.{GetQuot(keyName.Key)} AS {pName ?? GetQuot(keyName.Name)}");
             }
             return this;
         }
@@ -481,7 +397,7 @@ namespace System.Data.Dabber
         {
             if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
             {
-                return AddSelectClause($"{CurrentTag.Tag}.{GetQuot(keyName.Key)} AS {pName ?? GetQuot(keyName.Name)}");
+                return AddSelectClause($"{CurrentTag.GetTableTag()}.{GetQuot(keyName.Key)} AS {pName ?? GetQuot(keyName.Name)}");
             }
             return this;
         }
@@ -495,7 +411,7 @@ namespace System.Data.Dabber
         {
             if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
             {
-                return AddSelectClause($"{CurrentTag.Tag}.{GetQuot(keyName.Key)} AS {pName ?? GetQuot(keyName.Name)}");
+                return AddSelectClause($"{CurrentTag.GetTableTag()}.{GetQuot(keyName.Key)} AS {pName ?? GetQuot(keyName.Name)}");
             }
             return this;
         }
@@ -503,11 +419,11 @@ namespace System.Data.Dabber
         #region // WHERE
         ISqlScriptWhereBuilder ISqlScriptWhereBuilder.AndEqual(string cName, string pName, object value)
         {
-            return AndEqualClause($"{CurrentTag.Tag}.{GetQuot(cName)}=@{pName}", pName, value);
+            return AndEqualClause($"{CurrentTag.GetTableTag()}.{GetQuot(cName)}=@{pName}", pName, value);
         }
         ISqlScriptWhereBuilder ISqlScriptWhereBuilder.AndEqual(string cName, object value)
         {
-            return AndEqualClause($"{CurrentTag.Tag}.{GetQuot(cName)}=@{cName}", cName, value);
+            return AndEqualClause($"{CurrentTag.GetTableTag()}.{GetQuot(cName)}=@{cName}", cName, value);
         }
         /// <summary>
         /// 添加Where列及值

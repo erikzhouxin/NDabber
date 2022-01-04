@@ -27,6 +27,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\System.Data.Dabber.csproj" />
+		<ProjectReference Include="..\..\tools\Sqller\System.Data.Sqller.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="CodeGeners\" />

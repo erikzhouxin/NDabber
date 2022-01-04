@@ -113,6 +113,7 @@ namespace System.Data.Cobber
         public virtual string DefaultPropertyKey { get; }
         /// <summary>
         /// 列序列
+        /// 1.使用时注意自增字段,DbColumnModel.IsAuto
         /// </summary>
         public virtual DbColumnModel[] Columns { get; }
         /// <summary>
