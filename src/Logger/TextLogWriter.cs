@@ -28,20 +28,12 @@ namespace System.Data.Logger
         /// <param name="oldWriter"></param>
         public TextLogWriter(TextWriter oldWriter)
         {
-            if (oldWriter is TextLogWriter textLogWriter)
-            {
-                OldWriter = textLogWriter.OldWriter;
-            }
-            else
-            {
-                OldWriter = oldWriter;
-            }
+            OldWriter = oldWriter is TextLogWriter textLogWriter ? textLogWriter.OldWriter : oldWriter;
         }
         /// <summary>
         /// 编码
         /// </summary>
         public override Encoding Encoding => Encoding.UTF8;
-
         /// <summary>
         /// 使用与 System.String.Format(System.String,System.Object[]) 方法相同的语义将格式化字符串和新行写入文本字符串或流。
         /// </summary>
