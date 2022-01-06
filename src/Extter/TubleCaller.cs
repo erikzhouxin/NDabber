@@ -16,11 +16,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static Tuble<T1, T2> Create<T1, T2>(T1 model1, T2 model2)
         {
-            return new Tuble<T1, T2>
-            {
-                Item1 = model1,
-                Item2 = model2,
-            };
+            return new Tuble(model1, model2);
         }
         /// <summary>
         /// 创建三元组
@@ -28,12 +24,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static Tuble<T1, T2, T3> Create<T1, T2, T3>(T1 model1, T2 model2, T3 model3)
         {
-            return new Tuble<T1, T2, T3>
-            {
-                Item1 = model1,
-                Item2 = model2,
-                Item3 = model3,
-            };
+            return new Tuble(model1, model2, model3);
         }
         /// <summary>
         /// 创建四元组
@@ -41,13 +32,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static Tuble<T1, T2, T3, T4> Create<T1, T2, T3, T4>(T1 model1, T2 model2, T3 model3, T4 model4)
         {
-            return new Tuble<T1, T2, T3, T4>
-            {
-                Item1 = model1,
-                Item2 = model2,
-                Item3 = model3,
-                Item4 = model4,
-            };
+            return new Tuble(model1, model2, model3, model4);
         }
         /// <summary>
         /// 创建五元组
@@ -55,14 +40,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static Tuble<T1, T2, T3, T4, T5> Create<T1, T2, T3, T4, T5>(T1 model1, T2 model2, T3 model3, T4 model4, T5 model5)
         {
-            return new Tuble<T1, T2, T3, T4, T5>
-            {
-                Item1 = model1,
-                Item2 = model2,
-                Item3 = model3,
-                Item4 = model4,
-                Item5 = model5,
-            };
+            return new Tuble(model1, model2, model3, model4, model5);
         }
         /// <summary>
         /// 创建六元组
@@ -70,15 +48,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static Tuble<T1, T2, T3, T4, T5, T6> Create<T1, T2, T3, T4, T5, T6>(T1 model1, T2 model2, T3 model3, T4 model4, T5 model5, T6 model6)
         {
-            return new Tuble<T1, T2, T3, T4, T5, T6>
-            {
-                Item1 = model1,
-                Item2 = model2,
-                Item3 = model3,
-                Item4 = model4,
-                Item5 = model5,
-                Item6 = model6,
-            };
+            return new Tuble(model1, model2, model3, model4, model5, model6);
         }
         /// <summary>
         /// 创建七元组
@@ -86,16 +56,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static Tuble<T1, T2, T3, T4, T5, T6, T7> Create<T1, T2, T3, T4, T5, T6, T7>(T1 model1, T2 model2, T3 model3, T4 model4, T5 model5, T6 model6, T7 model7)
         {
-            return new Tuble<T1, T2, T3, T4, T5, T6, T7>
-            {
-                Item1 = model1,
-                Item2 = model2,
-                Item3 = model3,
-                Item4 = model4,
-                Item5 = model5,
-                Item6 = model6,
-                Item7 = model7,
-            };
+            return new Tuble(model1, model2, model3, model4, model5, model6, model7);
         }
         /// <summary>
         /// 创建八元组
@@ -103,17 +64,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static Tuble<T1, T2, T3, T4, T5, T6, T7, T8> Create<T1, T2, T3, T4, T5, T6, T7, T8>(T1 model1, T2 model2, T3 model3, T4 model4, T5 model5, T6 model6, T7 model7, T8 model8)
         {
-            return new Tuble<T1, T2, T3, T4, T5, T6, T7, T8>
-            {
-                Item1 = model1,
-                Item2 = model2,
-                Item3 = model3,
-                Item4 = model4,
-                Item5 = model5,
-                Item6 = model6,
-                Item7 = model7,
-                Item8 = model8,
-            };
+            return new Tuble(model1, model2, model3, model4, model5, model6, model7, model8);
         }
     }
     #region // 扩展类
@@ -255,11 +206,7 @@ namespace System.Data.Extter
         /// </summary>
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
-        public Tuble2SqlArgs(string sql, Dictionary<string, object> parameters)
-        {
-            Item1 = sql;
-            Item2 = parameters;
-        }
+        public Tuble2SqlArgs(string sql, Dictionary<string, object> parameters) : base(sql, parameters) { }
         /// <summary>
         /// SQL脚本
         /// </summary>
@@ -283,11 +230,7 @@ namespace System.Data.Extter
         /// </summary>
         /// <param name="type"></param>
         /// <param name="tag"></param>
-        public Tuble2TypeTag(Type type, string tag)
-        {
-            Item1 = type;
-            Item2 = tag;
-        }
+        public Tuble2TypeTag(Type type, string tag) : base(type, tag) { }
         /// <summary>
         /// 类型
         /// </summary>
@@ -311,11 +254,7 @@ namespace System.Data.Extter
         /// </summary>
         /// <param name="key"></param>
         /// <param name="name"></param>
-        public Tuble2KeyName(string key, string name)
-        {
-            Item1 = key;
-            Item2 = name;
-        }
+        public Tuble2KeyName(string key, string name) : base(key, name) { }
         /// <summary>
         /// 键
         /// </summary>
@@ -333,6 +272,17 @@ namespace System.Data.Extter
     /// <typeparam name="T3"></typeparam>
     public class Tuble<T1, T2, T3> : Tuble<T1, T2>
     {
+        /// <summary>
+        /// 无参构造
+        /// </summary>
+        public Tuble() { }
+        /// <summary>
+        /// 参数构造
+        /// </summary>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <param name="m3"></param>
+        public Tuble(T1 m1, T2 m2, T3 m3) : base(T1, T2) { Item3 = m3; }
         /// <summary>
         /// 项三
         /// </summary>
@@ -353,12 +303,7 @@ namespace System.Data.Extter
         /// <param name="type"></param>
         /// <param name="key"></param>
         /// <param name="tag"></param>
-        public Tuble3TypeKeyTag(Type type, string key, string tag)
-        {
-            Item1 = type;
-            Item2 = key;
-            Item3 = tag;
-        }
+        public Tuble3TypeKeyTag(Type type, string key, string tag) : base(type, key, tag) { }
         /// <summary>
         /// 类型
         /// </summary>
@@ -378,6 +323,17 @@ namespace System.Data.Extter
     public class Tuble3A001 : Tuble<String, String, int>
     {
         /// <summary>
+        /// 无参构造
+        /// </summary>
+        public Tuble3A001() { }
+        /// <summary>
+        /// 参数构造
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public Tuble3A001(string id, string name, int value) : base(id, name, value) { }
+        /// <summary>
         /// 标识
         /// </summary>
         public string ID { get => base.Item1; set => base.Item1 = value; }
@@ -395,6 +351,17 @@ namespace System.Data.Extter
     /// </summary>
     public class Tuble3B001 : Tuble<String, String, int>
     {
+        /// <summary>
+        /// 无参构造
+        /// </summary>
+        public Tuble3B001() { }
+        /// <summary>
+        /// 参数构造
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="code"></param>
+        /// <param name="value"></param>
+        public Tuble3B001(string id, string code, string value) : base(id, code, value) { }
         /// <summary>
         /// 标识
         /// </summary>
@@ -414,6 +381,17 @@ namespace System.Data.Extter
     public class Tuble3A002 : Tuble<String, String, double>
     {
         /// <summary>
+        /// 无参构造
+        /// </summary>
+        public Tuble3A002() { }
+        /// <summary>
+        /// 有参构造
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public Tuble3A002(string id, string name, double value) : base(id, name, value) { }
+        /// <summary>
         /// 标识
         /// </summary>
         public string ID { get => base.Item1; set => base.Item1 = value; }
@@ -431,6 +409,17 @@ namespace System.Data.Extter
     /// </summary>
     public class Tuble3B002 : Tuble<String, String, double>
     {
+        /// <summary>
+        /// 无参构造
+        /// </summary>
+        public Tuble3B002() { }
+        /// <summary>
+        /// 有参构造
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="code"></param>
+        /// <param name="value"></param>
+        public Tuble3B002(string id, string code, double value) : base(id, code, value) { }
         /// <summary>
         /// 标识
         /// </summary>
@@ -450,6 +439,18 @@ namespace System.Data.Extter
     public class Tuble<T1, T2, T3, T4> : Tuble<T1, T2, T3>
     {
         /// <summary>
+        /// 无参构造
+        /// </summary>
+        public Tuble() { }
+        /// <summary>
+        /// 有参构造
+        /// </summary>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <param name="m3"></param>
+        /// <param name="m4"></param>
+        public Tuble(T1 m1, T2 m2, T3 m3, T4 m4) : base(m1, m2, m3) { Item4 = m4; }
+        /// <summary>
         /// 项四
         /// </summary>
         public T4 Item4 { get; set; }
@@ -459,6 +460,19 @@ namespace System.Data.Extter
     /// </summary>
     public class Tuble<T1, T2, T3, T4, T5> : Tuble<T1, T2, T3, T4>
     {
+        /// <summary>
+        /// 无参构造
+        /// </summary>
+        public Tuble() { }
+        /// <summary>
+        /// 有参构造
+        /// </summary>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <param name="m3"></param>
+        /// <param name="m4"></param>
+        /// <param name="m5"></param>
+        public Tuble(T1 m1, T2 m2, T3 m3, T4 m4, T5 m5) : base(m1, m2, m3, m4) { Item5 = m5; }
         /// <summary>
         /// 项五
         /// </summary>
@@ -470,6 +484,20 @@ namespace System.Data.Extter
     public class Tuble<T1, T2, T3, T4, T5, T6> : Tuble<T1, T2, T3, T4, T5>
     {
         /// <summary>
+        /// 无参构造
+        /// </summary>
+        public Tuble() { }
+        /// <summary>
+        /// 有参构造
+        /// </summary>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <param name="m3"></param>
+        /// <param name="m4"></param>
+        /// <param name="m5"></param>
+        /// <param name="m6"></param>
+        public Tuble(T1 m1, T2 m2, T3 m3, T4 m4, T5 m5, T6 m6) : base(m1, m2, m3, m4, m5) { Item6 = m6; }
+        /// <summary>
         /// 项六
         /// </summary>
         public T6 Item6 { get; set; }
@@ -480,6 +508,21 @@ namespace System.Data.Extter
     public class Tuble<T1, T2, T3, T4, T5, T6, T7> : Tuble<T1, T2, T3, T4, T5, T6>
     {
         /// <summary>
+        /// 无参构造
+        /// </summary>
+        public Tuble() { }
+        /// <summary>
+        /// 有参构造
+        /// </summary>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <param name="m3"></param>
+        /// <param name="m4"></param>
+        /// <param name="m5"></param>
+        /// <param name="m6"></param>
+        /// <param name="m7"></param>
+        public Tuble(T1 m1, T2 m2, T3 m3, T4 m4, T5 m5, T6 m6, T7 m7) : base(m1, m2, m3, m4, m5, m6) { Item7 = m7; }
+        /// <summary>
         /// 项七
         /// </summary>
         public T7 Item7 { get; set; }
@@ -489,6 +532,22 @@ namespace System.Data.Extter
     /// </summary>
     public class Tuble<T1, T2, T3, T4, T5, T6, T7, T8> : Tuble<T1, T2, T3, T4, T5, T6, T7>
     {
+        /// <summary>
+        /// 无参构造
+        /// </summary>
+        public Tuble() { }
+        /// <summary>
+        /// 有参构造
+        /// </summary>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <param name="m3"></param>
+        /// <param name="m4"></param>
+        /// <param name="m5"></param>
+        /// <param name="m6"></param>
+        /// <param name="m7"></param>
+        /// <param name="m8"></param>
+        public Tuble(T1 m1, T2 m2, T3 m3, T4 m4, T5 m5, T6 m6, T7 m7, T8 m8) : base(m1, m2, m3, m4, m5, m6, m7) { Item8 = m8; }
         /// <summary>
         /// 项八
         /// </summary>
