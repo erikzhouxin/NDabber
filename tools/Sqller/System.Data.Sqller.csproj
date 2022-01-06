@@ -3,7 +3,7 @@
 		<TargetFrameworks>net4;net45;netstandard2.1;netcoreapp2.1;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
 		<Description>兼容低版本.NET的FluentSqller</Description>
 		<AssemblyName>NSystem.Data.Sqller</AssemblyName>
-		<RootNamespace>System.Data.Sqller</RootNamespace>
+		<RootNamespace>System.Data</RootNamespace>
 		<AssemblyTitle>NSystem.Data.Sqller</AssemblyTitle>
 		<Authors>ErikZhouXin</Authors>
 		<SignAssembly>true</SignAssembly>
