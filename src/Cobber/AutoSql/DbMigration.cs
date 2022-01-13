@@ -3,7 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.Dabber;
+using System.Data.Extter;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
@@ -369,5 +371,221 @@ namespace System.Data.Cobber
         /// 版本号,19490101000000-99991231235959
         /// </summary>
         public long Version { get; }
+    }
+    /// <summary>
+    /// SQLite迁移数据访问
+    /// </summary>
+    public abstract class SQLiteDbMigration
+    {
+        /// <summary>
+        /// 获取自动SQL模型
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static AutoSqlModel GetSqlModel<T>()
+        {
+            return AutoSQLiteBuilder.Builder<T>();
+        }
+        /// <summary>
+        /// 创建表
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public static void CreateTable<T>(DbConnection conn, DbTransaction trans)
+        {
+            var sqlModel = GetSqlModel<T>();
+            conn.Execute(sqlModel.Create, null, trans);
+        }
+        /// <summary>
+        /// 创建表
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public static IAlertMsg CheckTable<T>(DbConnection conn, DbTransaction trans)
+        {
+            var sqlModel = GetSqlModel<T>();
+            conn.Execute(sqlModel.Create, null, trans);
+            return AlertMsg.OperSuccess;
+        }
+        /// <summary>
+        /// 检查列
+        /// </summary>
+        /// <typeparam name="TM">模型类</typeparam>
+        /// <param name="conn">数据库连接</param>
+        /// <param name="trans">数据库事务</param>
+        /// <param name="express">表达式</param>
+        /// <returns></returns>
+        public static IAlertMsg CheckColumn<TM>(DbConnection conn, DbTransaction trans, Expression<Func<TM, object>> express)
+        {
+            var attr = DbColAttribute.GetAttribute(express.GetPropertyInfo());
+            if (attr.Ignore) { return AlertMsg.OperSuccess; }
+            var sqlModel = GetSqlModel<TM>();
+            var tableInfos = conn.Query<SqlitePragmaTableInfo>($"PRAGMA table_info([{sqlModel.TagName}])", null, trans);
+            if (!tableInfos.Any() || tableInfos.Any(s => s.Name == attr.Name)) { return AlertMsg.OperSuccess; }
+            conn.Execute($"ALTER TABLE [{sqlModel.TagName}] ADD COLUMN {GetColumnDefinition(attr)}", null, trans);
+            return AlertMsg.OperSuccess;
+        }
+        /// <summary>
+        /// 检查列
+        /// </summary>
+        /// <typeparam name="TM">模型类</typeparam>
+        /// <param name="conn">数据库连接</param>
+        /// <param name="trans">数据库事务</param>
+        /// <param name="expresses">表达式</param>
+        /// <returns></returns>
+        public static IAlertMsg CheckColumn<TM>(DbConnection conn, DbTransaction trans, params Expression<Func<TM, object>>[] expresses)
+        {
+            var sqlModel = GetSqlModel<TM>();
+            var tableInfos = conn.Query<SqlitePragmaTableInfo>($"PRAGMA table_info([{sqlModel.TagName}])", null, trans);
+            if (!tableInfos.Any()) { return AlertMsg.OperSuccess; }
+            foreach (var express in expresses)
+            {
+                var attr = DbColAttribute.GetAttribute(express.GetPropertyInfo());
+                if (attr.Ignore || tableInfos.Any(s => s.Name == attr.Name)) { continue; }
+                conn.Execute($"ALTER TABLE [{sqlModel.TagName}] ADD COLUMN {GetColumnDefinition(attr)}", null, trans);
+            }
+            return AlertMsg.OperSuccess;
+        }
+        /// <summary>
+        /// 检查索引
+        /// </summary>
+        /// <typeparam name="TM">模型类</typeparam>
+        /// <param name="conn">连接类</param>
+        /// <param name="trans">事务</param>
+        /// <param name="express">表达式</param>
+        /// <returns></returns>
+        public static IAlertMsg CheckIndex<TM>(DbConnection conn, DbTransaction trans, Expression<Func<TM, object>> express) => CheckIndex(conn, trans, false, express);
+        /// <summary>
+        /// 检查索引
+        /// </summary>
+        /// <typeparam name="TM">模型类</typeparam>
+        /// <param name="conn">连接类</param>
+        /// <param name="trans">事务</param>
+        /// <param name="isDrop">是否删除</param>
+        /// <param name="express">表达式</param>
+        /// <returns></returns>
+        public static IAlertMsg CheckIndex<TM>(DbConnection conn, DbTransaction trans, bool isDrop, Expression<Func<TM, object>> express)
+        {
+            var attr = DbColAttribute.GetAttribute(express.GetPropertyInfo());
+            if (attr.Ignore) { return AlertMsg.OperSuccess; }
+            var sqlModel = GetSqlModel<TM>();
+            //var indexInfos = conn.Query<SqlitePragmaMasterInfo>($"SELECT [type],[name],[tbl_name],[rootpage],[sql] FROM [sqlite_master] WHERE [type]='{SqlitePragmaMasterInfo.TypeIndex}' COLLATE NOCASE AND [tbl_name]='{sqlModel.TagName}' COLLATE NOCASE", null, trans);
+            //if (!indexInfos.Any()) { return AlertMsg.OperSuccess; }
+            // 表列标记上只支持一个索引
+            string createSql = GetIndexCheckSql(attr, sqlModel, isDrop);
+            if (createSql != null)
+            {
+                conn.Execute(createSql, null, trans);
+            }
+            return AlertMsg.OperSuccess;
+        }
+        /// <summary>
+        /// 检查索引
+        /// </summary>
+        /// <typeparam name="TM">模型类</typeparam>
+        /// <param name="conn">连接类</param>
+        /// <param name="trans">事务</param>
+        /// <param name="expresses">表达式</param>
+        /// <returns></returns>
+        public static IAlertMsg CheckIndex<TM>(DbConnection conn, DbTransaction trans, params Expression<Func<TM, object>>[] expresses) => CheckIndex(conn, trans, false, expresses);
+        /// <summary>
+        /// 检查索引
+        /// </summary>
+        /// <typeparam name="TM">模型类</typeparam>
+        /// <param name="conn">连接类</param>
+        /// <param name="trans">事务</param>
+        /// <param name="isDrop">是否删除</param>
+        /// <param name="expresses">表达式</param>
+        /// <returns></returns>
+        public static IAlertMsg CheckIndex<TM>(DbConnection conn, DbTransaction trans, bool isDrop, params Expression<Func<TM, object>>[] expresses)
+        {
+            if (expresses == null) { return AlertMsg.OperSuccess; }
+            var sqlModel = GetSqlModel<TM>();
+            //var indexInfos = conn.Query<SqlitePragmaMasterInfo>($"SELECT [type],[name],[tbl_name],[rootpage],[sql] FROM [sqlite_master] WHERE [type]='{SqlitePragmaMasterInfo.TypeIndex}' COLLATE NOCASE AND [tbl_name]='{sqlModel.TagName}' COLLATE NOCASE", null, trans);
+            //if (!indexInfos.Any()) { return AlertMsg.OperSuccess; }
+            // 表列标记上只支持一个索引
+            foreach (var express in expresses)
+            {
+                var attr = DbColAttribute.GetAttribute(express.GetPropertyInfo());
+                if (attr.Ignore) { continue; }
+                string createSql = GetIndexCheckSql(attr, sqlModel, isDrop);
+                if (createSql == null) { continue; }
+                conn.Execute(createSql, null, trans);
+            }
+            return AlertMsg.OperSuccess;
+        }
+
+        private static string GetIndexCheckSql(DbColAttribute attr, AutoSqlModel sqlModel, bool isDrop)
+        {
+            if (attr.Key == DbIxType.UIX)
+            {
+                if (string.IsNullOrEmpty(attr.Index))
+                {
+                    return $"CREATE UNIQUE INDEX IF NOT EXISTS [IX_{sqlModel.TagName}_{attr.Name}] ON [{sqlModel.TagName}]([{attr.Name}])";
+                }
+                else
+                {
+                    return $"CREATE UNIQUE INDEX IF NOT EXISTS [IX_{sqlModel.TagName}_{attr.Index.Replace("|", "_")}] ON [{sqlModel.TagName}]([{attr.Index.Replace("|", "],[")}])";
+                }
+            }
+            else if (attr.Key == DbIxType.IX)
+            {
+                if (string.IsNullOrEmpty(attr.Index))
+                {
+                    return $"CREATE INDEX IF NOT EXISTS [IX_{sqlModel.TagName}_{attr.Name}] ON [{sqlModel.TagName}]([{attr.Name}])";
+                }
+                else
+                {
+                    return $"CREATE INDEX IF NOT EXISTS [IX_{sqlModel.TagName}_{attr.Index.Replace("|", "_")}] ON [{sqlModel.TagName}]([{attr.Index.Replace("|", "],[")}])";
+                }
+            }
+            else if (isDrop)
+            {
+                if (string.IsNullOrEmpty(attr.Index))
+                {
+                    return $"DROP INDEX IF EXISTS [IX_{sqlModel.TagName}_{attr.Name}]";
+                }
+                else
+                {
+                    return $"DROP INDEX IF EXISTS [IX_{sqlModel.TagName}_{attr.Index.Replace("|", "_")}]";
+                }
+            }
+            return null;
+        }
+
+        private static String GetColumnDefinition(DbColAttribute dbCol)
+        {
+            String defType;
+            var defVal = "";
+            switch (dbCol.Type)
+            {
+                case DbColType.Guid:
+                case DbColType.String:
+                case DbColType.XmlString:
+                case DbColType.StringMax:
+                case DbColType.StringMedium:
+                case DbColType.StringNormal: defType = string.Format("TEXT"); defVal = ""; break;
+                case DbColType.Enum:
+                case DbColType.Boolean:
+                case DbColType.Byte:
+                case DbColType.Char:
+                case DbColType.Int16:
+                case DbColType.Int32:
+                case DbColType.Int64:
+                case DbColType.UByte:
+                case DbColType.UInt16:
+                case DbColType.UInt32:
+                case DbColType.UInt64: defType = string.Format("INTEGER"); defVal = "0"; break;
+                case DbColType.Single:
+                case DbColType.Double: defType = string.Format("REAL"); defVal = "0"; break;
+                case DbColType.Decimal: defType = string.Format("DECIMAL({0},{1})", dbCol.Len, dbCol.Digit); defVal = "0"; break;
+                case DbColType.DateTime: defType = string.Format("DATETIME"); defVal = "1970-1-1 00:00:00"; break;
+                case DbColType.JsonString: defType = string.Format("TEXT"); defVal = ""; break;
+                case DbColType.Set:
+                case DbColType.Blob: defType = string.Format("BLOB"); defVal = ""; break;
+                default: defType = string.Format("TEXT"); defVal = ""; break;
+            }
+            var nullable = dbCol.IsReq ? "NOT" : "";
+            var keyable = dbCol.Key == DbIxType.PK ? " PRIMARY KEY" : (dbCol.Key == DbIxType.APK ? " PRIMARY KEY AUTOINCREMENT" : "");
+            return $"[{dbCol.Name}] {defType} {nullable} NULL{keyable}{(dbCol.IsReq ? $" DEFAULT '{dbCol.Default ?? defVal}'" : "")}";
+        }
     }
 }

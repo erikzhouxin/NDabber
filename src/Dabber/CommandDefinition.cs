@@ -7,7 +7,7 @@ using System.Threading;
 namespace System.Data.Dabber
 {
     /// <summary>
-    /// Represents the key aspects of a sql operation
+    /// 命令定义
     /// </summary>
     public struct CommandDefinition
     {

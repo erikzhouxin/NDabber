@@ -16,7 +16,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static Tuble<T1, T2> Create<T1, T2>(T1 model1, T2 model2)
         {
-            return new Tuble(model1, model2);
+            return new Tuble<T1, T2>(model1, model2);
         }
         /// <summary>
         /// 创建三元组
@@ -24,7 +24,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static Tuble<T1, T2, T3> Create<T1, T2, T3>(T1 model1, T2 model2, T3 model3)
         {
-            return new Tuble(model1, model2, model3);
+            return new Tuble<T1, T2, T3>(model1, model2, model3);
         }
         /// <summary>
         /// 创建四元组
@@ -32,7 +32,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static Tuble<T1, T2, T3, T4> Create<T1, T2, T3, T4>(T1 model1, T2 model2, T3 model3, T4 model4)
         {
-            return new Tuble(model1, model2, model3, model4);
+            return new Tuble<T1, T2, T3, T4>(model1, model2, model3, model4);
         }
         /// <summary>
         /// 创建五元组
@@ -40,7 +40,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static Tuble<T1, T2, T3, T4, T5> Create<T1, T2, T3, T4, T5>(T1 model1, T2 model2, T3 model3, T4 model4, T5 model5)
         {
-            return new Tuble(model1, model2, model3, model4, model5);
+            return new Tuble<T1, T2, T3, T4, T5>(model1, model2, model3, model4, model5);
         }
         /// <summary>
         /// 创建六元组
@@ -48,7 +48,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static Tuble<T1, T2, T3, T4, T5, T6> Create<T1, T2, T3, T4, T5, T6>(T1 model1, T2 model2, T3 model3, T4 model4, T5 model5, T6 model6)
         {
-            return new Tuble(model1, model2, model3, model4, model5, model6);
+            return new Tuble<T1, T2, T3, T4, T5, T6>(model1, model2, model3, model4, model5, model6);
         }
         /// <summary>
         /// 创建七元组
@@ -56,7 +56,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static Tuble<T1, T2, T3, T4, T5, T6, T7> Create<T1, T2, T3, T4, T5, T6, T7>(T1 model1, T2 model2, T3 model3, T4 model4, T5 model5, T6 model6, T7 model7)
         {
-            return new Tuble(model1, model2, model3, model4, model5, model6, model7);
+            return new Tuble<T1, T2, T3, T4, T5, T6, T7>(model1, model2, model3, model4, model5, model6, model7);
         }
         /// <summary>
         /// 创建八元组
@@ -64,7 +64,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static Tuble<T1, T2, T3, T4, T5, T6, T7, T8> Create<T1, T2, T3, T4, T5, T6, T7, T8>(T1 model1, T2 model2, T3 model3, T4 model4, T5 model5, T6 model6, T7 model7, T8 model8)
         {
-            return new Tuble(model1, model2, model3, model4, model5, model6, model7, model8);
+            return new Tuble<T1, T2, T3, T4, T5, T6, T7, T8>(model1, model2, model3, model4, model5, model6, model7, model8);
         }
     }
     #region // 扩展类
@@ -282,7 +282,7 @@ namespace System.Data.Extter
         /// <param name="m1"></param>
         /// <param name="m2"></param>
         /// <param name="m3"></param>
-        public Tuble(T1 m1, T2 m2, T3 m3) : base(T1, T2) { Item3 = m3; }
+        public Tuble(T1 m1, T2 m2, T3 m3) : base(m1, m2) { Item3 = m3; }
         /// <summary>
         /// 项三
         /// </summary>
@@ -361,7 +361,7 @@ namespace System.Data.Extter
         /// <param name="id"></param>
         /// <param name="code"></param>
         /// <param name="value"></param>
-        public Tuble3B001(string id, string code, string value) : base(id, code, value) { }
+        public Tuble3B001(string id, string code, int value) : base(id, code, value) { }
         /// <summary>
         /// 标识
         /// </summary>
