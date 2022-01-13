@@ -2207,7 +2207,7 @@ namespace System.Data.Dabber
         }
 
         /// <summary>
-        /// OBSOLETE: For internal usage only. Sanitizes the parameter value with proper type casting.
+        /// OBSOLETE:仅供内部使用。 使用适当的类型铸造对参数值进行消毒。  
         /// </summary>
         /// <param name="value">The value to sanitize.</param>
         [Obsolete(ObsoleteInternalUsageOnly, false)]
@@ -2259,7 +2259,7 @@ namespace System.Data.Dabber
         public static void ReplaceLiterals(this IParameterLookup parameters, IDbCommand command)
         {
             var tokens = GetLiteralTokens(command.CommandText);
-            if (tokens.Count != 0) ReplaceLiterals(parameters, command, tokens);
+            if (tokens.Count != 0) { ReplaceLiterals(parameters, command, tokens); }
         }
 
         internal static readonly MethodInfo format = typeof(SqlMapper).GetMethod("Format", BindingFlags.Public | BindingFlags.Static);
