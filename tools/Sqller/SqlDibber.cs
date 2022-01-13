@@ -4,6 +4,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Cobber;
+using System.Data.Common;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -12,6 +14,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -29,13 +32,69 @@ namespace System.Data.Sqller
         /// </summary>
         public static IEqualityComparer<string> ConnStringComparer
         {
-            get { return _connStringComparer; }
-            set { _connStringComparer = value ?? StringComparer.Ordinal; }
+            get => _connStringComparer;
+            set => _connStringComparer = value ?? StringComparer.Ordinal;
         }
         /// <summary>
-        /// 超时时间
+        /// 为所有查询指定默认的命令超时时间
         /// </summary>
         public static int? CommandTimeout { get; set; }
+        /// <summary>
+        /// 指示数据中的空值是被静默忽略(默认)还是主动应用并分配给成员
+        /// </summary>
+        public static bool ApplyNullValues { get; set; }
+        /// <summary>
+        /// 列表扩展是否应该用空值参数填充，以防止查询计划饱和? 例如，一个'in @foo'扩展有7、8或9个值，将被发送为一个包含10个值的列表，其中3、2或1个值为空。  
+        /// 填充的大小是相对于列表的大小; 150以下的“下10”，500以下的“下50”，1500以下的“下100”，等等。
+        /// 注意:如果你的数据库提供程序(或特定的配置)允许null相等(aka "ansi nulls off")，这应该小心处理，因为这可能会改变你的查询的意图; 
+        /// 因此，这在默认情况下是禁用的，必须启用。 
+        /// </summary>
+        public static bool PadListExpansions { get; set; }
+        /// <summary>
+        /// 如果设置(非负)，当执行整数类型的列表扩展(“where id in @ids”等)时，切换到基于string_split的  
+        /// 如果有这么多或更多的元素。 请注意，此特性需要SQL Server 2016 /兼容性级别130(或以上)。
+        /// </summary>
+        public static int InListStringSplitCount { get; set; } = -1;
+        /// <summary>
+        /// 默认情况下禁用单个结果; 在正确检测到选择后防止错误
+        /// </summary>
+        public static CommandBehavior AllowedCommandBehaviors { get; set; } = ~CommandBehavior.SingleResult;
+        /// <summary>
+        /// 获取或设置Dapper是否应该使用命令行为。 SingleResult优化
+        /// 注意，启用此选项的结果是，可能不会报告第一次选择之后发生的错误  
+        /// </summary>
+        public static bool UseSingleResultOptimization
+        {
+            get => (AllowedCommandBehaviors & CommandBehavior.SingleResult) != 0;
+            set => SetAllowedCommandBehaviors(CommandBehavior.SingleResult, value);
+        }
+        /// <summary>
+        /// 获取或设置Dapper是否应该使用命令行为。 回转支承的优化 
+        /// 注意，在某些DB提供上，这种优化可能会对性能产生不利影响  
+        /// </summary>
+        public static bool UseSingleRowOptimization
+        {
+            get => (AllowedCommandBehaviors & CommandBehavior.SingleRow) != 0;
+            set => SetAllowedCommandBehaviors(CommandBehavior.SingleRow, value);
+        }
+
+        private static CommandBehavior SetAllowedCommandBehaviors(CommandBehavior behavior, bool enabled)
+        {
+            return enabled ? (AllowedCommandBehaviors |= behavior) : (AllowedCommandBehaviors &= (~behavior));
+        }
+        internal static bool DisableCommandBehaviorOptimizations(CommandBehavior behavior, Exception ex)
+        {
+            if (AllowedCommandBehaviors == (~CommandBehavior.SingleResult) && (behavior & (CommandBehavior.SingleResult | CommandBehavior.SingleRow)) != 0)
+            {
+                if (ex.Message.Contains(nameof(CommandBehavior.SingleResult)) || ex.Message.Contains(nameof(CommandBehavior.SingleRow)))
+                {
+                    // 有些提供只是允许这些，所以: 在没有它们的情况下再试一次，并停止发布它们
+                    SetAllowedCommandBehaviors(CommandBehavior.SingleResult | CommandBehavior.SingleRow, false);
+                    return true;
+                }
+            }
+            return false;
+        }
         #endregion 外部属性
         #region // 外部方法
         /// <summary>
@@ -202,13 +261,13 @@ namespace System.Data.Sqller
             return DbType.Object;
         }
         /// <summary>
-        /// OBSOLETE: For internal usage only. Sanitizes the parameter value with proper type casting.
+        /// OBSOLETE:仅供内部使用。 使用适当的类型铸造对参数值进行消毒。  
         /// </summary>
         /// <param name="value">The value to sanitize.</param>
         [Obsolete(ObsoleteInternalUsageOnly, false)]
         public static object SanitizeParameterValue(object value)
         {
-            if (value == null) return DBNull.Value;
+            if (value == null) { return DBNull.Value; }
             if (value is Enum)
             {
                 TypeCode typeCode = value is IConvertible convertible
@@ -229,7 +288,6 @@ namespace System.Data.Sqller
             }
             return value;
         }
-
         /// <summary>
         /// Configure the specified type to be processed by a custom handler.
         /// </summary>
@@ -319,9 +377,8 @@ namespace System.Data.Sqller
                 bool isDbString = value is IEnumerable<DbString>;
                 DbType dbType = 0;
 
-                int splitAt = SqlMapper.Settings.InListStringSplitCount;
-                bool viaSplit = splitAt >= 0
-                    && TryStringSplit(ref list, splitAt, namePrefix, command, byPosition);
+                int splitAt = InListStringSplitCount;
+                bool viaSplit = splitAt >= 0 && TryStringSplit(ref list, splitAt, namePrefix, command, byPosition);
 
                 if (list != null && !viaSplit)
                 {
@@ -369,7 +426,7 @@ namespace System.Data.Sqller
                             command.Parameters.Add(listParam);
                         }
                     }
-                    if (Settings.PadListExpansions && !isDbString && lastValue != null)
+                    if (PadListExpansions && !isDbString && lastValue != null)
                     {
                         int padCount = GetListPaddingExtraCount(count);
                         for (int i = 0; i < padCount; i++)
@@ -451,6 +508,113 @@ namespace System.Data.Sqller
         /// <typeparam name="T">The type to handle.</typeparam>
         /// <param name="handler">The handler for the type <typeparamref name="T"/>.</param>
         public static void AddTypeHandler<T>(TypeHandler<T> handler) => AddTypeHandlerImpl(typeof(T), handler, true);
+        /// <summary>
+        /// 将所有文字标记替换为它们的文本形式。
+        /// </summary>
+        /// <param name="parameters">要进行替换的参数查找</param>
+        /// <param name="command">替换in参数的命令</param>
+        public static void ReplaceLiterals(this IDynamicArgLookup parameters, IDbCommand command)
+        {
+            var tokens = GetLiteralTokens(command.CommandText);
+            if (tokens.Count != 0) { ReplaceLiterals(parameters, command, tokens); }
+        }
+        /// <summary>
+        /// Convert numeric values to their string form for SQL literal purposes.
+        /// </summary>
+        /// <param name="value">The value to get a string for.</param>
+        [Obsolete(ObsoleteInternalUsageOnly)]
+        public static string Format(object value)
+        {
+            if (value == null)
+            {
+                return "null";
+            }
+            else
+            {
+                switch (Type.GetTypeCode(value.GetType()))
+                {
+                    case TypeCode.DBNull:
+                        return "null";
+                    case TypeCode.Boolean:
+                        return ((bool)value) ? "1" : "0";
+                    case TypeCode.Byte:
+                        return ((byte)value).ToString(CultureInfo.InvariantCulture);
+                    case TypeCode.SByte:
+                        return ((sbyte)value).ToString(CultureInfo.InvariantCulture);
+                    case TypeCode.UInt16:
+                        return ((ushort)value).ToString(CultureInfo.InvariantCulture);
+                    case TypeCode.Int16:
+                        return ((short)value).ToString(CultureInfo.InvariantCulture);
+                    case TypeCode.UInt32:
+                        return ((uint)value).ToString(CultureInfo.InvariantCulture);
+                    case TypeCode.Int32:
+                        return ((int)value).ToString(CultureInfo.InvariantCulture);
+                    case TypeCode.UInt64:
+                        return ((ulong)value).ToString(CultureInfo.InvariantCulture);
+                    case TypeCode.Int64:
+                        return ((long)value).ToString(CultureInfo.InvariantCulture);
+                    case TypeCode.Single:
+                        return ((float)value).ToString(CultureInfo.InvariantCulture);
+                    case TypeCode.Double:
+                        return ((double)value).ToString(CultureInfo.InvariantCulture);
+                    case TypeCode.Decimal:
+                        return ((decimal)value).ToString(CultureInfo.InvariantCulture);
+                    default:
+                        var multiExec = GetMultiExec(value);
+                        if (multiExec != null)
+                        {
+                            StringBuilder sb = null;
+                            bool first = true;
+                            foreach (object subval in multiExec)
+                            {
+                                if (first)
+                                {
+                                    sb = GetStringBuilder().Append('(');
+                                    first = false;
+                                }
+                                else
+                                {
+                                    sb.Append(',');
+                                }
+                                sb.Append(Format(subval));
+                            }
+                            if (first)
+                            {
+                                return "(select null where 1=0)";
+                            }
+                            else
+                            {
+                                return sb.Append(')').ToStringRecycle();
+                            }
+                        }
+                        throw new NotSupportedException($"类型['{value.GetType().Name}']不支持的SQL文本.");
+                }
+            }
+        }
+        /// <summary>
+        /// Internal use only.
+        /// </summary>
+        /// <param name="parameters">The parameter collection to search in.</param>
+        /// <param name="command">The command for this fetch.</param>
+        /// <param name="name">The name of the parameter to get.</param>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete(ObsoleteInternalUsageOnly, true)]
+        public static IDbDataParameter FindOrAddParameter(IDataParameterCollection parameters, IDbCommand command, string name)
+        {
+            IDbDataParameter result;
+            if (parameters.Contains(name))
+            {
+                result = (IDbDataParameter)parameters[name];
+            }
+            else
+            {
+                result = command.CreateParameter();
+                result.ParameterName = name;
+                parameters.Add(result);
+            }
+            return result;
+        }
         #endregion 公开方法
         #region // 外部类型
         /// <summary>
@@ -791,7 +955,8 @@ namespace System.Data.Sqller
             private static ITypeHandler handler;
         }
         /// <summary>
-        /// Implement this interface to pass an arbitrary db specific parameter to Dapper
+        /// 实现此接口，将一个任意的db特定参数传递给Dapper
+        /// <see cref="Dabber.SqlMapper.ICustomQueryParameter"/>
         /// </summary>
         public interface ICustomQueryParameter
         {
@@ -804,6 +969,7 @@ namespace System.Data.Sqller
         }
         /// <summary>
         /// 动态参数回调
+        /// <see cref="Dabber.SqlMapper.IParameterCallbacks"/>
         /// </summary>
         public interface IDynamicArgCallbacks : IDynamicArgs
         {
@@ -813,7 +979,8 @@ namespace System.Data.Sqller
             void OnCompleted();
         }
         /// <summary>
-        /// Extends IDynamicParameters providing by-name lookup of parameter values
+        /// 扩展IDynamicParameters，提供按名称查找参数值
+        /// <see cref="Dabber.SqlMapper.IParameterLookup"/>
         /// </summary>
         public interface IDynamicArgLookup : IDynamicArgs
         {
@@ -837,7 +1004,7 @@ namespace System.Data.Sqller
             void AddParameters(IDbCommand command, CmdIdentity identity);
         }
         /// <summary>
-        /// A bag of parameters that can be passed to the Dapper Query and Execute methods
+        /// 可以传递给Query和Execute方法的一组参数  
         /// </summary>
         public class DynamicArgs : IDynamicArgs, IDynamicArgLookup, IDynamicArgCallbacks
         {
@@ -1088,7 +1255,7 @@ namespace System.Data.Sqller
                         if (handler == null)
                         {
 #pragma warning disable 0618
-                            p.Value = SqlMapper.SanitizeParameterValue(val);
+                            p.Value = SanitizeParameterValue(val);
 #pragma warning restore 0618
                             if (dbType != null && p.DbType != dbType)
                             {
@@ -1121,7 +1288,7 @@ namespace System.Data.Sqller
                 }
 
                 // note: most non-privileged implementations would use: this.ReplaceLiterals(command);
-                if (literals.Count != 0) SqlMapper.ReplaceLiterals(this, command, literals);
+                if (literals.Count != 0) { ReplaceLiterals(this, command, literals); }
             }
 
             /// <summary>
@@ -1298,7 +1465,7 @@ namespace System.Data.Sqller
                     {
                         dbType = (!dbType.HasValue)
 #pragma warning disable 618
-                    ? SqlMapper.LookupDbType(targetMemberType, targetMemberType?.Name, true, out SqlMapper.ITypeHandler handler)
+                    ? LookupDbType(targetMemberType, targetMemberType?.Name, true, out ITypeHandler handler)
 #pragma warning restore 618
                     : dbType;
 
@@ -1586,31 +1753,13 @@ namespace System.Data.Sqller
                 return hash;
             }
         }
-        internal static IList<LiteralToken> GetLiteralTokens(string sql)
-        {
-            if (string.IsNullOrEmpty(sql)) return LiteralToken.None;
-            if (!literalTokens.IsMatch(sql)) return LiteralToken.None;
-
-            var matches = literalTokens.Matches(sql);
-            var found = new HashSet<string>(StringComparer.Ordinal);
-            List<LiteralToken> list = new List<LiteralToken>(matches.Count);
-            foreach (Match match in matches)
-            {
-                string token = match.Value;
-                if (found.Add(match.Value))
-                {
-                    list.Add(new LiteralToken(token, match.Groups[1].Value));
-                }
-            }
-            return list.Count == 0 ? LiteralToken.None : list;
-        }
         internal static Action<IDbCommand, object> CreateParamInfoGenerator(CmdIdentity identity, bool checkForDuplicates, bool removeUnused, IList<LiteralToken> literals)
         {
             Type type = identity.parametersType;
 
             if (IsValueTuple(type))
             {
-                throw new NotSupportedException("ValueTuple should not be used for parameters - the language-level names are not available to use as parameter names, and it adds unnecessary boxing");
+                throw new NotSupportedException("ValueTuple不应该用于参数—语言级别的名称不能用作参数名称，并且它增加了不必要的框");
             }
 
             bool filterParams = false;
@@ -1727,7 +1876,7 @@ namespace System.Data.Sqller
 #pragma warning disable 618
                 DbType dbType = LookupDbType(prop.PropertyType, prop.Name, true, out ITypeHandler handler);
 #pragma warning restore 618
-                if (dbType == DynamicParameters.EnumerableMultiParameter)
+                if (dbType == DynamicArgs.EnumerableMultiParameter)
                 {
                     // this actually represents special handling for list types;
                     il.Emit(OpCodes.Ldarg_0); // stack is now [parameters] [command]
@@ -1738,7 +1887,7 @@ namespace System.Data.Sqller
                     {
                         il.Emit(OpCodes.Box, prop.PropertyType); // stack is [parameters] [command] [name] [boxed-value]
                     }
-                    il.EmitCall(OpCodes.Call, typeof(SqlMapper).GetMethod(nameof(SqlMapper.PackListParameters)), null); // stack is [parameters]
+                    il.EmitCall(OpCodes.Call, typeof(SqlDibber).GetMethod(nameof(PackListParameters)), null); // stack is [parameters]
                     continue;
                 }
                 il.Emit(OpCodes.Dup); // stack is now [parameters] [parameters]
@@ -1749,7 +1898,7 @@ namespace System.Data.Sqller
                 {
                     // need to be a little careful about adding; use a utility method
                     il.Emit(OpCodes.Ldstr, prop.Name); // stack is now [parameters] [parameters] [command] [name]
-                    il.EmitCall(OpCodes.Call, typeof(SqlMapper).GetMethod(nameof(SqlMapper.FindOrAddParameter)), null); // stack is [parameters] [parameter]
+                    il.EmitCall(OpCodes.Call, typeof(SqlDibber).GetMethod(nameof(FindOrAddParameter)), null); // stack is [parameters] [parameter]
                 }
                 else
                 {
@@ -1768,7 +1917,7 @@ namespace System.Data.Sqller
                         // look it up from the param value
                         il.Emit(OpCodes.Ldloc, typedParameterLocal); // stack is now [parameters] [[parameters]] [parameter] [parameter] [typed-param]
                         il.Emit(callOpCode, prop.GetGetMethod()); // stack is [parameters] [[parameters]] [parameter] [parameter] [object-value]
-                        il.Emit(OpCodes.Call, typeof(SqlMapper).GetMethod(nameof(SqlMapper.GetDbType), BindingFlags.Static | BindingFlags.Public)); // stack is now [parameters] [[parameters]] [parameter] [parameter] [db-type]
+                        il.Emit(OpCodes.Call, typeof(SqlDibber).GetMethod(nameof(SqlDibber.GetDbType), BindingFlags.Static | BindingFlags.Public)); // stack is now [parameters] [[parameters]] [parameter] [parameter] [db-type]
                     }
                     else
                     {
@@ -1825,7 +1974,7 @@ namespace System.Data.Sqller
                     if (callSanitize)
                     {
                         checkForNull = false; // handled by sanitize
-                        il.EmitCall(OpCodes.Call, typeof(SqlMapper).GetMethod(nameof(SanitizeParameterValue)), null);
+                        il.EmitCall(OpCodes.Call, typeof(SqlDibber).GetMethod(nameof(SanitizeParameterValue)), null);
                         // stack is [parameters] [[parameters]] [parameter] [parameter] [boxed-value]
                     }
                 }
@@ -2011,7 +2160,38 @@ namespace System.Data.Sqller
             il.Emit(OpCodes.Ret);
             return (Action<IDbCommand, object>)dm.CreateDelegate(typeof(Action<IDbCommand, object>));
         }
+        internal static readonly MethodInfo format = typeof(SqlDibber).GetMethod("Format", BindingFlags.Public | BindingFlags.Static);
+        internal static void ReplaceLiterals(IDynamicArgLookup parameters, IDbCommand command, IList<LiteralToken> tokens)
+        {
+            var sql = command.CommandText;
+            foreach (var token in tokens)
+            {
+                object value = parameters[token.Member];
+#pragma warning disable 0618
+                string text = Format(value);
+#pragma warning restore 0618
+                sql = sql.Replace(token.Token, text);
+            }
+            command.CommandText = sql;
+        }
+        internal static IList<LiteralToken> GetLiteralTokens(string sql)
+        {
+            if (string.IsNullOrEmpty(sql)) return LiteralToken.None;
+            if (!literalTokens.IsMatch(sql)) return LiteralToken.None;
 
+            var matches = literalTokens.Matches(sql);
+            var found = new HashSet<string>(StringComparer.Ordinal);
+            List<LiteralToken> list = new List<LiteralToken>(matches.Count);
+            foreach (Match match in matches)
+            {
+                string token = match.Value;
+                if (found.Add(match.Value))
+                {
+                    list.Add(new LiteralToken(token, match.Groups[1].Value));
+                }
+            }
+            return list.Count == 0 ? LiteralToken.None : list;
+        }
         #endregion 内部方法
         #region // 内部类型
         internal sealed class DataRecordHandler<T> : ITypeHandler
@@ -2060,7 +2240,7 @@ namespace System.Data.Sqller
                 StructuredHelper.ConfigureTVP(parameter, typeName);
             }
         }
-        static class StructuredHelper
+        internal static class StructuredHelper
         {
             private static readonly Hashtable s_udt = new Hashtable(), s_tvp = new Hashtable();
 
@@ -2409,7 +2589,6 @@ namespace System.Data.Sqller
                 parameter.DbType = DbType.Xml;
             }
         }
-
         internal sealed class XmlDocumentHandler : XmlTypeHandler<XmlDocument>
         {
             protected override XmlDocument Parse(string xml)
@@ -2421,13 +2600,11 @@ namespace System.Data.Sqller
 
             protected override string Format(XmlDocument xml) => xml.OuterXml;
         }
-
         internal sealed class XDocumentHandler : XmlTypeHandler<XDocument>
         {
             protected override XDocument Parse(string xml) => XDocument.Parse(xml);
             protected override string Format(XDocument xml) => xml.ToString();
         }
-
         internal sealed class XElementHandler : XmlTypeHandler<XElement>
         {
             protected override XElement Parse(string xml) => XElement.Parse(xml);
@@ -2435,17 +2612,37 @@ namespace System.Data.Sqller
         }
         #endregion 内部类型
         #region // 隐私属性
-        private static readonly ConcurrentDictionary<CmdIdentity, CmdCacheInfo> _queryCache = new();
-        private const int COLLECT_PER_ITEMS = 1000, COLLECT_HIT_COUNT_MIN = 0;
+        private static readonly ConcurrentDictionary<CmdIdentity, CmdCacheInfo> _queryCache = new ConcurrentDictionary<CmdIdentity, CmdCacheInfo>();
+        private const int COLLECT_PER_ITEMS = 1000;
+        private const int COLLECT_HIT_COUNT_MIN = 0;
         private static int collect;
         private static Dictionary<Type, ITypeHandler> typeHandlers;
         private const string LinqBinary = "System.Data.Linq.Binary";
         private const string ObsoleteInternalUsageOnly = "This method is for internal use only";
-        #endregion 隐私属性
-        #region // 隐私方法
         private static readonly Regex smellsLikeOleDb = new Regex(@"(?<![\p{L}\p{N}@_])[?@:](?![\p{L}\p{N}@_])", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.CultureInvariant | RegexOptions.Compiled);
         private static readonly Regex literalTokens = new Regex(@"(?<![\p{L}\p{N}_])\{=([\p{L}\p{N}_]+)\}", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.CultureInvariant | RegexOptions.Compiled);
         private static readonly Regex pseudoPositional = new Regex(@"\?([\p{L}_][\p{L}\p{N}_]*)\?", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+        private static MapperLink<Type, Action<IDbCommand>> commandInitCache;
+        [ThreadStatic]
+        private static StringBuilder perThreadStringBuilderCache;
+        private static readonly Dictionary<TypeCode, MethodInfo> toStrings = new[]
+        {
+            typeof(bool), typeof(sbyte), typeof(byte), typeof(ushort), typeof(short),
+            typeof(uint), typeof(int), typeof(ulong), typeof(long), typeof(float), typeof(double), typeof(decimal)
+        }.ToDictionary(x => Type.GetTypeCode(x), x => x.GetPublicInstanceMethod(nameof(object.ToString), new[] { typeof(IFormatProvider) }));
+        private static readonly MethodInfo StringReplace = typeof(string).GetPublicInstanceMethod(nameof(string.Replace), new Type[] { typeof(string), typeof(string) });
+        private static readonly MethodInfo InvariantCulture = typeof(CultureInfo).GetProperty(nameof(CultureInfo.InvariantCulture), BindingFlags.Public | BindingFlags.Static).GetGetMethod();
+        private static readonly MethodInfo enumParse = typeof(Enum).GetMethod(nameof(Enum.Parse), new Type[] { typeof(Type), typeof(string), typeof(bool) });
+        private static readonly MethodInfo getItem = typeof(IDataRecord).GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.GetIndexParameters().Length > 0 && p.GetIndexParameters()[0].ParameterType == typeof(int)).Select(p => p.GetGetMethod()).First();
+        #endregion 隐私属性
+        #region // 隐私方法
+        private static MethodInfo GetToString(TypeCode typeCode)
+        {
+            return toStrings.TryGetValue(typeCode, out MethodInfo method) ? method : null;
+        }
+        private static bool IsValueTuple(Type type) => (type?.IsValueType == true
+                                                       && type.FullName.StartsWith("System.ValueTuple`", StringComparison.Ordinal))
+                                                       || (type != null && IsValueTuple(Nullable.GetUnderlyingType(type)));
         private static void SetQueryCache(CmdIdentity key, CmdCacheInfo value)
         {
             if (Interlocked.Increment(ref collect) == COLLECT_PER_ITEMS)
@@ -2553,7 +2750,165 @@ namespace System.Data.Sqller
             }
             return ExecuteCommand(cnn, ref command, param == null ? null : info.ParamReader);
         }
+        private static int ExecuteCommand(IDbConnection cnn, ref CmdDefinition command, Action<IDbCommand, object> paramReader)
+        {
+            IDbCommand cmd = null;
+            bool wasClosed = cnn.State == ConnectionState.Closed;
+            try
+            {
+                cmd = command.SetupCommand(cnn, paramReader);
+                if (wasClosed) cnn.Open();
+                int result = cmd.ExecuteNonQuery();
+                command.OnCompleted();
+                return result;
+            }
+            finally
+            {
+                if (wasClosed) cnn.Close();
+                cmd?.Dispose();
+            }
+        }
 
+        private static async Task<int> ExecuteMultiImplAsync(IDbConnection cnn, CmdDefinition command, IEnumerable multiExec)
+        {
+            bool isFirst = true;
+            int total = 0;
+            bool wasClosed = cnn.State == ConnectionState.Closed;
+            try
+            {
+                if (wasClosed) await cnn.TryOpenAsync(command.CancelToken).ConfigureAwait(false);
+
+                CmdCacheInfo info = null;
+                string masterSql = null;
+                if ((command.Flags & CmdFlags.Pipelined) != 0)
+                {
+                    const int MAX_PENDING = 100;
+                    var pending = new Queue<AsyncExecState>(MAX_PENDING);
+                    DbCommand cmd = null;
+                    try
+                    {
+                        foreach (var obj in multiExec)
+                        {
+                            if (isFirst)
+                            {
+                                isFirst = false;
+                                cmd = command.TrySetupAsyncCommand(cnn, null);
+                                masterSql = cmd.CommandText;
+                                var identity = new CmdIdentity(command.Text, cmd.CommandType, cnn, null, obj.GetType());
+                                info = GetCacheInfo(identity, obj, command.IsAddToCache);
+                            }
+                            else if (pending.Count >= MAX_PENDING)
+                            {
+                                var recycled = pending.Dequeue();
+                                total += await recycled.Task.ConfigureAwait(false);
+                                cmd = recycled.Command;
+                                cmd.CommandText = masterSql; // because we do magic replaces on "in" etc
+                                cmd.Parameters.Clear(); // current code is Add-tastic
+                            }
+                            else
+                            {
+                                cmd = command.TrySetupAsyncCommand(cnn, null);
+                            }
+                            info.ParamReader(cmd, obj);
+
+                            var task = cmd.ExecuteNonQueryAsync(command.CancelToken);
+                            pending.Enqueue(new AsyncExecState(cmd, task));
+                            cmd = null; // note the using in the finally: this avoids a double-dispose
+                        }
+                        while (pending.Count != 0)
+                        {
+                            var pair = pending.Dequeue();
+                            using (pair.Command) { /* dispose commands */ }
+                            total += await pair.Task.ConfigureAwait(false);
+                        }
+                    }
+                    finally
+                    {
+                        // this only has interesting work to do if there are failures
+                        using (cmd) { /* dispose commands */ }
+                        while (pending.Count != 0)
+                        { // dispose tasks even in failure
+                            using (pending.Dequeue().Command) { /* dispose commands */ }
+                        }
+                    }
+                }
+                else
+                {
+                    using var cmd = command.TrySetupAsyncCommand(cnn, null);
+                    foreach (var obj in multiExec)
+                    {
+                        if (isFirst)
+                        {
+                            masterSql = cmd.CommandText;
+                            isFirst = false;
+                            var identity = new CmdIdentity(command.CommandText, cmd.CommandType, cnn, null, obj.GetType());
+                            info = GetCacheInfo(identity, obj, command.AddToCache);
+                        }
+                        else
+                        {
+                            cmd.CommandText = masterSql; // because we do magic replaces on "in" etc
+                            cmd.Parameters.Clear(); // current code is Add-tastic
+                        }
+                        info.ParamReader(cmd, obj);
+                        total += await cmd.ExecuteNonQueryAsync(command.CancellationToken).ConfigureAwait(false);
+                    }
+                }
+
+                command.OnCompleted();
+            }
+            finally
+            {
+                if (wasClosed) cnn.Close();
+            }
+            return total;
+        }
+
+        private static async Task<int> ExecuteImplAsync(IDbConnection cnn, CmdDefinition command, object param)
+        {
+            var identity = new CmdIdentity(command.Text, command.Type, cnn, null, param?.GetType());
+            var info = GetCacheInfo(identity, param, command.IsAddToCache);
+            bool wasClosed = cnn.State == ConnectionState.Closed;
+            using var cmd = command.TrySetupAsyncCommand(cnn, info.ParamReader);
+            try
+            {
+                if (wasClosed) await cnn.TryOpenAsync(command.CancelToken).ConfigureAwait(false);
+                var result = await cmd.ExecuteNonQueryAsync(command.CancelToken).ConfigureAwait(false);
+                command.OnCompleted();
+                return result;
+            }
+            finally
+            {
+                if (wasClosed) cnn.Close();
+            }
+        }
+        /// <summary>
+        /// Attempts to open a connection asynchronously, with a better error message for unsupported usages.
+        /// </summary>
+        private static Task TryOpenAsync(this IDbConnection cnn, CancellationToken cancel)
+        {
+            if (cnn is DbConnection dbConn)
+            {
+                return dbConn.OpenAsync(cancel);
+            }
+            else
+            {
+                throw new InvalidOperationException("Async operations require use of a DbConnection or an already-open IDbConnection");
+            }
+        }
+        /// <summary>
+        /// Attempts setup a <see cref="DbCommand"/> on a <see cref="DbConnection"/>, with a better error message for unsupported usages.
+        /// </summary>
+        private static DbCommand TrySetupAsyncCommand(this CmdDefinition command, IDbConnection cnn, Action<IDbCommand, object> paramReader)
+        {
+            if (command.SetupCommand(cnn, paramReader) is DbCommand dbCommand)
+            {
+                return dbCommand;
+            }
+            else
+            {
+                throw new InvalidOperationException("Async operations require use of a DbConnection or an IDbConnection where .CreateCommand() returns a DbCommand");
+            }
+        }
         private static CmdCacheInfo GetCacheInfo(CmdIdentity identity, object exampleParameters, bool addToCache)
         {
             if (!TryGetQueryCache(identity, out CmdCacheInfo info))
@@ -2602,7 +2957,6 @@ namespace System.Data.Sqller
         {
             return sql?.IndexOf('?') >= 0 && pseudoPositional.IsMatch(sql);
         }
-
         private static void PassByPosition(IDbCommand cmd)
         {
             if (cmd.Parameters.Count == 0) return;
@@ -2642,7 +2996,6 @@ namespace System.Data.Sqller
                 }
             });
         }
-
         private static IEnumerable GetMultiExec(object param)
         {
 #pragma warning disable IDE0038 // Use pattern matching - complicated enough!
@@ -2653,7 +3006,6 @@ namespace System.Data.Sqller
                       || param is IDynamicArgs)
                 ) ? (IEnumerable)param : null;
         }
-
         private static IDbCommand SetupCommand(this CmdDefinition cmdDef, IDbConnection cnn, Action<IDbCommand, object> paramReader)
         {
             var cmd = cnn.CreateCommand();
@@ -2673,14 +3025,10 @@ namespace System.Data.Sqller
             paramReader?.Invoke(cmd, cmdDef.Args);
             return cmd;
         }
-
         private static void OnCompleted(this CmdDefinition cmdDef)
         {
             (cmdDef.Args as IDynamicArgCallbacks)?.OnCompleted();
         }
-
-        private static MapperLink<Type, Action<IDbCommand>> commandInitCache;
-
         private static Action<IDbCommand> GetInit(Type commandType)
         {
             if (commandType == null) { return null; } // GIGO
@@ -2729,8 +3077,764 @@ namespace System.Data.Sqller
             MapperLink<Type, Action<IDbCommand>>.TryAdd(ref commandInitCache, commandType, ref action);
             return action;
         }
+        private static bool TryStringSplit(ref IEnumerable list, int splitAt, string namePrefix, IDbCommand command, bool byPosition)
+        {
+            if (list == null || splitAt < 0) return false;
+            return list switch
+            {
+                IEnumerable<int> l => TryStringSplit(ref l, splitAt, namePrefix, command, "int", byPosition, (sb, i) => sb.Append(i.ToString(CultureInfo.InvariantCulture))),
+                IEnumerable<long> l => TryStringSplit(ref l, splitAt, namePrefix, command, "bigint", byPosition, (sb, i) => sb.Append(i.ToString(CultureInfo.InvariantCulture))),
+                IEnumerable<short> l => TryStringSplit(ref l, splitAt, namePrefix, command, "smallint", byPosition, (sb, i) => sb.Append(i.ToString(CultureInfo.InvariantCulture))),
+                IEnumerable<byte> l => TryStringSplit(ref l, splitAt, namePrefix, command, "tinyint", byPosition, (sb, i) => sb.Append(i.ToString(CultureInfo.InvariantCulture))),
+                _ => false,
+            };
+        }
+        private static bool TryStringSplit<T>(ref IEnumerable<T> list, int splitAt, string namePrefix, IDbCommand command, string colType, bool byPosition,
+            Action<StringBuilder, T> append)
+        {
+            if (!(list is ICollection<T> typed))
+            {
+                typed = list.ToList();
+                list = typed; // because we still need to be able to iterate it, even if we fail here
+            }
+            if (typed.Count < splitAt) return false;
+
+            string varName = null;
+            var regexIncludingUnknown = GetInListRegex(namePrefix, byPosition);
+            var sql = Regex.Replace(command.CommandText, regexIncludingUnknown, match =>
+            {
+                var variableName = match.Groups[1].Value;
+                if (match.Groups[2].Success)
+                {
+                    // looks like an optimize hint; leave it alone!
+                    return match.Value;
+                }
+                else
+                {
+                    varName = variableName;
+                    return "(select cast([value] as " + colType + ") from string_split(" + variableName + ",','))";
+                }
+            }, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.CultureInvariant);
+            if (varName == null) return false; // couldn't resolve the var!
+
+            command.CommandText = sql;
+            var concatenatedParam = command.CreateParameter();
+            concatenatedParam.ParameterName = namePrefix;
+            concatenatedParam.DbType = DbType.AnsiString;
+            concatenatedParam.Size = -1;
+            string val;
+            using (var iter = typed.GetEnumerator())
+            {
+                if (iter.MoveNext())
+                {
+                    var sb = GetStringBuilder();
+                    append(sb, iter.Current);
+                    while (iter.MoveNext())
+                    {
+                        append(sb.Append(','), iter.Current);
+                    }
+                    val = sb.ToString();
+                }
+                else
+                {
+                    val = "";
+                }
+            }
+            concatenatedParam.Value = val;
+            command.Parameters.Add(concatenatedParam);
+            return true;
+        }
+        internal static int GetListPaddingExtraCount(int count)
+        {
+            switch (count)
+            {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                    return 0; // no padding
+            }
+            if (count < 0) { return 0; }
+
+            int padFactor;
+            if (count <= 150) { padFactor = 10; }
+            else if (count <= 750) { padFactor = 50; }
+            else if (count <= 2000) { padFactor = 100; } // note: max param count for SQL Server
+            else if (count <= 2070) { padFactor = 10; } // try not to over-pad as we approach that limit
+            else if (count <= 2100) { return 0; }// just don't pad between 2070 and 2100, to minimize the crazy
+            else { padFactor = 200; } // above that, all bets are off!
+            // if we have 17, factor = 10; 17 % 10 = 7, we need 3 more
+            int intoBlock = count % padFactor;
+            return intoBlock == 0 ? 0 : (padFactor - intoBlock);
+        }
+        private static string GetInListRegex(string name, bool byPosition)
+        {
+            return byPosition ? $@"(\?){Regex.Escape(name)}\?(?!\w)(\s+(?i)unknown(?-i))?" : $@"([?@:]{Regex.Escape(name)})(?!\w)(\s+(?i)unknown(?-i))?";
+        }
+        private static StringBuilder GetStringBuilder()
+        {
+            var tmp = perThreadStringBuilderCache;
+            if (tmp != null)
+            {
+                perThreadStringBuilderCache = null;
+                tmp.Length = 0;
+                return tmp;
+            }
+            return new StringBuilder();
+        }
+        private static string ToStringRecycle(this StringBuilder obj)
+        {
+            if (obj == null) { return ""; }
+            var s = obj.ToString();
+            perThreadStringBuilderCache ??= obj;
+            return s;
+        }
+        private static IEnumerable<PropertyInfo> FilterParameters(IEnumerable<PropertyInfo> parameters, string sql)
+        {
+            var list = new List<PropertyInfo>(16);
+            foreach (var p in parameters)
+            {
+                if (Regex.IsMatch(sql, @"[?@:]" + p.Name + @"([^\p{L}\p{N}_]+|$)", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.CultureInvariant))
+                    list.Add(p);
+            }
+            return list;
+        }
+        private static void EmitInt32(ILGenerator il, int value)
+        {
+            switch (value)
+            {
+                case -1: il.Emit(OpCodes.Ldc_I4_M1); break;
+                case 0: il.Emit(OpCodes.Ldc_I4_0); break;
+                case 1: il.Emit(OpCodes.Ldc_I4_1); break;
+                case 2: il.Emit(OpCodes.Ldc_I4_2); break;
+                case 3: il.Emit(OpCodes.Ldc_I4_3); break;
+                case 4: il.Emit(OpCodes.Ldc_I4_4); break;
+                case 5: il.Emit(OpCodes.Ldc_I4_5); break;
+                case 6: il.Emit(OpCodes.Ldc_I4_6); break;
+                case 7: il.Emit(OpCodes.Ldc_I4_7); break;
+                case 8: il.Emit(OpCodes.Ldc_I4_8); break;
+                default:
+                    if (value >= -128 && value <= 127)
+                    {
+                        il.Emit(OpCodes.Ldc_I4_S, (sbyte)value);
+                    }
+                    else
+                    {
+                        il.Emit(OpCodes.Ldc_I4, value);
+                    }
+                    break;
+            }
+        }
+        private static MethodInfo GetPublicInstanceMethod(this Type type, string name, Type[] types)
+        {
+#if NETFx
+            var method = type.GetMethod(name, types);
+            return (method != null && method.IsPublic && !method.IsStatic) ? method : null;
+#else
+            return type.GetMethod(name, BindingFlags.Instance | BindingFlags.Public, null, types, null);
+#endif
+        }
+
+        private static LocalBuilder GetTempLocal(ILGenerator il, ref Dictionary<Type, LocalBuilder> locals, Type type, bool initAndLoad)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            locals ??= new Dictionary<Type, LocalBuilder>();
+            if (!locals.TryGetValue(type, out LocalBuilder found))
+            {
+                found = il.DeclareLocal(type);
+                locals.Add(type, found);
+            }
+            if (initAndLoad)
+            {
+                il.Emit(OpCodes.Ldloca, found);
+                il.Emit(OpCodes.Initobj, type);
+                il.Emit(OpCodes.Ldloca, found);
+                il.Emit(OpCodes.Ldobj, type);
+            }
+            return found;
+        }
+        private static Func<IDataReader, object> GetTypeDeserializerImpl(Type type, IDataReader reader, int startBound = 0, int length = -1, bool returnNullIfFirstMissing = false)
+        {
+            if (length == -1)
+            {
+                length = reader.FieldCount - startBound;
+            }
+
+            if (reader.FieldCount <= startBound)
+            {
+                throw MultiMapException(reader);
+            }
+
+            var returnType = type.IsValueType ? typeof(object) : type;
+            var dm = new DynamicMethod("Deserialize" + Guid.NewGuid().ToString(), returnType, new[] { typeof(IDataReader) }, type, true);
+            var il = dm.GetILGenerator();
+
+            if (IsValueTuple(type))
+            {
+                GenerateValueTupleDeserializer(type, reader, startBound, length, il);
+            }
+            else
+            {
+                GenerateDeserializerFromMap(type, reader, startBound, length, returnNullIfFirstMissing, il);
+            }
+
+            var funcType = System.Linq.Expressions.Expression.GetFuncType(typeof(IDataReader), returnType);
+            return (Func<IDataReader, object>)dm.CreateDelegate(funcType);
+        }
+        private static Exception MultiMapException(IDataRecord reader)
+        {
+            bool hasFields = false;
+            try { hasFields = reader != null && reader.FieldCount != 0; }
+            catch { /* don't throw when trying to throw */ }
+            if (hasFields)
+            {
+#pragma warning disable CA2208 // Instantiate argument exceptions correctly
+                return new ArgumentException("When using the multi-mapping APIs ensure you set the splitOn param if you have keys other than Id", "splitOn");
+#pragma warning restore CA2208 // Instantiate argument exceptions correctly
+            }
+            else
+            {
+                return new InvalidOperationException("No columns were selected");
+            }
+        }
+        private static void GenerateValueTupleDeserializer(Type valueTupleType, IDataReader reader, int startBound, int length, ILGenerator il)
+        {
+            var nullableUnderlyingType = Nullable.GetUnderlyingType(valueTupleType);
+            var currentValueTupleType = nullableUnderlyingType ?? valueTupleType;
+
+            var constructors = new List<ConstructorInfo>();
+            var languageTupleElementTypes = new List<Type>();
+
+            while (true)
+            {
+                var arity = int.Parse(currentValueTupleType.Name.Substring("ValueTuple`".Length), CultureInfo.InvariantCulture);
+                var constructorParameterTypes = new Type[arity];
+                var restField = (FieldInfo)null;
+
+                foreach (var field in currentValueTupleType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+                {
+                    if (field.Name == "Rest")
+                    {
+                        restField = field;
+                    }
+                    else if (field.Name.StartsWith("Item", StringComparison.Ordinal))
+                    {
+                        var elementNumber = int.Parse(field.Name.Substring("Item".Length), CultureInfo.InvariantCulture);
+                        constructorParameterTypes[elementNumber - 1] = field.FieldType;
+                    }
+                }
+
+                var itemFieldCount = constructorParameterTypes.Length;
+                if (restField != null) itemFieldCount--;
+
+                for (var i = 0; i < itemFieldCount; i++)
+                {
+                    languageTupleElementTypes.Add(constructorParameterTypes[i]);
+                }
+
+                if (restField != null)
+                {
+                    constructorParameterTypes[constructorParameterTypes.Length - 1] = restField.FieldType;
+                }
+
+                constructors.Add(currentValueTupleType.GetConstructor(constructorParameterTypes));
+
+                if (restField is null) break;
+
+                currentValueTupleType = restField.FieldType;
+                if (!IsValueTuple(currentValueTupleType))
+                {
+                    throw new InvalidOperationException("The Rest field of a ValueTuple must contain a nested ValueTuple of arity 1 or greater.");
+                }
+            }
+
+            var stringEnumLocal = (LocalBuilder)null;
+
+            for (var i = 0; i < languageTupleElementTypes.Count; i++)
+            {
+                var targetType = languageTupleElementTypes[i];
+
+                if (i < length)
+                {
+                    LoadReaderValueOrBranchToDBNullLabel(
+                        il,
+                        startBound + i,
+                        ref stringEnumLocal,
+                        valueCopyLocal: null,
+                        reader.GetFieldType(startBound + i),
+                        targetType,
+                        out var isDbNullLabel);
+
+                    var finishLabel = il.DefineLabel();
+                    il.Emit(OpCodes.Br_S, finishLabel);
+                    il.MarkLabel(isDbNullLabel);
+                    il.Emit(OpCodes.Pop);
+
+                    LoadDefaultValue(il, targetType);
+
+                    il.MarkLabel(finishLabel);
+                }
+                else
+                {
+                    LoadDefaultValue(il, targetType);
+                }
+            }
+
+            for (var i = constructors.Count - 1; i >= 0; i--)
+            {
+                il.Emit(OpCodes.Newobj, constructors[i]);
+            }
+
+            if (nullableUnderlyingType != null)
+            {
+                var nullableTupleConstructor = valueTupleType.GetConstructor(new[] { nullableUnderlyingType });
+
+                il.Emit(OpCodes.Newobj, nullableTupleConstructor);
+            }
+
+            il.Emit(OpCodes.Box, valueTupleType);
+            il.Emit(OpCodes.Ret);
+        }
+
+        private static void GenerateDeserializerFromMap(Type type, IDataReader reader, int startBound, int length, bool returnNullIfFirstMissing, ILGenerator il)
+        {
+            var currentIndexDiagnosticLocal = il.DeclareLocal(typeof(int));
+            var returnValueLocal = il.DeclareLocal(type);
+            il.Emit(OpCodes.Ldc_I4_0);
+            il.Emit(OpCodes.Stloc, currentIndexDiagnosticLocal);
+
+            var names = Enumerable.Range(startBound, length).Select(i => reader.GetName(i)).ToArray();
+
+            ITypeMap typeMap = GetTypeMap(type);
+
+            int index = startBound;
+            ConstructorInfo specializedConstructor = null;
+
+            bool supportInitialize = false;
+            Dictionary<Type, LocalBuilder> structLocals = null;
+            if (type.IsValueType)
+            {
+                il.Emit(OpCodes.Ldloca, returnValueLocal);
+                il.Emit(OpCodes.Initobj, type);
+            }
+            else
+            {
+                var types = new Type[length];
+                for (int i = startBound; i < startBound + length; i++)
+                {
+                    types[i - startBound] = reader.GetFieldType(i);
+                }
+
+                var explicitConstr = typeMap.FindExplicitConstructor();
+                if (explicitConstr != null)
+                {
+                    var consPs = explicitConstr.GetParameters();
+                    foreach (var p in consPs)
+                    {
+                        if (!p.ParameterType.IsValueType)
+                        {
+                            il.Emit(OpCodes.Ldnull);
+                        }
+                        else
+                        {
+                            GetTempLocal(il, ref structLocals, p.ParameterType, true);
+                        }
+                    }
+
+                    il.Emit(OpCodes.Newobj, explicitConstr);
+                    il.Emit(OpCodes.Stloc, returnValueLocal);
+                    supportInitialize = typeof(ISupportInitialize).IsAssignableFrom(type);
+                    if (supportInitialize)
+                    {
+                        il.Emit(OpCodes.Ldloc, returnValueLocal);
+                        il.EmitCall(OpCodes.Callvirt, typeof(ISupportInitialize).GetMethod(nameof(ISupportInitialize.BeginInit)), null);
+                    }
+                }
+                else
+                {
+                    var ctor = typeMap.FindConstructor(names, types);
+                    if (ctor == null)
+                    {
+                        string proposedTypes = "(" + string.Join(", ", types.Select((t, i) => t.FullName + " " + names[i]).ToArray()) + ")";
+                        throw new InvalidOperationException($"A parameterless default constructor or one matching signature {proposedTypes} is required for {type.FullName} materialization");
+                    }
+
+                    if (ctor.GetParameters().Length == 0)
+                    {
+                        il.Emit(OpCodes.Newobj, ctor);
+                        il.Emit(OpCodes.Stloc, returnValueLocal);
+                        supportInitialize = typeof(ISupportInitialize).IsAssignableFrom(type);
+                        if (supportInitialize)
+                        {
+                            il.Emit(OpCodes.Ldloc, returnValueLocal);
+                            il.EmitCall(OpCodes.Callvirt, typeof(ISupportInitialize).GetMethod(nameof(ISupportInitialize.BeginInit)), null);
+                        }
+                    }
+                    else
+                    {
+                        specializedConstructor = ctor;
+                    }
+                }
+            }
+
+            il.BeginExceptionBlock();
+            if (type.IsValueType)
+            {
+                il.Emit(OpCodes.Ldloca, returnValueLocal); // [target]
+            }
+            else if (specializedConstructor == null)
+            {
+                il.Emit(OpCodes.Ldloc, returnValueLocal); // [target]
+            }
+
+            var members = (specializedConstructor != null
+                ? names.Select(n => typeMap.GetConstructorParameter(specializedConstructor, n))
+                : names.Select(n => typeMap.GetMember(n))).ToList();
+
+            // stack is now [target]
+            bool first = true;
+            var allDone = il.DefineLabel();
+            var stringEnumLocal = (LocalBuilder)null;
+            var valueCopyDiagnosticLocal = il.DeclareLocal(typeof(object));
+            bool applyNullSetting = Settings.ApplyNullValues;
+            foreach (var item in members)
+            {
+                if (item != null)
+                {
+                    if (specializedConstructor == null)
+                        il.Emit(OpCodes.Dup); // stack is now [target][target]
+                    Label finishLabel = il.DefineLabel();
+                    Type memberType = item.MemberType;
+
+                    // Save off the current index for access if an exception is thrown
+                    EmitInt32(il, index);
+                    il.Emit(OpCodes.Stloc, currentIndexDiagnosticLocal);
+
+                    LoadReaderValueOrBranchToDBNullLabel(il, index, ref stringEnumLocal, valueCopyDiagnosticLocal, reader.GetFieldType(index), memberType, out var isDbNullLabel);
+
+                    if (specializedConstructor == null)
+                    {
+                        // Store the value in the property/field
+                        if (item.Property != null)
+                        {
+                            il.Emit(type.IsValueType ? OpCodes.Call : OpCodes.Callvirt, DefaultTypeMap.GetPropertySetter(item.Property, type));
+                        }
+                        else
+                        {
+                            il.Emit(OpCodes.Stfld, item.Field); // stack is now [target]
+                        }
+                    }
+
+                    il.Emit(OpCodes.Br_S, finishLabel); // stack is now [target]
+
+                    il.MarkLabel(isDbNullLabel); // incoming stack: [target][target][value]
+                    if (specializedConstructor != null)
+                    {
+                        il.Emit(OpCodes.Pop);
+                        LoadDefaultValue(il, item.MemberType);
+                    }
+                    else if (applyNullSetting && (!memberType.IsValueType || Nullable.GetUnderlyingType(memberType) != null))
+                    {
+                        il.Emit(OpCodes.Pop); // stack is now [target][target]
+                        // can load a null with this value
+                        if (memberType.IsValueType)
+                        { // must be Nullable<T> for some T
+                            GetTempLocal(il, ref structLocals, memberType, true); // stack is now [target][target][null]
+                        }
+                        else
+                        { // regular reference-type
+                            il.Emit(OpCodes.Ldnull); // stack is now [target][target][null]
+                        }
+
+                        // Store the value in the property/field
+                        if (item.Property != null)
+                        {
+                            il.Emit(type.IsValueType ? OpCodes.Call : OpCodes.Callvirt, DefaultTypeMap.GetPropertySetter(item.Property, type));
+                            // stack is now [target]
+                        }
+                        else
+                        {
+                            il.Emit(OpCodes.Stfld, item.Field); // stack is now [target]
+                        }
+                    }
+                    else
+                    {
+                        il.Emit(OpCodes.Pop); // stack is now [target][target]
+                        il.Emit(OpCodes.Pop); // stack is now [target]
+                    }
+
+                    if (first && returnNullIfFirstMissing)
+                    {
+                        il.Emit(OpCodes.Pop);
+                        il.Emit(OpCodes.Ldnull); // stack is now [null]
+                        il.Emit(OpCodes.Stloc, returnValueLocal);
+                        il.Emit(OpCodes.Br, allDone);
+                    }
+
+                    il.MarkLabel(finishLabel);
+                }
+                first = false;
+                index++;
+            }
+            if (type.IsValueType)
+            {
+                il.Emit(OpCodes.Pop);
+            }
+            else
+            {
+                if (specializedConstructor != null)
+                {
+                    il.Emit(OpCodes.Newobj, specializedConstructor);
+                }
+                il.Emit(OpCodes.Stloc, returnValueLocal); // stack is empty
+                if (supportInitialize)
+                {
+                    il.Emit(OpCodes.Ldloc, returnValueLocal);
+                    il.EmitCall(OpCodes.Callvirt, typeof(ISupportInitialize).GetMethod(nameof(ISupportInitialize.EndInit)), null);
+                }
+            }
+            il.MarkLabel(allDone);
+            il.BeginCatchBlock(typeof(Exception)); // stack is Exception
+            il.Emit(OpCodes.Ldloc, currentIndexDiagnosticLocal); // stack is Exception, index
+            il.Emit(OpCodes.Ldarg_0); // stack is Exception, index, reader
+            il.Emit(OpCodes.Ldloc, valueCopyDiagnosticLocal); // stack is Exception, index, reader, value
+            il.EmitCall(OpCodes.Call, typeof(SqlMapper).GetMethod(nameof(SqlMapper.ThrowDataException)), null);
+            il.EndExceptionBlock();
+
+            il.Emit(OpCodes.Ldloc, returnValueLocal); // stack is [rval]
+            if (type.IsValueType)
+            {
+                il.Emit(OpCodes.Box, type);
+            }
+            il.Emit(OpCodes.Ret);
+        }
+
+        private static void LoadDefaultValue(ILGenerator il, Type type)
+        {
+            if (type.IsValueType)
+            {
+                var local = il.DeclareLocal(type);
+                il.Emit(OpCodes.Ldloca, local);
+                il.Emit(OpCodes.Initobj, type);
+                il.Emit(OpCodes.Ldloc, local);
+            }
+            else
+            {
+                il.Emit(OpCodes.Ldnull);
+            }
+        }
+
+        private static void LoadReaderValueOrBranchToDBNullLabel(ILGenerator il, int index, ref LocalBuilder stringEnumLocal, LocalBuilder valueCopyLocal, Type colType, Type memberType, out Label isDbNullLabel)
+        {
+            isDbNullLabel = il.DefineLabel();
+            il.Emit(OpCodes.Ldarg_0); // stack is now [...][reader]
+            EmitInt32(il, index); // stack is now [...][reader][index]
+            il.Emit(OpCodes.Callvirt, getItem); // stack is now [...][value-as-object]
+
+            if (valueCopyLocal != null)
+            {
+                il.Emit(OpCodes.Dup); // stack is now [...][value-as-object][value-as-object]
+                il.Emit(OpCodes.Stloc, valueCopyLocal); // stack is now [...][value-as-object]
+            }
+
+            if (memberType == typeof(char) || memberType == typeof(char?))
+            {
+                il.EmitCall(OpCodes.Call, typeof(SqlMapper).GetMethod(
+                    memberType == typeof(char) ? nameof(SqlMapper.ReadChar) : nameof(SqlMapper.ReadNullableChar), BindingFlags.Static | BindingFlags.Public), null); // stack is now [...][typed-value]
+            }
+            else
+            {
+                il.Emit(OpCodes.Dup); // stack is now [...][value-as-object][value-as-object]
+                il.Emit(OpCodes.Isinst, typeof(DBNull)); // stack is now [...][value-as-object][DBNull or null]
+                il.Emit(OpCodes.Brtrue_S, isDbNullLabel); // stack is now [...][value-as-object]
+
+                // unbox nullable enums as the primitive, i.e. byte etc
+
+                var nullUnderlyingType = Nullable.GetUnderlyingType(memberType);
+                var unboxType = nullUnderlyingType?.IsEnum == true ? nullUnderlyingType : memberType;
+
+                if (unboxType.IsEnum)
+                {
+                    Type numericType = Enum.GetUnderlyingType(unboxType);
+                    if (colType == typeof(string))
+                    {
+                        if (stringEnumLocal == null)
+                        {
+                            stringEnumLocal = il.DeclareLocal(typeof(string));
+                        }
+                        il.Emit(OpCodes.Castclass, typeof(string)); // stack is now [...][string]
+                        il.Emit(OpCodes.Stloc, stringEnumLocal); // stack is now [...]
+                        il.Emit(OpCodes.Ldtoken, unboxType); // stack is now [...][enum-type-token]
+                        il.EmitCall(OpCodes.Call, typeof(Type).GetMethod(nameof(Type.GetTypeFromHandle)), null);// stack is now [...][enum-type]
+                        il.Emit(OpCodes.Ldloc, stringEnumLocal); // stack is now [...][enum-type][string]
+                        il.Emit(OpCodes.Ldc_I4_1); // stack is now [...][enum-type][string][true]
+                        il.EmitCall(OpCodes.Call, enumParse, null); // stack is now [...][enum-as-object]
+                        il.Emit(OpCodes.Unbox_Any, unboxType); // stack is now [...][typed-value]
+                    }
+                    else
+                    {
+                        FlexibleConvertBoxedFromHeadOfStack(il, colType, unboxType, numericType);
+                    }
+
+                    if (nullUnderlyingType != null)
+                    {
+                        il.Emit(OpCodes.Newobj, memberType.GetConstructor(new[] { nullUnderlyingType })); // stack is now [...][typed-value]
+                    }
+                }
+                else if (memberType.FullName == LinqBinary)
+                {
+                    il.Emit(OpCodes.Unbox_Any, typeof(byte[])); // stack is now [...][byte-array]
+                    il.Emit(OpCodes.Newobj, memberType.GetConstructor(new Type[] { typeof(byte[]) }));// stack is now [...][binary]
+                }
+                else
+                {
+                    TypeCode dataTypeCode = Type.GetTypeCode(colType), unboxTypeCode = Type.GetTypeCode(unboxType);
+                    bool hasTypeHandler;
+                    if ((hasTypeHandler = typeHandlers.ContainsKey(unboxType)) || colType == unboxType || dataTypeCode == unboxTypeCode || dataTypeCode == Type.GetTypeCode(nullUnderlyingType))
+                    {
+                        if (hasTypeHandler)
+                        {
+#pragma warning disable 618
+                            il.EmitCall(OpCodes.Call, typeof(TypeHandlerCache<>).MakeGenericType(unboxType).GetMethod(nameof(TypeHandlerCache<int>.Parse)), null); // stack is now [...][typed-value]
+#pragma warning restore 618
+                        }
+                        else
+                        {
+                            il.Emit(OpCodes.Unbox_Any, unboxType); // stack is now [...][typed-value]
+                        }
+                    }
+                    else
+                    {
+                        // not a direct match; need to tweak the unbox
+                        FlexibleConvertBoxedFromHeadOfStack(il, colType, nullUnderlyingType ?? unboxType, null);
+                        if (nullUnderlyingType != null)
+                        {
+                            il.Emit(OpCodes.Newobj, unboxType.GetConstructor(new[] { nullUnderlyingType })); // stack is now [...][typed-value]
+                        }
+                    }
+                }
+            }
+        }
+        private static void FlexibleConvertBoxedFromHeadOfStack(ILGenerator il, Type from, Type to, Type via)
+        {
+            MethodInfo op;
+            if (from == (via ?? to))
+            {
+                il.Emit(OpCodes.Unbox_Any, to); // stack is now [target][target][typed-value]
+            }
+            else if ((op = GetOperator(from, to)) != null)
+            {
+                // this is handy for things like decimal <===> double
+                il.Emit(OpCodes.Unbox_Any, from); // stack is now [target][target][data-typed-value]
+                il.Emit(OpCodes.Call, op); // stack is now [target][target][typed-value]
+            }
+            else
+            {
+                bool handled = false;
+                OpCode opCode = default;
+                switch (Type.GetTypeCode(from))
+                {
+                    case TypeCode.Boolean:
+                    case TypeCode.Byte:
+                    case TypeCode.SByte:
+                    case TypeCode.Int16:
+                    case TypeCode.UInt16:
+                    case TypeCode.Int32:
+                    case TypeCode.UInt32:
+                    case TypeCode.Int64:
+                    case TypeCode.UInt64:
+                    case TypeCode.Single:
+                    case TypeCode.Double:
+                        handled = true;
+                        switch (Type.GetTypeCode(via ?? to))
+                        {
+                            case TypeCode.Byte:
+                                opCode = OpCodes.Conv_Ovf_I1_Un; break;
+                            case TypeCode.SByte:
+                                opCode = OpCodes.Conv_Ovf_I1; break;
+                            case TypeCode.UInt16:
+                                opCode = OpCodes.Conv_Ovf_I2_Un; break;
+                            case TypeCode.Int16:
+                                opCode = OpCodes.Conv_Ovf_I2; break;
+                            case TypeCode.UInt32:
+                                opCode = OpCodes.Conv_Ovf_I4_Un; break;
+                            case TypeCode.Boolean: // boolean is basically an int, at least at this level
+                            case TypeCode.Int32:
+                                opCode = OpCodes.Conv_Ovf_I4; break;
+                            case TypeCode.UInt64:
+                                opCode = OpCodes.Conv_Ovf_I8_Un; break;
+                            case TypeCode.Int64:
+                                opCode = OpCodes.Conv_Ovf_I8; break;
+                            case TypeCode.Single:
+                                opCode = OpCodes.Conv_R4; break;
+                            case TypeCode.Double:
+                                opCode = OpCodes.Conv_R8; break;
+                            default:
+                                handled = false;
+                                break;
+                        }
+                        break;
+                }
+                if (handled)
+                {
+                    il.Emit(OpCodes.Unbox_Any, from); // stack is now [target][target][col-typed-value]
+                    il.Emit(opCode); // stack is now [target][target][typed-value]
+                    if (to == typeof(bool))
+                    { // compare to zero; I checked "csc" - this is the trick it uses; nice
+                        il.Emit(OpCodes.Ldc_I4_0);
+                        il.Emit(OpCodes.Ceq);
+                        il.Emit(OpCodes.Ldc_I4_0);
+                        il.Emit(OpCodes.Ceq);
+                    }
+                }
+                else
+                {
+                    il.Emit(OpCodes.Ldtoken, via ?? to); // stack is now [target][target][value][member-type-token]
+                    il.EmitCall(OpCodes.Call, typeof(Type).GetMethod(nameof(Type.GetTypeFromHandle)), null); // stack is now [target][target][value][member-type]
+                    il.EmitCall(OpCodes.Call, InvariantCulture, null); // stack is now [target][target][value][member-type][culture]
+                    il.EmitCall(OpCodes.Call, typeof(Convert).GetMethod(nameof(Convert.ChangeType), new Type[] { typeof(object), typeof(Type), typeof(IFormatProvider) }), null); // stack is now [target][target][boxed-member-type-value]
+                    il.Emit(OpCodes.Unbox_Any, to); // stack is now [target][target][typed-value]
+                }
+            }
+        }
+        private static MethodInfo GetOperator(Type from, Type to)
+        {
+            if (to == null) return null;
+            MethodInfo[] fromMethods, toMethods;
+            return ResolveOperator(fromMethods = from.GetMethods(BindingFlags.Static | BindingFlags.Public), from, to, "op_Implicit")
+                ?? ResolveOperator(toMethods = to.GetMethods(BindingFlags.Static | BindingFlags.Public), from, to, "op_Implicit")
+                ?? ResolveOperator(fromMethods, from, to, "op_Explicit")
+                ?? ResolveOperator(toMethods, from, to, "op_Explicit");
+        }
+        private static MethodInfo ResolveOperator(MethodInfo[] methods, Type from, Type to, string name)
+        {
+            for (int i = 0; i < methods.Length; i++)
+            {
+                if (methods[i].Name != name || methods[i].ReturnType != to) continue;
+                var args = methods[i].GetParameters();
+                if (args.Length != 1 || args[0].ParameterType != from) continue;
+                return methods[i];
+            }
+            return null;
+        }
         #endregion 隐私方法
-        #region // 隐私类型
+        #region // 隐私类型        
+        private struct AsyncExecState
+        {
+            public readonly DbCommand Command;
+            public readonly Task<int> Task;
+            public AsyncExecState(DbCommand command, Task<int> task)
+            {
+                Command = command;
+                Task = task;
+            }
+        }
+        private class PropertyInfoByNameComparer : IComparer<PropertyInfo>
+        {
+            public int Compare(PropertyInfo x, PropertyInfo y) => string.CompareOrdinal(x.Name, y.Name);
+        }
         #endregion 隐私类型
     }
 }
