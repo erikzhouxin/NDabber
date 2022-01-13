@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -12,10 +13,46 @@ using ApplicationException = System.InvalidOperationException;
 
 namespace System.Data.Dabber
 {
+    public static partial class SqlMapper
+    {
+        /// <summary>
+        /// Implement this interface to pass an arbitrary db specific set of parameters to Dapper
+        /// </summary>
+        public interface IDynamicParameters
+        {
+            /// <summary>
+            /// Add all the parameters needed to the command just before it executes
+            /// </summary>
+            /// <param name="command">The raw command prior to execution</param>
+            /// <param name="identity">Information about the query</param>
+            void AddParameters(IDbCommand command, Identity identity);
+        }
+        /// <summary>
+        /// Extends IDynamicParameters providing by-name lookup of parameter values
+        /// </summary>
+        public interface IParameterLookup : IDynamicParameters
+        {
+            /// <summary>
+            /// Get the value of the specified parameter (return null if not found)
+            /// </summary>
+            /// <param name="name">The name of the parameter to get.</param>
+            object this[string name] { get; }
+        }
+        /// <summary>
+        /// Extends IDynamicParameters with facilities for executing callbacks after commands have completed
+        /// </summary>
+        public interface IParameterCallbacks : IDynamicParameters
+        {
+            /// <summary>
+            /// Invoked when the command has executed
+            /// </summary>
+            void OnCompleted();
+        }
+    }
     /// <summary>
     /// A bag of parameters that can be passed to the Dapper Query and Execute methods
     /// </summary>
-    public partial class DynamicParameters : SqlMapper.IDynamicParameters, SqlMapper.IParameterLookup, SqlMapper.IParameterCallbacks
+    public class DynamicParameters : SqlMapper.IDynamicParameters, SqlMapper.IParameterLookup, SqlMapper.IParameterCallbacks
     {
         internal const DbType EnumerableMultiParameter = (DbType)(-1);
         private static readonly Dictionary<SqlMapper.Identity, Action<IDbCommand, object>> paramReaderCache = new Dictionary<SqlMapper.Identity, Action<IDbCommand, object>>();
@@ -500,5 +537,30 @@ namespace System.Data.Dabber
                 param.OutputCallback?.Invoke(param.OutputTarget, this);
             }
         }
+        #region // 内部类
+        private sealed class ParamInfo
+        {
+            public string Name { get; set; }
+            public object Value { get; set; }
+            public ParameterDirection ParameterDirection { get; set; }
+            public DbType? DbType { get; set; }
+            public int? Size { get; set; }
+            public IDbDataParameter AttachedParam { get; set; }
+            internal Action<object, DynamicParameters> OutputCallback { get; set; }
+            internal object OutputTarget { get; set; }
+            internal bool CameFromTemplate { get; set; }
+
+            public byte? Precision { get; set; }
+            public byte? Scale { get; set; }
+        }
+        // The type here is used to differentiate the cache by type via generics
+        // ReSharper disable once UnusedTypeParameter
+        internal static class CachedOutputSetters<T>
+        {
+            // Intentional, abusing generics to get our cache splits
+            // ReSharper disable once StaticMemberInGenericType
+            public static readonly Hashtable Cache = new Hashtable();
+        }
+        #endregion
     }
 }

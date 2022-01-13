@@ -14,6 +14,13 @@ namespace System.Data.Cobber
     public static partial class CobberCaller
     {
         /// <summary>
+        /// 转换成List
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static List<T> AsList<T>(this IEnumerable<T> source) => (source == null || source is List<T>) ? (List<T>)source : source.ToList();
+        /// <summary>
         /// 通知序列集合
         /// </summary>
         /// <returns></returns>

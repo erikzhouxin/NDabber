@@ -8,7 +8,7 @@ namespace System.Data.Dabber
     /// <summary>
     /// SQLite表信息内容
     /// </summary>
-    public class SqlitePragmaTableInfo
+    public sealed class SqlitePragmaTableInfo
     {
         /// <summary>
         /// 列标识
