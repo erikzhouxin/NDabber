@@ -567,7 +567,7 @@ namespace System.Data.Cobber
         /// 获取访问类接口实例
         /// </summary>
         /// <returns></returns>
-        public static IPropertyAccess Get<T>(T model)
+        public static IPropertyAccess GetAccess<T>(T model)
         {
             return Get(model?.GetType() ?? typeof(T));
         }
