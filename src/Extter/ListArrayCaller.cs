@@ -19,7 +19,8 @@ namespace System.Data.Cobber
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
         /// <returns></returns>
-        public static List<T> AsList<T>(this IEnumerable<T> source) => (source == null || source is List<T>) ? (List<T>)source : source.ToList();
+        public static List<T> AsList<T>(this IEnumerable<T> source) => source == null ? null : source is List<T> result ? result : source.ToList();
+
         /// <summary>
         /// 通知序列集合
         /// </summary>
