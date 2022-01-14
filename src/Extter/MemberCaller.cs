@@ -99,86 +99,95 @@ namespace System.Data.Extter
         /// <summary>
         /// 查询模型
         /// </summary>
-        /// <param name="model"></param>
-        /// <param name="value"></param>
+        /// <param name="model">模型,为null时,false</param>
+        /// <param name="value">查询字符串,为空时,true</param>
+        /// <param name="split">分隔符</param>
         /// <returns></returns>
-        public static bool SearchModel<T>(this T model, string value)
+        public static bool SearchModel<T>(this T model, string value, char split = default)
         {
             if (model == null) { return false; }
             if (string.IsNullOrWhiteSpace(value)) { return true; }
-            return SearchContains(model, new Dictionary<string, bool> { { value.Trim(), false } }, PropertyAccess.Get(model).FuncGetDic.Values);
-        }
-        /// <summary>
-        /// 查询模型
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="value"></param>
-        /// <param name="split"></param>
-        /// <returns></returns>
-        public static bool SearchModel<T>(this T model, string value, char split)
-        {
-            if (model == null || value == null) { return false; }
-            if (string.IsNullOrWhiteSpace(value)) { return true; }
+            if (split == default)
+            {
+                return SearchContains(model, new string[] { value.Trim() }, PropertyAccess.GetAccess(model).FuncGetDic.Values);
+            }
             return SearchModel(model, value.Split(split));
         }
         /// <summary>
         /// 查询模型
         /// </summary>
-        /// <param name="model"></param>
-        /// <param name="values"></param>
+        /// <param name="model">模型,为null时,false</param>
+        /// <param name="values">查询值,为空时,true</param>
         /// <returns></returns>
         public static bool SearchModel<T>(this T model, params string[] values)
         {
-            if (model == null || values == null) { return false; }
-            var valItems = values.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()).Distinct().ToList();
-            if (valItems.Count == 0) { return true; }
-            return SearchContains(model, valItems.ToDictionary(s => s, s => false), PropertyAccess.Get(model).FuncGetDic.Values);
+            if (model == null) { return false; }
+            if (values.IsEmpty()) { return true; }
+            var valItems = values.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()).Distinct().ToArray();
+            if (valItems.Length == 0) { return true; }
+            return SearchContains(model, valItems, PropertyAccess.GetAccess(model).FuncGetDic.Values);
         }
+
         /// <summary>
         /// 查询模型
         /// </summary>
-        /// <param name="models"></param>
-        /// <param name="values"></param>
+        /// <param name="model">模型,为null时,false</param>
+        /// <param name="properties">查询属性,为空时,false</param>
+        /// <param name="values">查询值,为空时,true</param>
+        /// <returns></returns>
+        public static bool SearchModel<T>(this T model, string[] properties, string[] values)
+        {
+            if (model == null || properties.IsEmpty()) { return false; }
+            if (values.IsEmpty()) { return true; }
+            var valItems = values.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()).ToArray();
+            if (valItems.Length == 0) { return true; }
+            var funcGetList = PropertyAccess.GetAccess(model).FuncGetDic.Where(s => properties.Contains(s.Key)).Select(s => s.Value);
+            return SearchContains<T>(model, valItems, funcGetList);
+        }
+
+        /// <summary>
+        /// 查询模型
+        /// </summary>
+        /// <param name="models">模型,为空时,空列表</param>
+        /// <param name="values">查询值,为空时,源列表</param>
         /// <returns></returns>
         public static IEnumerable<T> SearchModel<T>(this IEnumerable<T> models, params string[] values)
         {
-            if (models.IsEmpty() || values == null) { return models; }
+            if (models.IsEmpty()) { return new List<T>(); }
+            if (values.IsEmpty()) { return models; }
             var valItems = values.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()).ToArray();
             if (valItems.Length == 0) { return models; }
-            var valDic = valItems.ToDictionary(s => s, s => false);
-            var first = models.First();
-            var funcGetList = PropertyAccess.Get(first).FuncGetDic.Values;
-            return models.Where(m => SearchContains<T>(m, valDic, funcGetList));
+            var funcGetList = PropertyAccess.GetAccess(models.First()).FuncGetDic.Values;
+            return models.Where(m => SearchContains<T>(m, valItems, funcGetList));
         }
 
         /// <summary>
-        /// 查询模型
+        /// 查询模型(指定字段,指定查找值)
         /// </summary>
-        /// <param name="models"></param>
-        /// <param name="properties"></param>
-        /// <param name="values"></param>
+        /// <param name="models">模型,为空时,空列表</param>
+        /// <param name="properties">查找属性,为空时,空列表</param>
+        /// <param name="values">查找值,为空时,源列表</param>
         /// <returns></returns>
         public static IEnumerable<T> SearchModel<T>(this IEnumerable<T> models, string[] properties, string[] values)
         {
-            if (models.IsEmpty() || values == null || properties.IsEmpty()) { return models; }
+            if (models.IsEmpty() || properties.IsEmpty()) { return new List<T>(); }
+            if (values.IsEmpty()) { return models; }
             var valItems = values.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()).ToArray();
             if (valItems.Length == 0) { return models; }
-            var valDic = valItems.ToDictionary(s => s, s => false);
-            var first = models.First();
-            var funcGetList = PropertyAccess.Get(first).FuncGetDic.Where(s => properties.Contains(s.Key)).Select(s => s.Value);
-            return models.Where(m => SearchContains<T>(m, valDic, funcGetList));
+            var funcGetList = PropertyAccess.GetAccess(models.First()).FuncGetDic.Where(s => properties.Contains(s.Key)).Select(s => s.Value);
+            return models.Where(m => SearchContains<T>(m, valItems, funcGetList));
         }
 
-        private static bool SearchContains<T>(T model, Dictionary<string, bool> valItems, IEnumerable<Func<object, object>> getFuncList)
+        private static bool SearchContains<T>(T model, string[] valItems, IEnumerable<Func<object, object>> getFuncList)
         {
-            var dic = valItems.ToDictionary(s => s.Key, s => false);
+            var dic = valItems.ToDictionary(s => s, s => false);
             foreach (var item in getFuncList)
             {
                 var val = item.Invoke(model);
                 if (val == null) { continue; }
                 var valString = val.ToString();
                 if (string.IsNullOrWhiteSpace(valString)) { continue; }
-                foreach (var vi in valItems.Keys)
+                foreach (var vi in valItems)
                 {
                     if (valString.Contains(vi))
                     {
@@ -191,14 +200,18 @@ namespace System.Data.Extter
         /// <summary>
         /// 查询模型
         /// </summary>
-        /// <param name="model"></param>
-        /// <param name="value"></param>
-        /// <param name="split"></param>
+        /// <param name="model">模型,为null时,0</param>
+        /// <param name="value">查找字符串,为空时,1</param>
+        /// <param name="split">查找分隔符</param>
         /// <returns></returns>
-        public static int SearchOrModel<T>(this T model, string value, char split)
+        public static int SearchOrModel<T>(this T model, string value, char split = default)
         {
-            if (model == null || value == null) { return 0; }
+            if (model == null) { return 0; }
             if (string.IsNullOrEmpty(value)) { return 1; }
+            if (split == default)
+            {
+                return SearchContainsCount<T>(model, new string[] { value.Trim() }, PropertyAccess.GetAccess(model).FuncGetDic.Values);
+            }
             return SearchOrModel<T>(model, value.Split(split));
         }
         /// <summary>
@@ -212,7 +225,22 @@ namespace System.Data.Extter
             if (model == null || values == null) { return 0; }
             var valItems = values.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()).ToArray();
             if (valItems.Length == 0) { return 1; }
-            return SearchContainsCount(model, valItems);
+            return SearchContainsCount(model, valItems, PropertyAccess.GetAccess(model).FuncGetDic.Values);
+        }
+        /// <summary>
+        /// 查询模型
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="properties"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static int SearchOrModel<T>(this T model, string[] properties, params string[] values)
+        {
+            if (model == null || values == null) { return 0; }
+            var valItems = values.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()).ToArray();
+            if (valItems.Length == 0) { return 1; }
+            var funcGetList = PropertyAccess.GetAccess(model).FuncGetDic.Where(s => properties.Contains(s.Key)).Select(s => s.Value);
+            return SearchContainsCount(model, valItems, funcGetList);
         }
         /// <summary>
         /// 查询模型
@@ -230,9 +258,10 @@ namespace System.Data.Extter
             {
                 dic.Add(i + 1, new List<T>());
             }
+            var getFuncList = PropertyAccess.GetAccess(models.First()).FuncGetDic.Values;
             foreach (var model in models)
             {
-                var count = SearchContainsCount<T>(model, valItems);
+                var count = SearchContainsCount<T>(model, valItems, getFuncList);
                 if (count > 0)
                 {
                     dic[count].Add(model);
@@ -246,12 +275,46 @@ namespace System.Data.Extter
             return result;
         }
 
-        private static int SearchContainsCount<T>(T model, string[] valItems)
+        /// <summary>
+        /// 查询模型
+        /// </summary>
+        /// <param name="models"></param>
+        /// <param name="properties"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> SearchOrModel<T>(this IEnumerable<T> models, string[] properties, params string[] values)
+        {
+            if (models.IsEmpty() || values == null) { return models; }
+            var valItems = values.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()).ToArray();
+            if (valItems.Length == 0) { return models; }
+            var dic = new Dictionary<int, List<T>>();
+            for (int i = 0; i < valItems.Length; i++)
+            {
+                dic.Add(i + 1, new List<T>());
+            }
+            var getFuncList = PropertyAccess.GetAccess(models.First()).FuncGetDic.Where(s => properties.Contains(s.Key)).Select(s => s.Value);
+            foreach (var model in models)
+            {
+                var count = SearchContainsCount<T>(model, valItems, getFuncList);
+                if (count > 0)
+                {
+                    dic[count].Add(model);
+                }
+            }
+            var result = new List<T>();
+            foreach (var item in dic.OrderByDescending(s => s.Key))
+            {
+                result.AddRange(item.Value);
+            }
+            return result;
+        }
+
+        private static int SearchContainsCount<T>(T model, string[] valItems, IEnumerable<Func<object, object>> getFuncList)
         {
             var count = 0;
-            foreach (var item in PropertyAccess.Get(model).FuncGetDic)
+            foreach (var item in getFuncList)
             {
-                var val = item.Value.Invoke(model);
+                var val = item.Invoke(model);
                 if (val == null) { continue; }
                 var valString = val.ToString();
                 if (string.IsNullOrWhiteSpace(valString)) { continue; }
