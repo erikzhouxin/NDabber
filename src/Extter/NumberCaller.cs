@@ -794,5 +794,15 @@ namespace System.Data.Extter
             return val.ToString("X16");
         }
         #endregion // 16进制
+        /// <summary>
+        /// 半进位1.2=>1.5或1.8=>2.0
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="digit"></param>
+        /// <returns></returns>
+        public static double GetHalfBitDouble(this double value, int digit)
+        {
+            return Cobber.CobberCaller.GetDouble((Math.Ceiling(value * Math.Pow(10, digit - 1) * 2) / 2.0 * Math.Pow(10, -digit + 1)), digit);
+        }
     }
 }
