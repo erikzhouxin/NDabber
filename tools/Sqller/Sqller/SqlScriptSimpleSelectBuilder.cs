@@ -42,12 +42,6 @@ namespace System.Data.Sqller
     public interface ISqlScriptSelectBuilder
     {
         /// <summary>
-        /// 添加查询分句
-        /// </summary>
-        /// <param name="clause"></param>
-        /// <returns></returns>
-        ISqlScriptSelectBuilder AddSelectClause(string clause);
-        /// <summary>
         /// 添加名
         /// </summary>
         /// <param name="name"></param>
@@ -145,41 +139,37 @@ namespace System.Data.Sqller
     public interface ISqlScriptWhereBuilder : ISqlScriptParameters
     {
         /// <summary>
-        /// 添加Where分句
-        /// </summary>
-        /// <param name="clause"></param>
-        /// <returns></returns>
-        ISqlScriptWhereBuilder AndWhereClause(string clause);
-        /// <summary>
-        /// 添加Where参数
-        /// </summary>
-        /// <param name="pName"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        ISqlScriptWhereBuilder AndWhereParameter(string pName, object value);
-        /// <summary>
         /// 添加where条件
         /// </summary>
         /// <param name="cName"></param>
         /// <param name="pName"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        ISqlScriptWhereBuilder AndEqual(string cName, string pName, object value = null);
+        ISqlScriptWhereBuilder AndEqualBParam(string cName, string pName, object value = null);
         /// <summary>
         /// 添加where条件
         /// </summary>
         /// <param name="cName"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        ISqlScriptWhereBuilder AndEqual(string cName, object value);
+        ISqlScriptWhereBuilder AndEqualAParam(string cName, object value = null);
         /// <summary>
-        /// 添加内置式
+        /// 添加where常量条件
         /// </summary>
-        /// <param name="clause"></param>
-        /// <param name="pName"></param>
+        /// <param name="cName"></param>
         /// <param name="value"></param>
+        /// <param name="isQuot"></param>
         /// <returns></returns>
-        ISqlScriptWhereBuilder AndEqualClause(string clause, string pName, object value);
+        ISqlScriptWhereBuilder AndEqualConstant(string cName, object value, bool isQuot = false);
+        /// <summary>
+        /// 添加where常量条件
+        /// </summary>
+        /// <param name="cName"></param>
+        /// <param name="val1"></param>
+        /// <param name="val2"></param>
+        /// <param name="isQuot"></param>
+        /// <returns></returns>
+        ISqlScriptWhereBuilder AndBetweenEqualConstant(string cName, object val1, object val2, bool isQuot = false);
         /// <summary>
         /// From创建者
         /// </summary>
@@ -328,7 +318,8 @@ namespace System.Data.Sqller
         /// <returns></returns>
         ISqlScriptSelectBuilder ISqlScriptSelectBuilder.Add(string name)
         {
-            return AddSelectClause($"{CurrentTag.GetTableTag()}.{GetQuot(name)}");
+            AddSelectClause($"{CurrentTag.GetTableTag()}.{GetQuot(name)}");
+            return this;
         }
         /// <summary>
         /// 添加字段及属性名
@@ -345,32 +336,17 @@ namespace System.Data.Sqller
             }
             return this;
         }
-        /// <summary>
-        /// 添加查询列
-        /// </summary>
-        /// <param name="clause"></param>
-        /// <returns></returns>
-        public ISqlScriptSelectBuilder AddSelectClause(string clause)
-        {
-            if (_columnsClause == null)
-            {
-                _columnsClause = new StringBuilder().Append(clause);
-            }
-            else
-            {
-                _columnsClause.Append($", {clause}");
-            }
-            return this;
-        }
 
         ISqlScriptSelectBuilder ISqlScriptSelectBuilder.Add(string cName, string pName)
         {
-            return AddSelectClause($"{CurrentTag.GetTableTag()}.{GetQuot(cName)} AS {GetQuot(pName)}");
+            AddSelectClause($"{CurrentTag.GetTableTag()}.{GetQuot(cName)} AS {GetQuot(pName)}");
+            return this;
         }
 
         ISqlScriptSelectBuilder ISqlScriptSelectBuilder.Add(string tag, string cName, string pName)
         {
-            return AddSelectClause($"{tag ?? CurrentTag.GetTableTag()}.{GetQuot(cName)} AS {GetQuot(pName)}");
+            AddSelectClause($"{tag ?? CurrentTag.GetTableTag()}.{GetQuot(cName)} AS {GetQuot(pName)}");
+            return this;
         }
         /// <summary>
         /// 列名
@@ -383,7 +359,7 @@ namespace System.Data.Sqller
         {
             if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
             {
-                return AddSelectClause($"{CurrentTag.GetTableTag()}.{GetQuot(keyName.Key)} AS {pName ?? GetQuot(keyName.Name)}");
+                AddSelectClause($"{CurrentTag.GetTableTag()}.{GetQuot(keyName.Key)} AS {pName ?? GetQuot(keyName.Name)}");
             }
             return this;
         }
@@ -397,7 +373,7 @@ namespace System.Data.Sqller
         {
             if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
             {
-                return AddSelectClause($"{CurrentTag.GetTableTag()}.{GetQuot(keyName.Key)} AS {pName ?? GetQuot(keyName.Name)}");
+                AddSelectClause($"{CurrentTag.GetTableTag()}.{GetQuot(keyName.Key)} AS {pName ?? GetQuot(keyName.Name)}");
             }
             return this;
         }
@@ -411,62 +387,32 @@ namespace System.Data.Sqller
         {
             if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
             {
-                return AddSelectClause($"{CurrentTag.GetTableTag()}.{GetQuot(keyName.Key)} AS {pName ?? GetQuot(keyName.Name)}");
+                AddSelectClause($"{CurrentTag.GetTableTag()}.{GetQuot(keyName.Key)} AS {pName ?? GetQuot(keyName.Name)}");
             }
             return this;
         }
         #endregion // SELECT
         #region // WHERE
-        ISqlScriptWhereBuilder ISqlScriptWhereBuilder.AndEqual(string cName, string pName, object value)
+        ISqlScriptWhereBuilder ISqlScriptWhereBuilder.AndEqualBParam(string cName, string pName, object value)
         {
-            return AndEqualClause($"{CurrentTag.GetTableTag()}.{GetQuot(cName)}=@{pName}", pName, value);
-        }
-        ISqlScriptWhereBuilder ISqlScriptWhereBuilder.AndEqual(string cName, object value)
-        {
-            return AndEqualClause($"{CurrentTag.GetTableTag()}.{GetQuot(cName)}=@{cName}", cName, value);
-        }
-        /// <summary>
-        /// 添加Where列及值
-        /// </summary>
-        /// <param name="clause"></param>
-        /// <param name="pName"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public ISqlScriptWhereBuilder AndEqualClause(string clause, string pName, object value)
-        {
-            AndWhereClause(clause);
-            if (value != null)
-            {
-                AndWhereParameter(pName, value);
-            }
-            return this;
-        }
-        /// <summary>
-        /// 添加Where参数
-        /// </summary>
-        /// <param name="pName"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public ISqlScriptWhereBuilder AndWhereParameter(string pName, object value)
-        {
+            AddWhereClause($"{CurrentTag.GetTableTag()}.{GetQuot(cName)}=@{pName}");
             Parameters[pName] = value;
             return this;
         }
-        /// <summary>
-        /// 添加Where子句
-        /// </summary>
-        /// <param name="clause"></param>
-        /// <returns></returns>
-        public ISqlScriptWhereBuilder AndWhereClause(string clause)
+        ISqlScriptWhereBuilder ISqlScriptWhereBuilder.AndEqualAParam(string cName, object value)
         {
-            if (_whereClause == null)
-            {
-                _whereClause = new StringBuilder(clause);
-            }
-            else
-            {
-                _whereClause.Append($" AND {clause}");
-            }
+            AddWhereClause($"{CurrentTag.GetTableTag()}.{GetQuot(cName)}=@{cName}");
+            Parameters[cName] = value;
+            return this;
+        }
+        ISqlScriptWhereBuilder ISqlScriptWhereBuilder.AndEqualConstant(string cName, object value, bool isQuot)
+        {
+            AddWhereClause($"{CurrentTag.GetTableTag()}.{GetQuot(cName)}={(isQuot ? $"'{value}'" : value)}");
+            return this;
+        }
+        ISqlScriptWhereBuilder ISqlScriptWhereBuilder.AndBetweenEqualConstant(string cName, object val1, object val2, bool isQuot)
+        {
+            AddWhereClause($"({CurrentTag.GetTableTag()}.{GetQuot(cName)} BETWEEN {(isQuot ? $"'{val1}'" : val1)} AND {(isQuot ? $"'{val2}'" : val2)})");
             return this;
         }
         #endregion // WHERE
