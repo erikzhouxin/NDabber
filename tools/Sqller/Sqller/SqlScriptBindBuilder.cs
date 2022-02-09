@@ -182,7 +182,6 @@ namespace System.Data.Sqller
         /// </summary>
         /// <param name="type"></param>
         /// <param name="tag"></param>
-        /// <exception cref="NotSupportedException" />
         /// <returns></returns>
         protected virtual SqlScriptTagModel AddTable(Type type, string tag = null)
         {

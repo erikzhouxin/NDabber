@@ -33,7 +33,7 @@ namespace System.Data.DabberUT
                     .Select.Add(nameof(TSysParams.Key), nameof(TSysParams.Key))
                     .Column(ExpressionTSysParams.ID)
                     .Column<TSysParams>(m => m.ID)
-                    .Where.AndEqual(nameof(TSysParams.ID), 123).SqlScript;
+                    .Where.AndEqualAParam(nameof(TSysParams.ID), 123).SqlScript;
                 typeSql = SqlScriptBuilder.CreateSimpleSelect(StoreType.SQLite).FromWhere<TSysParams>().SqlScript;
                 updateSql = SqlScriptBuilder.CreateUpdate(StoreType.SQLite)
                     .From<TSysParams>()

@@ -47,10 +47,49 @@ namespace System.Data.Extter
         /// <param name="loader"></param>
         public static void SetService(TypeLoader loader) => Set(loader);
         /// <summary>
+        /// 设置服务
+        /// </summary>
+        /// <param name="domain"></param>
+        /// <param name="assembly"></param>
+        public static void SetService(string domain, Assembly assembly)
+        {
+            Set(new TypeLoader(domain) { Assembly = assembly });
+        }
+        /// <summary>
+        /// 设置服务
+        /// </summary>
+        /// <param name="domain"></param>
+        /// <param name="assemblies"></param>
+        public static void SetService(string domain, params Assembly[] assemblies)
+        {
+            foreach (var assembly in assemblies)
+            {
+                Set(new TypeLoader(domain) { Assembly = assembly });
+            }
+        }
+        /// <summary>
         /// 设置数据访问
         /// </summary>
         /// <param name="loader"></param>
         public static void SetDataAccess(TypeLoader loader) => Set(loader);
+        /// <summary>
+        /// 设置数据访问
+        /// </summary>
+        /// <param name="storeType"></param>
+        /// <param name="assembly"></param>
+        public static void SetDataAccess(StoreType storeType, Assembly assembly) => Set(new TypeLoader(storeType) { Assembly = assembly });
+        /// <summary>
+        /// 设置数据访问
+        /// </summary>
+        /// <param name="storeType"></param>
+        /// <param name="assemblies"></param>
+        public static void SetDataAccess(StoreType storeType, params Assembly[] assemblies)
+        {
+            foreach (var assembly in assemblies)
+            {
+                Set(new TypeLoader(storeType) { Assembly = assembly });
+            }
+        }
         /// <summary>
         /// 存储标记
         /// </summary>
@@ -344,7 +383,7 @@ namespace System.Data.Extter
         /// <summary>
         /// 获取接口实例
         /// </summary>
-        public T GetDataAccess<T>(StoreModel store, bool isNew = false) => GetDataAccess<T>(store.DbType, store.ConnString, isNew);
+        public T GetDataAccess<T>(StoreModel store, bool isNew = false) => GetDataAccess<T>(store.DbType, isNew, store.ConnString);
         /// <summary>
         /// 获取接口实例
         /// </summary>
