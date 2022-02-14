@@ -57,6 +57,13 @@ namespace System.Data.Sqller
         /// <returns></returns>
         ISqlScriptUpdateSetBuilder SetAParam(string name, object value = null);
         /// <summary>
+        /// 添加字段名等于属性名
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        ISqlScriptUpdateSetBuilder SetAParam<TM>(Expression<Func<TM, object>> prop, object value = null);
+        /// <summary>
         /// 添加字段名及属性名分开
         /// </summary>
         /// <param name="cName"></param>
@@ -72,6 +79,14 @@ namespace System.Data.Sqller
         /// <param name="isQuot"></param>
         /// <returns></returns>
         ISqlScriptUpdateSetBuilder SetConstantParam(string cName, object value, bool isQuot = false);
+        /// <summary>
+        /// 添加字段常量赋值
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="value"></param>
+        /// <param name="isQuot"></param>
+        /// <returns></returns>
+        ISqlScriptUpdateSetBuilder SetConstantParam<TM>(Expression<Func<TM, object>> prop, object value, bool isQuot = false);
         /// <summary>
         /// 列名
         /// </summary>
@@ -114,6 +129,13 @@ namespace System.Data.Sqller
         /// <summary>
         /// AND相等参数
         /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        ISqlScriptUpdateWhereBuilder AndEqualAParam<TM>(Expression<Func<TM, object>> prop, object value = null);
+        /// <summary>
+        /// AND相等参数
+        /// </summary>
         /// <param name="cName"></param>
         /// <param name="pName"></param>
         /// <param name="value"></param>
@@ -128,12 +150,27 @@ namespace System.Data.Sqller
         /// <returns></returns>
         ISqlScriptUpdateWhereBuilder AndEqualConstantParam(string name, object value, bool hasQuot = false);
         /// <summary>
+        /// AND相等常量参数
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="value"></param>
+        /// <param name="hasQuot"></param>
+        /// <returns></returns>
+        ISqlScriptUpdateWhereBuilder AndEqualConstantParam<TM>(Expression<Func<TM, object>> prop, object value, bool hasQuot = false);
+        /// <summary>
         /// AND在列表参数
         /// </summary>
         /// <param name="name"></param>
         /// <param name="value"></param>
         /// <returns></returns>
         ISqlScriptUpdateWhereBuilder AndInAParam(string name, IEnumerable value = null);
+        /// <summary>
+        /// AND在列表参数
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        ISqlScriptUpdateWhereBuilder AndInAParam<TM>(Expression<Func<TM, object>> prop, IEnumerable value = null);
         /// <summary>
         /// AND在列表参数
         /// </summary>
@@ -168,6 +205,28 @@ namespace System.Data.Sqller
         /// <param name="prop"></param>
         /// <returns></returns>
         ISqlScriptUpdateWhereBuilder AndIsNotNull<TM>(Expression<Func<TM, object>> prop);
+        /// <summary>
+        /// 列名
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="prop"></param>
+        /// <param name="pName"></param>
+        /// <returns></returns>
+        ISqlScriptUpdateWhereBuilder AndColumn<T>(Expression<Func<T>> prop, string pName = null);
+        /// <summary>
+        /// 类及列名
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="pName"></param>
+        /// <returns></returns>
+        ISqlScriptUpdateWhereBuilder AndColumn<TM, TP>(Expression<Func<TM, TP>> prop, string pName = null);
+        /// <summary>
+        /// 类及列名
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="pName"></param>
+        /// <returns></returns>
+        ISqlScriptUpdateWhereBuilder AndColumn<TM>(Expression<Func<TM, object>> prop, string pName = null);
     }
     /// <summary>
     /// SQL脚本更新创建者
@@ -255,6 +314,16 @@ namespace System.Data.Sqller
             return this;
         }
 
+        ISqlScriptUpdateSetBuilder ISqlScriptUpdateSetBuilder.SetAParam<TM>(Expression<Func<TM, object>> prop, object value)
+        {
+            if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
+            {
+                AddSetClause($"{GetQuot(keyName.Key)}=@{keyName.Name}");
+                Parameters[keyName.Name] = value;
+            }
+            return this;
+        }
+
         ISqlScriptUpdateSetBuilder ISqlScriptUpdateSetBuilder.SetBParam(string cName, string pName, object value)
         {
             AddSetClause($"{GetQuot(cName)}=@{pName}");
@@ -266,7 +335,7 @@ namespace System.Data.Sqller
         {
             if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
             {
-                AddSetClause($"{GetQuot(keyName.Key)}=@{pName ?? GetQuot(keyName.Name)}");
+                AddSetClause($"{GetQuot(keyName.Key)}=@{pName ?? keyName.Name}");
             }
             return this;
         }
@@ -275,7 +344,7 @@ namespace System.Data.Sqller
         {
             if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
             {
-                AddSetClause($"{GetQuot(keyName.Key)}=@{pName ?? GetQuot(keyName.Name)}");
+                AddSetClause($"{GetQuot(keyName.Key)}=@{pName ?? keyName.Name}");
             }
             return this;
         }
@@ -284,20 +353,21 @@ namespace System.Data.Sqller
         {
             if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
             {
-                AddSetClause($"{GetQuot(keyName.Key)}=@{pName ?? GetQuot(keyName.Name)}");
+                AddSetClause($"{GetQuot(keyName.Key)}=@{pName ?? keyName.Name}");
             }
             return this;
         }
-        /// <summary>
-        /// 添加字段常量赋值
-        /// </summary>
-        /// <param name="cName"></param>
-        /// <param name="value"></param>
-        /// <param name="isQuot"></param>
-        /// <returns></returns>
         ISqlScriptUpdateSetBuilder ISqlScriptUpdateSetBuilder.SetConstantParam(string cName, object value, bool isQuot)
         {
             AddSetClause($"{GetQuot(cName)}={(isQuot ? $"'{value}'" : value)}");
+            return this;
+        }
+        ISqlScriptUpdateSetBuilder ISqlScriptUpdateSetBuilder.SetConstantParam<TM>(Expression<Func<TM, object>> prop, object value, bool isQuot)
+        {
+            if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
+            {
+                AddSetClause($"{GetQuot(keyName.Key)}={(isQuot ? $"'{value}'" : value)}");
+            }
             return this;
         }
         #endregion // 设置部分
@@ -306,6 +376,16 @@ namespace System.Data.Sqller
         {
             AddWhereClause($"{GetQuot(name)}=@{name}");
             Parameters[name] = value;
+            return this;
+        }
+
+        ISqlScriptUpdateWhereBuilder ISqlScriptUpdateWhereBuilder.AndEqualAParam<TM>(Expression<Func<TM, object>> prop, object value)
+        {
+            if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
+            {
+                AddWhereClause($"{GetQuot(keyName.Key)}=@{keyName.Name}");
+                Parameters[keyName.Name] = value;
+            }
             return this;
         }
 
@@ -319,6 +399,15 @@ namespace System.Data.Sqller
         ISqlScriptUpdateWhereBuilder ISqlScriptUpdateWhereBuilder.AndEqualConstantParam(string name, object value, bool isQuot)
         {
             AddWhereClause($"{GetQuot(name)}={(isQuot ? $"'{value}'" : value)}");
+            return this;
+        }
+
+        ISqlScriptUpdateWhereBuilder ISqlScriptUpdateWhereBuilder.AndEqualConstantParam<TM>(Expression<Func<TM, object>> prop, object value, bool isQuot)
+        {
+            if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
+            {
+                AddWhereClause($"{GetQuot(keyName.Key)}={(isQuot ? $"'{value}'" : value)}");
+            }
             return this;
         }
 
@@ -351,29 +440,68 @@ namespace System.Data.Sqller
             }
             return this;
         }
-        /// <summary>
-        /// AND在列表参数
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
         ISqlScriptUpdateWhereBuilder ISqlScriptUpdateWhereBuilder.AndInAParam(string name, IEnumerable value)
         {
             AddWhereClause($"{GetQuot(name)} IN @{name}");
             Parameters[name] = value;
             return this;
         }
-        /// <summary>
-        /// AND在列表参数
-        /// </summary>
-        /// <param name="cName"></param>
-        /// <param name="pName"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        ISqlScriptUpdateWhereBuilder ISqlScriptUpdateWhereBuilder.AndInAParam<TM>(Expression<Func<TM, object>> prop, IEnumerable value)
+        {
+            if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
+            {
+                AddWhereClause($"{GetQuot(keyName.Key)} IN @{keyName.Name}");
+                Parameters[keyName.Name] = value;
+            }
+            return this;
+        }
         ISqlScriptUpdateWhereBuilder ISqlScriptUpdateWhereBuilder.AndInBParam(string cName, string pName, IEnumerable value)
         {
             AddWhereClause($"{GetQuot(cName)} IN @{pName}");
             Parameters[pName] = value;
+            return this;
+        }
+        /// <summary>
+        /// 列名
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="prop"></param>
+        /// <param name="pName"></param>
+        /// <returns></returns>
+        ISqlScriptUpdateWhereBuilder ISqlScriptUpdateWhereBuilder.AndColumn<T>(Expression<Func<T>> prop, string pName)
+        {
+            if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
+            {
+                AddWhereClause($"{GetQuot(keyName.Key)}=@{pName ?? keyName.Name}");
+            }
+            return this;
+        }
+        /// <summary>
+        /// 类及列名
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="pName"></param>
+        /// <returns></returns>
+        ISqlScriptUpdateWhereBuilder ISqlScriptUpdateWhereBuilder.AndColumn<TM, TP>(Expression<Func<TM, TP>> prop, string pName)
+        {
+            if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
+            {
+                AddWhereClause($"{GetQuot(keyName.Key)}=@{pName ?? keyName.Name}");
+            }
+            return this;
+        }
+        /// <summary>
+        /// 类及列名
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="pName"></param>
+        /// <returns></returns>
+        ISqlScriptUpdateWhereBuilder ISqlScriptUpdateWhereBuilder.AndColumn<TM>(Expression<Func<TM, object>> prop, string pName)
+        {
+            if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
+            {
+                AddWhereClause($"{GetQuot(keyName.Key)}=@{pName ?? keyName.Name}");
+            }
             return this;
         }
         #endregion Where部分

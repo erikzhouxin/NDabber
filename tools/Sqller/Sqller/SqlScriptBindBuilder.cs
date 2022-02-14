@@ -35,21 +35,9 @@ namespace System.Data.Sqller
         /// </summary>
         public String TAlias { get; set; }
         /// <summary>
-        /// 自定义表别名
-        /// </summary>
-        public string TNamed { get; set; }
-        /// <summary>
         /// 计数
         /// </summary>
         public int TCount { get; set; }
-        /// <summary>
-        /// 获取命名的标记
-        /// </summary>
-        /// <returns></returns>
-        public string GetTableTag()
-        {
-            return TNamed ?? TAlias;
-        }
     }
     /// <summary>
     /// SQL脚本绑定创建者
@@ -60,6 +48,9 @@ namespace System.Data.Sqller
         protected StringBuilder _fromClause;
         protected StringBuilder _whereClause;
         protected StringBuilder _setClause;
+        protected StringBuilder _groupClause;
+        protected StringBuilder _havingClause;
+        protected StringBuilder _orderClause;
         /// <summary>
         /// 获取SQL模型
         /// </summary>
@@ -138,6 +129,16 @@ namespace System.Data.Sqller
             else { _fromClause.Append($", { clause}"); }
         }
         /// <summary>
+        /// 添加From子句
+        /// </summary>
+        /// <param name="joinType"></param>
+        /// <param name="clause"></param>
+        /// <returns></returns>
+        protected virtual void AddFromJoinOnClause(string joinType, string clause)
+        {
+            _fromClause.Append($" {joinType} {clause}");
+        }
+        /// <summary>
         /// 添加Select子句
         /// </summary>
         /// <param name="clause"></param>
@@ -168,6 +169,33 @@ namespace System.Data.Sqller
             else { _setClause.Append($", {clause}"); }
         }
         /// <summary>
+        /// 添加Group子句
+        /// </summary>
+        /// <param name="clause"></param>
+        protected virtual void AddGroupClause(string clause)
+        {
+            if (_groupClause == null) { _groupClause = new StringBuilder(clause); }
+            else { _groupClause.Append($", {clause}"); }
+        }
+        /// <summary>
+        /// 添加having子句
+        /// </summary>
+        /// <param name="clause"></param>
+        protected virtual void AddHavingClause(string clause)
+        {
+            if (_havingClause == null) { _havingClause = new StringBuilder(clause); }
+            else { _havingClause.Append($", {clause}"); }
+        }
+        /// <summary>
+        /// 添加order子句
+        /// </summary>
+        /// <param name="clause"></param>
+        protected virtual void AddOrderClause(string clause)
+        {
+            if (_orderClause == null) { _orderClause = new StringBuilder(clause); }
+            else { _orderClause.Append($", {clause}"); }
+        }
+        /// <summary>
         /// 添加Where参数
         /// </summary>
         /// <param name="pName"></param>
@@ -181,24 +209,23 @@ namespace System.Data.Sqller
         /// 添加表
         /// </summary>
         /// <param name="type"></param>
-        /// <param name="tag"></param>
         /// <returns></returns>
-        protected virtual SqlScriptTagModel AddTable(Type type, string tag = null)
+        protected virtual SqlScriptTagModel AddTable(Type type)
         {
             if (type == null)
             {
                 throw new NotSupportedException("添加表类型不能为空");
             }
+            var sqlModel = GetSqlModel(type);
             Tags.Add(CurrentTag = new SqlScriptTagModel
             {
                 Type = type,
                 IsType = type != null,
-                SqlModel = GetSqlModel(type),
+                SqlModel = sqlModel,
                 TCount = Tags.Count,
+                TAlias = GetQuot($"t{Tags.Count}"),
+                Table = GetQuot(sqlModel.TagName),
             });
-            CurrentTag.Table = GetQuot(CurrentTag.SqlModel.TagName);
-            CurrentTag.TAlias = GetQuot($"t{CurrentTag.TCount}");
-            CurrentTag.TNamed = tag;
             return CurrentTag;
         }
         /// <summary>
