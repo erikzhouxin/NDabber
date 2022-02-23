@@ -64,6 +64,14 @@ namespace System.Data.Sqller
         /// <returns></returns>
         ISqlScriptUpdateSetBuilder SetAParam<TM>(Expression<Func<TM, object>> prop, object value = null);
         /// <summary>
+        /// 添加字段名等于属性名
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="pName"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        ISqlScriptUpdateSetBuilder SetBParam<TM>(Expression<Func<TM, object>> prop, string pName, object value = null);
+        /// <summary>
         /// 添加字段名及属性名分开
         /// </summary>
         /// <param name="cName"></param>
@@ -133,6 +141,14 @@ namespace System.Data.Sqller
         /// <param name="value"></param>
         /// <returns></returns>
         ISqlScriptUpdateWhereBuilder AndEqualAParam<TM>(Expression<Func<TM, object>> prop, object value = null);
+        /// <summary>
+        /// AND相等参数
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="pName"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        ISqlScriptUpdateWhereBuilder AndEqualBParam<TM>(Expression<Func<TM, object>> prop, string pName, object value = null);
         /// <summary>
         /// AND相等参数
         /// </summary>
@@ -327,7 +343,17 @@ namespace System.Data.Sqller
         ISqlScriptUpdateSetBuilder ISqlScriptUpdateSetBuilder.SetBParam(string cName, string pName, object value)
         {
             AddSetClause($"{GetQuot(cName)}=@{pName}");
-            Parameters[cName] = value;
+            Parameters[pName] = value;
+            return this;
+        }
+
+        ISqlScriptUpdateSetBuilder ISqlScriptUpdateSetBuilder.SetBParam<TM>(Expression<Func<TM, object>> prop, string pName, object value)
+        {
+            if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
+            {
+                AddSetClause($"{GetQuot(keyName.Key)}=@{pName ?? keyName.Name}");
+                Parameters[pName ?? keyName.Name] = value;
+            }
             return this;
         }
 
@@ -393,6 +419,16 @@ namespace System.Data.Sqller
         {
             AddWhereClause($"{GetQuot(cName)}=@{pName}");
             Parameters[pName] = value;
+            return this;
+        }
+
+        ISqlScriptUpdateWhereBuilder ISqlScriptUpdateWhereBuilder.AndEqualBParam<TM>(Expression<Func<TM, object>> prop, string pName, object value)
+        {
+            if (DbColAttribute.TryGetColName(prop.GetPropertyInfo(), out Tuble2KeyName keyName))
+            {
+                AddWhereClause($"{GetQuot(keyName.Key)}=@{pName}");
+                Parameters[pName] = value;
+            }
             return this;
         }
 

@@ -172,6 +172,19 @@ namespace System.Data.Cobber
         /// <summary>
         /// 创建内容
         /// </summary>
+        /// <returns></returns>
+        public static StringBuilder BuildSelfContent(Type type)
+        {
+            var sb = GetUsingContent();
+            sb.AppendLine($"namespace {type.Namespace}").AppendLine("{");
+            sb.Append(GetEnumContent(type));
+            sb.Append(GetClassContent(type));
+            sb.AppendLine("}");
+            return sb;
+        }
+        /// <summary>
+        /// 创建内容
+        /// </summary>
         /// <param name="types"></param>
         /// <returns></returns>
         public static StringBuilder BuilderContent(params Type[] types)
@@ -312,6 +325,21 @@ namespace System.Data.Cobber
               .AppendLine($"{preblock}    }}")
               .AppendLine($"{preblock}}}")
               .AppendLine($"{preblock}/// <summary>")
+              .AppendLine($"{preblock}/// 转换成类型")
+              .AppendLine($"{preblock}/// </summary>")
+              .AppendLine($"{preblock}public static implicit operator {className}(int? value)")
+              .AppendLine($"{preblock}{{")
+              .AppendLine($"{preblock}    if (!value.HasValue) {{ return {first.Value.Key}; }}")
+              .AppendLine($"{preblock}    switch (value)")
+              .AppendLine($"{preblock}    {{");
+            foreach (var item in props)
+            {
+                sb.AppendLine($"{preblock}        case {item.Key}: return {item.Value.Key};");
+            }
+            sb.AppendLine($"{preblock}        default: return {first.Value.Key};")
+              .AppendLine($"{preblock}    }}")
+              .AppendLine($"{preblock}}}")
+              .AppendLine($"{preblock}/// <summary>")
               .AppendLine($"{preblock}/// 转换成整型")
               .AppendLine($"{preblock}/// </summary>")
               .AppendLine($"{preblock}public static implicit operator int({className} type) => type.Value;")
@@ -408,7 +436,7 @@ namespace System.Data.Cobber
             preblock = block4;
             sb.AppendLine($"{preblock}}}")
               .AppendLine($"{preblock}*/")
-              .AppendLine($"{preblock}public static partial class JEnumCaller")
+              .AppendLine($"{preblock}public static partial class {className}Caller")
               .AppendLine($"{preblock}{{");
             preblock += block4;
             sb.AppendLine($"{preblock}/// <summary>")
@@ -466,6 +494,32 @@ namespace System.Data.Cobber
               .AppendLine($"{preblock}    }}")
               .AppendLine($"{preblock}}}")
               .AppendLine($"{block4}}}");
+            return sb;
+        }
+        private static StringBuilder GetEnumContent(Type type)
+        {
+            var className = type.Name;
+            var typeDescr = JavaEnum.GetClassDisplay(type);
+            var block4 = "    ";
+            var preblock = block4;
+            var sb = new StringBuilder()
+              .AppendLine($"{preblock}/// <summary>")
+              .AppendLine($"{preblock}/// {typeDescr}")
+              .AppendLine($"{preblock}/// </summary>")
+              .AppendLine($"{preblock}[EDisplay(\"{typeDescr.Replace("\"","\\\"")}\")]")
+              .AppendLine($"{preblock}public enum {className}")
+              .AppendLine($"{preblock}{{");
+            var props = JavaEnum.GetEnumDictionary(type);
+            preblock += block4;
+            foreach (var item in props)
+            {
+                sb.AppendLine($"{preblock}/// <summary>")
+                    .AppendLine($"{preblock}/// {item.Value.Value}")
+                    .AppendLine($"{preblock}/// </summary>")
+                    .AppendLine($"{preblock}[EDisplay(\"{item.Value.Value.Replace("\"", "\\\"")}\")]")
+                    .AppendLine($"{preblock}{item.Value.Key} = {item.Key},");
+            }
+            sb.AppendLine($"{block4}}}");
             return sb;
         }
         private static StringBuilder GetUsingContent()

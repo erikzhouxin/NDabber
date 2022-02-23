@@ -47,6 +47,24 @@ namespace System.Data.Cobber
         /// <summary>
         /// 通知序列集合
         /// </summary>
+        /// <returns></returns>
+        public static List<T> Append<T>(this List<T> model, int index, T item)
+        {
+            model.Insert(index, item);
+            return model;
+        }
+        /// <summary>
+        /// 通知序列集合
+        /// </summary>
+        /// <returns></returns>
+        public static List<T> Input<T>(this List<T> model, int index, T item)
+        {
+            model.Insert(index, item);
+            return model;
+        }
+        /// <summary>
+        /// 通知序列集合
+        /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="list"></param>
         /// <returns></returns>
@@ -194,6 +212,24 @@ namespace System.Data.Cobber
         public static ObservableCollection<T> Append<T>(this ObservableCollection<T> model, T item)
         {
             model.Add(item);
+            return model;
+        }
+        /// <summary>
+        /// 通知序列集合
+        /// </summary>
+        /// <returns></returns>
+        public static ObservableCollection<T> Append<T>(this ObservableCollection<T> model, int index, T item)
+        {
+            model.Insert(index, item);
+            return model;
+        }
+        /// <summary>
+        /// 通知序列集合
+        /// </summary>
+        /// <returns></returns>
+        public static ObservableCollection<T> Input<T>(this ObservableCollection<T> model, int index, T item)
+        {
+            model.Insert(index, item);
             return model;
         }
         /// <summary>

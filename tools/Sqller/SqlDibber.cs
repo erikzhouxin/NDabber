@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace System.Data.Sqller
+namespace System.Data.Dibber
 {
     /// <summary>
     /// Sql挖坑器
