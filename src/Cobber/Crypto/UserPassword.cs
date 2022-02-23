@@ -131,7 +131,7 @@ namespace System.Data.Cobber
         public static string GetMd5Hash(string pass, Encoding encode)
         {
             var passSalt = encode.GetBytes(pass);
-            var md5 = new MD5CryptoServiceProvider();
+            var md5 = MD5.Create();
             var hashData = md5.ComputeHash(passSalt);
             return GetByte16String(hashData);
         }
