@@ -314,7 +314,7 @@ namespace System.Data.Extter
                         }
                     }
                     catch (Exception ex) { Console.WriteLine(ex.Message); }
-                    Monitor.Exit(_locked);
+                    finally { Monitor.Exit(_locked); }
                 }
             }
         }

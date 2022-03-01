@@ -12,6 +12,17 @@ namespace System.Data.Cobber
     /// <summary>
     /// Java枚举接口
     /// </summary>
+    public interface IJavaEnum<TEnum> : IJavaEnum
+        where TEnum : Enum
+    {
+        /// <summary>
+        /// 值
+        /// </summary>
+        TEnum Enum { get; }
+    }
+    /// <summary>
+    /// Java枚举接口
+    /// </summary>
     public interface IJavaEnum
     {
         /// <summary>
@@ -202,7 +213,6 @@ namespace System.Data.Cobber
             }
             return sb;
         }
-
         private static StringBuilder GetClassContent(Type type)
         {
             var className = $"JEnum{type.Name}";
@@ -506,7 +516,7 @@ namespace System.Data.Cobber
               .AppendLine($"{preblock}/// <summary>")
               .AppendLine($"{preblock}/// {typeDescr}")
               .AppendLine($"{preblock}/// </summary>")
-              .AppendLine($"{preblock}[EDisplay(\"{typeDescr.Replace("\"","\\\"")}\")]")
+              .AppendLine($"{preblock}[EDisplay(\"{typeDescr.Replace("\"", "\\\"")}\")]")
               .AppendLine($"{preblock}public enum {className}")
               .AppendLine($"{preblock}{{");
             var props = JavaEnum.GetEnumDictionary(type);

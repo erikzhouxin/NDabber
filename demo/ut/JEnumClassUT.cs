@@ -60,5 +60,15 @@ namespace System.Data.DabberUT
                 File.WriteAllText(Path.Combine(saveFolder, $"JEnum{item.Name}.cs"), sb.ToString());
             }
         }
+
+        /// <summary>
+        /// 生成测试
+        /// </summary>
+        [TestMethod]
+        public void EDisplayAttr()
+        {
+           var attr =  EDisplayAttr<LoggerType>.Attrs;
+           var attr2 =  EDisplayAttr<LoggerType>.Attrs;
+        }
     }
 }

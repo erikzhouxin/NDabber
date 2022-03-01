@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Cobber;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -66,7 +67,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static byte[] GetMd5(this byte[] bytes)
         {
-            return new MD5CryptoServiceProvider().ComputeHash(bytes);
+            return MD5.Create().ComputeHash(bytes);
         }
         /// <summary>
         /// 获取MD5加密值
@@ -82,12 +83,20 @@ namespace System.Data.Extter
         /// </summary>
         /// <param name="hashData">字节数组</param>
         /// <returns>16进制字符串(大写字母)</returns>
-        public static string GetHexString(this byte[] hashData)
+        public static string GetHexString(this byte[] hashData) => GetHexString(hashData, false);
+        /// <summary>
+        /// 将字节数组转换成16进制字符串
+        /// </summary>
+        /// <param name="hashData">字节数组</param>
+        /// <param name="isLower">是小写</param>
+        /// <returns>16进制字符串</returns>
+        public static string GetHexString(this byte[] hashData, bool isLower)
         {
             StringBuilder sBuilder = new StringBuilder();
+            var fmt = isLower ? "x2" : "X2";
             foreach (var hash in hashData)
             {
-                sBuilder.Append(hash.ToString("X2"));
+                sBuilder.Append(hash.ToString(fmt));
             }
             return sBuilder.ToString();
         }
@@ -548,6 +557,67 @@ namespace System.Data.Extter
             buffer = msreader.ToArray();
             msreader.Close();
             return buffer;
+        }
+        #endregion
+        #region // 转编码
+        private static LazyBone<Encoding> _gb2312Encoding = new LazyBone<Encoding>(() => Encoding.GetEncoding("GB2312"), true);
+        private static LazyBone<Encoding> _gbkEncoding = new LazyBone<Encoding>(() => Encoding.GetEncoding("GBK"), true);
+        private static LazyBone<Encoding> _utf8Encoding = new LazyBone<Encoding>(() => Encoding.UTF8, true);
+        private static LazyBone<Encoding> _unicodeEncoding = new LazyBone<Encoding>(() => Encoding.Unicode, true);
+        /// <summary>
+        /// 获取GB2312编码的字符串
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static String GetGB2312String(this byte[] value)
+        {
+            return _gb2312Encoding.Value.GetString(value);
+        }
+        /// <summary>
+        /// 获取GBK编码的字符串
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static String GetGBKString(this byte[] value)
+        {
+            return _gbkEncoding.Value.GetString(value);
+        }
+        /// <summary>
+        /// 获取Utf8编码的字符串
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static String GetUTF8String(this byte[] value)
+        {
+            return _utf8Encoding.Value.GetString(value);
+        }
+        /// <summary>
+        /// 获取Unicode编码的字符串
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static String GetUnicodeString(this byte[] value)
+        {
+            return _unicodeEncoding.Value.GetString(value);
+        }
+        /// <summary>
+        /// 获取编码的字符串
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static String GetEncodingString(this byte[] value)
+        {
+            return _utf8Encoding.Value.GetString(value);
+        }
+        /// <summary>
+        /// 获取编码的字符串
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        public static String GetEncodingString(this byte[] value, Encoding encoding)
+        {
+            return encoding.GetString(value);
         }
         #endregion
     }

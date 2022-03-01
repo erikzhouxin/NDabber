@@ -12,104 +12,577 @@ namespace System.Data.Cobber
     public class UserPassword
     {
         /// <summary>
-        /// 默认密码
+        /// 获取加密密码委托
         /// </summary>
-        public static string DefaultPassword { get; set; } = "Ezx2020!@#";
+        /// <param name="pass"></param>
+        /// <param name="salt"></param>
+        /// <param name="isLower"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        public delegate String ComputeHash(string pass, string salt, bool isLower, Encoding encoding);
+        /// <summary>
+        /// 默认加密口令8
+        /// </summary>
+        public static string DefaultPassword8 { get; } = "EZhouXin";
+        /// <summary>
+        /// 默认安全防护密码10
+        /// </summary>
+        public static string DefaultPasswordA { get; } = "Ezx2020!@#";
+        /// <summary>
+        /// 默认通用密码11
+        /// </summary>
+        public static string DefaultPasswordB { get; } = "72B83BAE4DD79440B0EF1D3A39A7D1570792F5E0";
+        /// <summary>
+        /// 默认通用密码11
+        /// </summary>
+        public static string DefaultPasswordC { get; } = "430e105a7782b1bc15c5e80dcc8264072d7efe90";
+        /// <summary>
+        /// 默认密码10
+        /// </summary>
+        public static string DefaultPassword { get; set; } = DefaultPasswordA;
+        private static EType _defaultType = EType.SHA1;
+        private static bool _defaultCase = false;
+        private static ComputeHash _defaultCompute;
+        /// <summary>
+        /// 默认类型(优先于计算方式)
+        /// </summary>
+        public static EType DefaultType
+        {
+            get => _defaultType;
+            set
+            {
+                _defaultCase = GetIsLower(_defaultType = value);
+                if (_defaultType != EType.Custom && _defaultType != EType.CustomL)
+                {
+                    _defaultCompute = null;
+                }
+            }
+        }
+        /// <summary>
+        /// 默认大小写
+        /// </summary>
+        public static bool DefaultCase
+        {
+            get => _defaultCase;
+            set => _defaultType = ChangeType(_defaultType, _defaultCase = value);
+        }
+        /// <summary>
+        /// 默认类型
+        /// </summary>
+        public static ComputeHash DefaultCompute
+        {
+            get => _defaultCompute;
+            set
+            {
+                _defaultType = value == null ? (_defaultCase ? EType.SHA1L : EType.SHA1) : (_defaultCase ? EType.CustomL : EType.Custom);
+                _defaultCompute = value;
+            }
+        }
+        /// <summary>
+        /// 默认编码
+        /// </summary>
+        public static Encoding DefaultEncoding { get; set; } = Encoding.UTF8;
 
+        private string _origin;
+        private string _salt;
+        private LazyBone<string> _hash;
+        private EType _type = DefaultType;
+        private Encoding _encoding = DefaultEncoding;
+        private ComputeHash _getHash;
+        private bool _isLower;
         /// <summary>
         /// 默认密码字符初始化
         /// </summary>
-        public UserPassword() : this(DefaultPassword, Guid.Empty) { }
+        public UserPassword() : this(DefaultPassword, CobberCaller.GuidEmpty, DefaultEncoding, DefaultType, DefaultCompute) { }
         /// <summary>
         /// 设定密码字符初始化,保存密码为设定密码
         /// </summary>
         /// <param name="origin">密码字符串</param>
-        public UserPassword(string origin) : this(origin, Guid.NewGuid()) { }
-
+        public UserPassword(string origin) : this(origin, CobberCaller.GuidString, DefaultEncoding, DefaultType, DefaultCompute) { }
         /// <summary>
         /// 完整密码初始化,保存密码为设定密码,盐值为设定值
         /// </summary>
         /// <param name="origin">新密码</param>
         /// <param name="salt">盐值</param>
-        public UserPassword(string origin, string salt)
+        public UserPassword(string origin, Guid salt) : this(origin, salt.GetString(), DefaultEncoding, DefaultType, DefaultCompute) { }
+        /// <summary>
+        /// 完整密码初始化,保存密码为设定密码,盐值为设定值
+        /// </summary>
+        /// <param name="origin">新密码</param>
+        /// <param name="salt">盐值</param>
+        public UserPassword(string origin, string salt) : this(origin, salt, DefaultEncoding, DefaultType, DefaultCompute) { }
+        /// <summary>
+        /// 构造密码初始化
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="type"></param>
+        public UserPassword(string origin, EType type) : this(origin, string.Empty, DefaultEncoding, type, null) { }
+        /// <summary>
+        /// 构造密码初始化
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="GetHash"></param>
+        public UserPassword(string origin, ComputeHash GetHash) : this(origin, string.Empty, DefaultEncoding, EType.Custom, GetHash) { }
+        /// <summary>
+        /// 构造密码初始化
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="encoding"></param>
+        public UserPassword(string origin, Encoding encoding) : this(origin, string.Empty, encoding, DefaultType, DefaultCompute) { }
+        /// <summary>
+        /// 构造密码初始化
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="type"></param>
+        /// <param name="GetHash"></param>
+        public UserPassword(string origin, EType type, ComputeHash GetHash) : this(origin, string.Empty, DefaultEncoding, type, GetHash) { }
+        /// <summary>
+        /// 构造密码初始化
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="salt"></param>
+        /// <param name="type"></param>
+        public UserPassword(string origin, string salt, EType type) : this(origin, salt, DefaultEncoding, type, null) { }
+        /// <summary>
+        /// 构造密码初始化
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="salt"></param>
+        /// <param name="GetHash"></param>
+        public UserPassword(string origin, string salt, ComputeHash GetHash) : this(origin, salt, DefaultEncoding, EType.Custom, GetHash) { }
+        /// <summary>
+        /// 构造密码初始化
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="salt"></param>
+        /// <param name="type"></param>
+        /// <param name="GetHash"></param>
+        public UserPassword(string origin, string salt, EType type, ComputeHash GetHash) : this(origin, salt, DefaultEncoding, type, GetHash) { }
+        /// <summary>
+        /// 构造密码初始化
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="salt"></param>
+        /// <param name="encoding"></param>
+        /// <param name="type"></param>
+        public UserPassword(string origin, string salt, Encoding encoding, EType type) : this(origin, salt, encoding, type, null) { }
+        /// <summary>
+        /// 构造密码初始化
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="salt"></param>
+        /// <param name="encoding"></param>
+        /// <param name="GetHash"></param>
+        public UserPassword(string origin, string salt, Encoding encoding, ComputeHash GetHash) : this(origin, salt, encoding, EType.Custom, GetHash) { }
+        /// <summary>
+        /// 构造密码初始化
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="salt"></param>
+        /// <param name="encoding"></param>
+        /// <param name="type"></param>
+        /// <param name="GetHash"></param>
+        public UserPassword(string origin, string salt, Encoding encoding, EType type, ComputeHash GetHash)
         {
-            Salt = salt;
-            OPass = origin;
-            HPass = GetSha1Hash(OPass, Salt);
-
+            _origin = origin;
+            _salt = salt;
+            _encoding = encoding;
+            _type = type;
+            _getHash = GetHash;
+            _isLower = GetIsLower(type);
+            _hash = new LazyBone<string>(Compute, true);
         }
         /// <summary>
-        /// 完整密码初始化,保存密码为设定密码,盐值为设定值
+        /// 实时计算密码值
         /// </summary>
-        /// <param name="origin">新密码</param>
-        /// <param name="salt">盐值</param>
-        public UserPassword(string origin, Guid salt) : this(origin, salt.ToString("N")) { }
+        /// <returns></returns>
+        public string Compute()
+        {
+            switch (_type)
+            {
+                case EType.SHA1:
+                case EType.SHA1L: _getHash = GetSha1Hash; break;
+                case EType.SHA256:
+                case EType.SHA256L: _getHash = GetSha256Hash; break;
+                case EType.SHA384:
+                case EType.SHA384L: _getHash = GetSha384Hash; break;
+                case EType.SHA512:
+                case EType.SHA512L: _getHash = GetSha512Hash; break;
+                case EType.MD5:
+                case EType.MD5L: _getHash = GetMd5Hash; break;
+                case EType.Custom:
+                default: _getHash ??= GetSha1Hash; break;
+            }
+            return _getHash.Invoke(_origin, _salt, _isLower, _encoding);
+        }
+        /// <summary>
+        /// 原密码
+        /// </summary>
+        public String Origin
+        {
+            get => _origin;
+            set
+            {
+                _origin = value;
+                _hash.Reload();
+            }
+        }
         /// <summary>
         /// 盐值字符
         /// </summary>
-        public string Salt { get; private set; }
+        public string Salt
+        {
+            get => _salt;
+            set
+            {
+                _salt = value;
+                _hash.Reload();
+            }
+        }
         /// <summary>
-        /// 原码字符
+        /// 生成方式
         /// </summary>
-        public string OPass { get; private set; }
+        public EType Type
+        {
+            get => _type;
+            set
+            {
+                _type = value;
+                _hash.Reload();
+            }
+        }
         /// <summary>
-        /// 加密字符
+        /// 是小写
         /// </summary>
-        public string HPass { get; private set; }
-
+        public bool IsLower
+        {
+            get => _isLower;
+            set
+            {
+                _type = ChangeType(_type, _isLower = value);
+                _hash.Reload();
+            }
+        }
+        /// <summary>
+        /// 加密值
+        /// </summary>
+        public string Hash { get => _hash.Value; }
+        /// <summary>
+        /// 字符编码
+        /// </summary>
+        public Encoding Encoding
+        {
+            get => _encoding;
+            set
+            {
+                _encoding = value ?? Encoding.UTF8;
+                _hash.Reload();
+            }
+        }
+        /// <summary>
+        /// 设置
+        /// </summary>
+        public ComputeHash GetHash
+        {
+            get => GetHash;
+            set
+            {
+                _type = value == null ? (_isLower ? EType.SHA1L : EType.SHA1) : (_isLower ? EType.CustomL : EType.Custom);
+                _getHash = value;
+                _hash.Reload();
+            }
+        }
+        #region // SHA384值
+        /// <summary>
+        /// 获得散列密码(SHA-384)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha384Hash(string pass) => GetSha384Hash(pass, DefaultCase, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-384)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha384Hash(string pass, bool isLower) => GetSha384Hash(pass, isLower, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-384)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha384Hash(string pass, Encoding encoding) => GetSha384Hash(pass, DefaultCase, encoding);
+        /// <summary>
+        /// 获得散列密码(SHA-384)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha384Hash(string pass, string salt) => GetSha384Hash($"{pass}{salt}", DefaultCase, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-384)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha384Hash(string pass, string salt, bool isLower) => GetSha384Hash($"{pass}{salt}", isLower, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-384)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha384Hash(string pass, string salt, Encoding encoding) => GetSha384Hash($"{pass}{salt}", DefaultCase, encoding);
+        /// <summary>
+        /// 获得散列密码(SHA-384)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha384Hash(string pass, string salt, bool isLower, Encoding encoding) => GetSha384Hash($"{pass}{salt}", isLower, encoding);
+        /// <summary>
+        /// 获得散列密码(SHA-384)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha384Hash(string pass, bool isLower, Encoding encoding)
+        {
+            var passSalt = encoding.GetBytes(pass);
+            var shaHash = SHA384.Create().ComputeHash(passSalt);
+            return GetHexString(shaHash, isLower);
+        }
+        #endregion
+        #region // SHA512值
+        /// <summary>
+        /// 获得散列密码(SHA-512)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha512Hash(string pass) => GetSha512Hash(pass, DefaultCase, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-512)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha512Hash(string pass, bool isLower) => GetSha512Hash(pass, isLower, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-512)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha512Hash(string pass, Encoding encoding) => GetSha512Hash(pass, DefaultCase, encoding);
         /// <summary>
         /// 获得散列密码(SHA-512)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="salt">盐值字符</param>
         /// <returns>加密字符</returns>
-        public static string GetSha512Hash(string pass, string salt = null)
+        public static string GetSha512Hash(string pass, string salt) => GetSha512Hash($"{pass}{salt}", DefaultCase, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-512)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha512Hash(string pass, string salt, bool isLower) => GetSha512Hash($"{pass}{salt}", isLower, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-512)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha512Hash(string pass, string salt, Encoding encoding) => GetSha512Hash($"{pass}{salt}", DefaultCase, encoding);
+        /// <summary>
+        /// 获得散列密码(SHA-512)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha512Hash(string pass, string salt, bool isLower, Encoding encoding) => GetSha512Hash($"{pass}{salt}", isLower, encoding);
+        /// <summary>
+        /// 获得散列密码(SHA-512)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha512Hash(string pass, bool isLower, Encoding encoding)
         {
-            var sha2 = new SHA512Managed();
-            var passSalt = Encoding.UTF8.GetBytes(pass + salt);
-            var shaHash = sha2.ComputeHash(passSalt);
-            return GetByte16String(shaHash);
+            var passSalt = encoding.GetBytes(pass);
+            var shaHash = SHA512.Create().ComputeHash(passSalt);
+            return GetHexString(shaHash, isLower);
         }
-
+        #endregion
+        #region // SHA-256值
+        /// <summary>
+        /// 获得散列密码(SHA-256)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha256Hash(string pass) => GetSha256Hash(pass, DefaultCase, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-256)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha256Hash(string pass, bool isLower) => GetSha256Hash(pass, isLower, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-256)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha256Hash(string pass, Encoding encoding) => GetSha256Hash(pass, DefaultCase, encoding);
         /// <summary>
         /// 获得散列密码(SHA-256)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="salt">盐值字符</param>
         /// <returns>加密字符</returns>
-        public static string GetSha256Hash(string pass, string salt = null)
+        public static string GetSha256Hash(string pass, string salt) => GetSha256Hash($"{pass}{salt}", DefaultCase, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-256)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha256Hash(string pass, string salt, bool isLower) => GetSha256Hash($"{pass}{salt}", isLower, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-256)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha256Hash(string pass, string salt, Encoding encoding) => GetSha256Hash($"{pass}{salt}", DefaultCase, encoding);
+        /// <summary>
+        /// 获得散列密码(SHA-256)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha256Hash(string pass, string salt, bool isLower, Encoding encoding) => GetSha256Hash($"{pass}{salt}", isLower, encoding);
+        /// <summary>
+        /// 获得散列密码(SHA-256)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha256Hash(string pass, bool isLower, Encoding encoding)
         {
-            var sha2 = new SHA256Managed();
-            var passSalt = Encoding.UTF8.GetBytes(pass + salt);
-            var shaHash = sha2.ComputeHash(passSalt);
-            return GetByte16String(shaHash);
+            var passSalt = encoding.GetBytes(pass);
+            var shaHash = SHA256.Create().ComputeHash(passSalt);
+            return GetHexString(shaHash, isLower);
         }
-
+        #endregion
+        #region // SHA-1值
+        /// <summary>
+        /// 获得散列密码(SHA-1)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha1Hash(string pass) => GetSha1Hash(pass, false, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-1)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha1Hash(string pass, bool isLower) => GetSha1Hash(pass, isLower, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-1)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha1Hash(string pass, Encoding encoding) => GetSha1Hash(pass, false, encoding);
         /// <summary>
         /// 获得散列密码(SHA-1)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="salt">盐值字符</param>
         /// <returns>加密字符</returns>
-        public static string GetSha1Hash(string pass, string salt = null)
+        public static string GetSha1Hash(string pass, string salt) => GetSha1Hash($"{pass}{salt}", false, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-1)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha1Hash(string pass, string salt, bool isLower) => GetSha1Hash($"{pass}{salt}", isLower, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-1)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha1Hash(string pass, string salt, Encoding encoding) => GetSha1Hash($"{pass}{salt}", false, encoding);
+        /// <summary>
+        /// 获得散列密码(SHA-1)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha1Hash(string pass, string salt, bool isLower, Encoding encoding) => GetSha1Hash($"{pass}{salt}", isLower, encoding);
+        /// <summary>
+        /// 获得散列密码(SHA-1)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha1Hash(string pass, bool isLower, Encoding encoding)
         {
-            var sha1 = new SHA1Managed();
-            var passSalt = Encoding.UTF8.GetBytes(pass + salt);
-            var hashData = sha1.ComputeHash(passSalt);
-            return GetByte16String(hashData);
+            var passSalt = encoding.GetBytes(pass);
+            var hashData = SHA1.Create().ComputeHash(passSalt);
+            return GetHexString(hashData, isLower);
         }
-
+        #endregion
+        #region // MD5值
         /// <summary>
         /// 获取MD5加密(32位)
         /// 默认UTF-8转换
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <returns>加密字符</returns>
-        public static string GetMd5Hash(string pass)
-        {
-            return GetMd5Hash(pass, Encoding.UTF8);
-        }
-
+        public static string GetMd5Hash(string pass) => GetMd5Hash(pass, DefaultCase, DefaultEncoding);
+        /// <summary>
+        /// 获取MD5加密(32位)
+        /// 默认UTF-8转换
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <returns>加密字符</returns>
+        public static string GetMd5Hash(string pass, bool isLower) => GetMd5Hash(pass, isLower, DefaultEncoding);
+        /// <summary>
+        /// 获取MD5加密(32位)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetMd5Hash(string pass, Encoding encoding) => GetMd5Hash(pass, DefaultCase, encoding);
         /// <summary>
         /// 获取MD5加密(32位)
         /// 默认UTF-8转换
@@ -117,50 +590,203 @@ namespace System.Data.Cobber
         /// <param name="pass">原码字符</param>
         /// <param name="salt">盐值字符</param>
         /// <returns>加密字符</returns>
-        public static string GetMd5Hash(string pass, string salt)
-        {
-            return GetMd5Hash(pass, salt, Encoding.UTF8);
-        }
-
+        public static string GetMd5Hash(string pass, string salt) => GetMd5Hash($"{pass}{salt}", DefaultCase, DefaultEncoding);
         /// <summary>
         /// 获取MD5加密(32位)
+        /// 默认UTF-8转换
         /// </summary>
         /// <param name="pass">原码字符</param>
-        /// <param name="encode">编码</param>
+        /// <param name="salt">盐值字符</param>
+        /// <param name="isLower">是小写</param>
         /// <returns>加密字符</returns>
-        public static string GetMd5Hash(string pass, Encoding encode)
-        {
-            var passSalt = encode.GetBytes(pass);
-            var md5 = MD5.Create();
-            var hashData = md5.ComputeHash(passSalt);
-            return GetByte16String(hashData);
-        }
-
+        public static string GetMd5Hash(string pass, string salt, bool isLower) => GetMd5Hash($"{pass}{salt}", isLower, DefaultEncoding);
         /// <summary>
         /// 获取MD5加密(32位)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="salt">盐值字符</param>
-        /// <param name="encode">编码</param>
+        /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetMd5Hash(string pass, string salt, Encoding encode)
+        public static string GetMd5Hash(string pass, string salt, Encoding encoding) => GetMd5Hash($"{pass}{salt}", DefaultCase, encoding);
+        /// <summary>
+        /// 获取MD5加密(32位)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetMd5Hash(string pass, string salt, bool isLower, Encoding encoding) => GetMd5Hash($"{pass}{salt}", isLower, encoding);
+        /// <summary>
+        /// 获取MD5加密(32位)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetMd5Hash(string pass, bool isLower, Encoding encoding)
         {
-            return GetMd5Hash(string.Format("{0}{1}", pass, salt), encode);
+            var passSalt = encoding.GetBytes(pass);
+            var hashData = MD5.Create().ComputeHash(passSalt);
+            return GetHexString(hashData, isLower);
         }
-
+        #endregion
+        #region // 16进制
         /// <summary>
         /// 将字节数组转换成16进制字符串
         /// </summary>
         /// <param name="hashData">字节数组</param>
         /// <returns>16进制字符串(大写字母)</returns>
-        public static string GetByte16String(byte[] hashData)
+        public static string GetHexString(byte[] hashData) => GetHexString(hashData, DefaultCase);
+        /// <summary>
+        /// 将字节数组转换成16进制字符串
+        /// </summary>
+        /// <param name="hashData">字节数组</param>
+        /// <param name="isLower">是小写</param>
+        /// <returns>16进制字符串(大写字母)</returns>
+        public static string GetHexString(byte[] hashData, bool isLower)
         {
-            StringBuilder sBuilder = new StringBuilder();
-            foreach (var hash in hashData)
+            var sb = new StringBuilder();
+            var fmt = isLower ? "x2" : "X2";
+            for (int i = 0; i < hashData.Length; i++)
             {
-                sBuilder.AppendFormat("{0:X2}", hash);
+                sb.Append(hashData[i].ToString(fmt));
             }
-            return sBuilder.ToString();
+            return sb.ToString();
         }
+        #endregion
+        /// <summary>
+        /// 加密类型
+        /// </summary>
+        public enum EType
+        {
+            /// <summary>
+            /// SHA-1加密,返回大写串
+            /// </summary>
+            SHA1 = 0,
+            /// <summary>
+            /// SHA-1加密,返回小写串
+            /// </summary>
+            SHA1L = 10,
+            /// <summary>
+            /// SHA-256加密,返回大写串
+            /// </summary>
+            SHA256 = 20,
+            /// <summary>
+            /// SHA-256加密,返回小写串
+            /// </summary>
+            SHA256L = 30,
+            /// <summary>
+            /// SHA-384加密,返回大写串
+            /// </summary>
+            SHA384 = 40,
+            /// <summary>
+            /// SHA-384加密,返回小写串
+            /// </summary>
+            SHA384L = 50,
+            /// <summary>
+            /// SHA-512加密,返回大写串
+            /// </summary>
+            SHA512 = 60,
+            /// <summary>
+            /// SHA-512加密,返回小写串
+            /// </summary>
+            SHA512L = 70,
+            /// <summary>
+            /// MD5加密,返回大写串
+            /// </summary>
+            MD5 = 80,
+            /// <summary>
+            /// MD5加密,返回小写串
+            /// </summary>
+            MD5L = 90,
+            /// <summary>
+            /// 自定义加密
+            /// </summary>
+            Custom = 900,
+            /// <summary>
+            /// 自定义加密
+            /// </summary>
+            CustomL = 990,
+        }
+        #region // 私有方法
+        private static bool GetIsLower(EType type)
+        {
+            switch (type)
+            {
+                case EType.SHA1L:
+                case EType.SHA256L:
+                case EType.SHA384L:
+                case EType.SHA512L:
+                case EType.MD5L:
+                case EType.CustomL:
+                    return true;
+                case EType.SHA1:
+                case EType.SHA256:
+                case EType.SHA384:
+                case EType.SHA512:
+                case EType.MD5:
+                case EType.Custom:
+                default: return false;
+            }
+        }
+        private static EType ChangeType(EType type, bool isLower)
+        {
+            if (isLower)
+            {
+                switch (type)
+                {
+                    case EType.SHA1: return EType.SHA1L;
+                    case EType.SHA256: return EType.SHA256L;
+                    case EType.SHA384: return EType.SHA384L;
+                    case EType.SHA512: return EType.SHA512L;
+                    case EType.MD5: return EType.MD5L;
+                    case EType.Custom: return EType.CustomL;
+                    case EType.SHA1L:
+                    case EType.SHA256L:
+                    case EType.SHA384L:
+                    case EType.SHA512L:
+                    case EType.MD5L:
+                    case EType.CustomL:
+                    default: return type;
+                }
+            }
+            switch (type)
+            {
+                case EType.SHA1L: return EType.SHA1;
+                case EType.SHA256L: return EType.SHA256;
+                case EType.SHA384L: return EType.SHA384;
+                case EType.SHA512L: return EType.SHA512;
+                case EType.MD5L: return EType.MD5;
+                case EType.CustomL: return EType.Custom;
+                case EType.SHA1:
+                case EType.SHA256:
+                case EType.SHA384:
+                case EType.SHA512:
+                case EType.MD5:
+                case EType.Custom:
+                default: return type;
+            }
+        }
+        #endregion
+        #region // 弃用内容
+        /// <summary>
+        /// 将字节数组转换成16进制字符串
+        /// </summary>
+        /// <param name="hashData">字节数组</param>
+        /// <returns>16进制字符串(大写字母)</returns>
+        [Obsolete("替代方案:GetHexString")]
+        public static string GetByte16String(byte[] hashData) => GetHexString(hashData, false);
+        /// <summary>
+        /// 原码字符
+        /// </summary>
+        [Obsolete("替代方案:Origin")]
+        public string OPass { get => Origin; }
+        /// <summary>
+        /// 加密字符
+        /// </summary>
+        [Obsolete("替代方案:Hash")]
+        public string HPass { get => Hash; }
+        #endregion
     }
 }
