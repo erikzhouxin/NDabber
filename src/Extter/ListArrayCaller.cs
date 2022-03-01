@@ -105,6 +105,24 @@ namespace System.Data.Cobber
             return defVal;
         }
         /// <summary>
+        /// 获取或默认值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="condition"></param>
+        /// <returns></returns>
+        public static T GetDefault<T>(this IEnumerable<T> list, Func<T, bool> condition)
+        {
+            foreach (var item in list)
+            {
+                if (condition(item))
+                {
+                    return item;
+                }
+            }
+            return list.FirstOrDefault();
+        }
+        /// <summary>
         /// 转换成整型数组
         /// </summary>
         /// <param name="array"></param>
@@ -416,5 +434,41 @@ namespace System.Data.Extter
     /// </summary>
     public static class ListArrayCaller
     {
+        public static List<T> PadLeft<T>(this IEnumerable<T> list, int length, T defVal = default(T))
+        {
+            var result = new List<T>();
+            if (list != null)
+            {
+                result.AddRange(list);
+            }
+            if (result.Count >= length)
+            {
+                return result;
+            }
+            var count = length - result.Count;
+            for (int i = 0; i < count; i++)
+            {
+                result.Insert(0, defVal);
+            }
+            return result;
+        }
+        public static List<T> PadRight<T>(this IEnumerable<T> list, int length, T defVal = default(T))
+        {
+            var result = new List<T>();
+            if (list != null)
+            {
+                result.AddRange(list);
+            }
+            if (result.Count >= length)
+            {
+                return result;
+            }
+            var count = length - result.Count;
+            for (int i = 0; i < count; i++)
+            {
+                result.Add(defVal);
+            }
+            return result;
+        }
     }
 }

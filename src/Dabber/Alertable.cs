@@ -39,6 +39,14 @@ namespace System.Data.Dabber
         {
         }
         /// <summary>
+        /// 错误消息构造
+        /// </summary>
+        /// <param name="ex"></param>
+        public AlertMsg(Exception ex) : base(false, ex.Message)
+        {
+            Data = ex;
+        }
+        /// <summary>
         /// 格式化构造
         /// </summary>
         /// <param name="isSuccess"></param>
@@ -137,6 +145,11 @@ namespace System.Data.Dabber
         {
             Data = new ExpandoObject();
         }
+        /// <summary>
+        /// 异常信息构造
+        /// </summary>
+        /// <param name="ex"></param>
+        public AlertMessage(Exception ex) : base(ex) { }
         /// <summary>
         /// 设置数据
         /// </summary>

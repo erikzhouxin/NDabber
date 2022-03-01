@@ -257,7 +257,7 @@ namespace System.Data.Cobber
             var extraProps = new List<string> { nameof(Origin), nameof(Extra) };
             var props = typeof(StoreBuilder).GetProperties()
                 .Where(s => !extraProps.Contains(s.Name));
-            var SetValue = MemberExpressionAccessor<StoreBuilder>.SetValue;
+            var SetValue = PropertyAccess<StoreBuilder>.InternalSetValue;
             foreach (var temp in array)
             {
                 var index = temp.IndexOf("=");

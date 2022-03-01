@@ -13,6 +13,29 @@ namespace System.Data.Cobber
     public static partial class CobberCaller
     {
         /// <summary>
+        /// 全为零的GUID(无连接符)
+        /// </summary>
+        public static String GuidEmpty { get; } = Guid.Empty.ToString("N");
+        /// <summary>
+        /// 全为零的GUID(默认ToString)
+        /// </summary>
+        public static String GuidDefault { get; } = Guid.Empty.ToString();
+        /// <summary>
+        /// 获取一个全新的Guid字符串,无连接符
+        /// </summary>
+        public static String GuidString { get => Guid.NewGuid().ToString("N"); }
+        /// <summary>
+        /// 获取一个全新的Guid字符串,无连接符
+        /// </summary>
+        public static String GetGuidString() => Guid.NewGuid().ToString("N");
+        /// <summary>
+        /// 创建一个全新的Guid字符串,无连接符
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="_"></param>
+        /// <returns></returns>
+        public static String CreateGuidString<T>(this T _) => Guid.NewGuid().ToString("N");
+        /// <summary>
         /// 转换成字符串唯一值
         /// </summary>
         /// <param name="guid"></param>

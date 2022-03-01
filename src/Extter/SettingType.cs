@@ -21,12 +21,12 @@ namespace System.Data.Extter
         /// <summary>
         /// 通用设置
         /// </summary>
-        [EDisplay("通用设置")]
+        [EDisplay("应用内容")]
         App = 1,
         /// <summary>
         /// 应用设置
         /// </summary>
-        [EDisplay("应用设置")]
+        [EDisplay("设置内容")]
         Settings = 2,
         /// <summary>
         /// 资源设置
@@ -183,5 +183,23 @@ namespace System.Data.Extter
         /// </summary>
         [EDisplay("附加设置")]
         Extra = 1073741824,
+
+        #region // 组合值内容
+        /// <summary>
+        /// 应用设置
+        /// </summary>
+        [EDisplay("应用设置")]
+        AppSettings = App | Settings,
+        /// <summary>
+        /// 应用资源
+        /// </summary>
+        [EDisplay("应用资源")]
+        AppResources = App | Resources,
+        /// <summary>
+        /// 应用缓存类
+        /// </summary>
+        [EDisplay("应用缓存类")]
+        AppCacheClass = App | Settings | Resources | Context | Proxy | Outer | User,
+        #endregion
     }
 }
