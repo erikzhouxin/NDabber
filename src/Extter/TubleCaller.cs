@@ -1334,6 +1334,57 @@ namespace System.Data.Extter
         /// </summary>
         /// <param name="m1"></param>
         /// <param name="m2"></param>
+        public Tuble8Object(object m1, object m2) : base(m1, m2, null, null, null, null, null, null) { }
+        /// <summary>
+        /// 有参构造
+        /// </summary>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <param name="m3"></param>
+        public Tuble8Object(object m1, object m2, object m3) : base(m1, m2, m3, null, null, null, null, null) { }
+        /// <summary>
+        /// 有参构造
+        /// </summary>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <param name="m3"></param>
+        /// <param name="m4"></param>
+        public Tuble8Object(object m1, object m2, object m3, object m4) : base(m1, m2, m3, m4, null, null, null, null) { }
+        /// <summary>
+        /// 有参构造
+        /// </summary>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <param name="m3"></param>
+        /// <param name="m4"></param>
+        /// <param name="m5"></param>
+        public Tuble8Object(object m1, object m2, object m3, object m4, object m5) : base(m1, m2, m3, m4, m5, null, null, null) { }
+        /// <summary>
+        /// 有参构造
+        /// </summary>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <param name="m3"></param>
+        /// <param name="m4"></param>
+        /// <param name="m5"></param>
+        /// <param name="m6"></param>
+        public Tuble8Object(object m1, object m2, object m3, object m4, object m5, object m6) : base(m1, m2, m3, m4, m5, m6, null, null) { }
+        /// <summary>
+        /// 有参构造
+        /// </summary>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <param name="m3"></param>
+        /// <param name="m4"></param>
+        /// <param name="m5"></param>
+        /// <param name="m6"></param>
+        /// <param name="m7"></param>
+        public Tuble8Object(object m1, object m2, object m3, object m4, object m5, object m6, object m7) : base(m1, m2, m3, m4, m5, m6, m7, null) { }
+        /// <summary>
+        /// 有参构造
+        /// </summary>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
         /// <param name="m3"></param>
         /// <param name="m4"></param>
         /// <param name="m5"></param>
