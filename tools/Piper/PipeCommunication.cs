@@ -1,0 +1,385 @@
+﻿using Microsoft.Win32.SafeHandles;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Data.Cobber;
+using System.Globalization;
+using System.IO;
+using System.IO.Pipes;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security;
+using System.Security.AccessControl;
+using System.Security.Permissions;
+using System.Security.Principal;
+using System.Text;
+
+namespace System.Data.Piper
+{
+    /// <summary>
+    /// 管道调用方法
+    /// </summary>
+    [SecurityCritical]
+    public static class PiperCaller
+    {
+        /// <summary>
+        /// 创建一个命名管道实例
+        /// 所有默认参数来源于构造
+        /// <see cref="NamedPipeServerStream"/>
+        /// </summary>
+        /// <param name="pipeName"></param>
+        /// <param name="direction"></param>
+        /// <param name="maxNumberOfServerInstances"></param>
+        /// <param name="transmissionMode"></param>
+        /// <param name="options"></param>
+        /// <param name="inBufferSize"></param>
+        /// <param name="outBufferSize"></param>
+        /// <param name="pipeSecurity"></param>
+        /// <param name="inheritability"></param>
+        /// <param name="additionalAccessRights"></param>
+        /// <returns></returns>
+        [SecurityCritical]
+        public static NamedPipeServerStream CreateNamedPipe(string pipeName,
+            PipeDirection direction = PipeDirection.InOut,
+            int maxNumberOfServerInstances = 1,
+            PipeTransmissionMode transmissionMode = PipeTransmissionMode.Byte,
+            PipeOptions options = PipeOptions.None,
+            int inBufferSize = 0,
+            int outBufferSize = 0,
+            PipeSecurity pipeSecurity = null,
+            HandleInheritability inheritability = HandleInheritability.None,
+            PipeAccessRights additionalAccessRights = 0)
+        {
+            if (string.IsNullOrWhiteSpace(pipeName)) { throw new ArgumentNullException(nameof(pipeName)); }
+            if ((options & ~(PipeOptions.WriteThrough | PipeOptions.Asynchronous)) != PipeOptions.None)
+            { throw new ArgumentOutOfRangeException(nameof(options), "ArgumentOutOfRange_OptionsInvalid"); }
+            if (inBufferSize < 0)
+            { throw new ArgumentOutOfRangeException(nameof(inBufferSize), "ArgumentOutOfRange_NeedNonNegNum"); }
+            if ((maxNumberOfServerInstances < 1 || maxNumberOfServerInstances > 254) && maxNumberOfServerInstances != -1)
+            { throw new ArgumentOutOfRangeException(nameof(maxNumberOfServerInstances), "ArgumentOutOfRange_MaxNumServerInstances"); }
+            if (inheritability < HandleInheritability.None || inheritability > HandleInheritability.Inheritable)
+            { throw new ArgumentOutOfRangeException(nameof(inheritability), "ArgumentOutOfRange_HandleInheritabilityNoneOrInheritable"); }
+            if ((additionalAccessRights & ~(PipeAccessRights.ChangePermissions | PipeAccessRights.TakeOwnership | PipeAccessRights.AccessSystemSecurity)) != (PipeAccessRights)0)
+            { throw new ArgumentOutOfRangeException(nameof(additionalAccessRights), "ArgumentOutOfRange_AdditionalAccessLimited"); }
+            if (Environment.OSVersion.Platform == PlatformID.Win32Windows)
+            { throw new PlatformNotSupportedException("PlatformNotSupported_NamedPipeServers"); }
+            string fullPath = Path.GetFullPath("\\\\.\\pipe\\" + pipeName);
+            if (string.Compare(fullPath, "\\\\.\\pipe\\anonymous", StringComparison.OrdinalIgnoreCase) == 0)
+            { throw new ArgumentOutOfRangeException(nameof(pipeName), "ArgumentOutOfRange_AnonymousReserved"); }
+            object pinningHandle = (object)null;
+            SECURITY_ATTRIBUTES secAttrs = GetSecAttrs(inheritability, pipeSecurity, out pinningHandle);
+            try
+            {
+                int openMode = (int)((PipeOptions)(direction | (maxNumberOfServerInstances == 1 ? (PipeDirection)524288 : (PipeDirection)0)) | options | (PipeOptions)additionalAccessRights);
+                int pipeMode = (int)transmissionMode << 2 | (int)transmissionMode << 1;
+                if (maxNumberOfServerInstances == -1) { maxNumberOfServerInstances = (int)byte.MaxValue; }
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                SafePipeHandle namedPipe = CreateNamedPipe(fullPath, openMode, pipeMode, maxNumberOfServerInstances, outBufferSize, inBufferSize, 0, secAttrs);
+#pragma warning restore CA2000 // Dispose objects before losing scope
+                if (namedPipe.IsInvalid)
+                { WinIOError(Marshal.GetLastWin32Error(), string.Empty); }
+                return new NamedPipeServerStream(direction, (uint)(options & PipeOptions.Asynchronous) > 0U, false, namedPipe);
+            }
+            finally
+            {
+                if (pinningHandle != null)
+                { ((GCHandle)pinningHandle).Free(); }
+            }
+        }
+        /// <summary>
+        /// 接收名称
+        /// </summary>
+        /// <param name="pipeName"></param>
+        /// <param name="Callback"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        public static NamedPipeServerStream ReceiveNamedWithSecurity(string pipeName, Action<PipeCommunication.ModelString> Callback, int size = 65535)
+        {
+            PipeSecurity pipeSecurity = new PipeSecurity();
+
+            WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            WindowsPrincipal principal = new WindowsPrincipal(identity);
+
+            if (principal.IsInRole(WindowsBuiltInRole.Administrator))
+            {
+                // Allow the Administrators group full access to the pipe.
+                pipeSecurity.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)),
+                    PipeAccessRights.FullControl, AccessControlType.Allow));
+            }
+            else
+            {
+                // Allow AuthenticatedUser read and write access to the pipe.
+                pipeSecurity.AddAccessRule(new PipeAccessRule(WindowsIdentity.GetCurrent().User, PipeAccessRights.ReadWrite, AccessControlType.Allow));
+            }
+            var accessRights = PipeAccessRights.FullControl | PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance;
+            pipeSecurity.SetAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)), accessRights, AccessControlType.Allow));
+            NamedPipeServerStream pipeServer = CreateNamedPipe(pipeName, PipeDirection.InOut, 10, PipeTransmissionMode.Message, PipeOptions.Asynchronous, 1024, 1024, pipeSecurity);
+            //PipeSecurity pse = namedPipeServerStream.GetAccessControl();
+            //pse.SetAccessRule(new PipeAccessRule("Administrators", accessRights, AccessControlType.Allow));
+            //pse.SetAccessRule(new PipeAccessRule("Users", accessRights, AccessControlType.Allow));//设置访问规则Pipe
+            //pse.SetAccessRule(new PipeAccessRule("CREATOR OWNER", accessRights, AccessControlType.Allow));
+            //pse.SetAccessRule(new PipeAccessRule("SYSTEM", accessRights, AccessControlType.Allow));
+            //pse.SetAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null).Translate(typeof(NTAccount)), accessRights, AccessControlType.Allow));
+            //pse.SetAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)), accessRights, AccessControlType.Allow));
+            //pse.SetAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null).Translate(typeof(NTAccount)), accessRights, AccessControlType.Allow));
+            //pse.SetAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.CreatorOwnerSid, null).Translate(typeof(NTAccount)), accessRights, AccessControlType.Allow));
+            //pse.SetAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null).Translate(typeof(NTAccount)), accessRights, AccessControlType.Allow));
+            //pse.SetAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null).Translate(typeof(NTAccount)), accessRights, AccessControlType.Allow));
+            //pse.SetAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null), accessRights, AccessControlType.Allow));
+            //pse.SetAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), accessRights, AccessControlType.Allow));
+            //pse.SetAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null), accessRights, AccessControlType.Allow));
+            //pse.SetAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.CreatorOwnerSid, null), accessRights, AccessControlType.Allow));
+            //pse.SetAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null), accessRights, AccessControlType.Allow));
+            //pse.SetAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null), accessRights, AccessControlType.Allow));
+            //namedPipeServerStream.SetAccessControl(pse);
+
+            pipeServer.BeginWaitForConnection(delegate (IAsyncResult ar)
+            {
+                NamedPipeServerStream namedPipeServerStream2 = (NamedPipeServerStream)ar.AsyncState;
+                namedPipeServerStream2.EndWaitForConnection(ar);
+                byte[] array = new byte[size];
+                int num = namedPipeServerStream2.Read(array, 0, size);
+                if (num > 0)
+                {
+                    Callback(Encoding.UTF8.GetString(array, 0, num).GetJsonObject<PipeCommunication.ModelString>());
+                }
+                namedPipeServerStream2.Dispose();
+                ReceiveNamedWithSecurity(pipeName, Callback, size);
+            }, pipeServer);
+            return pipeServer;
+        }
+        #region // 内部方法或定义
+        [SecurityCritical]
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true, BestFitMapping = false)]
+        internal static extern SafePipeHandle CreateNamedPipe(string pipeName, int openMode, int pipeMode, int maxInstances, int outBufferSize, int inBufferSize, int defaultTimeout, SECURITY_ATTRIBUTES securityAttributes);
+
+
+        [SecurityCritical]
+        internal static unsafe SECURITY_ATTRIBUTES GetSecAttrs(HandleInheritability inheritability, PipeSecurity pipeSecurity, out object pinningHandle)
+        {
+            pinningHandle = (object)null;
+            SECURITY_ATTRIBUTES securityAttributes = (SECURITY_ATTRIBUTES)null;
+            if ((inheritability & HandleInheritability.Inheritable) != HandleInheritability.None || pipeSecurity != null)
+            {
+                securityAttributes = new SECURITY_ATTRIBUTES();
+                securityAttributes.nLength = Marshal.SizeOf((object)securityAttributes);
+                if ((inheritability & HandleInheritability.Inheritable) != HandleInheritability.None)
+                    securityAttributes.bInheritHandle = 1;
+                if (pipeSecurity != null)
+                {
+                    byte[] descriptorBinaryForm = pipeSecurity.GetSecurityDescriptorBinaryForm();
+                    pinningHandle = (object)GCHandle.Alloc((object)descriptorBinaryForm, GCHandleType.Pinned);
+                    fixed (byte* numPtr = descriptorBinaryForm)
+                        securityAttributes.pSecurityDescriptor = numPtr;
+                }
+            }
+            return securityAttributes;
+        }
+
+        [SecurityCritical]
+        internal static void WinIOError(int errorCode, string maybeFullPath)
+        {
+            bool isInvalidPath = errorCode == 123 || errorCode == 161;
+            string displayablePath = GetDisplayablePath(maybeFullPath, isInvalidPath);
+            switch (errorCode)
+            {
+                case 2:
+                    if (displayablePath.Length == 0) { throw new FileNotFoundException("IO_FileNotFound"); }
+                    throw new FileNotFoundException(string.Format((IFormatProvider)CultureInfo.CurrentCulture, "IO_FileNotFound_FileName", displayablePath), displayablePath);
+                case 3:
+                    if (displayablePath.Length == 0) { throw new DirectoryNotFoundException("IO_PathNotFound_NoPathName"); }
+                    throw new DirectoryNotFoundException(string.Format((IFormatProvider)CultureInfo.CurrentCulture, "IO_PathNotFound_Path", displayablePath));
+                case 5:
+                    if (displayablePath.Length == 0) { throw new UnauthorizedAccessException("UnauthorizedAccess_IODenied_NoPathName"); }
+                    throw new UnauthorizedAccessException(string.Format((IFormatProvider)CultureInfo.CurrentCulture, "UnauthorizedAccess_IODenied_Path", displayablePath));
+                case 15:
+                    throw new DriveNotFoundException(string.Format((IFormatProvider)CultureInfo.CurrentCulture, "IO_DriveNotFound_Drive", displayablePath));
+                case 32:
+                    if (displayablePath.Length == 0) { throw new IOException("IO_IO_SharingViolation_NoFileName", MakeHRFromErrorCode(errorCode)); }
+                    throw new IOException(String.Format("IO_IO_SharingViolation_File", displayablePath), MakeHRFromErrorCode(errorCode));
+                case 80:
+                    if (displayablePath.Length != 0)
+                        throw new IOException(string.Format((IFormatProvider)CultureInfo.CurrentCulture, "IO_IO_FileExists_Name", displayablePath), MakeHRFromErrorCode(errorCode));
+                    break;
+                case 87:
+                    throw new IOException(GetMessage(errorCode), MakeHRFromErrorCode(errorCode));
+                case 183:
+                    if (displayablePath.Length != 0)
+                        throw new IOException(String.Format("IO_IO_AlreadyExists_Name", (object)displayablePath), MakeHRFromErrorCode(errorCode));
+                    break;
+                case 206:
+                    throw new PathTooLongException("IO_PathTooLong");
+                case 995:
+                    throw new OperationCanceledException();
+            }
+            throw new IOException(GetMessage(errorCode), MakeHRFromErrorCode(errorCode));
+        }
+
+        [SecuritySafeCritical]
+        internal static string GetDisplayablePath(string path, bool isInvalidPath)
+        {
+            if (string.IsNullOrEmpty(path)) { return path; }
+            bool flag1 = false;
+            if (path.Length < 2) { return path; }
+            if ((int)path[0] == (int)Path.DirectorySeparatorChar && (int)path[1] == (int)Path.DirectorySeparatorChar)
+            { flag1 = true; }
+            else if ((int)path[1] == (int)Path.VolumeSeparatorChar)
+            { flag1 = true; }
+            if (!flag1 && !isInvalidPath)
+            { return path; }
+            bool flag2 = false;
+            try
+            {
+                if (!isInvalidPath)
+                {
+                    new FileIOPermission(FileIOPermissionAccess.PathDiscovery, new string[1]
+                    {
+                        path
+                    }).Demand();
+                    flag2 = true;
+                }
+            }
+            catch (SecurityException)
+            {
+            }
+            catch (ArgumentException)
+            {
+            }
+            catch (NotSupportedException)
+            {
+            }
+            if (!flag2)
+            { path = (int)path[path.Length - 1] != (int)Path.DirectorySeparatorChar ? Path.GetFileName(path) : "IO_IO_NoPermissionToDirectoryName"; }
+            return path;
+        }
+        internal static int MakeHRFromErrorCode(int errorCode)
+        {
+            return -2147024896 | errorCode;
+        }
+
+        [SecurityCritical]
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, BestFitMapping = false)]
+        internal static extern int FormatMessage(int dwFlags, IntPtr lpSource, int dwMessageId, int dwLanguageId, StringBuilder lpBuffer, int nSize, IntPtr va_list_arguments);
+
+        internal static readonly IntPtr NULL = IntPtr.Zero;
+
+        [SecurityCritical]
+        internal static string GetMessage(int errorCode)
+        {
+            StringBuilder lpBuffer = new StringBuilder(512);
+            return FormatMessage(12800, NULL, errorCode, 0, lpBuffer, lpBuffer.Capacity, NULL) != 0 ? lpBuffer.ToString() : "UnknownError_Num " + (object)errorCode;
+        }
+        [StructLayout(LayoutKind.Sequential)]
+        internal class SECURITY_ATTRIBUTES
+        {
+            internal int nLength;
+            [SecurityCritical]
+            internal unsafe byte* pSecurityDescriptor;
+            internal int bInheritHandle;
+        }
+        #endregion
+    }
+    /// <summary>
+    /// 管道通信
+    /// </summary>
+    public class PipeCommunication
+    {
+        /// <summary>
+        /// 命名管道发送
+        /// </summary>
+        public static void SendNamed<T>(string pipeName, Model<T> model) => SendClientNamed(".", pipeName, model);
+        /// <summary>
+        /// 命名管道指定机子
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="serverName"></param>
+        /// <param name="pipeName"></param>
+        /// <param name="model"></param>
+        public static void SendClientNamed<T>(string serverName, string pipeName, Model<T> model)
+        {
+            try
+            {
+                using (var pipe = new NamedPipeClientStream(serverName, pipeName, PipeDirection.Out, PipeOptions.Asynchronous | PipeOptions.WriteThrough))
+                {
+                    pipe.Connect();
+                    byte[] data = Encoding.UTF8.GetBytes(model?.GetJsonString() ?? string.Empty);
+                    pipe.Write(data, 0, data.Length);
+                }
+            }
+            catch { }
+        }
+        /// <summary>
+        /// 命名管道发送
+        /// </summary>
+        public static void SendNamed<T>(string pipeName, string cmd, T model = default) => SendNamed(pipeName, new Model<T>() { C = cmd, M = model });
+        /// <summary>
+        /// 命名管道发送
+        /// </summary>
+        public static void SendNamed(string pipeName, string cmd, string content = "") => SendNamed(pipeName, new ModelString() { C = cmd, M = content });
+        /// <summary>
+        /// 命名管道发送
+        /// </summary>
+        public static NamedPipeServerStream ReceiveNamed<T>(string pipeName, Action<Model<T>> Callback, int size = 65535)
+        {
+#pragma warning disable CA1416 // 验证平台兼容性
+            var serverPipe = new NamedPipeServerStream(pipeName, PipeDirection.In, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
+#pragma warning restore CA1416 // 验证平台兼容性
+            serverPipe.BeginWaitForConnection((ar) =>
+            {
+                var ps = (NamedPipeServerStream)ar.AsyncState;
+                ps.EndWaitForConnection(ar);
+                var data = new byte[size];
+                var count = ps.Read(data, 0, size);
+                if (count > 0)
+                {
+                    Callback(Encoding.UTF8.GetString(data, 0, count).GetJsonObject<Model<T>>());
+                }
+                ps.Dispose();
+                ReceiveNamed<T>(pipeName, Callback, size);
+            }, serverPipe);
+            return serverPipe;
+        }
+        /// <summary>
+        /// 命名管道发送
+        /// </summary>
+        public static NamedPipeServerStream ReceiveNamed(string pipeName, Action<ModelString> Callback, int size = 65535)
+        {
+#pragma warning disable CA1416 // 验证平台兼容性
+            var serverPipe = new NamedPipeServerStream(pipeName, PipeDirection.In, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
+#pragma warning restore CA1416 // 验证平台兼容性
+            serverPipe.BeginWaitForConnection((ar) =>
+            {
+                var ps = (NamedPipeServerStream)ar.AsyncState;
+                ps.EndWaitForConnection(ar);
+                var data = new byte[size];
+                var count = ps.Read(data, 0, size);
+                if (count > 0)
+                {
+                    Callback(Encoding.UTF8.GetString(data, 0, count).GetJsonObject<ModelString>());
+                }
+                ps.Dispose();
+                ReceiveNamed(pipeName, Callback, size);
+            }, serverPipe);
+            return serverPipe;
+        }
+        /// <summary>
+        /// 字符串数据
+        /// </summary>
+        public class ModelString : Model<String> { }
+        /// <summary>
+        /// 泛型数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public class Model<T>
+        {
+            /// <summary>
+            /// 命令
+            /// </summary>
+            public string C { get; set; }
+            /// <summary>
+            /// 模型内容
+            /// </summary>
+            public T M { get; set; }
+        }
+    }
+}

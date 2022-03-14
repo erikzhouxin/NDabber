@@ -117,9 +117,13 @@ namespace System.Data.Extter
         /// </summary>
         public static T Get<T>(string domain, bool isNew = false) => Get<T>(domain, isNew, BuilderArray<object>.Empty);
         /// <summary>
-        /// 初始化参数获取类型
+        /// 获取数据访问接口实例
         /// </summary>
-        public static T Get<T>(string domain, params object[] args) => Get<T>(domain, false, args);
+        public static T Get<T>(StoreType storeType, bool isNew, params object[] args) => Get<T>(GetStoreDomain(storeType), isNew, args);
+        /// <summary>
+        /// 获取数据访问接口实例
+        /// </summary>
+        public static T Get<T>(StoreModel store, bool isNew = false) => Get<T>(GetStoreDomain(store.DbType), isNew, store.ConnString);
         /// <summary>
         /// 获取通用实现
         /// </summary>
@@ -128,7 +132,7 @@ namespace System.Data.Extter
         /// <param name="isNew"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static T Get<T>(string domain, bool isNew, object[] args)
+        public static T Get<T>(string domain, bool isNew, params object[] args)
         {
             if (!Loaders.TryGetValue(domain, out InnerLoader loader))
             {
@@ -136,7 +140,7 @@ namespace System.Data.Extter
             }
             try
             {
-                return loader.Get<T>(isNew, args);
+                return loader.Get<T>(isNew, args ?? new object[0]);
             }
             catch (Exception ex)
             {
@@ -254,11 +258,6 @@ namespace System.Data.Extter
             {
                 var type = typeof(T);
                 string key = $"{type.FullName}_{string.Join("_", args)}";
-                return Get<T>(type, key, isNew, args);
-            }
-
-            private T Get<T>(Type type, string key, bool isNew, params object[] args)
-            {
                 var mapper = Mapping.GetOrAdd(key, (k) => GetMapper(type, args));
                 return isNew || mapper.Instance == null ? (T)Activator.CreateInstance(mapper.Type, args) : (T)mapper.Instance;
             }
@@ -289,10 +288,6 @@ namespace System.Data.Extter
                 }
                 throw new Exception("多情自古空余恨，此恨绵绵无绝期！");
             }
-            static bool Contains(string source, string toCheck, StringComparison comp = StringComparison.OrdinalIgnoreCase)
-            {
-                return source.IndexOf(toCheck, comp) >= 0;
-            }
             /// <summary>
             /// 添加程序集
             /// </summary>
@@ -307,7 +302,7 @@ namespace System.Data.Extter
                     {
                         foreach (var type in assembly.GetTypes())
                         {
-                            if (type.IsClass && Contains(type.FullName, tag))
+                            if (type.IsClass && type.FullName.IndexOf(tag, StringComparison.OrdinalIgnoreCase) >= 0)
                             {
                                 Types.Add(type);
                             }
