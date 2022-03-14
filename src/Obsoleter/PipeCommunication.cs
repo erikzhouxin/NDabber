@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Cobber;
+using System.IO;
 using System.IO.Pipes;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 管道发送
     /// </summary>
+    [Obsolete("管道连接已经移植到[NSystem.Data.Piper]项目中")]
     public class PipeCommunication
     {
         /// <summary>

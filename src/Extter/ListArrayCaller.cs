@@ -434,6 +434,14 @@ namespace System.Data.Extter
     /// </summary>
     public static class ListArrayCaller
     {
+        /// <summary>
+        /// 集合左边添加
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="length"></param>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
         public static List<T> PadLeft<T>(this IEnumerable<T> list, int length, T defVal = default(T))
         {
             var result = new List<T>();
@@ -452,6 +460,14 @@ namespace System.Data.Extter
             }
             return result;
         }
+        /// <summary>
+        /// 集合右边添加
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="length"></param>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
         public static List<T> PadRight<T>(this IEnumerable<T> list, int length, T defVal = default(T))
         {
             var result = new List<T>();

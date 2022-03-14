@@ -109,6 +109,25 @@ namespace System.Data.Cobber
             }
             return result.ToArray();
         }
+        /// <summary>
+        /// 获取枚举的Int32值
+        /// </summary>
+        /// <param name="e"></param>
+        /// <returns></returns>
+        public static int GetIntValue(this Enum e)
+        {
+            return e.GetValue<int>();
+        }
+        /// <summary>
+        /// 获取枚举的指定类型,如Int16/Int36/Byte/UInt32/Long等
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="e"></param>
+        /// <returns></returns>
+        public static T GetValue<T>(this Enum e) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T>
+        {
+            return (T)(object)e;
+        }
     }
 }
 

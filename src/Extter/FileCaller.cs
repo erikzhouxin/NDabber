@@ -110,6 +110,75 @@ namespace System.Data.Extter
             }
         }
         #endregion
+        /// <summary>
+        /// 最后一个盘符
+        /// </summary>
+        public static String LastLocalDisk => GetLastLocalDisk();
+        /// <summary>
+        /// 最后一个盘符
+        /// 如:F:\
+        /// </summary>
+        /// <returns></returns>
+        public static string GetLastLocalDisk()
+        {
+            return DriveInfo.GetDrives().LastOrDefault(s => s.DriveType == DriveType.Fixed)?.Name;
+        }
+        /// <summary>
+        /// 获取已存在的保存目录
+        /// </summary>
+        /// <param name="saveDir"></param>
+        /// <param name="parent"></param>
+        /// <param name="subDir"></param>
+        /// <param name="isRecursive"></param>
+        /// <returns></returns>
+        public static string GetExistSaveDir(string saveDir, string parent, string subDir, bool isRecursive)
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(saveDir))
+                {
+                    if (!Directory.Exists(saveDir))
+                    {
+                        Directory.CreateDirectory(saveDir);
+                    }
+                    return saveDir;
+                }
+                saveDir = Path.GetFullPath(Path.Combine(parent, subDir));
+                CreateDir(new DirectoryInfo(saveDir), isRecursive);
+                return saveDir;
+            }
+            catch
+            {
+                return Path.Combine(Directory.GetCurrentDirectory(), "Temp");
+            }
+        }
+        /// <summary>
+        /// 创建目录
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <param name="isRecursive">循环递归创建</param>
+        /// <returns></returns>
+        public static DirectoryInfo CreateDir(this DirectoryInfo dir, bool isRecursive = false)
+        {
+            if (isRecursive)
+            {
+                return CreateRecursiveDir(dir);
+            }
+            if (!dir.Exists) { dir.Create(); }
+            return dir;
+        }
+        /// <summary>
+        /// 级联创建目录
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <returns></returns>
+        public static DirectoryInfo CreateRecursiveDir(this DirectoryInfo dir)
+        {
+            if (dir.Exists) { return dir; }
+            CreateRecursiveDir(dir.Parent);
+            if (!dir.Exists) { dir.Create(); }
+            return dir;
+        }
     }
     ///<summary>
     /// 结构。硬盘信息

@@ -13,6 +13,11 @@ namespace System.Data.Extter
     /// </summary>
     public static class WebCaller
     {
+        /// <summary>
+        /// 获取一个请求
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         public static IAlertMsg GetRequest(this FtpRequestTypeModel model)
         {
             switch (model.Type)
