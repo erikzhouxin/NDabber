@@ -349,6 +349,19 @@ namespace System.Data.Sqller
         /// <param name="isDesc"></param>
         /// <returns></returns>
         ISqlScriptWhereBuilder OrderBy<TM>(Expression<Func<TM, object>> prop, bool isDesc);
+        /// <summary>
+        /// 限制条数(目前只支持sqlite|mysql)
+        /// </summary>
+        /// <param name="take"></param>
+        /// <returns></returns>
+        ISqlScriptParameters Limit(int take);
+        /// <summary>
+        /// 限制条数(目前只支持sqlite|mysql)
+        /// </summary>
+        /// <param name="skip"></param>
+        /// <param name="take"></param>
+        /// <returns></returns>
+        ISqlScriptParameters Limit(int skip, int take);
     }
     /// <summary>
     /// SQL脚本创建者
@@ -396,6 +409,7 @@ namespace System.Data.Sqller
                 .Append(_groupClause == null ? String.Empty : $" GROUP BY {_groupClause}")
                 .Append(_havingClause == null ? String.Empty : $" HAVING {_havingClause}")
                 .Append(_orderClause == null ? String.Empty : $" ORDER BY {_orderClause}")
+                .Append(GetLimit())
                 .ToString();
         }
         #region // FROM
@@ -728,6 +742,17 @@ namespace System.Data.Sqller
             {
                 AddOrderClause($"{CurrentTag.TAlias}.{GetQuot(keyName.Key)} {(isDesc ? "DESC" : "ASC")}");
             }
+            return this;
+        }
+        ISqlScriptParameters ISqlScriptWhereBuilder.Limit(int take)
+        {
+            _take = take;
+            return this;
+        }
+        ISqlScriptParameters ISqlScriptWhereBuilder.Limit(int skip, int take)
+        {
+            _take = take;
+            _skip = skip;
             return this;
         }
         #endregion // Group/ORDER

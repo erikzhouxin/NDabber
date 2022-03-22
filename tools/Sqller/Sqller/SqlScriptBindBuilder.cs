@@ -51,6 +51,8 @@ namespace System.Data.Sqller
         protected StringBuilder _groupClause;
         protected StringBuilder _havingClause;
         protected StringBuilder _orderClause;
+        protected int? _skip;
+        protected int? _take;
         /// <summary>
         /// 获取SQL模型
         /// </summary>
@@ -288,6 +290,38 @@ namespace System.Data.Sqller
                 access.FuncGetValue(args, item.Key);
             }
             return this;
+        }
+        public virtual string GetLimit()
+        {
+            if (!_take.HasValue)
+            {
+                return string.Empty;
+            }
+            switch (StoreType)
+            {
+                case StoreType.SQLite:
+                case StoreType.MySQL:
+                    return _skip.HasValue ? $" LIMIT {_skip.Value},{_take.Value}" : $" LIMIT {_take.Value}";
+                case StoreType.SqlServer:
+                    break;
+                case StoreType.Oracle:
+                    break;
+                case StoreType.PostgreSQL:
+                    break;
+                case StoreType.Redis:
+                    break;
+                case StoreType.Access:
+                    break;
+                case StoreType.Excel:
+                    break;
+                case StoreType.Xml:
+                    break;
+                case StoreType.Memory:
+                    break;
+                default:
+                    break;
+            }
+            return String.Empty;
         }
     }
 }
