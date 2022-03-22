@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Cobber;
+using System.Data.Dabber;
 using System.Globalization;
 using System.IO;
 using System.IO.Pipes;
@@ -13,6 +14,8 @@ using System.Security.AccessControl;
 using System.Security.Permissions;
 using System.Security.Principal;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace System.Data.Piper
 {
@@ -147,6 +150,77 @@ namespace System.Data.Piper
                 ReceiveNamedWithSecurity(pipeName, Callback, size);
             }, pipeServer);
             return pipeServer;
+        }
+        static Dictionary<string, int> _piperServerDic = new Dictionary<string, int>();
+        static object _piperServerLocker = new object();
+        static List<Thread> _piperServerThreads = new List<Thread>();
+        /// <summary>
+        /// 接收消息内容
+        /// </summary>
+        /// <param name="pipeName"></param>
+        /// <param name="Callback"></param>
+        /// <returns></returns>
+        public static void ReceiveNamedWidthDefaultSecurity(string pipeName, Func<AlertPipeString, AlertPipeResult> Callback)
+        {
+            PipeSecurity pipeSecurity = new PipeSecurity();
+            WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            WindowsPrincipal principal = new WindowsPrincipal(identity);
+            if (principal.IsInRole(WindowsBuiltInRole.Administrator))
+            {
+                // Allow the Administrators group full access to the pipe.
+                pipeSecurity.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)),
+                    PipeAccessRights.FullControl, AccessControlType.Allow));
+            }
+            else
+            {
+                // Allow AuthenticatedUser read and write access to the pipe.
+                pipeSecurity.AddAccessRule(new PipeAccessRule(WindowsIdentity.GetCurrent().User, PipeAccessRights.ReadWrite, AccessControlType.Allow));
+            }
+            var accessRights = PipeAccessRights.FullControl | PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance;
+            pipeSecurity.SetAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)), accessRights, AccessControlType.Allow));
+            if (Monitor.TryEnter(_piperServerLocker, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    var thread = new Thread(() =>
+                    {
+                        var pipeServer = CreateNamedPipe(pipeName, PipeDirection.InOut, 10, PipeTransmissionMode.Message, PipeOptions.Asynchronous, 1024, 1024, pipeSecurity);
+                        byte[] array = new byte[65536];
+                        while (true)
+                        {
+                            pipeServer.WaitForConnection();
+                            int num = pipeServer.Read(array, 0, array.Length);
+                            if (num > 0)
+                            {
+                                try
+                                {
+                                    var receiveJson = Encoding.UTF8.GetString(array, 0, num);
+                                    var obj = receiveJson.GetJsonObject<AlertPipeString>();
+                                    if (obj != null)
+                                    {
+                                        var res = Callback(obj);
+                                        var bytes = res.GetJsonString().GetBytes(Encoding.UTF8);
+                                        pipeServer.Write(bytes, 0, bytes.Length);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    var exKey = UserPassword.GetMd5Hash(ex.Message, ex.StackTrace);
+                                    CacheModel.Dictionary.GetOrAdd($"EZhouXin:Exception:{exKey}", () => true, null, new DateTimeOffset(DateTime.Now.AddHours(1)));
+                                }
+                            }
+                            pipeServer.Disconnect();
+                        }
+                    });
+                    thread.IsBackground = true;
+                    thread.Start();
+                    _piperServerThreads.Add(thread);
+                }
+                finally
+                {
+                    Monitor.Exit(_piperServerLocker);
+                }
+            }
         }
         #region // 内部方法或定义
         [SecurityCritical]
