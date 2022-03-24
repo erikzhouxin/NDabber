@@ -104,6 +104,10 @@ namespace System.Data.Dabber
         /// </summary>
         /// <returns></returns>
         public static AlertMsg OperSuccess { get => new AlertMsg(true, "操作成功"); }
+        /// <summary>
+        /// 未找到可操作内容
+        /// </summary>
+        public static AlertMsg NotFound { get => new AlertMsg(false, "未找到可操作内容") { Code = 404 }; }
     }
     /// <summary>
     /// 提示信息动态实现类
@@ -310,6 +314,14 @@ namespace System.Data.Dabber
         public static IAlertMsg<T> Get(bool isSuccess, string msg)
         {
             return new AlertMsg<T>(isSuccess, msg);
+        }
+        /// <summary>
+        /// 获取一个简单提示消息
+        /// </summary>
+        /// <returns></returns>
+        public static IAlertMsg<Exception> Get(Exception ex)
+        {
+            return new AlertMsg<Exception>(false, ex.Message) { Data = ex };
         }
         /// <summary>
         /// 获取一个简单提示消息

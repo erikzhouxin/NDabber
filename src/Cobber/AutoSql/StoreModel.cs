@@ -10,6 +10,28 @@ using System.Text.RegularExpressions;
 namespace System.Data.Cobber
 {
     /// <summary>
+    /// 存储模型接口
+    /// </summary>
+    public interface IStoreModel
+    {
+        /// <summary>
+        /// 数据库类型
+        /// </summary>
+        StoreType DbType { get; }
+        /// <summary>
+        /// 超时时间
+        /// </summary>
+        int Timeout { get; }
+        /// <summary>
+        /// 级别
+        /// </summary>
+        string Level { get; }
+        /// <summary>
+        /// 连接字符串
+        /// </summary>
+        string ConnString { get; }
+    }
+    /// <summary>
     /// 存储模型
     /// </summary>
     public class StoreModel : ICloneable
@@ -202,12 +224,12 @@ namespace System.Data.Cobber
         /// <summary>
         /// 端口
         /// </summary>
-        public string Port { get=> _port; set => _origin[nameof(Port)] = _port = value; }
+        public string Port { get => _port; set => _origin[nameof(Port)] = _port = value; }
         private string _database;
         /// <summary>
         /// 数据库
         /// </summary>
-        public string Database { get => _database; set =>_origin[nameof(Database)] = _database = value; }
+        public string Database { get => _database; set => _origin[nameof(Database)] = _database = value; }
         private Dictionary<string, string> _extra = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         /// <summary>
         /// 附加字典

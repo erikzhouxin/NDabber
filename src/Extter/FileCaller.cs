@@ -179,6 +179,28 @@ namespace System.Data.Extter
             if (!dir.Exists) { dir.Create(); }
             return dir;
         }
+        /// <summary>
+        /// 级联检查目录是否存在
+        /// </summary>
+        /// <param name="dir"></param>
+        public static void CheckRecursiveDir(this DirectoryInfo dir)
+        {
+            if (!dir.Exists)
+            {
+                CheckRecursiveDir(dir.Parent);
+                dir.Create();
+            }
+        }
+        /// <summary>
+        /// 存在内容
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <returns></returns>
+        public static bool HasContent(this DirectoryInfo dir)
+        {
+            if(dir == null) { return false; }
+            return dir.Exists && (dir.GetFiles().Length > 0 || dir.GetDirectories().Length > 0);
+        }
     }
     ///<summary>
     /// 结构。硬盘信息
