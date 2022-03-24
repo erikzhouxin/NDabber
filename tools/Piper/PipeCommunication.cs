@@ -156,6 +156,7 @@ namespace System.Data.Piper
         static List<Thread> _piperServerThreads = new List<Thread>();
         /// <summary>
         /// 接收消息内容
+        /// 消息内容最长65535
         /// </summary>
         /// <param name="pipeName"></param>
         /// <param name="Callback"></param>
@@ -184,7 +185,7 @@ namespace System.Data.Piper
                 {
                     var thread = new Thread(() =>
                     {
-                        var pipeServer = CreateNamedPipe(pipeName, PipeDirection.InOut, 10, PipeTransmissionMode.Message, PipeOptions.Asynchronous, 1024, 1024, pipeSecurity);
+                        var pipeServer = CreateNamedPipe(pipeName, PipeDirection.InOut, 10, PipeTransmissionMode.Message, PipeOptions.Asynchronous, 65535, 65535, pipeSecurity);
                         byte[] array = new byte[65536];
                         while (true)
                         {
@@ -221,6 +222,17 @@ namespace System.Data.Piper
                     Monitor.Exit(_piperServerLocker);
                 }
             }
+        }
+        /// <summary>
+        /// 接收消息内容
+        /// 消息内容最长65535
+        /// </summary>
+        /// <param name="pipeName"></param>
+        /// <param name="Callback"></param>
+        /// <returns></returns>
+        public static void ReceiveNamedWidthDefaultSecurity(string pipeName, Func<string, string, AlertPipeResult> Callback)
+        {
+            ReceiveNamedWidthDefaultSecurity(pipeName, (model) => PipeCommunication.Analysis(model, Callback));
         }
         #region // 内部方法或定义
         [SecurityCritical]
@@ -454,6 +466,43 @@ namespace System.Data.Piper
             /// 模型内容
             /// </summary>
             public T M { get; set; }
+        }
+        /// <summary>
+        /// 分析
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="Regist"></param>
+        /// <returns></returns>
+        public static AlertPipeResult Analysis(AlertPipeString model, Func<string, string, AlertPipeResult> Regist)
+        {
+            if (string.IsNullOrWhiteSpace(model.C)) { return new AlertPipeResult(true, "发送命令成功"); }
+            var args = model.C.Split(':');
+            if (args.Length == 1) // 本地命令
+            {
+                var cmd = args[0];
+                return Regist(cmd, model.M);
+            }
+            if (args.Length == 2)
+            {
+                using (var client = new NamedPipeClientStream(".", args[0], PipeDirection.InOut, PipeOptions.WriteThrough | PipeOptions.Asynchronous))
+                {
+                    client.Connect();
+                    byte[] bytes = Encoding.UTF8.GetBytes(new { C = args[1], M = model.M }.GetJsonString());
+                    client.Write(bytes, 0, bytes.Length);
+                }
+                return new AlertPipeResult(true, "发送命令成功");
+            }
+            if (args.Length == 3)
+            {
+                using (var client = new NamedPipeClientStream(args[0], args[1], PipeDirection.InOut, PipeOptions.WriteThrough | PipeOptions.Asynchronous))
+                {
+                    client.Connect();
+                    byte[] bytes = Encoding.UTF8.GetBytes(new { C = args[2], M = model.M }.GetJsonString());
+                    client.Write(bytes, 0, bytes.Length);
+                }
+                return new AlertPipeResult(true, "发送命令成功");
+            }
+            return AlertPipeResult.GetUnknown(model);
         }
     }
 }

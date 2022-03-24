@@ -4,6 +4,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 /// <summary>
 /// 尝试测试
@@ -101,5 +103,25 @@ public static class TestTry
     public static String GetMemberFullName(this MemberInfo member)
     {
         return $"{member.DeclaringType?.FullName}.{member.Name}";
+    }
+    /// <summary>
+    /// 演示调用
+    /// </summary>
+    /// <param name="timeSpan"></param>
+    /// <param name="action"></param>
+    public static void DelayCall(TimeSpan timeSpan, Action action)
+    {
+        Task.Factory.StartNew(() =>
+        {
+            try
+            {
+                Thread.Sleep(timeSpan);
+                action?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        });
     }
 }

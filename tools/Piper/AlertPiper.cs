@@ -109,5 +109,13 @@ namespace System.Data.Piper
         {
             return new AlertPipeResult(false, "未知命令", 404, arg);
         }
+        /// <summary>
+        /// 获取未知命令结果
+        /// </summary>
+        /// <returns></returns>
+        public static AlertPipeResult GetUnknown(string cmd, string msg)
+        {
+            return new AlertPipeResult(false, "未知命令", 404, new AlertPipeString() { C = cmd, M = msg });
+        }
     }
 }
