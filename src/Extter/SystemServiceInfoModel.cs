@@ -64,7 +64,7 @@ namespace System.Data.Extter
         /// </summary>
         public virtual String Obj { get; set; }
         /// <summary>
-        /// 动态参数
+        /// 动态程序启动参数
         /// </summary>
         public virtual String Args { get; set; }
         /// <summary>
@@ -77,15 +77,23 @@ namespace System.Data.Extter
         /// <returns></returns>
         public virtual IAlertMsg Create()
         {
-            var cmd = new StringBuilder(" create ")
-                .Append(Name)
-                .Append($" binpath={BinPath}")
-                .Append($" displayname={Name}")
-                .Append($" start={GetStart(Start)}")
-                .Append($" error={GetError(Error)}");
+            var cmd = new StringBuilder();
+            if (!string.IsNullOrWhiteSpace(ServerName))
+            {
+                cmd.Append($" {ServerName}");
+            }
+            cmd.Append($" create \"{Name}\"")
+               .Append($" binpath= \"{BinPath}{Args}\"")
+               .Append($" displayname= \"{Name}\"")
+               .Append($" start= {GetStart(Start)}")
+               .Append($" error= {GetError(Error)}");
+            if (Obj != null)
+            {
+                cmd.Append($" obj= \"{Obj}\"")
+                   .Append($" password= \"{Password}\"");
+            }
 
             return WindowCmdCaller.ExecHidden("SC", Path.GetDirectoryName(Path.GetFullPath(Source)), cmd.ToString());
-
         }
 
         private static String GetError(ErrorType error)
