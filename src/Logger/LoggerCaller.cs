@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Cobber;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -12,69 +13,22 @@ namespace System.Data.Logger
     public static class LoggerCaller
     {
         /// <summary>
-        /// 设置日志存储
+        /// 使用文件
         /// </summary>
-        /// <param name="storeModel"></param>
-        /// <param name="logType"></param>
-        public static void SetConsole(StoreModel storeModel, LogType logType)
+        /// <returns></returns>
+        public static TextWriter UseFile()
         {
-            switch (storeModel.DbType)
-            {
-                case StoreType.SQLite:
-                    SQLiteLogWriter.Initial(logType);
-                    Console.SetOut(new SQLiteLogWriter()); // 未完成
-                    break;
-                case StoreType.SqlServer:
-                case StoreType.MySQL:
-                case StoreType.Oracle:
-                case StoreType.PostgreSQL:
-                case StoreType.Redis:
-                case StoreType.Access:
-                case StoreType.Excel:
-                case StoreType.Xml:
-                case StoreType.Memory:
-                default:
-                    Console.SetOut(new TextLogWriter());
-                    break;
-            }
+            return new TextLogWriter();
         }
         /// <summary>
-        /// 日志类型
+        /// 使用SQLite数据库存储内容
         /// </summary>
-        public enum LogType
+        /// <param name="GetConnection"></param>
+        /// <returns></returns>
+        public static TextWriter UseSQLite(Func<String,IDbConnection> GetConnection)
         {
-            /// <summary>
-            /// 单库单表
-            /// </summary>
-            SingleByLogger,
-            /// <summary>
-            /// 单库年表
-            /// </summary>
-            SingleByYear,
-            /// <summary>
-            /// 单库季表
-            /// </summary>
-            SingleByQuarter,
-            /// <summary>
-            /// 年库单表
-            /// </summary>
-            YearByLogger,
-            /// <summary>
-            /// 年库月表
-            /// </summary>
-            YearByMonth,
-            /// <summary>
-            /// 年库季表
-            /// </summary>
-            YearByQuarter,
-            /// <summary>
-            /// 月库单表
-            /// </summary>
-            MonthByLogger,
-            /// <summary>
-            /// 月库日表
-            /// </summary>
-            MonthByDay,
+            SQLiteConsoleWriter.GetConnection = GetConnection;
+            return new SQLiteConsoleWriter();
         }
     }
 }
