@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Cobber;
+using System.Data.Extter;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,48 +14,12 @@ namespace System.Data.Logger
     /// <summary>
     /// 文本文件日志写方法
     /// </summary>
-    public class SQLiteLogWriter : TextWriter
+    public class SQLiteConsoleWriter : TextWriter
     {
         /// <summary>
-        /// 静态构造
+        /// 获取连接内容
         /// </summary>
-        static SQLiteLogWriter()
-        {
-            var path = GetLogPath();
-            var dataSource = Path.Combine(path, $"{DateTime.Now:yyyy}.log");
-            LogStore = new StoreModel(StoreType.SQLite, $"DataSource={dataSource}");
-        }
-        /// <summary>
-        /// 日志存储
-        /// </summary>
-        public static StoreModel LogStore { get; private set; }
-        /// <summary>
-        /// 初始化
-        /// </summary>
-        public static void Initial(LoggerCaller.LogType type)
-        {
-            switch (type)
-            {
-                case LoggerCaller.LogType.SingleByLogger:
-                    break;
-                case LoggerCaller.LogType.SingleByYear:
-                    break;
-                case LoggerCaller.LogType.SingleByQuarter:
-                    break;
-                case LoggerCaller.LogType.YearByLogger:
-                    break;
-                case LoggerCaller.LogType.YearByMonth:
-                    break;
-                case LoggerCaller.LogType.YearByQuarter:
-                    break;
-                case LoggerCaller.LogType.MonthByLogger:
-                    break;
-                case LoggerCaller.LogType.MonthByDay:
-                    break;
-                default:
-                    break;
-            }
-        }
+        public static Func<string, IDbConnection> GetConnection { get; set; }
         /// <summary>
         /// 老旧版本
         /// </summary>
@@ -62,16 +27,20 @@ namespace System.Data.Logger
         /// <summary>
         /// 默认构造
         /// </summary>
-        public SQLiteLogWriter() : this(Console.Out) { }
+        public SQLiteConsoleWriter() : this(Console.Out) { }
         /// <summary>
         /// 构造
         /// </summary>
         /// <param name="oldWriter"></param>
-        public SQLiteLogWriter(TextWriter oldWriter)
+        public SQLiteConsoleWriter(TextWriter oldWriter)
         {
-            if (oldWriter is TextLogWriter textLogWriter)
+            if (oldWriter is TextConsoleWriter txt)
             {
-                OldWriter = textLogWriter.OldWriter;
+                OldWriter = txt.OldWriter;
+            }
+            else if (oldWriter is SQLiteConsoleWriter sqlite)
+            {
+                OldWriter = sqlite.OldWriter;
             }
             else
             {
@@ -275,6 +244,13 @@ namespace System.Data.Logger
         /// </summary>
         public override void WriteLine() => TryWrite(() => "==================================");
         private static readonly object _logLocker = new object();
+        private static bool _hasCreated;
+        private static string _createSql = @"CREATE TABLE IF NOT EXISTS [t_console_v1]( -- 输出内容表1
+    [ID] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, -- 标识
+    [Time] DATETIME NOT NULL, -- 写入时间
+    [Content] TEXT NOT NULL -- 写入内容
+);";
+        private static string _insertSql = @"INSERT INTO [t_console_v1]([Time],[Content]) VALUES(@Time,@Content)";
         /// <summary>
         /// 尝试写入
         /// </summary>
@@ -284,18 +260,52 @@ namespace System.Data.Logger
         {
             Task.Factory.StartNew(() =>
             {
-                var content = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fffff}    {GetContent().Replace("\n", "\n                     ")}";
-                OldWriter?.WriteLine(content);
-                var path = GetLogPath();
+                var consoleModel = new Tuble<DateTime, String>(DateTime.Now, GetContent() ?? string.Empty);
+                var consoleString = $"{consoleModel.Item1:yyyy-MM-dd HH:mm:ss.fffff}    {consoleModel.Item2.Replace("\n", "\n                             ")}";
+                OldWriter?.WriteLine(consoleString);
                 if (Monitor.TryEnter(_logLocker, TimeSpan.FromSeconds(10)))
                 {
-                    using (var file = new FileStream($"{path}{DateTime.Now:yyyy-MM}.log", FileMode.Append, FileAccess.Write))
+                    try
                     {
-                        var contByte = Encoding.UTF8.GetBytes(content + "\r\n");
-                        file.Write(contByte, 0, contByte.Length);
-                        file.Flush();
+                        var fileName = Path.Combine(GetLogPath(), $"{consoleModel.Item1:yyyy-MM}.log");
+                        bool hasTable = File.Exists(fileName);
+                        if (GetConnection != null)
+                        {
+                            using (var conn = GetConnection($"DataSource={fileName}"))
+                            {
+                                using (var cmd = conn.CreateCommand())
+                                {
+                                    if (!hasTable || !_hasCreated)
+                                    {
+                                        _hasCreated = true;
+                                        cmd.CommandText = _createSql;
+                                        cmd.ExecuteNonQuery();
+                                    }
+                                    cmd.CommandText = _insertSql;
+                                    var timeParam = cmd.CreateParameter();
+                                    timeParam.ParameterName = "@Time";
+                                    timeParam.Value = consoleModel.Item1.ToString("yyyy-MM-dd HH:mm:ss.fffff");
+                                    cmd.Parameters.Add(timeParam);
+                                    var cntParam = cmd.CreateParameter();
+                                    cntParam.ParameterName = "@Content";
+                                    cntParam.Value = consoleModel.Item2 ?? String.Empty;
+                                    cmd.Parameters.Add(cntParam);
+                                    cmd.ExecuteNonQuery();
+                                }
+                            }
+                            return;
+                        }
+                        using (var file = new FileStream(fileName, FileMode.Append, FileAccess.Write))
+                        {
+                            var contByte = Encoding.UTF8.GetBytes(consoleString + "\r\n");
+                            file.Write(contByte, 0, contByte.Length);
+                            file.Flush();
+                        }
                     }
-                    Monitor.Exit(_logLocker);
+                    finally
+                    {
+                        Monitor.Exit(_logLocker);
+                    }
                 }
             });
         }

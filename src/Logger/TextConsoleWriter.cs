@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data.Extter;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,23 @@ namespace System.Data.Logger
     /// <summary>
     /// 文本文件日志写方法
     /// </summary>
-    public class TextLogWriter : TextWriter
+    [Obsolete("替代方案:LoggerCaller.UseFile")]
+    public class TextLogWriter : TextConsoleWriter
+    {
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public TextLogWriter() : base() { }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="oldWriter"></param>
+        public TextLogWriter(TextWriter oldWriter) : base(oldWriter) { }
+    }
+    /// <summary>
+    /// 文本文件日志写方法
+    /// </summary>
+    public class TextConsoleWriter : TextWriter
     {
         /// <summary>
         /// 老旧版本
@@ -21,14 +38,25 @@ namespace System.Data.Logger
         /// <summary>
         /// 默认构造
         /// </summary>
-        public TextLogWriter() : this(Console.Out) { }
+        public TextConsoleWriter() : this(Console.Out) { }
         /// <summary>
         /// 构造
         /// </summary>
         /// <param name="oldWriter"></param>
-        public TextLogWriter(TextWriter oldWriter)
+        public TextConsoleWriter(TextWriter oldWriter)
         {
-            OldWriter = oldWriter is TextLogWriter textLogWriter ? textLogWriter.OldWriter : oldWriter;
+            if (oldWriter is TextConsoleWriter txt)
+            {
+                OldWriter = txt.OldWriter;
+            }
+            else if (oldWriter is SQLiteConsoleWriter sqlite)
+            {
+                OldWriter = sqlite.OldWriter;
+            }
+            else
+            {
+                OldWriter = oldWriter;
+            }
         }
         /// <summary>
         /// 编码
@@ -236,18 +264,25 @@ namespace System.Data.Logger
         {
             Task.Factory.StartNew(() =>
             {
-                var content = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fffff}    {GetContent().Replace("\n", "\n                     ")}";
-                OldWriter?.WriteLine(content);
-                var path = GetLogPath();
-                if(Monitor.TryEnter(_logLocker, TimeSpan.FromSeconds(10)))
+                var consoleModel = new Tuble<DateTime, String>(DateTime.Now, GetContent());
+                var consoleString = $"{consoleModel.Item1:yyyy-MM-dd HH:mm:ss.fffff}    {consoleModel.Item2.Replace("\n", "\n                             ")}";
+                OldWriter?.WriteLine(consoleString);
+                if (Monitor.TryEnter(_logLocker, TimeSpan.FromSeconds(10)))
                 {
-                    using (var file = new FileStream($"{path}{DateTime.Now:yyyy-MM}.log", FileMode.Append, FileAccess.Write))
+                    try
                     {
-                        var contByte = Encoding.UTF8.GetBytes(content + "\r\n");
-                        file.Write(contByte, 0, contByte.Length);
-                        file.Flush();
+                        var fileName = $"{GetLogPath()}{consoleModel.Item1:yyyy-MM}.log";
+                        using (var file = new FileStream(fileName, FileMode.Append, FileAccess.Write))
+                        {
+                            var contByte = Encoding.UTF8.GetBytes(consoleString + "\r\n");
+                            file.Write(contByte, 0, contByte.Length);
+                            file.Flush();
+                        }
                     }
-                    Monitor.Exit(_logLocker);
+                    finally
+                    {
+                        Monitor.Exit(_logLocker);
+                    }
                 }
             });
         }

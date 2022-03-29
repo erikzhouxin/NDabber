@@ -243,5 +243,11 @@ namespace System.Data.Logger
         /// </summary>
         [EDisplay("附加日志")]
         Extra = 2601,
+
+        /// <summary>
+        /// 提示日志
+        /// </summary>
+        [EDisplay("提示日志")]
+        Alert = 2701,
     }
 }

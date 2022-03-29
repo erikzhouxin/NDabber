@@ -33,6 +33,14 @@ namespace System.Data.Cobber
         /// </summary>
         public static ICacheModel Dictionary { get; } = new CacheDictionaryModel();
         /// <summary>
+        /// 异常缓存内容
+        /// </summary>
+        public static ICacheModel Exception { get; } = new CacheExceptionModel();
+        /// <summary>
+        /// 异常缓存内容
+        /// </summary>
+        public static ICacheModel Alert { get; } = new CacheAlertModel();
+        /// <summary>
         /// Concurrent字典(线程安全)
         /// 与非泛型不通用
         /// </summary>
@@ -2234,6 +2242,673 @@ namespace System.Data.Cobber
         /// <param name="paging"></param>
         /// <returns></returns>
         IEnumerable<string> GetKeys(string pattern, PagingResult paging);
+        #endregion
+    }
+    #endregion
+
+    #region // 特定模型内容
+    /// <summary>
+    /// Exception的ConcurrentDictionary的缓存表
+    /// </summary>
+    internal class CacheExceptionModel : ICacheModel
+    {
+        #region // 静态定义
+        private static ConcurrentDictionary<string, ICacheDicValue> InternalDb = new ConcurrentDictionary<string, ICacheDicValue>(StringComparer.OrdinalIgnoreCase);
+        private static Timer ClearTimer { get; } = new Timer
+        {
+            Enabled = true, // 是否执行System.Timers.Timer.Elapsed事件
+            Interval = 43200000, // 执行间隔时间,单位为毫秒;此时时间间隔为0.5天
+            AutoReset = true, // 设置是执行一次（false）还是一直执行(true)
+        };
+        static CacheExceptionModel()
+        {
+            var tagNow = DateTime.Now;
+            var timer = new Timer
+            {
+                Enabled = true, // 是否执行System.Timers.Timer.Elapsed事件
+                Interval = (tagNow.Date.AddDays(1).AddHours(1.5) - tagNow).TotalMilliseconds, // 执行间隔时间,到1点半执行一次
+                AutoReset = false, // 设置是执行一次（false）还是一直执行(true)
+            };
+            timer.Start();
+            timer.Elapsed += new ElapsedEventHandler((se, ev) =>
+            {
+                ClearTimer.Elapsed += new ElapsedEventHandler((s, e) => InternalClear());
+                ClearTimer.Start();
+            });
+        }
+        internal static bool InternalClear()
+        {
+            var result = true;
+            var tagTicks = DateTime.Now.Ticks;
+            foreach (var item in InternalDb.ToList())
+            {
+                if (item.Value.Expire < tagTicks)
+                {
+                    result &= InternalDb.TryRemove(item.Key, out _);
+                }
+            }
+            return result;
+        }
+        #endregion
+        #region // 通用操作
+        /// <summary>
+        /// 判断存在
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool Exists(string key)
+        {
+            return InternalDb.TryGetValue(key, out ICacheDicValue item) && item.IsValid();
+        }
+        /// <summary>
+        /// 获取内容
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public T Get<T>(string key)
+        {
+            if (InternalDb.TryGetValue(key, out ICacheDicValue item))
+            {
+                // 判断过期
+                if (item.IsValid())
+                {
+                    if (item is ECacheDicValue<T>)
+                    {
+                        return (item as ECacheDicValue<T>).Value;
+                    }
+                    return (T)item.Value;
+                }
+                else
+                {
+                    InternalDb.TryRemove(key, out _);
+                }
+            }
+            return default(T);
+        }
+        /// <summary>
+        /// 获取内容
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public object Get(string key)
+        {
+            if (InternalDb.TryGetValue(key, out ICacheDicValue item))
+            {
+                // 判断过期
+                if (item.IsValid())
+                {
+                    return item.Value;
+                }
+                else
+                {
+                    InternalDb.TryRemove(key, out _);
+                }
+            }
+            return null;
+        }
+        /// <summary>
+        /// 获取或添加
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public T GetOrAdd<T>(string key, Func<T> func)
+        {
+            if (InternalDb.TryGetValue(key, out ICacheDicValue item))
+            {
+                // 判断过期
+                if (item.IsValid())
+                {
+                    if (item is ECacheDicValue<T>)
+                    {
+                        return (item as ECacheDicValue<T>).Value;
+                    }
+                    if (item.Value is T)
+                    {
+                        return (T)item.Value;
+                    }
+                }
+            }
+            T result = func();
+            Task.Factory.StartNew(() => { Set(key, result); });
+            return result;
+        }
+        /// <summary>
+        /// 获取或添加
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="func"></param>
+        /// <param name="sliding"></param>
+        /// <param name="expire"></param>
+        /// <returns></returns>
+        public T GetOrAdd<T>(string key, Func<T> func, TimeSpan? sliding = null, DateTimeOffset? expire = null)
+        {
+            if (InternalDb.TryGetValue(key, out ICacheDicValue item))
+            {
+                // 判断过期
+                if (item.IsValid())
+                {
+                    if (item is ECacheDicValue<T>)
+                    {
+                        return (item as ECacheDicValue<T>).Value;
+                    }
+                    if (item.Value is T)
+                    {
+                        return (T)item.Value;
+                    }
+                }
+            }
+            T result = func();
+            Task.Factory.StartNew(() =>
+            {
+                if (sliding.HasValue)
+                {
+                    Set(key, result, sliding.Value);
+                }
+                else if (expire.HasValue)
+                {
+                    Set(key, result, expire.Value);
+                }
+                else
+                {
+                    Set(key, result);
+                }
+            });
+            return result;
+        }
+        /// <summary>
+        /// 移除
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public object Remove(string key)
+        {
+            if (InternalDb.TryRemove(key, out ICacheDicValue item))
+            {
+                return item.Value;
+            }
+            return null;
+        }
+        /// <summary>
+        /// 删除
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool Delete(string key)
+        {
+            return InternalDb.TryRemove(key, out _);
+        }
+        /// <summary>
+        /// 设置值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public bool Set<T>(string key, T value)
+        {
+            InternalDb[key] = new ECacheDicValue<T>(key)
+            {
+                Expire = DateTime.Now.AddDays(1).Ticks,
+                Value = value,
+            };
+            return true;
+        }
+        /// <summary>
+        /// 设置值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="expire"></param>
+        /// <returns></returns>
+        public bool Set<T>(string key, T value, DateTimeOffset expire)
+        {
+            InternalDb[key] = new ECacheDicValue<T>(key)
+            {
+                Expire = expire.Ticks,
+                Value = value,
+            };
+            return true;
+        }
+        /// <summary>
+        /// 设置值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="sliding"></param>
+        /// <returns></returns>
+        public bool Set<T>(string key, T value, TimeSpan sliding)
+        {
+            if (key == null) { return false; }
+            InternalDb[key] = new ECacheDicValue<T>(key)
+            {
+                Expire = DateTime.Now.Ticks + sliding.Ticks,
+                Sliding = sliding.Ticks,
+                Value = value,
+            };
+            return true;
+        }
+        /// <summary>
+        /// 清空
+        /// </summary>
+        /// <returns></returns>
+        public bool Clear()
+        {
+            return InternalClear();
+        }
+        #endregion
+        #region // String操作
+        /// <summary>
+        /// 字符串获取
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public string StringGet(string key) => Get<string>(key);
+        /// <summary>
+        /// 字符串获取
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public string StringGet(string key, Func<string> func) => GetOrAdd(key, func);
+        /// <summary>
+        /// 字符串获取
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public string StringSet(string key, string value) => Set(key, value) ? value : default;
+        /// <summary>
+        /// 字符串获取
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="expire"></param>
+        /// <returns></returns>
+        public string StringSet(string key, string value, DateTimeOffset expire) => Set(key, value, expire) ? value : default;
+        /// <summary>
+        /// 字符串获取
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="sliding"></param>
+        /// <returns></returns>
+        public string StringSet(string key, string value, TimeSpan sliding) => Set(key, value, sliding) ? value : default;
+        #endregion
+        #region // 内部操作
+        /// <summary>
+        /// 获取全部值
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> GetKeys()
+        {
+            return InternalDb.Keys;
+        }
+        /// <summary>
+        /// 获取分页结果
+        /// </summary>
+        /// <param name="paging"></param>
+        /// <returns></returns>
+        public IEnumerable<string> GetKeys(PagingResult paging)
+        {
+            var keys = GetKeys();
+            paging.TotalCount = keys.Count();
+            var items = keys.Skip(paging.Skip).Take(paging.Take);
+            paging.Items = items;
+            return items;
+        }
+        /// <summary>
+        /// 获取分页结果
+        /// </summary>
+        /// <param name="pattern"></param>
+        /// <param name="paging"></param>
+        /// <returns></returns>
+        public IEnumerable<string> GetKeys(string pattern, PagingResult paging)
+        {
+            var regex = new Regex(pattern);
+            var keys = GetKeys().Where(s => regex.IsMatch(s));
+            paging.TotalCount = keys.Count();
+            var items = keys.Skip(paging.Skip).Take(paging.Take);
+            paging.Items = items;
+            return items;
+        }
+        #endregion
+    }
+    /// <summary>
+    /// Alert的ConcurrentDictionary的缓存表
+    /// </summary>
+    internal class CacheAlertModel : ICacheModel
+    {
+        #region // 静态定义
+        private static ConcurrentDictionary<string, ICacheDicValue> InternalDb = new ConcurrentDictionary<string, ICacheDicValue>(StringComparer.OrdinalIgnoreCase);
+        private static Timer ClearTimer { get; } = new Timer
+        {
+            Enabled = true, // 是否执行System.Timers.Timer.Elapsed事件
+            Interval = 43200000, // 执行间隔时间,单位为毫秒;此时时间间隔为0.5天
+            AutoReset = true, // 设置是执行一次（false）还是一直执行(true)
+        };
+        static CacheAlertModel()
+        {
+            var tagNow = DateTime.Now;
+            var timer = new Timer
+            {
+                Enabled = true, // 是否执行System.Timers.Timer.Elapsed事件
+                Interval = (tagNow.Date.AddDays(1).AddHours(1.5) - tagNow).TotalMilliseconds, // 执行间隔时间,到1点半执行一次
+                AutoReset = false, // 设置是执行一次（false）还是一直执行(true)
+            };
+            timer.Start();
+            timer.Elapsed += new ElapsedEventHandler((se, ev) =>
+            {
+                ClearTimer.Elapsed += new ElapsedEventHandler((s, e) => InternalClear());
+                ClearTimer.Start();
+            });
+        }
+        internal static bool InternalClear()
+        {
+            var result = true;
+            var tagTicks = DateTime.Now.Ticks;
+            foreach (var item in InternalDb.ToList())
+            {
+                if (item.Value.Expire < tagTicks)
+                {
+                    result &= InternalDb.TryRemove(item.Key, out _);
+                }
+            }
+            return result;
+        }
+        #endregion
+        #region // 通用操作
+        /// <summary>
+        /// 判断存在
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool Exists(string key)
+        {
+            return InternalDb.TryGetValue(key, out ICacheDicValue item) && item.IsValid();
+        }
+        /// <summary>
+        /// 获取内容
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public T Get<T>(string key)
+        {
+            if (InternalDb.TryGetValue(key, out ICacheDicValue item))
+            {
+                // 判断过期
+                if (item.IsValid())
+                {
+                    if (item is ECacheDicValue<T>)
+                    {
+                        return (item as ECacheDicValue<T>).Value;
+                    }
+                    return (T)item.Value;
+                }
+                else
+                {
+                    InternalDb.TryRemove(key, out _);
+                }
+            }
+            return default(T);
+        }
+        /// <summary>
+        /// 获取内容
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public object Get(string key)
+        {
+            if (InternalDb.TryGetValue(key, out ICacheDicValue item))
+            {
+                // 判断过期
+                if (item.IsValid())
+                {
+                    return item.Value;
+                }
+                else
+                {
+                    InternalDb.TryRemove(key, out _);
+                }
+            }
+            return null;
+        }
+        /// <summary>
+        /// 获取或添加
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public T GetOrAdd<T>(string key, Func<T> func)
+        {
+            if (InternalDb.TryGetValue(key, out ICacheDicValue item))
+            {
+                // 判断过期
+                if (item.IsValid())
+                {
+                    if (item is ECacheDicValue<T>)
+                    {
+                        return (item as ECacheDicValue<T>).Value;
+                    }
+                    if (item.Value is T)
+                    {
+                        return (T)item.Value;
+                    }
+                }
+            }
+            T result = func();
+            Task.Factory.StartNew(() => { Set(key, result); });
+            return result;
+        }
+        /// <summary>
+        /// 获取或添加
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="func"></param>
+        /// <param name="sliding"></param>
+        /// <param name="expire"></param>
+        /// <returns></returns>
+        public T GetOrAdd<T>(string key, Func<T> func, TimeSpan? sliding = null, DateTimeOffset? expire = null)
+        {
+            if (InternalDb.TryGetValue(key, out ICacheDicValue item))
+            {
+                // 判断过期
+                if (item.IsValid())
+                {
+                    if (item is ECacheDicValue<T>)
+                    {
+                        return (item as ECacheDicValue<T>).Value;
+                    }
+                    if (item.Value is T)
+                    {
+                        return (T)item.Value;
+                    }
+                }
+            }
+            T result = func();
+            Task.Factory.StartNew(() =>
+            {
+                if (sliding.HasValue)
+                {
+                    Set(key, result, sliding.Value);
+                }
+                else if (expire.HasValue)
+                {
+                    Set(key, result, expire.Value);
+                }
+                else
+                {
+                    Set(key, result);
+                }
+            });
+            return result;
+        }
+        /// <summary>
+        /// 移除
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public object Remove(string key)
+        {
+            if (InternalDb.TryRemove(key, out ICacheDicValue item))
+            {
+                return item.Value;
+            }
+            return null;
+        }
+        /// <summary>
+        /// 删除
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool Delete(string key)
+        {
+            return InternalDb.TryRemove(key, out _);
+        }
+        /// <summary>
+        /// 设置值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public bool Set<T>(string key, T value)
+        {
+            InternalDb[key] = new ECacheDicValue<T>(key)
+            {
+                Expire = DateTime.Now.AddDays(1).Ticks,
+                Value = value,
+            };
+            return true;
+        }
+        /// <summary>
+        /// 设置值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="expire"></param>
+        /// <returns></returns>
+        public bool Set<T>(string key, T value, DateTimeOffset expire)
+        {
+            InternalDb[key] = new ECacheDicValue<T>(key)
+            {
+                Expire = expire.Ticks,
+                Value = value,
+            };
+            return true;
+        }
+        /// <summary>
+        /// 设置值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="sliding"></param>
+        /// <returns></returns>
+        public bool Set<T>(string key, T value, TimeSpan sliding)
+        {
+            if (key == null) { return false; }
+            InternalDb[key] = new ECacheDicValue<T>(key)
+            {
+                Expire = DateTime.Now.Ticks + sliding.Ticks,
+                Sliding = sliding.Ticks,
+                Value = value,
+            };
+            return true;
+        }
+        /// <summary>
+        /// 清空
+        /// </summary>
+        /// <returns></returns>
+        public bool Clear()
+        {
+            return InternalClear();
+        }
+        #endregion
+        #region // String操作
+        /// <summary>
+        /// 字符串获取
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public string StringGet(string key) => Get<string>(key);
+        /// <summary>
+        /// 字符串获取
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public string StringGet(string key, Func<string> func) => GetOrAdd(key, func);
+        /// <summary>
+        /// 字符串获取
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public string StringSet(string key, string value) => Set(key, value) ? value : default;
+        /// <summary>
+        /// 字符串获取
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="expire"></param>
+        /// <returns></returns>
+        public string StringSet(string key, string value, DateTimeOffset expire) => Set(key, value, expire) ? value : default;
+        /// <summary>
+        /// 字符串获取
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="sliding"></param>
+        /// <returns></returns>
+        public string StringSet(string key, string value, TimeSpan sliding) => Set(key, value, sliding) ? value : default;
+        #endregion
+        #region // 内部操作
+        /// <summary>
+        /// 获取全部值
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> GetKeys()
+        {
+            return InternalDb.Keys;
+        }
+        /// <summary>
+        /// 获取分页结果
+        /// </summary>
+        /// <param name="paging"></param>
+        /// <returns></returns>
+        public IEnumerable<string> GetKeys(PagingResult paging)
+        {
+            var keys = GetKeys();
+            paging.TotalCount = keys.Count();
+            var items = keys.Skip(paging.Skip).Take(paging.Take);
+            paging.Items = items;
+            return items;
+        }
+        /// <summary>
+        /// 获取分页结果
+        /// </summary>
+        /// <param name="pattern"></param>
+        /// <param name="paging"></param>
+        /// <returns></returns>
+        public IEnumerable<string> GetKeys(string pattern, PagingResult paging)
+        {
+            var regex = new Regex(pattern);
+            var keys = GetKeys().Where(s => regex.IsMatch(s));
+            paging.TotalCount = keys.Count();
+            var items = keys.Skip(paging.Skip).Take(paging.Take);
+            paging.Items = items;
+            return items;
+        }
         #endregion
     }
     #endregion
