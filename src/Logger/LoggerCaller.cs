@@ -18,14 +18,14 @@ namespace System.Data.Logger
         /// <returns></returns>
         public static TextWriter UseFile()
         {
-            return new TextLogWriter();
+            return new TextConsoleWriter();
         }
         /// <summary>
         /// 使用SQLite数据库存储内容
         /// </summary>
         /// <param name="GetConnection"></param>
         /// <returns></returns>
-        public static TextWriter UseSQLite(Func<String,IDbConnection> GetConnection)
+        public static TextWriter UseSQLite(Func<String, IDbConnection> GetConnection)
         {
             SQLiteConsoleWriter.GetConnection = GetConnection;
             return new SQLiteConsoleWriter();

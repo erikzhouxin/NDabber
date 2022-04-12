@@ -486,5 +486,135 @@ namespace System.Data.Extter
             }
             return result;
         }
+        /// <summary>
+        /// 设置ASCII码开头的内容
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static byte[] SetAsciiCharStart(this byte[] tag, string val)
+        {
+            var len = tag.Length > val.Length ? val.Length : tag.Length;
+            for (int i = 0; i < len; i++) { tag[i] = (byte)val[i]; }
+            return tag;
+        }
+        /// <summary>
+        /// 判断数组是否以内容开头
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static bool StartsWith(this byte[] tag, byte[] val)
+        {
+            if (tag == null) { return false; }
+            if (val == null) { return true; }
+            if (tag.Length < val.Length) { return false; }
+            for (int i = 0; i < val.Length; i++)
+            {
+                if (tag[i] != val[i]) { return false; }
+            }
+            return true;
+        }
+        /// <summary>
+        /// 判断数组是否以内容开头
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static bool StartsWithAscii(this byte[] tag, string val)
+        {
+            if (tag == null) { return false; }
+            if (val == null) { return true; }
+            if (tag.Length < val.Length) { return false; }
+            for (int i = 0; i < val.Length; i++)
+            {
+                if (tag[i] != val[i]) { return false; }
+            }
+            return true;
+        }
+        /// <summary>
+        /// 查找及其所有子项
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="EqualItem"></param>
+        /// <param name="GetSubItems"></param>
+        /// <returns></returns>
+        public static T[] FindAndSubItems<T>(this IEnumerable<T> list, Func<T, bool> EqualItem, Func<T, IEnumerable<T>> GetSubItems)
+        {
+            if (list == null || !list.Any()) { return new T[0]; }
+            var res = new List<T>();
+            foreach (var item in list)
+            {
+                if (EqualItem(item))
+                {
+                    res.Add(item);
+                    res.AddRange(FindAndSubItems(GetSubItems(item), GetSubItems));
+                }
+            }
+            return res.ToArray();
+        }
+        /// <summary>
+        /// 查找及其所有子项
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="tagModel"></param>
+        /// <param name="FindItems"></param>
+        /// <returns></returns>
+        public static T[] FindAndSubItems<T>(this IEnumerable<T> list, T tagModel, Func<T, T, bool> FindItems)
+        {
+            if (list == null || !list.Any()) { return new T[0]; }
+            var res = new List<T>();
+            foreach (var item in list)
+            {
+                if (FindItems(tagModel, item))
+                {
+                    res.Add(item);
+                    res.AddRange(FindAndSubItems(list, item, FindItems));
+                }
+            }
+            return res.ToArray();
+        }
+        /// <summary>
+        /// 查找及其所有子项
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="EqualItem"></param>
+        /// <param name="FindItems"></param>
+        /// <returns></returns>
+        public static T[] FindAndSubItems<T>(this IEnumerable<T> list, Func<T, bool> EqualItem, Func<T, T, bool> FindItems)
+        {
+            if (list == null || !list.Any()) { return new T[0]; }
+            var res = new List<T>();
+            foreach (var item in list)
+            {
+                if (EqualItem(item))
+                {
+                    res.Add(item);
+                    res.AddRange(FindAndSubItems(list, item, FindItems));
+                }
+            }
+            return res.ToArray();
+        }
+        /// <summary>
+        /// 查找所有子项
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="GetSubItems"></param>
+        /// <returns></returns>
+        public static T[] FindAndSubItems<T>(this IEnumerable<T> list, Func<T, IEnumerable<T>> GetSubItems)
+        {
+            if (list == null || !list.Any()) { return new T[0]; }
+            var res = new List<T>();
+            foreach (var item in list)
+            {
+                res.Add(item);
+                res.AddRange(FindAndSubItems(GetSubItems(item), GetSubItems));
+            }
+            return res.ToArray();
+        }
     }
 }

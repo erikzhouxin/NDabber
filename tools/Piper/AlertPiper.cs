@@ -9,26 +9,21 @@ namespace System.Data.Piper
     /// <summary>
     /// 字符串数据
     /// </summary>
-    public class AlertPipeString : AlertPipeModel<String> { }
-    /// <summary>
-    /// 泛型数据
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class AlertPipeModel<T>
+    public class AlertPipeString
     {
         /// <summary>
         /// 命令
         /// </summary>
-        public string C { get; set; }
+        public virtual string C { get; set; }
         /// <summary>
         /// 模型内容
         /// </summary>
-        public T M { get; set; }
+        public virtual String M { get; set; }
     }
     /// <summary>
     /// 管道提示结果
     /// </summary>
-    public class AlertPipeResult : AlertPipeModel<String>
+    public class AlertPipeResult : AlertPipeString
     {
         /// <summary>
         /// 代码
@@ -105,7 +100,7 @@ namespace System.Data.Piper
         /// <typeparam name="T"></typeparam>
         /// <param name="arg"></param>
         /// <returns></returns>
-        public static AlertPipeResult GetUnknown<T>(AlertPipeModel<T> arg)
+        public static AlertPipeResult GetUnknown(AlertPipeString arg)
         {
             return new AlertPipeResult(false, "未知命令", 404, arg);
         }

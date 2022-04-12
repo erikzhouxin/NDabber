@@ -373,15 +373,14 @@ namespace System.Data.Piper
         /// <summary>
         /// 命名管道发送
         /// </summary>
-        public static void SendNamed<T>(string pipeName, Model<T> model) => SendClientNamed(".", pipeName, model);
+        public static void SendNamed<T>(string pipeName, ModelString model) => SendClientNamed(".", pipeName, model);
         /// <summary>
         /// 命名管道指定机子
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="serverName"></param>
         /// <param name="pipeName"></param>
         /// <param name="model"></param>
-        public static void SendClientNamed<T>(string serverName, string pipeName, Model<T> model)
+        public static void SendClientNamed(string serverName, string pipeName, ModelString model)
         {
             try
             {
@@ -397,15 +396,15 @@ namespace System.Data.Piper
         /// <summary>
         /// 命名管道发送
         /// </summary>
-        public static void SendNamed<T>(string pipeName, string cmd, T model = default) => SendNamed(pipeName, new Model<T>() { C = cmd, M = model });
+        public static void SendNamed<T>(string pipeName, string cmd, T model = default) => SendClientNamed(".", pipeName, new ModelString(cmd, model?.GetJsonString()));
         /// <summary>
         /// 命名管道发送
         /// </summary>
-        public static void SendNamed(string pipeName, string cmd, string content = "") => SendNamed(pipeName, new ModelString() { C = cmd, M = content });
+        public static void SendNamed(string pipeName, string cmd, string content = "") => SendClientNamed(".", pipeName, new ModelString(cmd, content));
         /// <summary>
         /// 命名管道发送
         /// </summary>
-        public static NamedPipeServerStream ReceiveNamed<T>(string pipeName, Action<Model<T>> Callback, int size = 65535)
+        public static NamedPipeServerStream ReceiveNamed<T>(string pipeName, Action<ModelString> Callback, int size = 65535)
         {
 #pragma warning disable CA1416 // 验证平台兼容性
             var serverPipe = new NamedPipeServerStream(pipeName, PipeDirection.In, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
@@ -418,7 +417,7 @@ namespace System.Data.Piper
                 var count = ps.Read(data, 0, size);
                 if (count > 0)
                 {
-                    Callback(Encoding.UTF8.GetString(data, 0, count).GetJsonObject<Model<T>>());
+                    Callback(Encoding.UTF8.GetString(data, 0, count).GetJsonObject<ModelString>());
                 }
                 ps.Dispose();
                 ReceiveNamed<T>(pipeName, Callback, size);
@@ -451,13 +450,22 @@ namespace System.Data.Piper
         /// <summary>
         /// 字符串数据
         /// </summary>
-        public class ModelString : Model<String> { }
-        /// <summary>
-        /// 泛型数据
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        public class Model<T>
+        public class ModelString
         {
+            /// <summary>
+            /// 构造
+            /// </summary>
+            public ModelString() { }
+            /// <summary>
+            /// 构造
+            /// </summary>
+            /// <param name="cmd"></param>
+            /// <param name="msg"></param>
+            public ModelString(string cmd, string msg = "")
+            {
+                C = cmd;
+                M = msg;
+            }
             /// <summary>
             /// 命令
             /// </summary>
@@ -465,7 +473,7 @@ namespace System.Data.Piper
             /// <summary>
             /// 模型内容
             /// </summary>
-            public T M { get; set; }
+            public String M { get; set; }
         }
         /// <summary>
         /// 分析

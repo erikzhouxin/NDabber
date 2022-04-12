@@ -898,7 +898,7 @@ namespace System.Collections.ObjectModel
 
             void ICollection.CopyTo(Array array, int index)
             {
-                ReadOnlyDictionaryHelpers.CopyToNonGenericICollectionHelper<TKey>(m_collection, array, index);
+                CopyToNonGenericICollectionHelper<TKey>(m_collection, array, index);
             }
 
             bool ICollection.IsSynchronized
@@ -1017,7 +1017,7 @@ namespace System.Collections.ObjectModel
 
             void ICollection.CopyTo(Array array, int index)
             {
-                ReadOnlyDictionaryHelpers.CopyToNonGenericICollectionHelper<TValue>(m_collection, array, index);
+                CopyToNonGenericICollectionHelper<TValue>(m_collection, array, index);
             }
 
             bool ICollection.IsSynchronized
@@ -1047,11 +1047,7 @@ namespace System.Collections.ObjectModel
 
 #endregion ICollection Members
         }
-    }
 
-    // To share code when possible, use a non-generic class to get rid of irrelevant type parameters.
-    internal static class ReadOnlyDictionaryHelpers
-    {
 #region Helper method for our KeyCollection and ValueCollection
 
         // Abstracted away to avoid redundant implementations.

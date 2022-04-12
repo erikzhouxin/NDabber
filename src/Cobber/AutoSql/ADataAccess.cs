@@ -316,6 +316,68 @@ namespace System.Data.Cobber
         }
         /// <summary>
         /// 安全执行SQL语句
+        /// 无影响行数判断
+        /// 无Connection异常
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public virtual IAlertMsg Execute<T>(string sql, IEnumerable<T> args)
+        {
+            try
+            {
+                var effLine = 0;
+                using (var conn = Connection)
+                {
+                    effLine = conn.Execute(sql, args);
+                }
+                return new AlertMsg(true, "")
+                {
+                    Data = new
+                    {
+                        EffLine = effLine,
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return new AlertMsg(false, "执行错误:{0}", ex.Message);
+            }
+        }
+        /// <summary>
+        /// 安全执行SQL语句
+        /// 无影响行数判断
+        /// 无Connection异常
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public virtual IAlertMsg Execute<T>(string sql, object args)
+        {
+            try
+            {
+                var effLine = 0;
+                using (var conn = Connection)
+                {
+                    effLine = conn.Execute(sql, args);
+                }
+                return new AlertMsg(true, "")
+                {
+                    Data = new
+                    {
+                        EffLine = effLine,
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return new AlertMsg(false, "执行错误:{0}", ex.Message);
+            }
+        }
+        /// <summary>
+        /// 安全执行SQL语句
         /// 影响行数判断
         /// 无Connection异常
         /// </summary>

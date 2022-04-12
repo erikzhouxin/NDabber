@@ -98,11 +98,11 @@ namespace System.Data.Cobber
         public static T[] GetFlags<T>(this T enumValue) where T : Enum
         {
             var eval = (EDisplayAttr<T>)enumValue;
-            if(eval.Value <= 0) { return new T[] { eval.Enum }; }
+            if (eval.Value <= 0) { return new T[] { eval.Enum }; }
             var result = new List<T>();
             foreach (var item in EDisplayAttr<T>.Attrs)
             {
-                if((item.Value & eval.Value) > 0)
+                if ((item.Value & eval.Value) > 0)
                 {
                     result.Add(item.Enum);
                 }
@@ -138,5 +138,25 @@ namespace System.Data.Extter
     /// </summary>
     public static class EnumCaller
     {
+        /// <summary>
+        /// 有标记
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static bool HasFlag(this int value, int tag)
+        {
+            return (value & tag) != 0;
+        }
+        /// <summary>
+        /// 有标记
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static bool HasFlag<T>(this T value, int tag) where T : Enum
+        {
+            return value.HasFlag((T)(object)tag);
+        }
     }
 }
