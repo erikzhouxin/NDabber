@@ -87,12 +87,10 @@ namespace System.Data.Extter
                .Append($" displayname= \"{Name}\"")
                .Append($" start= {GetStart(Start)}")
                .Append($" error= {GetError(Error)}");
-            if (Obj != null)
+            if (!string.IsNullOrWhiteSpace(Obj))
             {
-                cmd.Append($" obj= \"{Obj}\"")
-                   .Append($" password= \"{Password}\"");
+                cmd.Append($" obj= \"{Obj}\"").Append($" password= \"{Password}\"");
             }
-
             return WindowCmdCaller.ExecHidden("SC", Path.GetDirectoryName(Path.GetFullPath(Source)), cmd.ToString());
         }
 
