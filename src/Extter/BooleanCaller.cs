@@ -266,5 +266,92 @@ namespace System.Data.Extter
     /// </summary>
     public static class BooleanCaller
     {
+        /// <summary>
+        /// IF语句
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="FuncIf"></param>
+        /// <param name="GetTrue"></param>
+        /// <param name="GetFalse"></param>
+        /// <returns></returns>
+        public static T If<T>(this T model, Func<T, bool> FuncIf, Func<T, T> GetTrue, Func<T, T> GetFalse)
+        {
+            return FuncIf(model) ? GetTrue(model) : GetFalse(model);
+        }
+        /// <summary>
+        /// IF语句
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="FuncIf"></param>
+        /// <param name="trueValue"></param>
+        /// <param name="GetFalse"></param>
+        /// <returns></returns>
+        public static T If<T>(this T model, Func<T, bool> FuncIf, T trueValue, Func<T, T> GetFalse)
+        {
+            return FuncIf(model) ? trueValue : GetFalse(model);
+        }
+        /// <summary>
+        /// IF语句
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="FuncIf"></param>
+        /// <param name="GetTrue"></param>
+        /// <param name="falseValue"></param>
+        /// <returns></returns>
+        public static T If<T>(this T model, Func<T, bool> FuncIf, Func<T, T> GetTrue, T falseValue)
+        {
+            return FuncIf(model) ? GetTrue(model) : falseValue;
+        }
+        /// <summary>
+        /// IF语句
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="FuncIf"></param>
+        /// <param name="falseValue"></param>
+        /// <returns></returns>
+        public static T IfTrue<T>(this T model, Func<T, bool> FuncIf, T falseValue)
+        {
+            return FuncIf(model) ? model : falseValue;
+        }
+        /// <summary>
+        /// IF语句
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="FuncIf"></param>
+        /// <param name="GetFalse"></param>
+        /// <returns></returns>
+        public static T IfTrue<T>(this T model, Func<T, bool> FuncIf, Func<T, T> GetFalse)
+        {
+            return FuncIf(model) ? model : GetFalse(model);
+        }
+        /// <summary>
+        /// IF语句
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="FuncIf"></param>
+        /// <param name="trueValue"></param>
+        /// <returns></returns>
+        public static T IfFalse<T>(this T model, Func<T, bool> FuncIf, T trueValue)
+        {
+            return FuncIf(model) ? model : trueValue;
+        }
+        /// <summary>
+        /// IF语句
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="FuncIf"></param>
+        /// <param name="GetTrue"></param>
+        /// <returns></returns>
+        public static T IfFalse<T>(this T model, Func<T, bool> FuncIf, Func<T, T> GetTrue)
+        {
+            return FuncIf(model) ? model : GetTrue(model);
+        }
     }
 }
