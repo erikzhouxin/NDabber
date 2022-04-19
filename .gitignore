@@ -22,6 +22,8 @@ UpgradeLog.htm
 .vscode
 .idea
 .publishes
+.pubs
+.libs
 .settings
 # temp Binary
 bin
@@ -35,3 +37,4 @@ TestResults
 Log
 Temp
 Upload
+Directory.Build.props
