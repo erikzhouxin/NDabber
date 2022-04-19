@@ -506,6 +506,10 @@ namespace System.Data.Cobber
         /// </summary>
         Func<object, string, object> FuncGetValue { get; }
         /// <summary>
+        /// 获取值类型(memberName,return)
+        /// </summary>
+        Func<string, Type> FuncGetType { get; }
+        /// <summary>
         /// 设置值(instance,memberName,newValue)
         /// </summary>
         Action<object, string, object> FuncSetValue { get; }
@@ -531,6 +535,10 @@ namespace System.Data.Cobber
         /// 获取值(instance,memberName,return)
         /// </summary>
         public Func<object, string, object> FuncGetValue { get => Access.FuncGetValue; }
+        /// <summary>
+        /// 获取值类型(memberName,return)
+        /// </summary>
+        public Func<string, Type> FuncGetType { get => Access.FuncGetType; }
         /// <summary>
         /// 设置值(instance,memberName,newValue)
         /// </summary>
@@ -592,6 +600,110 @@ namespace System.Data.Cobber
         {
             Access.FuncSetValue(instance, memberName, newValue);
         }
+        /// <summary>
+        /// 级联获取值
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="path"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public bool TryCascadeGetValue(object instance, string path, out object value)
+        {
+            value = instance;
+            if (string.IsNullOrWhiteSpace(path)) { return true; }
+            try
+            {
+                IPropertyAccess access = Access;
+                var paths = path.Trim().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var item in paths)
+                {
+                    value = access.FuncGetValue(value, item);
+                    if (value == null) { return true; }
+                    access = PropertyAccess.Get(value.GetType());
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                value = ex;
+                return false;
+            }
+        }
+        /// <summary>
+        /// 级联设置值
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="path"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public bool TryCascadeSetValue(object instance, string path, object value)
+        {
+            if (string.IsNullOrWhiteSpace(path)) { return true; }
+            try
+            {
+                IPropertyAccess access = Access;
+                var paths = path.Trim().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+                var inObject = instance;
+                for (int i = 0; i < paths.Length - 1; i++)
+                {
+                    var item = paths[i];
+                    inObject = access.FuncGetValue(value, item);
+                    if (value == null) { break; }
+                    access = PropertyAccess.Get(inObject.GetType());
+                }
+                var setVal = paths.Last();
+                var setType = access.FuncGetType(setVal);
+                access.FuncSetValue(inObject, setVal, Convert.ChangeType(value, setType));
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return false;
+            }
+        }
+        /// <summary>
+        /// 级联设置值
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="path"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public bool TryCascadeSetValue(object instance, string path, string value)
+        {
+            if (string.IsNullOrWhiteSpace(path)) { return true; }
+            try
+            {
+                IPropertyAccess access = Access;
+                var paths = path.Trim().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+                var inObject = instance;
+                for (int i = 0; i < paths.Length - 1; i++)
+                {
+                    var item = paths[i];
+                    inObject = access.FuncGetValue(value, item);
+                    if (value == null) { break; }
+                    access = PropertyAccess.Get(inObject.GetType());
+                }
+                var setVal = paths.Last();
+                var setType = access.FuncGetType(setVal);
+                object setObj = null;
+                if (value.StartsWith("[") | value.StartsWith("{")) // 是Json
+                {
+                    setObj = CobberCaller.GetJsonObject(value, setType);
+                }
+                else
+                {
+                    setObj = Convert.ChangeType(value, setType);
+                }
+                access.FuncSetValue(inObject, setVal, setObj);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return false;
+            }
+        }
     }
     /// <summary>
     /// 表达式树生成case字段泛型获取
@@ -605,6 +717,10 @@ namespace System.Data.Cobber
         /// 获取值(instance,memberName,return)
         /// </summary>
         public static Func<T, string, object> InternalGetValue { get; }
+        /// <summary>
+        /// 获取值类型(instance,memberName,return)
+        /// </summary>
+        public static Func<string, Type> InternalGetType { get; }
         /// <summary>
         /// 设置值(instance,memberName,newValue)
         /// </summary>
@@ -631,6 +747,7 @@ namespace System.Data.Cobber
             var nameHash = Expression.Variable(typeof(int), "nameHash");
             var calHash = Expression.Assign(nameHash, Expression.Call(memberName, typeof(object).GetMethod("GetHashCode")));
             var getCases = new List<SwitchCase>();
+            var getTypeCases = new List<SwitchCase>();
             var setCases = new List<SwitchCase>();
             var getDic = new Dictionary<string, Func<T, object>>();
             var setDic = new Dictionary<string, Action<T, object>>();
@@ -640,6 +757,8 @@ namespace System.Data.Cobber
                 var propertyHash = Expression.Constant(propertyInfo.Name.GetHashCode(), typeof(int));
 
                 getCases.Add(Expression.SwitchCase(Expression.Convert(property, typeof(object)), propertyHash));
+
+                getTypeCases.Add(Expression.SwitchCase(Expression.Constant(propertyInfo.PropertyType), propertyHash));
 
                 getDic.Add(propertyInfo.Name, (Func<T, object>)Expression.Lambda(typeof(Func<T, object>), Expression.Convert(property, typeof(object)), instance).Compile());
 
@@ -656,6 +775,8 @@ namespace System.Data.Cobber
 
                 getCases.Add(Expression.SwitchCase(Expression.Convert(property, typeof(object)), propertyHash));
 
+                getTypeCases.Add(Expression.SwitchCase(Expression.Constant(propertyInfo.PropertyType), propertyHash));
+
                 getDic.Add(propertyInfo.Name, (Func<T, object>)Expression.Lambda(typeof(Func<T, object>), Expression.Convert(property, typeof(object)), instance).Compile());
 
                 if (!propertyInfo.CanWrite) { continue; }
@@ -668,6 +789,9 @@ namespace System.Data.Cobber
             var getMethodBody = Expression.Block(typeof(object), new[] { nameHash }, calHash, Expression.Switch(nameHash, Expression.Constant(null), getCases.ToArray()));
             InternalGetValue = Expression.Lambda<Func<T, string, object>>(getMethodBody, instance, memberName).Compile();
 
+            var getTypeMethodBody = Expression.Block(typeof(Type), new[] { nameHash }, calHash, Expression.Switch(nameHash, Expression.Constant(null), getTypeCases.ToArray()));
+            InternalGetType = Expression.Lambda<Func<string, Type>>(getTypeMethodBody, memberName).Compile();
+
             var setMethodBody = Expression.Block(typeof(object), new[] { nameHash }, calHash, Expression.Switch(nameHash, Expression.Constant(null), setCases.ToArray()));
             InternalSetValue = Expression.Lambda<Action<T, string, object>>(setMethodBody, instance, memberName, setNewValue).Compile();
 
@@ -677,6 +801,7 @@ namespace System.Data.Cobber
         }
         #endregion
         Func<object, string, object> IPropertyAccess.FuncGetValue => (instance, memberName) => InternalGetValue((T)instance, memberName);
+        Func<string, Type> IPropertyAccess.FuncGetType => (memberName) => InternalGetType(memberName);
 
         Action<object, string, object> IPropertyAccess.FuncSetValue => (instance, memberName, newValue) => InternalSetValue((T)instance, memberName, newValue);
 
