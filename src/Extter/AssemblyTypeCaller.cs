@@ -5,10 +5,7 @@ using System.Text;
 
 namespace System.Data.Extter
 {
-    /// <summary>
-    /// 程序集类型调用
-    /// </summary>
-    public static class AssemblyTypeCaller
+    public static partial class ExtterCaller
     {
         /// <summary>
         /// 获取导出类型

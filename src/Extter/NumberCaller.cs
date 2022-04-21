@@ -279,7 +279,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 数字调用
     /// </summary>
-    public static class NumberCaller
+    public static partial class ExtterCaller
     {
         #region // 读取字节
         /// <summary>

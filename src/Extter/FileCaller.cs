@@ -12,7 +12,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 文件调用者
     /// </summary>
-    public static class FileCaller
+    public static partial class ExtterCaller
     {
         #region // 文件空间及大小
         /// <summary>

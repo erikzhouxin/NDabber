@@ -8,7 +8,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 异常调用
     /// </summary>
-    public static class ExceptionCaller
+    public static partial class ExtterCaller
     {
         /// <summary>
         /// 获取异常的信息及跟踪信息文本

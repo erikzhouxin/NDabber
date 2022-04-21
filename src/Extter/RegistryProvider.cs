@@ -12,6 +12,12 @@ using System.Threading.Tasks;
 namespace System.Data.Extter
 {
     /// <summary>
+    /// 注册容器
+    /// </summary>
+    public static class RegistryContainer
+    {
+    }
+    /// <summary>
     /// 注册提供者
     /// 注意:
     /// 1.TagName下最好不要有相同的实现类,因为可能不知道使用哪一个

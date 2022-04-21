@@ -9,7 +9,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 仿照元组(Tuple)进行创建的类
     /// </summary>
-    public static class TubleCaller
+    public static class Tuble
     {
         /// <summary>
         /// 创建二元组

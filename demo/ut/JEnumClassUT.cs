@@ -67,8 +67,15 @@ namespace System.Data.DabberUT
         [TestMethod]
         public void EDisplayAttr()
         {
-           var attr =  EDisplayAttr<LoggerType>.Attrs;
-           var attr2 =  EDisplayAttr<LoggerType>.Attrs;
+            var attr = NEnumerable<LoggerType>.Attrs;
+            var attr2 = NEnumerable<LoggerType>.Attrs;
+            string name;
+            name = NEnumerable<LoggerType>.GetFromEnum(LoggerType.Access).Name;
+            Console.WriteLine(name);
+            name = NEnumerable<LoggerType>.GetFromEnumName(nameof(LoggerType.Access)).Name;
+            Console.WriteLine(name);
+            name = NEnumerable<LoggerType>.GetFromInt32((Int32)LoggerType.Access).Name;
+            Console.WriteLine(name);
         }
     }
 }

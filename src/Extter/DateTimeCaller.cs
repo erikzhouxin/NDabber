@@ -51,7 +51,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 日期时间调用
     /// </summary>
-    public static class DateTimeCaller
+    public static partial class ExtterCaller
     {
         /// <summary>
         /// 通用日期格式
