@@ -14,8 +14,6 @@ namespace System.Data.Extter
     {
         [DllImport("kernel32.dll")]
         private static extern uint GetLastError();
-
-
         /// <summary>
         /// API LoadLibraryEx
         /// </summary>

@@ -88,7 +88,7 @@ namespace System.Data.Extter
     /// <summary>
     /// IP地址
     /// </summary>
-    public static class IPCaller
+    public static partial class ExtterCaller
     {
         /// <summary>
         /// 获取值

@@ -58,7 +58,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 字节调用
     /// </summary>
-    public static class ByteCaller
+    public static partial class ExtterCaller
     {
         /// <summary>
         /// 获取MD5加密值

@@ -6,7 +6,7 @@ using System.Text;
 namespace System.Data.Extter
 {
     /// <summary>
-    /// 反射调用
+    /// 扩展静态调用内容
     /// </summary>
     public static partial class ExtterCaller
     {

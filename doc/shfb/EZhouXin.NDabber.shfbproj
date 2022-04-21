@@ -19,8 +19,9 @@
     <HtmlHelpName>EZhouXin.NDabber</HtmlHelpName>
     <Language>zh-CN</Language>
     <DocumentationSources>
+      <DocumentationSource sourceFile="..\..\src\bin\Debug\netcoreapp3.1\NSystem.Data.Dabber.dll" />
       <DocumentationSource sourceFile="..\..\src\bin\Debug\netcoreapp3.1\NSystem.Data.Dabber.xml" />
-<DocumentationSource sourceFile="..\..\src\bin\Debug\netcoreapp3.1\NSystem.Data.Dabber.dll" /></DocumentationSources>
+    </DocumentationSources>
     <HelpTitle>EZhouXin.NDabber</HelpTitle>
     <HelpFileVersion>2021.12.28</HelpFileVersion>
     <NamingMethod>Guid</NamingMethod>

@@ -35,6 +35,11 @@ namespace System.Data.Mabber
         {
         }
 #if !NETFx
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
         protected TinyMapperException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }

@@ -11,158 +11,9 @@ namespace System.Data.Extter
     /// <summary>
     /// 网络调用
     /// </summary>
-    public static class WebCaller
+    public static partial class ExtterCaller
     {
-        /// <summary>
-        /// 获取一个请求
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        public static IAlertMsg GetRequest(this FtpRequestTypeModel model)
-        {
-            switch (model.Type)
-            {
-                case FtpRequestTypeModel.ReqType.Upload: return UploadFile(model, model.FileName);
-                case FtpRequestTypeModel.ReqType.Delete: return DeleteFile(model);
-                case FtpRequestTypeModel.ReqType.Download: 
-                default:  return DownloadFile(model, model.FileName);
-            }
-        }
-        /// <summary>
-        /// 上传
-        /// </summary>
-        public static AlertMsg UploadFile(this FtpRequestModel model, string filename)
-        {
-            FileInfo fileInfo = new FileInfo(filename);
-            string uri = model.GetUrl().TrimEnd('/') + fileInfo.Name;
-            var reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));
-            reqFTP.Credentials = new NetworkCredential(model.Account, model.Password);
-            reqFTP.KeepAlive = false;
-            reqFTP.Method = WebRequestMethods.Ftp.UploadFile;
-            reqFTP.UseBinary = true;
-            reqFTP.ContentLength = fileInfo.Length;
 
-            int buffLength = 2048;
-            byte[] buff = new byte[buffLength];
-            int contentLen;
-            using (FileStream fs = fileInfo.OpenRead())
-            {
-                using (Stream strm = reqFTP.GetRequestStream())
-                {
-                    try
-                    {
-                        contentLen = fs.Read(buff, 0, buffLength);
-                        while (contentLen != 0)
-                        {
-                            strm.Write(buff, 0, contentLen);
-                            contentLen = fs.Read(buff, 0, buffLength);
-                        }
-                        strm.Close();
-                        fs.Close();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex);
-                        return new AlertMsg(false, ex.Message);
-                    }
-                    return AlertMsg.OperSuccess;
-                }
-            }
-        }
-        /// <summary>
-        /// 下载
-        /// </summary>
-        public static IAlertMsg DownloadFile(this FtpRequestModel model, string saveFileName)
-        {
-            try
-            {
-                FileStream outputStream = new FileStream(saveFileName, FileMode.Create);
-                var reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(model.GetUrl()));
-                reqFTP.Method = WebRequestMethods.Ftp.DownloadFile;
-                reqFTP.UseBinary = true;
-                reqFTP.Credentials = new NetworkCredential(model.Account, model.Password);
-                FtpWebResponse response = (FtpWebResponse)reqFTP.GetResponse();
-                Stream ftpStream = response.GetResponseStream();
-                long cl = response.ContentLength;
-                int bufferSize = 2048;
-                int readCount;
-                byte[] buffer = new byte[bufferSize];
-                readCount = ftpStream.Read(buffer, 0, bufferSize);
-                while (readCount > 0)
-                {
-                    outputStream.Write(buffer, 0, readCount);
-                    readCount = ftpStream.Read(buffer, 0, bufferSize);
-                }
-
-                ftpStream.Close();
-                outputStream.Close();
-                response.Close();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                return new AlertMsg(false, ex.Message);
-            }
-            return AlertMsg.OperSuccess;
-        }
-        /// <summary>
-        /// 删除文件
-        /// </summary>
-        public static IAlertMsg DeleteFile(this FtpRequestModel model)
-        {
-            try
-            {
-                FtpWebRequest reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(model.GetUrl()));
-                reqFTP.Credentials = new NetworkCredential(model.Account, model.Password);
-                reqFTP.KeepAlive = false;
-                reqFTP.Method = nameof(WebRequestType.DELE);
-                FtpWebResponse response = (FtpWebResponse)reqFTP.GetResponse();
-                long size = response.ContentLength;
-                Stream datastream = response.GetResponseStream();
-                StreamReader sr = new StreamReader(datastream);
-                var result = sr.ReadToEnd();
-                sr.Close();
-                datastream.Close();
-                response.Close();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                return new AlertMsg(false, ex.Message);
-            }
-            return AlertMsg.OperSuccess;
-        }
-        /// <summary>
-        /// 获取枚举的Enum名称
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public static string ToEnumString(this WebRequestType type)
-        {
-            return type switch
-            {
-                WebRequestType.GET => nameof(WebRequestType.GET),
-                WebRequestType.PUT => nameof(WebRequestType.PUT),
-                WebRequestType.RETR => nameof(WebRequestType.RETR),
-                WebRequestType.NLST => nameof(WebRequestType.NLST),
-                WebRequestType.STOR => nameof(WebRequestType.STOR),
-                WebRequestType.DELE => nameof(WebRequestType.DELE),
-                WebRequestType.APPE => nameof(WebRequestType.APPE),
-                WebRequestType.SIZE => nameof(WebRequestType.SIZE),
-                WebRequestType.STOU => nameof(WebRequestType.STOU),
-                WebRequestType.MKD => nameof(WebRequestType.MKD),
-                WebRequestType.RMD => nameof(WebRequestType.RMD),
-                WebRequestType.LIST => nameof(WebRequestType.LIST),
-                WebRequestType.MDTM => nameof(WebRequestType.MDTM),
-                WebRequestType.PWD => nameof(WebRequestType.PWD),
-                WebRequestType.RENAME => nameof(WebRequestType.RENAME),
-                WebRequestType.CONNECT => nameof(WebRequestType.CONNECT),
-                WebRequestType.HEAD => nameof(WebRequestType.HEAD),
-                WebRequestType.POST => nameof(WebRequestType.POST),
-                WebRequestType.MKCOL => nameof(WebRequestType.MKCOL),
-                _ => nameof(WebRequestType.GET),
-            };
-        }
     }
     /// <summary>
     /// FTP请求模型
@@ -228,6 +79,124 @@ namespace System.Data.Extter
             /// 删除
             /// </summary>
             Delete = 2,
+        }
+        /// <summary>
+        /// 获取一个请求
+        /// </summary>
+        /// <returns></returns>
+        public IAlertMsg GetRequest()
+        {
+            switch (Type)
+            {
+                case FtpRequestTypeModel.ReqType.Upload: return UploadFile(FileName);
+                case FtpRequestTypeModel.ReqType.Delete: return DeleteFile();
+                case FtpRequestTypeModel.ReqType.Download:
+                default: return DownloadFile(FileName);
+            }
+        }
+        /// <summary>
+        /// 上传
+        /// </summary>
+        public AlertMsg UploadFile(string filename)
+        {
+            FileInfo fileInfo = new FileInfo(filename);
+            string uri = GetUrl().TrimEnd('/') + fileInfo.Name;
+            var reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));
+            reqFTP.Credentials = new NetworkCredential(Account, Password);
+            reqFTP.KeepAlive = false;
+            reqFTP.Method = WebRequestMethods.Ftp.UploadFile;
+            reqFTP.UseBinary = true;
+            reqFTP.ContentLength = fileInfo.Length;
+
+            int buffLength = 2048;
+            byte[] buff = new byte[buffLength];
+            int contentLen;
+            using (FileStream fs = fileInfo.OpenRead())
+            {
+                using (Stream strm = reqFTP.GetRequestStream())
+                {
+                    try
+                    {
+                        contentLen = fs.Read(buff, 0, buffLength);
+                        while (contentLen != 0)
+                        {
+                            strm.Write(buff, 0, contentLen);
+                            contentLen = fs.Read(buff, 0, buffLength);
+                        }
+                        strm.Close();
+                        fs.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                        return new AlertMsg(false, ex.Message);
+                    }
+                    return AlertMsg.OperSuccess;
+                }
+            }
+        }
+        /// <summary>
+        /// 下载
+        /// </summary>
+        public IAlertMsg DownloadFile(string saveFileName)
+        {
+            try
+            {
+                FileStream outputStream = new FileStream(saveFileName, FileMode.Create);
+                var reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(GetUrl()));
+                reqFTP.Method = WebRequestMethods.Ftp.DownloadFile;
+                reqFTP.UseBinary = true;
+                reqFTP.Credentials = new NetworkCredential(Account, Password);
+                FtpWebResponse response = (FtpWebResponse)reqFTP.GetResponse();
+                Stream ftpStream = response.GetResponseStream();
+                long cl = response.ContentLength;
+                int bufferSize = 2048;
+                int readCount;
+                byte[] buffer = new byte[bufferSize];
+                readCount = ftpStream.Read(buffer, 0, bufferSize);
+                while (readCount > 0)
+                {
+                    outputStream.Write(buffer, 0, readCount);
+                    readCount = ftpStream.Read(buffer, 0, bufferSize);
+                }
+
+                ftpStream.Close();
+                outputStream.Close();
+                response.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return new AlertMsg(false, ex.Message);
+            }
+            return AlertMsg.OperSuccess;
+        }
+        /// <summary>
+        /// 删除文件
+        /// </summary>
+        public IAlertMsg DeleteFile()
+        {
+            try
+            {
+                FtpWebRequest reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(GetUrl()));
+                reqFTP.Credentials = new NetworkCredential(Account, Password);
+                reqFTP.KeepAlive = false;
+                reqFTP.Method = nameof(WebRequestType.DELE);
+                FtpWebResponse response = (FtpWebResponse)reqFTP.GetResponse();
+                long size = response.ContentLength;
+                Stream datastream = response.GetResponseStream();
+                StreamReader sr = new StreamReader(datastream);
+                var result = sr.ReadToEnd();
+                sr.Close();
+                datastream.Close();
+                response.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return new AlertMsg(false, ex.Message);
+            }
+            return AlertMsg.OperSuccess;
         }
     }
     /// <summary>

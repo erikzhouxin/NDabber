@@ -9,7 +9,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 表达式调用者
     /// </summary>
-    public class ExpressionCaller
+    public static partial class ExtterCaller
     {
     }
 }

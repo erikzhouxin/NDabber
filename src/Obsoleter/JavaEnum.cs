@@ -12,35 +12,17 @@ namespace System.Data.Cobber
     /// <summary>
     /// Java枚举接口
     /// </summary>
-    public interface IJavaEnum<TEnum> : IJavaEnum
-        where TEnum : Enum
-    {
-        /// <summary>
-        /// 值
-        /// </summary>
-        TEnum Enum { get; }
-    }
+    [Obsolete("替代方案:INEnumerable")]
+    public interface IJavaEnum<TEnum> : INEnumerable<TEnum> where TEnum : struct, Enum { }
     /// <summary>
     /// Java枚举接口
     /// </summary>
-    public interface IJavaEnum
-    {
-        /// <summary>
-        /// 值
-        /// </summary>
-        Int32 Value { get; }
-        /// <summary>
-        /// 枚举名
-        /// </summary>
-        String EnumName { get; }
-        /// <summary>
-        /// 名
-        /// </summary>
-        String Name { get; }
-    }
+    [Obsolete("替代方案:INEnumerable")]
+    public interface IJavaEnum : INEnumerable { }
     /// <summary>
     /// 抽象Java枚举
     /// </summary>
+    [Obsolete("替代方案:NEnumerable")]
     public struct JavaEnum : IJavaEnum
     {
         /// <summary>
@@ -55,6 +37,19 @@ namespace System.Data.Cobber
         /// 名称
         /// </summary>
         public string Name { get; }
+
+        object INEnumerable.Enum => throw new NotImplementedException();
+
+        DescriptionAttribute INEnumerable.Description => throw new NotImplementedException();
+
+        DisplayNameAttribute INEnumerable.DisplayName => throw new NotImplementedException();
+
+        EDisplayAttribute INEnumerable.EDisplay => throw new NotImplementedException();
+
+        DisplayAttribute INEnumerable.Display => throw new NotImplementedException();
+
+        FieldInfo INEnumerable.Field => throw new NotImplementedException();
+
         /// <summary>
         /// 构造
         /// </summary>

@@ -10,7 +10,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 打开调用
     /// </summary>
-    public static class OpenCaller
+    public static partial class ExtterCaller
     {
         /// <summary>
         /// 打开文件

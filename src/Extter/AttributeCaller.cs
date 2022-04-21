@@ -17,7 +17,12 @@ namespace System.Data.Extter
     /// <summary>
     /// 属性调用
     /// </summary>
-    public static class AttributeCaller
+    public static partial class ExtterCaller
     {
+        private static void Test()
+        {
+            // WindowCmdCaller
+
+        }
     }
 }
