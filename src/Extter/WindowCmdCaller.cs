@@ -11,7 +11,7 @@ namespace System.Data.Extter
     /// <summary>
     /// Window操作系统调用
     /// </summary>
-    public static class WindowCmdCaller
+    public static partial class ExtterCaller
     {
         /// <summary>
         /// C:\Windows

@@ -138,7 +138,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 序列化调用
     /// </summary>
-    public static class SerialCaller
+    public static partial class ExtterCaller
     {
         /// <summary>
         /// 获取模型

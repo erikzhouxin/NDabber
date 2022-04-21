@@ -8,7 +8,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 创建者
     /// </summary>
-    public static class Builder
+    public static partial class Builder
     {
         /// <summary>
         /// 创建空数组(利用引用,相当于Array.Empty)

@@ -9,7 +9,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 单元测试调用
     /// </summary>
-    public static class UnitTestCaller
+    public static partial class ExtterCaller
     {
         /// <summary>
         /// 测试方法

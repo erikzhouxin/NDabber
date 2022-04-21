@@ -9,7 +9,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 媒介调用
     /// </summary>
-    public static class MediaCaller
+    public static partial class ExtterCaller
     {
         /// <summary>
         /// 转换成字节数组

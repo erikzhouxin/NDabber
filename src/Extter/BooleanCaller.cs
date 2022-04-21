@@ -261,10 +261,7 @@ namespace System.Data.Cobber
 
 namespace System.Data.Extter
 {
-    /// <summary>
-    /// 布尔调用
-    /// </summary>
-    public static class BooleanCaller
+    public static partial class ExtterCaller
     {
         /// <summary>
         /// IF语句

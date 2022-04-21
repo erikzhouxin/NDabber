@@ -144,7 +144,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 字符串调用扩展
     /// </summary>
-    public static class StringCaller
+    public static partial class ExtterCaller
     {
         /// <summary>
         /// 转换成蛇形

@@ -91,7 +91,7 @@ namespace System.Data.Extter
             {
                 cmd.Append($" obj= \"{Obj}\"").Append($" password= \"{Password}\"");
             }
-            return WindowCmdCaller.ExecHidden("SC", Path.GetDirectoryName(Path.GetFullPath(Source)), cmd.ToString());
+            return ExtterCaller.ExecHidden("SC", Path.GetDirectoryName(Path.GetFullPath(Source)), cmd.ToString());
         }
 
         private static String GetError(ErrorType error)
@@ -129,7 +129,7 @@ namespace System.Data.Extter
         public virtual IAlertMsg Delete()
         {
             StopService();
-            return WindowCmdCaller.ExecHidden("SC", Path.GetDirectoryName(Path.GetFullPath(Source)), $" delete {Name}");
+            return ExtterCaller.ExecHidden("SC", Path.GetDirectoryName(Path.GetFullPath(Source)), $" delete {Name}");
         }
         /// <summary>
         /// 启动服务
@@ -137,7 +137,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public virtual IAlertMsg StartService()
         {
-            return WindowCmdCaller.NetStart(Name);
+            return ExtterCaller.NetStart(Name);
         }
         /// <summary>
         /// 停止服务
@@ -145,7 +145,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public virtual IAlertMsg StopService()
         {
-            return WindowCmdCaller.NetStop(Name);
+            return ExtterCaller.NetStop(Name);
         }
         /// <summary>
         /// 错误类型
