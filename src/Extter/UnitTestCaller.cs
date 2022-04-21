@@ -22,7 +22,17 @@ namespace System.Data.Extter
             {
                 action.Invoke();
             }
-            Console.WriteLine(consoleFmt, DateTime.Now - now);
+            Console.WriteLine(consoleFmt, DateTime.Now - now, times);
+        }
+        /// <summary>
+        /// 测试方法
+        /// </summary>
+        public static void TestParallelAction(string consoleFmt, Action action, int times = 10000, int degree = 5)
+        {
+            action.Invoke();
+            var now = DateTime.Now;
+            Parallel.For(0, times, new ParallelOptions { MaxDegreeOfParallelism = degree }, (i) => action.Invoke());
+            Console.WriteLine(consoleFmt, DateTime.Now - now, times, degree);
         }
         /// <summary>
         /// 测试方法

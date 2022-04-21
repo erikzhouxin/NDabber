@@ -1,0 +1,8 @@
+# git count-objects -v // 查看仓库大小
+# git rev-list --objects --all | grep "$(git verify-pack -v .git/objects/pack/*.idx | sort -k 3 -n | tail -20 | awk '{print$1}')" // 查找前20条大文件
+# git filter-branch --force --index-filter 'git rm -rf --cached --ignore-unmatch xxx.framework' --prune-empty --tag-name-filter cat -- --all // 删除路径为xxx.framework的文件
+# git push origin --force --all // 推送到远程
+# // 清理缓存
+#  rm -rf .git/refs/original/ 
+# git reflog expire --expire=now --all
+# git gc --prune=now

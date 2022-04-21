@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Cobber;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -16,6 +17,41 @@ namespace System.Data.Extter
     /// </summary>
     public static partial class ExtterCaller
     {
+        /// <summary>
+        /// 跟踪方法键
+        /// </summary>
+        public static String TraceMathodKey { get { return new StackTrace().GetFrame(1).GetMethod().GetMemberFullName(); } }
+        /// <summary>
+        /// 跟踪方法小时键
+        /// </summary>
+        public static String TraceMathodHourKey
+        {
+            get
+            {
+                var frame = new StackTrace().GetFrame(1);
+                return $"{frame.GetMethod().GetMemberFullName()}.{DateTime.Now:yyMMddHH}";
+            }
+        }
+        /// <summary>
+        /// 跟踪方法小时键
+        /// </summary>
+        public static String TraceMathodDayKey
+        {
+            get
+            {
+                var frame = new StackTrace().GetFrame(1);
+                return $"{frame.GetMethod().GetMemberFullName()}.{DateTime.Now:yyMMdd}";
+            }
+        }
+        /// <summary>
+        /// 获取跟踪Frame内容
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public static StackFrame GetTraceFrame(int index = 1)
+        {
+            return new StackTrace().GetFrame(index);
+        }
         /// <summary>
         /// 字段信息
         /// </summary>
