@@ -3747,4 +3747,18 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static IAlertMsg NetStop(string serviceName) => ExecHidden("net", WindowDir, $" stop {serviceName}");
     }
+    public static partial class ExtterCaller
+    {
+        /// <summary>
+        /// 深度Memory的Serialize复制
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        [Obsolete("替代方案:DeepJsonCopy,原因是BinaryFormatter部分已弃用")]
+        public static T DeepMemoryCopy<T>(T obj)
+        {
+            return CopyClone.DeepMemoryCopy(obj);
+        }
+    }
 }

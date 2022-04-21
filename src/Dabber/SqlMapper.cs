@@ -348,10 +348,10 @@ namespace System.Data.Dabber
         /// <param name="name">The name (for error messages).</param>
         /// <param name="demand">Whether to demand a value (throw if missing).</param>
         /// <param name="handler">The handler for <paramref name="type"/>.</param>
-        [Obsolete(ObsoleteInternalUsageOnly, false)]
+        //[Obsolete(ObsoleteInternalUsageOnly, false)]
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static DbType LookupDbType(Type type, string name, bool demand, out ITypeHandler handler)
+        internal static DbType LookupDbType(Type type, string name, bool demand, out ITypeHandler handler)
         {
             handler = null;
             var nullUnderlyingType = Nullable.GetUnderlyingType(type);
@@ -1979,8 +1979,8 @@ namespace System.Data.Dabber
         /// <param name="value">The parameter value can be an <see cref="IEnumerable{T}"/></param>
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete(ObsoleteInternalUsageOnly, false)]
-        public static void PackListParameters(IDbCommand command, string namePrefix, object value)
+        //[Obsolete(ObsoleteInternalUsageOnly, false)]
+        internal static void PackListParameters(IDbCommand command, string namePrefix, object value)
         {
             // initially we tried TVP, however it performs quite poorly.
             // keep in mind SQL support up to 2000 params easily in sp_executesql, needing more is rare
@@ -2201,8 +2201,8 @@ namespace System.Data.Dabber
         /// OBSOLETE:仅供内部使用。 使用适当的类型铸造对参数值进行消毒。  
         /// </summary>
         /// <param name="value">The value to sanitize.</param>
-        [Obsolete(ObsoleteInternalUsageOnly, false)]
-        public static object SanitizeParameterValue(object value)
+        //[Obsolete(ObsoleteInternalUsageOnly, false)]
+        internal static object SanitizeParameterValue(object value)
         {
             if (value == null) return DBNull.Value;
             if (value is Enum)

@@ -269,9 +269,7 @@ namespace System.Data.Dabber
                 SqlMapper.ITypeHandler handler = null;
                 if (dbType == null && val != null && !isCustomQueryParameter)
                 {
-#pragma warning disable 618
                     dbType = SqlMapper.LookupDbType(val.GetType(), name, true, out handler);
-#pragma warning disable 618
                 }
                 if (isCustomQueryParameter)
                 {
@@ -279,9 +277,7 @@ namespace System.Data.Dabber
                 }
                 else if (dbType == EnumerableMultiParameter)
                 {
-#pragma warning disable 612, 618
                     SqlMapper.PackListParameters(command, name, val);
-#pragma warning restore 612, 618
                 }
                 else
                 {
@@ -300,9 +296,7 @@ namespace System.Data.Dabber
                     p.Direction = param.ParameterDirection;
                     if (handler == null)
                     {
-#pragma warning disable 0618
                         p.Value = SqlMapper.SanitizeParameterValue(val);
-#pragma warning restore 0618
                         if (dbType != null && p.DbType != dbType)
                         {
                             p.DbType = dbType.Value;
@@ -380,9 +374,9 @@ namespace System.Data.Dabber
                 => throw new InvalidOperationException($"Expression must be a property/field chain off of a(n) {typeof(T).Name} instance");
 
             // Is it even a MemberExpression?
-#pragma warning disable IDE0019 // Use pattern matching - already complex enough
+// #pragma warning disable IDE0019 // Use pattern matching - already complex enough
             var lastMemberAccess = expression.Body as MemberExpression;
-#pragma warning restore IDE0019 // Use pattern matching
+// #pragma warning restore IDE0019 // Use pattern matching
 
             if (lastMemberAccess == null
                 || (!(lastMemberAccess.Member is PropertyInfo)

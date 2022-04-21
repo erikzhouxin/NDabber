@@ -97,7 +97,6 @@ namespace System.Data.Piper
         /// <summary>
         /// 获取未知命令结果
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="arg"></param>
         /// <returns></returns>
         public static AlertPipeResult GetUnknown(AlertPipeString arg)

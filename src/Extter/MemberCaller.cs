@@ -1053,20 +1053,14 @@ namespace System.Data.Extter
             return (T)DeepExpressionTreeObjCopy(original, false, copiedReferencesDict ?? new Dictionary<object, object>(new ReferenceEqualityComparer()));
         }
         /// <summary>
-        /// 深度Memory的Serialize复制
+        /// 深度Json的Serialize复制
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static T DeepMemoryCopy<T>(T obj)
+        public static T DeepJsonCopy<T>(T obj)
         {
-            using (var ms = new MemoryStream())
-            {
-                var formatter = new BinaryFormatter();
-                formatter.Serialize(ms, obj);
-                ms.Position = 0;
-                return (T)formatter.Deserialize(ms);
-            }
+            return obj.GetJsonString().GetJsonObject<T>();
         }
         /// <summary>
         /// 深度反射复制
