@@ -10,7 +10,7 @@ namespace System.Data.DabberUT.PinYinUT
     /// 拼音转换测试
     /// </summary>
     [TestClass]
-    public class PinYinConverterUT
+    public class ChineserUT
     {
         [TestMethod]
         public void MyTestMethod()

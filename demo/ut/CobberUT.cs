@@ -8,7 +8,7 @@ using System.Text;
 namespace System.Data.DabberUT
 {
     [TestClass]
-    public class MemberAccessorUT
+    public class CobberUT
     {
         [TestMethod]
         public void TestAccess()
@@ -87,7 +87,7 @@ namespace System.Data.DabberUT
             TestClassMember(runTime, testObject, ra, ea, da, ma, pa, ga, testMemberName);
         }
 
-        private static void TestClassMember<T>(int runTime, T testObject, MemberReflectionAccessor ra, MemberDelegatedExpressionAccessor ea, MemberDelegatedReflectionAccessor da, MemberExpressionAccessor ma, IPropertyAccess pa,PropertyAccess<T> ga, string testMemberName)
+        private static void TestClassMember<T>(int runTime, T testObject, MemberReflectionAccessor ra, MemberDelegatedExpressionAccessor ea, MemberDelegatedReflectionAccessor da, MemberExpressionAccessor ma, IPropertyAccess pa, PropertyAccess<T> ga, string testMemberName)
         {
             new TimeProfiler(() => ra.SetValue(testObject, testMemberName, ra.GetValue(testObject, testMemberName)), "反射调用").Run(runTime);
             new TimeProfiler(() => ea.SetValue(testObject, testMemberName, ea.GetValue(testObject, testMemberName)), "Expression委托调用").Run(runTime);

@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NEamsUT.CodeGener;
 using System;
 using System.Collections.Generic;
 using System.Data.Cobber;
-using System.Data.Dabber;
 using System.Data.Extter;
 using System.Data.Sqller;
 using System.IO;
@@ -11,13 +11,14 @@ using System.Text;
 namespace System.Data.DabberUT
 {
     /// <summary>
-    /// Sql创建者测试
+    /// Sqlite脚本测试
     /// </summary>
     [TestClass]
-    public class SqlBuilderUT
+    public class SqllerUT
     {
+        #region // SqlBuilder
         [TestMethod]
-        public void MyTestMethod()
+        public void SqlBuilderUT()
         {
             var times = 10000;
             var now = DateTime.Now;
@@ -37,7 +38,7 @@ namespace System.Data.DabberUT
                 typeSql = SqlScriptBuilder.CreateSimpleSelect(StoreType.SQLite).FromWhere<TSysParams>().SqlScript;
                 updateSql = SqlScriptBuilder.CreateUpdate(StoreType.SQLite)
                     .From<TSysParams>()
-                    .SetBParam(nameof(TSysParams.Key),nameof(TSysParams.Key))
+                    .SetBParam(nameof(TSysParams.Key), nameof(TSysParams.Key))
                     .Where().AndEqualAParam(nameof(TSysParams.ID), 123)
                     .SqlScript;
             }
@@ -63,7 +64,7 @@ namespace System.Data.DabberUT
             Console.WriteLine(model.GetJsonString());
         }
 
-        public interface ITestClass 
+        public interface ITestClass
         {
             string Name { get; set; }
             int ID { get; set; }
@@ -71,5 +72,36 @@ namespace System.Data.DabberUT
             DateTime DateTime { get; set; }
 
         }
+        #endregion
+        #region // SqlScript
+        [TestMethod]
+        [DataRow(StoreType.SQLite)]
+        [DataRow(StoreType.MySQL)]
+        [DataRow(StoreType.SqlServer)]
+        public void InsertTest(StoreType storeType)
+        {
+            var insertSqls = GetInsertSqls(storeType);
+            Console.WriteLine(insertSqls);
+
+            var updateSqls = GetUpdateSqls(storeType);
+            Console.Write(updateSqls);
+        }
+        public StringBuilder GetInsertSqls(StoreType storeType)
+        {
+            return new StringBuilder()
+                .AppendLine(SqlScriptBuilder.CreateInsert(storeType).From<TSysParams>().SqlScript)
+                .AppendLine(SqlScriptBuilder.CreateInsert(storeType).From(typeof(TSysSettings)).SqlScript)
+                .AppendLine(SqlScriptBuilder.CreateInsert(storeType).UseSelect<TSysParams>().Select(SqlScriptBuilder.CreateSimpleSelect(storeType).FromWhere<TSysParams>()).SqlScript)
+                .AppendLine(SqlScriptBuilder.CreateInsert(storeType).UseSelect(typeof(TSysSettings)).Select(SqlScriptBuilder.CreateSimpleSelect(storeType).FromWhere(typeof(TSysSettings))).SqlScript);
+        }
+        public StringBuilder GetUpdateSqls(StoreType storeType)
+        {
+            return new StringBuilder()
+                .AppendLine(SqlScriptBuilder.CreateUpdate(storeType).From<TSysParams>().SetAParam(nameof(TSysParams.Key)).SetBParam(nameof(TSysParams.Value), "Value").Where().AndEqualAParam("ID", 123).SqlScript)
+                .AppendLine(SqlScriptBuilder.CreateUpdate(storeType).From(typeof(TSysParams)).SetClause("Value = IFNULL(Value,'',Value)").Where().SqlScript)
+                .AppendLine(SqlScriptBuilder.CreateUpdate(storeType).FromWhere<TSysParams>().SqlScript)
+                .AppendLine(SqlScriptBuilder.CreateUpdate(storeType).FromWhere(typeof(TSysSettings)).SqlScript);
+        }
+        #endregion
     }
 }

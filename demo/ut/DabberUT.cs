@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace System.Data.DabberUT
 {
     [TestClass]
-    public class DbConnectionPoolUT
+    public class DabberUT
     {
         /// <summary>
         /// 

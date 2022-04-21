@@ -1,9 +1,32 @@
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
+using System.Data.Cobber;
+using System.Data.Extter;
 using System.Linq.Expressions;
+using System.Text;
 
-#pragma warning disable
-namespace System.Data.Extter
+namespace NEamsUT.CodeGener
 {
+    /// <summary>
+    /// GUID
+    /// </summary>
+    [TestClass]
+    public class CodeGenerUT
+    {
+        /// <summary>
+        /// 创建
+        /// </summary>
+        [TestMethod]
+        public void Create()
+        {
+            var times = 10;
+            for (int i = 0; i < times; i++)
+            {
+                Console.WriteLine(Guid.NewGuid().GetString());
+            }
+        }
+    }
     /// <summary>
     /// 表达式类:本地参数表
     /// <see cref="TSysParams"/>

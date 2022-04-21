@@ -9,7 +9,7 @@ namespace System.Data.DabberUT.Performances
     /// 转换字符性能
     /// </summary>
     [TestClass]
-    public class ToStringUT
+    public class PerformUT
     {
         [TestMethod]
         public void NumberToHexString()
