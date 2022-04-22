@@ -101,13 +101,14 @@ namespace System.Data.Extter
         {
             FileInfo fileInfo = new FileInfo(filename);
             string uri = GetUrl().TrimEnd('/') + fileInfo.Name;
-            var reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));
+#pragma warning disable SYSLIB0014 // 类型或成员已过时
+            var reqFTP = ExtterCaller.CreateWebRequest<FtpWebRequest>(uri);
+#pragma warning restore SYSLIB0014 // 类型或成员已过时
             reqFTP.Credentials = new NetworkCredential(Account, Password);
             reqFTP.KeepAlive = false;
             reqFTP.Method = WebRequestMethods.Ftp.UploadFile;
             reqFTP.UseBinary = true;
             reqFTP.ContentLength = fileInfo.Length;
-
             int buffLength = 2048;
             byte[] buff = new byte[buffLength];
             int contentLen;
@@ -143,7 +144,9 @@ namespace System.Data.Extter
             try
             {
                 FileStream outputStream = new FileStream(saveFileName, FileMode.Create);
-                var reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(GetUrl()));
+#pragma warning disable SYSLIB0014 // 类型或成员已过时
+                var reqFTP = ExtterCaller.CreateWebRequest<FtpWebRequest>(GetUrl());
+#pragma warning restore SYSLIB0014 // 类型或成员已过时
                 reqFTP.Method = WebRequestMethods.Ftp.DownloadFile;
                 reqFTP.UseBinary = true;
                 reqFTP.Credentials = new NetworkCredential(Account, Password);
@@ -178,7 +181,9 @@ namespace System.Data.Extter
         {
             try
             {
-                FtpWebRequest reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(GetUrl()));
+#pragma warning disable SYSLIB0014 // 类型或成员已过时
+                var reqFTP = ExtterCaller.CreateWebRequest<FtpWebRequest>(GetUrl());
+#pragma warning restore SYSLIB0014 // 类型或成员已过时
                 reqFTP.Credentials = new NetworkCredential(Account, Password);
                 reqFTP.KeepAlive = false;
                 reqFTP.Method = nameof(WebRequestType.DELE);

@@ -399,8 +399,8 @@ namespace System.Data.Dabber
             //{
             //    return RealConnection.GetService(service);
             //}
-#if NET50
-            [Obsolete]
+#if NET50 || NET60
+            [Obsolete("This Remoting API is not supported and throws PlatformNotSupportedException.", DiagnosticId = "SYSLIB0010", UrlFormat = "https://aka.ms/dotnet-warnings/{0}")]
 #endif
             public override object InitializeLifetimeService()
             {

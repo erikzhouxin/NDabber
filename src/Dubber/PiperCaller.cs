@@ -5,7 +5,10 @@ using System.Text;
 
 namespace System.Data.Dubber
 {
-    internal class PiperCaller
+    /// <summary>
+    /// 管道调用
+    /// </summary>
+    public static partial class PiperCaller
     {
     }
 }

@@ -41,7 +41,7 @@ namespace System.Data.Dabber
         public override void Close() { }
         public override DataTable GetSchemaTable() => ThrowDisposed<DataTable>();
 
-#if NET50
+#if NET50 || NET60
         [Obsolete("This Remoting API is not supported and throws PlatformNotSupportedException.", DiagnosticId = "SYSLIB0010", UrlFormat = "https://aka.ms/dotnet-warnings/{0}")]
 #endif
         public override object InitializeLifetimeService() => ThrowDisposed<object>();
@@ -146,7 +146,7 @@ namespace System.Data.Dabber
         public override void Close() => _reader.Close();
         public override DataTable GetSchemaTable() => _reader.GetSchemaTable();
 
-#if NET50
+#if NET50 || NET60
         [Obsolete("This Remoting API is not supported and throws PlatformNotSupportedException.", DiagnosticId = "SYSLIB0010", UrlFormat = "https://aka.ms/dotnet-warnings/{0}")]
 #endif
         public override object InitializeLifetimeService() => _reader.InitializeLifetimeService();

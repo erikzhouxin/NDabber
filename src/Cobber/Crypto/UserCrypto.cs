@@ -86,12 +86,10 @@ namespace System.Data.Cobber
         public static byte[] GetAesDecrypt(byte[] content, byte[] key)
         {
             key = GetFillBytes(key, 32);
-            var rm = new RijndaelManaged
-            {
-                Key = key,
-                Mode = CipherMode.ECB,
-                Padding = PaddingMode.PKCS7
-            };
+            var rm = Aes.Create();
+            rm.Key = key;
+            rm.Mode = CipherMode.ECB;
+            rm.Padding = PaddingMode.PKCS7;
             return rm.CreateDecryptor().TransformFinalBlock(content, 0, content.Length);
         }
         #endregion
