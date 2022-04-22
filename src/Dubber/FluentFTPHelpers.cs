@@ -9,6 +9,8 @@ using System.Diagnostics;
 using System.Collections;
 using System.Globalization;
 using System.Reflection;
+using System.Net;
+using System.Net.NetworkInformation;
 
 namespace System.Data.Dubber
 {
@@ -2453,7 +2455,7 @@ namespace System.Data.Dubber
     /// </summary>
     public static class FtpTrace
     {
-#if !CORE
+#if !NETFx
         private static volatile TraceSource m_traceSource = new TraceSource("FluentFTP")
         {
             Switch = new SourceSwitch("sourceSwitch", "Verbose") { Level = SourceLevels.All }
@@ -2661,7 +2663,7 @@ namespace System.Data.Dubber
 			}
 #endif
 
-#if !CORE
+#if !NETFx
 
             if (m_prefix)
             {
@@ -2683,7 +2685,7 @@ namespace System.Data.Dubber
         }
 
 
-#if !CORE
+#if !NETFx
 
         private static TraceEventType TraceLevelTranslation(FtpTraceLevel level)
         {
@@ -2800,8 +2802,8 @@ namespace System.Data.Dubber
     /// </summary>
     internal static class LocalPorts
     {
-#if ASYNC && !CORE14 && !CORE16
-		internal static readonly Random randomGen = new Random();
+#if !NET40
+        internal static readonly Random randomGen = new Random();
 
 		/// <summary>
 		/// Get random local port for the given local IP address
@@ -3723,7 +3725,7 @@ namespace System.Data.Dubber
 
     internal static class FtpReflection
     {
-#if !CORE
+#if !NETFx
         public static object GetField(this object obj, string fieldName)
         {
             var tp = obj.GetType();

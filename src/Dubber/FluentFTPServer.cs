@@ -82,12 +82,12 @@ namespace System.Data.Dubber
 			return false;
 		}
 
-#if ASYNC
-		/// <summary>
-		/// Perform async server-specific delete directory commands here.
-		/// Return true if you executed a server-specific command.
-		/// </summary>
-		public virtual Task<bool> DeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Perform async server-specific delete directory commands here.
+        /// Return true if you executed a server-specific command.
+        /// </summary>
+        public virtual Task<bool> DeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
 			return Task.FromResult(false);
 		}
 #endif
@@ -101,12 +101,12 @@ namespace System.Data.Dubber
 			return false;
 		}
 
-#if ASYNC
-		/// <summary>
-		/// Perform async server-specific create directory commands here.
-		/// Return true if you executed a server-specific command.
-		/// </summary>
-		public virtual Task<bool> CreateDirectoryAsync(FtpClient client, string path, string ftppath, bool force, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Perform async server-specific create directory commands here.
+        /// Return true if you executed a server-specific command.
+        /// </summary>
+        public virtual Task<bool> CreateDirectoryAsync(FtpClient client, string path, string ftppath, bool force, CancellationToken token) {
 			return Task.FromResult(false);
 		}
 #endif
@@ -120,12 +120,12 @@ namespace System.Data.Dubber
 
 		}
 
-#if ASYNC
-		/// <summary>
-		/// Perform server-specific post-connection commands here.
-		/// Return true if you executed a server-specific command.
-		/// </summary>
-		public virtual Task AfterConnectedAsync(FtpClient client, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Perform server-specific post-connection commands here.
+        /// Return true if you executed a server-specific command.
+        /// </summary>
+        public virtual Task AfterConnectedAsync(FtpClient client, CancellationToken token) {
 #if NET45
 			return Task.FromResult(true);
 #else
@@ -149,12 +149,12 @@ namespace System.Data.Dubber
 			return 0;
 		}
 
-#if ASYNC
-		/// <summary>
-		/// Perform server-specific file size fetching commands here.
-		/// Return the file size in bytes.
-		/// </summary>
-		public virtual Task<long> GetFileSizeAsync(FtpClient client, string path, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Perform server-specific file size fetching commands here.
+        /// Return the file size in bytes.
+        /// </summary>
+        public virtual Task<long> GetFileSizeAsync(FtpClient client, string path, CancellationToken token) {
 			return Task.FromResult(0L);
 		}
 #endif
@@ -1068,12 +1068,12 @@ namespace System.Data.Dubber
             }
         }
 
-#if ASYNC
-		/// <summary>
-		/// Perform server-specific post-connection commands here.
-		/// Return true if you executed a server-specific command.
-		/// </summary>
-		public override async Task AfterConnectedAsync(FtpClient client, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Perform server-specific post-connection commands here.
+        /// Return true if you executed a server-specific command.
+        /// </summary>
+        public override async Task AfterConnectedAsync(FtpClient client, CancellationToken token) {
 			FtpReply reply;
 			if (!(reply = await client.ExecuteAsync("SITE DATASETMODE", token)).Success) {
 				throw new FtpCommandException(reply);
@@ -1118,16 +1118,16 @@ namespace System.Data.Dubber
             return entry.Size;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Get z/OS file size
-		/// </summary>
-		/// <param name="path">The full path of the file whose size you want to retrieve</param>
-		/// <remarks>
-		/// Make sure you are in the right realm (z/OS or HFS) before doing this
-		/// </remarks>
-		/// <returns>The size of the file</returns>
-		public override async Task<long> GetFileSizeAsync(FtpClient client, string path, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Get z/OS file size
+        /// </summary>
+        /// <param name="path">The full path of the file whose size you want to retrieve</param>
+        /// <remarks>
+        /// Make sure you are in the right realm (z/OS or HFS) before doing this
+        /// </remarks>
+        /// <returns>The size of the file</returns>
+        public override async Task<long> GetFileSizeAsync(FtpClient client, string path, CancellationToken token) {
 
 			// prevent automatic parser detection switching to unix on HFS paths
 			client.ListingParser = FtpParser.IBMzOS;
@@ -1376,12 +1376,12 @@ namespace System.Data.Dubber
             return false;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Perform async server-specific delete directory commands here.
-		/// Return true if you executed a server-specific command.
-		/// </summary>
-		public override async Task<bool> DeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Perform async server-specific delete directory commands here.
+        /// Return true if you executed a server-specific command.
+        /// </summary>
+        public override async Task<bool> DeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
 			
 			// Support #378 - Support RMDIR command for ProFTPd
 			if (deleteContents && client.HasFeature(FtpCapability.SITE_RMDIR)) {
@@ -1422,12 +1422,12 @@ namespace System.Data.Dubber
             return false;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Perform async server-specific create directory commands here.
-		/// Return true if you executed a server-specific command.
-		/// </summary>
-		public override async Task<bool> CreateDirectoryAsync(FtpClient client, string path, string ftppath, bool force, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Perform async server-specific create directory commands here.
+        /// Return true if you executed a server-specific command.
+        /// </summary>
+        public override async Task<bool> CreateDirectoryAsync(FtpClient client, string path, string ftppath, bool force, CancellationToken token) {
 
 			// Support #378 - Support MKDIR command for ProFTPd
 			if (client.HasFeature(FtpCapability.SITE_MKDIR)) {
@@ -1573,12 +1573,12 @@ namespace System.Data.Dubber
             return false;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Perform async server-specific delete directory commands here.
-		/// Return true if you executed a server-specific command.
-		/// </summary>
-		public override async Task<bool> DeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Perform async server-specific delete directory commands here.
+        /// Return true if you executed a server-specific command.
+        /// </summary>
+        public override async Task<bool> DeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
 
 			// Support #88 - Support RMDA command for Serv-U
 			if (deleteContents && client.HasFeature(FtpCapability.RMDA)) {

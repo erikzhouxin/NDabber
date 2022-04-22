@@ -217,8 +217,8 @@ namespace System.Data.Dubber
                 switch (m_algorithm)
                 {
                     case FtpHashAlgorithm.SHA1:
-#if CORE
-						hashAlg = SHA1.Create();
+#if NETFx
+                        hashAlg = SHA1.Create();
 #else
                         hashAlg = new SHA1CryptoServiceProvider();
 #endif
@@ -226,16 +226,16 @@ namespace System.Data.Dubber
 
 #if !NET20
                     case FtpHashAlgorithm.SHA256:
-#if CORE
-						hashAlg = SHA256.Create();
+#if NETFx
+                        hashAlg = SHA256.Create();
 #else
                         hashAlg = new SHA256CryptoServiceProvider();
 #endif
                         break;
 
                     case FtpHashAlgorithm.SHA512:
-#if CORE
-						hashAlg = SHA512.Create();
+#if NETFx
+                        hashAlg = SHA512.Create();
 #else
                         hashAlg = new SHA512CryptoServiceProvider();
 #endif
@@ -243,8 +243,8 @@ namespace System.Data.Dubber
 
 #endif
                     case FtpHashAlgorithm.MD5:
-#if CORE
-						hashAlg = MD5.Create();
+#if NETFx
+                        hashAlg = MD5.Create();
 #else
                         hashAlg = new MD5CryptoServiceProvider();
 #endif
@@ -514,7 +514,7 @@ namespace System.Data.Dubber
             return sb.ToString();
         }
     }
-#if !CORE
+#if !NETFx
     [Serializable]
 #endif
     public class FtpProfile
@@ -2342,7 +2342,7 @@ namespace System.Data.Dubber
     /// <summary>
     /// Exception triggered on FTP authentication failures
     /// </summary>
-#if !CORE
+#if !NETFx
     [Serializable]
 #endif
     public class FtpAuthenticationException : FtpCommandException
@@ -2364,7 +2364,7 @@ namespace System.Data.Dubber
         {
         }
 
-#if !CORE
+#if !NETFx
         /// <summary>
         /// Must be implemented so every Serializer can Deserialize the Exception
         /// </summary>
@@ -2377,7 +2377,7 @@ namespace System.Data.Dubber
     /// <summary>
     /// Exception triggered on FTP command failures
     /// </summary>
-#if !CORE
+#if !NETFx
     [Serializable]
 #endif
     public class FtpCommandException : FtpException
@@ -2439,7 +2439,7 @@ namespace System.Data.Dubber
         {
         }
 
-#if !CORE
+#if !NETFx
         /// <summary>
         /// Must be implemented so every Serializer can Deserialize the Exception
         /// </summary>
@@ -2452,7 +2452,7 @@ namespace System.Data.Dubber
     /// <summary>
     /// FTP related error
     /// </summary>
-#if !CORE
+#if !NETFx
     [Serializable]
 #endif
     public class FtpException : Exception
@@ -2474,7 +2474,7 @@ namespace System.Data.Dubber
         {
         }
 
-#if !CORE
+#if !NETFx
         /// <summary>
         /// Must be implemented so every Serializer can Deserialize the Exception
         /// </summary>
@@ -2487,7 +2487,7 @@ namespace System.Data.Dubber
     /// <summary>
     /// Exception is thrown when the required hash algorithm is unsupported by the server.
     /// </summary>
-#if !CORE
+#if !NETFx
     [Serializable]
 #endif
     public class FtpHashUnsupportedException : FtpException
@@ -2525,7 +2525,7 @@ namespace System.Data.Dubber
             Algorithm = algo;
         }
 
-#if !CORE
+#if !NETFx
         /// <summary>
         /// Must be implemented so every Serializer can Deserialize the Exception
         /// </summary>
@@ -2538,7 +2538,7 @@ namespace System.Data.Dubber
     /// <summary>
     /// Exception is thrown when TLS/SSL encryption could not be negotiated by the FTP server.
     /// </summary>
-#if !CORE
+#if !NETFx
     [Serializable]
 #endif
     public class FtpInvalidCertificateException : FtpException
@@ -2561,7 +2561,7 @@ namespace System.Data.Dubber
         {
         }
 
-#if !CORE
+#if !NETFx
         /// <summary>
         /// Must be implemented so every Serializer can Deserialize the Exception
         /// </summary>
@@ -2574,7 +2574,7 @@ namespace System.Data.Dubber
     /// <summary>
     /// Exception thrown by FtpListParser when parsing of FTP directory listing fails.
     /// </summary>
-#if !CORE
+#if !NETFx
     [Serializable]
 #endif
     public class FtpListParseException : FtpException
@@ -2587,7 +2587,7 @@ namespace System.Data.Dubber
         {
         }
 
-#if !CORE
+#if !NETFx
         /// <summary>
         /// Must be implemented so every Serializer can Deserialize the Exception
         /// </summary>
@@ -2600,7 +2600,7 @@ namespace System.Data.Dubber
     /// <summary>
     /// Exception is thrown by FtpSocketStream when there is no FTP server socket to connect to.
     /// </summary>
-#if !CORE
+#if !NETFx
     [Serializable]
 #endif
     public class FtpMissingSocketException : FtpException
@@ -2614,7 +2614,7 @@ namespace System.Data.Dubber
         {
         }
 
-#if !CORE
+#if !NETFx
         /// <summary>
         /// Must be implemented so every Serializer can Deserialize the Exception
         /// </summary>
@@ -2627,7 +2627,7 @@ namespace System.Data.Dubber
     /// <summary>
     /// Exception is thrown when TLS/SSL encryption could not be negotiated by the FTP server.
     /// </summary>
-#if !CORE
+#if !NETFx
     [Serializable]
 #endif
     public class FtpSecurityNotAvailableException : FtpException
@@ -2650,7 +2650,7 @@ namespace System.Data.Dubber
         {
         }
 
-#if !CORE
+#if !NETFx
         /// <summary>
         /// Must be implemented so every Serializer can Deserialize the Exception
         /// </summary>
@@ -2678,8 +2678,8 @@ namespace System.Data.Dubber
             {
                 if (exception.InnerException is SocketException socketException)
                 {
-#if CORE
-					return (int)socketException.SocketErrorCode == 10054;
+#if NETFx
+                    return (int)socketException.SocketErrorCode == 10054;
 #else
                     return socketException.ErrorCode == 10054;
 #endif

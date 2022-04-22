@@ -557,20 +557,21 @@ namespace System.Data.Dubber
             return read;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Reads data off the stream asynchronously
-		/// </summary>
-		/// <param name="buffer">The buffer to read into</param>
-		/// <param name="offset">Where to start in the buffer</param>
-		/// <param name="count">Number of bytes to read</param>
-		/// <param name="token">The cancellation token for this task</param>
-		/// <returns>The number of bytes read</returns>
-		public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken token) {
-			int read = await base.ReadAsync(buffer, offset, count, token);
-			m_position += read;
-			return read;
-		}
+#if !NET40
+        /// <summary>
+        /// Reads data off the stream asynchronously
+        /// </summary>
+        /// <param name="buffer">The buffer to read into</param>
+        /// <param name="offset">Where to start in the buffer</param>
+        /// <param name="count">Number of bytes to read</param>
+        /// <param name="token">The cancellation token for this task</param>
+        /// <returns>The number of bytes read</returns>
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken token)
+        {
+            int read = await base.ReadAsync(buffer, offset, count, token);
+            m_position += read;
+            return read;
+        }
 #endif
 
         /// <summary>
@@ -585,18 +586,19 @@ namespace System.Data.Dubber
             m_position += count;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Writes data to the stream asynchronously
-		/// </summary>
-		/// <param name="buffer">The buffer to write to the stream</param>
-		/// <param name="offset">Where to start in the buffer</param>
-		/// <param name="count">The number of bytes to write to the buffer</param>
-		/// <param name="token">The <see cref="CancellationToken"/> for this task</param>
-		public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken token) {
-			await base.WriteAsync(buffer, offset, count, token);
-			m_position += count;
-		}
+#if !NET40
+        /// <summary>
+        /// Writes data to the stream asynchronously
+        /// </summary>
+        /// <param name="buffer">The buffer to write to the stream</param>
+        /// <param name="offset">Where to start in the buffer</param>
+        /// <param name="count">The number of bytes to write to the buffer</param>
+        /// <param name="token">The <see cref="CancellationToken"/> for this task</param>
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken token)
+        {
+            await base.WriteAsync(buffer, offset, count, token);
+            m_position += count;
+        }
 #endif
 
         /// <summary>
@@ -696,18 +698,21 @@ namespace System.Data.Dubber
             return new FileInfo(localPath).Length;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Returns the file size using async file I/O.
-		/// </summary>
-		public static async Task<long> GetFileSizeAsync(string localPath, bool checkExists, CancellationToken token) {
-			if (checkExists) {
-				if (!(await Task.Run(() => File.Exists(localPath), token))) {
-					return 0;
-				}
-			}
-			return (await Task.Run(() => new FileInfo(localPath), token)).Length;
-		}
+#if !NET40
+        /// <summary>
+        /// Returns the file size using async file I/O.
+        /// </summary>
+        public static async Task<long> GetFileSizeAsync(string localPath, bool checkExists, CancellationToken token)
+        {
+            if (checkExists)
+            {
+                if (!(await Task.Run(() => File.Exists(localPath), token)))
+                {
+                    return 0;
+                }
+            }
+            return (await Task.Run(() => new FileInfo(localPath), token)).Length;
+        }
 #endif
 
         /// <summary>
@@ -718,13 +723,14 @@ namespace System.Data.Dubber
             return new FileInfo(localPath).LastWriteTimeUtc;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Returns the file size using synchronous file I/O.
-		/// </summary>
-		public static async Task<DateTime> GetFileDateModifiedUtcAsync(string localPath, CancellationToken token) {
-			return (await Task.Run(() => new FileInfo(localPath), token)).LastWriteTimeUtc;
-		}
+#if !NET40
+        /// <summary>
+        /// Returns the file size using synchronous file I/O.
+        /// </summary>
+        public static async Task<DateTime> GetFileDateModifiedUtcAsync(string localPath, CancellationToken token)
+        {
+            return (await Task.Run(() => new FileInfo(localPath), token)).LastWriteTimeUtc;
+        }
 #endif
 
         /// <summary>
@@ -828,18 +834,19 @@ namespace System.Data.Dubber
 			}*/
         }
 
-#if ASYNC
-		/// <summary>
-		/// If the stream is a MemoryStream, completes the quick download by writing the file to disk.
-		/// </summary>
-		public static Task CompleteQuickFileWriteAsync(Stream fileStream, string localPath, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// If the stream is a MemoryStream, completes the quick download by writing the file to disk.
+        /// </summary>
+        public static Task CompleteQuickFileWriteAsync(Stream fileStream, string localPath, CancellationToken token)
+        {
 #if NET45
 			return Task.FromResult(true);
 #else
-			return Task.CompletedTask;
+            return Task.CompletedTask;
 #endif
-			// if quick transfer is enabled
-			/*if (fileStream is MemoryStream) {
+            // if quick transfer is enabled
+            /*if (fileStream is MemoryStream) {
 
 				// write the file to disk using a single disk call
 				await Task.Run(() => {
@@ -850,7 +857,7 @@ namespace System.Data.Dubber
 				}, token);
 			}*/
 
-		}
+        }
 #endif
 
     }
@@ -988,11 +995,7 @@ namespace System.Data.Dubber
         {
             get
             {
-#if NO_SSL
-				return false;
-#else
                 return m_sslStream != null;
-#endif
             }
         }
 
@@ -1007,7 +1010,6 @@ namespace System.Data.Dubber
             set => m_netStream = value;
         }
 
-#if !NO_SSL
         private BufferedStream m_bufStream = null;
 
         private SslStream m_sslStream = null;
@@ -1020,8 +1022,6 @@ namespace System.Data.Dubber
             get => m_sslStream;
             set => m_sslStream = value;
         }
-#endif
-
         /// <summary>
         /// Gets the underlying stream, could be a NetworkStream or SslStream
         /// </summary>
@@ -1029,12 +1029,6 @@ namespace System.Data.Dubber
         {
             get
             {
-#if NO_SSL
-				if (m_netStream != null) {
-					return m_netStream;
-				}
-
-#else
                 if (m_sslStream != null)
                 {
                     return m_sslStream;
@@ -1043,8 +1037,6 @@ namespace System.Data.Dubber
                 {
                     return m_netStream;
                 }
-#endif
-
                 return null;
             }
         }
@@ -1252,23 +1244,26 @@ namespace System.Data.Dubber
             BaseStream.Flush();
         }
 
-#if ASYNC
+#if !NET40
 
-		/// <summary>
-		/// Flushes the stream asynchronously
-		/// </summary>
-		/// <param name="token">The <see cref="CancellationToken"/> for this task</param>
-		public override async Task FlushAsync(CancellationToken token) {
-			if (!IsConnected) {
-				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
-			}
+        /// <summary>
+        /// Flushes the stream asynchronously
+        /// </summary>
+        /// <param name="token">The <see cref="CancellationToken"/> for this task</param>
+        public override async Task FlushAsync(CancellationToken token)
+        {
+            if (!IsConnected)
+            {
+                throw new InvalidOperationException("The FtpSocketStream object is not connected.");
+            }
 
-			if (BaseStream == null) {
-				throw new InvalidOperationException("The base stream of the FtpSocketStream object is null.");
-			}
+            if (BaseStream == null)
+            {
+                throw new InvalidOperationException("The base stream of the FtpSocketStream object is null.");
+            }
 
-			await BaseStream.FlushAsync(token);
-		}
+            await BaseStream.FlushAsync(token);
+        }
 
 #endif
 
@@ -1328,21 +1323,23 @@ namespace System.Data.Dubber
 
 #endif
 
-#if ASYNC && !NET45
-		/// <summary>
-		/// Bypass the stream and read directly off the socket.
-		/// </summary>
-		/// <param name="buffer">The buffer to read into</param>
-		/// <returns>The number of bytes read</returns>
-		internal async Task<int> RawSocketReadAsync(byte[] buffer, CancellationToken token) {
-			var read = 0;
+#if NETFx
+        /// <summary>
+        /// Bypass the stream and read directly off the socket.
+        /// </summary>
+        /// <param name="buffer">The buffer to read into</param>
+        /// <returns>The number of bytes read</returns>
+        internal async Task<int> RawSocketReadAsync(byte[] buffer, CancellationToken token)
+        {
+            var read = 0;
 
-			if (m_socket != null && m_socket.Connected && !token.IsCancellationRequested) {
-				read = await m_socket.ReceiveAsync(new ArraySegment<byte>(buffer), 0);
-			}
+            if (m_socket != null && m_socket.Connected && !token.IsCancellationRequested)
+            {
+                read = await m_socket.ReceiveAsync(new ArraySegment<byte>(buffer), 0);
+            }
 
-			return read;
-		}
+            return read;
+        }
 #endif
 
         /// <summary>
@@ -1354,7 +1351,7 @@ namespace System.Data.Dubber
         /// <returns>The amount of bytes read from the stream</returns>
         public override int Read(byte[] buffer, int offset, int count)
         {
-#if !CORE
+#if !NETFx
             IAsyncResult ar = null;
 #endif
 
@@ -1364,8 +1361,8 @@ namespace System.Data.Dubber
             }
 
             m_lastActivity = DateTime.Now;
-#if CORE
-			return BaseStream.Read(buffer, offset, count);
+#if NETFx
+            return BaseStream.Read(buffer, offset, count);
 #else
             ar = BaseStream.BeginRead(buffer, offset, count, null, null);
             bool success = ar.AsyncWaitHandle.WaitOne(m_readTimeout, true);
@@ -1380,45 +1377,52 @@ namespace System.Data.Dubber
 #endif
         }
 
-#if ASYNC
+#if !NET40
 
-		/// <summary>
-		/// Reads data from the stream
-		/// </summary>
-		/// <param name="buffer">Buffer to read into</param>
-		/// <param name="offset">Where in the buffer to start</param>
-		/// <param name="count">Number of bytes to be read</param>
-		/// <param name="token">The <see cref="CancellationToken"/> for this task</param>
-		/// <returns>The amount of bytes read from the stream</returns>
-		public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken token) {
-			if (BaseStream == null) {
-				return 0;
-			}
+        /// <summary>
+        /// Reads data from the stream
+        /// </summary>
+        /// <param name="buffer">Buffer to read into</param>
+        /// <param name="offset">Where in the buffer to start</param>
+        /// <param name="count">Number of bytes to be read</param>
+        /// <param name="token">The <see cref="CancellationToken"/> for this task</param>
+        /// <returns>The amount of bytes read from the stream</returns>
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken token)
+        {
+            if (BaseStream == null)
+            {
+                return 0;
+            }
 
-			m_lastActivity = DateTime.Now;
-			using (var cts = CancellationTokenSource.CreateLinkedTokenSource(token)) {
-				cts.CancelAfter(ReadTimeout);
-				cts.Token.Register(() => Close());
-				try {
-					var res = await BaseStream.ReadAsync(buffer, offset, count, cts.Token);
-					return res;
-				}
-				catch {
-					// CTS for Cancellation triggered and caused the exception
-					if (token.IsCancellationRequested) {
-						throw new OperationCanceledException("Cancelled read from socket stream");
-					}
+            m_lastActivity = DateTime.Now;
+            using (var cts = CancellationTokenSource.CreateLinkedTokenSource(token))
+            {
+                cts.CancelAfter(ReadTimeout);
+                cts.Token.Register(() => Close());
+                try
+                {
+                    var res = await BaseStream.ReadAsync(buffer, offset, count, cts.Token);
+                    return res;
+                }
+                catch
+                {
+                    // CTS for Cancellation triggered and caused the exception
+                    if (token.IsCancellationRequested)
+                    {
+                        throw new OperationCanceledException("Cancelled read from socket stream");
+                    }
 
-					// CTS for Timeout triggered and caused the exception
-					if (cts.IsCancellationRequested) {
-						throw new TimeoutException("Timed out trying to read data from the socket stream!");
-					}
+                    // CTS for Timeout triggered and caused the exception
+                    if (cts.IsCancellationRequested)
+                    {
+                        throw new TimeoutException("Timed out trying to read data from the socket stream!");
+                    }
 
-					// Nothing of the above. So we rethrow the exception.
-					throw;
-				}
-			}
-		}
+                    // Nothing of the above. So we rethrow the exception.
+                    throw;
+                }
+            }
+        }
 
 #endif
 
@@ -1485,67 +1489,73 @@ namespace System.Data.Dubber
             }
         }
 
-#if ASYNC
-		/// <summary>
-		/// Reads a line from the socket asynchronously
-		/// </summary>
-		/// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
-		/// <param name="token">The <see cref="CancellationToken"/> for this task</param>
-		/// <returns>A line from the stream, null if there is nothing to read</returns>
-		public async Task<string> ReadLineAsync(System.Text.Encoding encoding, CancellationToken token) {
-			var data = new List<byte>();
-			var buf = new byte[1];
-			string line = null;
+#if !NET40
+        /// <summary>
+        /// Reads a line from the socket asynchronously
+        /// </summary>
+        /// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
+        /// <param name="token">The <see cref="CancellationToken"/> for this task</param>
+        /// <returns>A line from the stream, null if there is nothing to read</returns>
+        public async Task<string> ReadLineAsync(System.Text.Encoding encoding, CancellationToken token)
+        {
+            var data = new List<byte>();
+            var buf = new byte[1];
+            string line = null;
 
-			while (await ReadAsync(buf, 0, buf.Length, token) > 0) {
-				data.Add(buf[0]);
-				if ((char) buf[0] == '\n') {
-					line = encoding.GetString(data.ToArray()).Trim('\r', '\n');
-					break;
-				}
-			}
+            while (await ReadAsync(buf, 0, buf.Length, token) > 0)
+            {
+                data.Add(buf[0]);
+                if ((char)buf[0] == '\n')
+                {
+                    line = encoding.GetString(data.ToArray()).Trim('\r', '\n');
+                    break;
+                }
+            }
 
-			return line;
-		}
+            return line;
+        }
 
-		/// <summary>
-		/// Reads all line from the socket
-		/// </summary>
-		/// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
-		/// <param name="bufferSize">The size of the buffer</param>
-		/// <returns>A list of lines from the stream</returns>
-		public async Task<IEnumerable<string>> ReadAllLinesAsync(System.Text.Encoding encoding, int bufferSize, CancellationToken token) {
-			int charRead;
-			var data = new List<byte>();
-			var lines = new List<string>();
-			var buf = new byte[bufferSize];
+        /// <summary>
+        /// Reads all line from the socket
+        /// </summary>
+        /// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
+        /// <param name="bufferSize">The size of the buffer</param>
+        /// <returns>A list of lines from the stream</returns>
+        public async Task<IEnumerable<string>> ReadAllLinesAsync(System.Text.Encoding encoding, int bufferSize, CancellationToken token)
+        {
+            int charRead;
+            var data = new List<byte>();
+            var lines = new List<string>();
+            var buf = new byte[bufferSize];
 
-			while ((charRead = await ReadAsync(buf, 0, buf.Length, token)) > 0) {
-				var firstByteToReadIdx = 0;
+            while ((charRead = await ReadAsync(buf, 0, buf.Length, token)) > 0)
+            {
+                var firstByteToReadIdx = 0;
 
-				var separatorIdx = Array.IndexOf(buf, (byte) '\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array read
+                var separatorIdx = Array.IndexOf(buf, (byte)'\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array read
 
-				while (separatorIdx >= 0) // at least one '\n' returned
-				{
-					while (firstByteToReadIdx <= separatorIdx) {
-						data.Add(buf[firstByteToReadIdx++]);
-					}
+                while (separatorIdx >= 0) // at least one '\n' returned
+                {
+                    while (firstByteToReadIdx <= separatorIdx)
+                    {
+                        data.Add(buf[firstByteToReadIdx++]);
+                    }
 
-					var line = encoding.GetString(data.ToArray()).Trim('\r', '\n'); // convert data to string
-					lines.Add(line);
-					data.Clear();
+                    var line = encoding.GetString(data.ToArray()).Trim('\r', '\n'); // convert data to string
+                    lines.Add(line);
+                    data.Clear();
 
-					separatorIdx = Array.IndexOf(buf, (byte) '\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array read
-				}
+                    separatorIdx = Array.IndexOf(buf, (byte)'\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array read
+                }
 
-				while (firstByteToReadIdx < charRead) // add all remaining characters to data
-				{
-					data.Add(buf[firstByteToReadIdx++]);
-				}
-			}
+                while (firstByteToReadIdx < charRead) // add all remaining characters to data
+                {
+                    data.Add(buf[firstByteToReadIdx++]);
+                }
+            }
 
-			return lines;
-		}
+            return lines;
+        }
 #endif
 
         /// <summary>
@@ -1565,22 +1575,24 @@ namespace System.Data.Dubber
             m_lastActivity = DateTime.Now;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Writes data to the stream asynchronously
-		/// </summary>
-		/// <param name="buffer">Buffer to write to stream</param>
-		/// <param name="offset">Where in the buffer to start</param>
-		/// <param name="count">Number of bytes to be read</param>
-		/// <param name="token">The <see cref="CancellationToken"/> for this task</param>
-		public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken token) {
-			if (BaseStream == null) {
-				return;
-			}
+#if !NET40
+        /// <summary>
+        /// Writes data to the stream asynchronously
+        /// </summary>
+        /// <param name="buffer">Buffer to write to stream</param>
+        /// <param name="offset">Where in the buffer to start</param>
+        /// <param name="count">Number of bytes to be read</param>
+        /// <param name="token">The <see cref="CancellationToken"/> for this task</param>
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken token)
+        {
+            if (BaseStream == null)
+            {
+                return;
+            }
 
-			await BaseStream.WriteAsync(buffer, offset, count, token);
-			m_lastActivity = DateTime.Now;
-		}
+            await BaseStream.WriteAsync(buffer, offset, count, token);
+            m_lastActivity = DateTime.Now;
+        }
 #endif
 
         /// <summary>
@@ -1595,26 +1607,28 @@ namespace System.Data.Dubber
             Write(data, 0, data.Length);
         }
 
-#if ASYNC
-		/// <summary>
-		/// Writes a line to the stream using the specified encoding asynchronously
-		/// </summary>
-		/// <param name="encoding">Encoding used for writing the line</param>
-		/// <param name="buf">The data to write</param>
-		/// <param name="token">The <see cref="CancellationToken"/> for this task</param>
-		public async Task WriteLineAsync(System.Text.Encoding encoding, string buf, CancellationToken token) {
-			var data = encoding.GetBytes(buf + "\r\n");
-			await WriteAsync(data, 0, data.Length, token);
-		}
+#if !NET40
+        /// <summary>
+        /// Writes a line to the stream using the specified encoding asynchronously
+        /// </summary>
+        /// <param name="encoding">Encoding used for writing the line</param>
+        /// <param name="buf">The data to write</param>
+        /// <param name="token">The <see cref="CancellationToken"/> for this task</param>
+        public async Task WriteLineAsync(System.Text.Encoding encoding, string buf, CancellationToken token)
+        {
+            var data = encoding.GetBytes(buf + "\r\n");
+            await WriteAsync(data, 0, data.Length, token);
+        }
 #endif
 
-#if CORE
-		/// <summary>
-		/// Disconnects from server
-		/// </summary>
-		public virtual void Close() {
-			Dispose(true);
-		}
+#if NETFx
+        /// <summary>
+        /// Disconnects from server
+        /// </summary>
+        public virtual void Close()
+        {
+            Dispose(true);
+        }
 #endif
 
         /// <summary>
@@ -1635,13 +1649,12 @@ namespace System.Data.Dubber
             {
             }
 
-#if !NO_SSL
             if (m_sslStream != null)
             {
                 try
                 {
 #if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-					m_sslStream.ShutdownAsync().RunSynchronously();
+                    m_sslStream.ShutdownAsync().RunSynchronously();
 #endif
                     m_sslStream.Dispose();
                 }
@@ -1651,10 +1664,6 @@ namespace System.Data.Dubber
 
                 m_sslStream = null;
             }
-
-#endif
-
-#if !NO_SSL
             if (m_bufStream != null)
             {
                 try
@@ -1670,9 +1679,6 @@ namespace System.Data.Dubber
 
                 m_bufStream = null;
             }
-#endif
-
-
             if (m_netStream != null)
             {
                 try
@@ -1698,26 +1704,18 @@ namespace System.Data.Dubber
             {
                 try
                 {
-
-#if !NET20 && !NET35 && !CORE
-                    m_socket.Dispose();
-#endif
                     if (m_socket.Connected)
                     {
-#if NET5_0_OR_GREATER
-
-						m_socket.Shutdown(SocketShutdown.Send);
-						m_socket.Close();
+#if NETFx
+                        m_socket.Shutdown(SocketShutdown.Send);
 #endif
                     }
+                    m_socket.Close();
+                    m_socket.Dispose();
                 }
-                catch (Exception ex)
-                {
-                }
-
+                catch { }
                 m_socket = null;
             }
-
         }
 
         /// <summary>
@@ -1744,8 +1742,8 @@ namespace System.Data.Dubber
         /// <param name="ipVersions">Internet Protocol versions to support during the connection phase</param>
         public void Connect(string host, int port, FtpIpVersion ipVersions)
         {
-#if CORE
-			IPAddress[] addresses = Dns.GetHostAddressesAsync(host).Result;
+#if NETFx
+            IPAddress[] addresses = Dns.GetHostAddressesAsync(host).Result;
 #else
             IAsyncResult ar = null;
             var addresses = Dns.GetHostAddresses(host);
@@ -1801,29 +1799,34 @@ namespace System.Data.Dubber
                 m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 BindSocketToLocalIp();
 
-#if CORE
+#if NETFx
 
 
-				var args = new SocketAsyncEventArgs {
-						                                    RemoteEndPoint = new IPEndPoint(addresses[i], port)
-					                                    };
-				var connectEvent = new ManualResetEvent(false);
-				args.Completed += (s, e) => { connectEvent.Set(); };
+                var args = new SocketAsyncEventArgs
+                {
+                    RemoteEndPoint = new IPEndPoint(addresses[i], port)
+                };
+                var connectEvent = new ManualResetEvent(false);
+                args.Completed += (s, e) => { connectEvent.Set(); };
 
-				if (m_socket.ConnectAsync(args)) {
-					if (!connectEvent.WaitOne(m_connectTimeout)) {
-						Close();
-						if (i + 1 == addresses.Length) {
-							throw new TimeoutException("Timed out trying to connect!");
-						}
-					}
-				}
+                if (m_socket.ConnectAsync(args))
+                {
+                    if (!connectEvent.WaitOne(m_connectTimeout))
+                    {
+                        Close();
+                        if (i + 1 == addresses.Length)
+                        {
+                            throw new TimeoutException("Timed out trying to connect!");
+                        }
+                    }
+                }
 
-				if (args.SocketError != SocketError.Success) {
-					throw new SocketException((int) args.SocketError);
-				}
+                if (args.SocketError != SocketError.Success)
+                {
+                    throw new SocketException((int)args.SocketError);
+                }
 
-				break;
+                break;
 #else
                 ar = m_socket.BeginConnect(addresses[i], port, null, null);
                 bool success = ar.AsyncWaitHandle.WaitOne(m_connectTimeout, true);
@@ -1863,94 +1866,103 @@ namespace System.Data.Dubber
             m_lastActivity = DateTime.Now;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Connect to the specified host
-		/// </summary>
-		/// <param name="host">The host to connect to</param>
-		/// <param name="port">The port to connect to</param>
-		/// <param name="ipVersions">Internet Protocol versions to support during the connection phase</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public async Task ConnectAsync(string host, int port, FtpIpVersion ipVersions, CancellationToken token) {
-			IPAddress[] addresses = await Dns.GetHostAddressesAsync(host);
+#if !NET40
+        /// <summary>
+        /// Connect to the specified host
+        /// </summary>
+        /// <param name="host">The host to connect to</param>
+        /// <param name="port">The port to connect to</param>
+        /// <param name="ipVersions">Internet Protocol versions to support during the connection phase</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        public async Task ConnectAsync(string host, int port, FtpIpVersion ipVersions, CancellationToken token)
+        {
+            IPAddress[] addresses = await Dns.GetHostAddressesAsync(host);
 
-			if (ipVersions == 0) {
-				throw new ArgumentException("The ipVersions parameter must contain at least 1 flag.");
-			}
+            if (ipVersions == 0)
+            {
+                throw new ArgumentException("The ipVersions parameter must contain at least 1 flag.");
+            }
 
-			for (var i = 0; i < addresses.Length; i++) {
-				// we don't need to do this check unless
-				// a particular version of IP has been
-				// omitted so we won't.
-				if (ipVersions != FtpIpVersion.ANY) {
-					switch (addresses[i].AddressFamily) {
-						case AddressFamily.InterNetwork:
-							if ((ipVersions & FtpIpVersion.IPv4) != FtpIpVersion.IPv4) {
+            for (var i = 0; i < addresses.Length; i++)
+            {
+                // we don't need to do this check unless
+                // a particular version of IP has been
+                // omitted so we won't.
+                if (ipVersions != FtpIpVersion.ANY)
+                {
+                    switch (addresses[i].AddressFamily)
+                    {
+                        case AddressFamily.InterNetwork:
+                            if ((ipVersions & FtpIpVersion.IPv4) != FtpIpVersion.IPv4)
+                            {
 #if DEBUG
-								Client.LogStatus(FtpTraceLevel.Verbose, "Skipped IPV4 address : " + addresses[i].ToString());
+                                Client.LogStatus(FtpTraceLevel.Verbose, "Skipped IPV4 address : " + addresses[i].ToString());
 #endif
-								continue;
-							}
+                                continue;
+                            }
 
-							break;
+                            break;
 
-						case AddressFamily.InterNetworkV6:
-							if ((ipVersions & FtpIpVersion.IPv6) != FtpIpVersion.IPv6) {
+                        case AddressFamily.InterNetworkV6:
+                            if ((ipVersions & FtpIpVersion.IPv6) != FtpIpVersion.IPv6)
+                            {
 #if DEBUG
-								Client.LogStatus(FtpTraceLevel.Verbose, "Skipped IPV6 address : " + addresses[i].ToString());
+                                Client.LogStatus(FtpTraceLevel.Verbose, "Skipped IPV6 address : " + addresses[i].ToString());
 #endif
-								continue;
-							}
+                                continue;
+                            }
 
-							break;
-					}
-				}
+                            break;
+                    }
+                }
 
-				if (FtpTrace.LogIP) {
-					Client.LogStatus(FtpTraceLevel.Info, "Connecting to " + addresses[i].ToString() + ":" + port);
-				}
-				else {
-					Client.LogStatus(FtpTraceLevel.Info, "Connecting to ***:" + port);
-				}
+                if (FtpTrace.LogIP)
+                {
+                    Client.LogStatus(FtpTraceLevel.Info, "Connecting to " + addresses[i].ToString() + ":" + port);
+                }
+                else
+                {
+                    Client.LogStatus(FtpTraceLevel.Info, "Connecting to ***:" + port);
+                }
 
-				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-				BindSocketToLocalIp();
-#if CORE
-				if (this.ConnectTimeout > 0)
-				{
-					using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token))
-					{
-						timeoutSrc.CancelAfter(this.ConnectTimeout);
-						await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), timeoutSrc.Token, () => CloseSocket());
-						break;
-					}
-				}
-				else
-				{
-					await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), token, () => CloseSocket());
-					break;
-				}
+                m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                BindSocketToLocalIp();
+#if NETFx
+                if (this.ConnectTimeout > 0)
+                {
+                    using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token))
+                    {
+                        timeoutSrc.CancelAfter(this.ConnectTimeout);
+                        await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), timeoutSrc.Token, () => CloseSocket());
+                        break;
+                    }
+                }
+                else
+                {
+                    await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), token, () => CloseSocket());
+                    break;
+                }
 #else
-				var connectResult = m_socket.BeginConnect(addresses[i], port, null, null);
-				await EnableCancellation(Task.Factory.FromAsync(connectResult, m_socket.EndConnect), token, () => CloseSocket());
-				break;
+                var connectResult = m_socket.BeginConnect(addresses[i], port, null, null);
+                await EnableCancellation(Task.Factory.FromAsync(connectResult, m_socket.EndConnect), token, () => CloseSocket());
+                break;
 #endif
-			}
+            }
 
-			// make sure that we actually connected to
-			// one of the addresses returned from GetHostAddresses()
-			if (m_socket == null || !m_socket.Connected) {
-				Close();
-				throw new IOException("Failed to connect to host.");
-			}
+            // make sure that we actually connected to
+            // one of the addresses returned from GetHostAddresses()
+            if (m_socket == null || !m_socket.Connected)
+            {
+                Close();
+                throw new IOException("Failed to connect to host.");
+            }
 
-			m_netStream = new NetworkStream(m_socket);
-			m_netStream.ReadTimeout = m_readTimeout;
-			m_lastActivity = DateTime.Now;
-		}
+            m_netStream = new NetworkStream(m_socket);
+            m_netStream.ReadTimeout = m_readTimeout;
+            m_lastActivity = DateTime.Now;
+        }
 #endif
 
-#if !NO_SSL
         /// <summary>
         /// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event. 
         /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
@@ -1962,16 +1974,17 @@ namespace System.Data.Dubber
             ActivateEncryption(targethost, null, Client.SslProtocols);
         }
 
-#if ASYNC
-		/// <summary>
-		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event. 
-		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
-		/// not be accepted.
-		/// </summary>
-		/// <param name="targethost">The host to authenticate the certificate against</param>
-		public async Task ActivateEncryptionAsync(string targethost) {
-			await ActivateEncryptionAsync(targethost, null, Client.SslProtocols);
-		}
+#if !NET40
+        /// <summary>
+        /// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event. 
+        /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
+        /// not be accepted.
+        /// </summary>
+        /// <param name="targethost">The host to authenticate the certificate against</param>
+        public async Task ActivateEncryptionAsync(string targethost)
+        {
+            await ActivateEncryptionAsync(targethost, null, Client.SslProtocols);
+        }
 #endif
 
         /// <summary>
@@ -1986,17 +1999,18 @@ namespace System.Data.Dubber
             ActivateEncryption(targethost, clientCerts, Client.SslProtocols);
         }
 
-#if ASYNC
-		/// <summary>
-		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
-		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
-		/// not be accepted.
-		/// </summary>
-		/// <param name="targethost">The host to authenticate the certificate against</param>
-		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
-		public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts) {
-			await ActivateEncryptionAsync(targethost, clientCerts, Client.SslProtocols);
-		}
+#if !NET40
+        /// <summary>
+        /// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
+        /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
+        /// not be accepted.
+        /// </summary>
+        /// <param name="targethost">The host to authenticate the certificate against</param>
+        /// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
+        public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts)
+        {
+            await ActivateEncryptionAsync(targethost, clientCerts, Client.SslProtocols);
+        }
 #endif
 
         /// <summary>
@@ -2032,10 +2046,10 @@ namespace System.Data.Dubber
 
                 CreateBufferStream();
 
-#if CORE
-				m_sslStream = new SslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
-					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
-				));
+#if NETFx
+                m_sslStream = new SslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
+                    delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
+                ));
 #else
                 m_sslStream = new FtpSslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
                     delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
@@ -2045,8 +2059,8 @@ namespace System.Data.Dubber
                 auth_start = DateTime.Now;
                 try
                 {
-#if CORE
-					m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.ValidateCertificateRevocation).Wait();
+#if NETFx
+                    m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.ValidateCertificateRevocation).Wait();
 #else
                     m_sslStream.AuthenticateAsClient(targethost, clientCerts, sslProtocols, Client.ValidateCertificateRevocation);
 #endif
@@ -2112,76 +2126,84 @@ namespace System.Data.Dubber
             return m_bufStream != null ? (Stream)m_bufStream : (Stream)NetworkStream;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Activates SSL on this stream using the specified protocols. Fires the ValidateCertificate event.
-		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
-		/// not be accepted.
-		/// </summary>
-		/// <param name="targethost">The host to authenticate the certificate against</param>
-		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
-		/// <param name="sslProtocols">A bitwise parameter for supported encryption protocols.</param>
-		/// <exception cref="AuthenticationException">Thrown when authentication fails</exception>
-		public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols) {
-			if (!IsConnected) {
-				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
-			}
+#if !NET40
+        /// <summary>
+        /// Activates SSL on this stream using the specified protocols. Fires the ValidateCertificate event.
+        /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
+        /// not be accepted.
+        /// </summary>
+        /// <param name="targethost">The host to authenticate the certificate against</param>
+        /// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
+        /// <param name="sslProtocols">A bitwise parameter for supported encryption protocols.</param>
+        /// <exception cref="AuthenticationException">Thrown when authentication fails</exception>
+        public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols)
+        {
+            if (!IsConnected)
+            {
+                throw new InvalidOperationException("The FtpSocketStream object is not connected.");
+            }
 
-			if (m_netStream == null) {
-				throw new InvalidOperationException("The base network stream is null.");
-			}
+            if (m_netStream == null)
+            {
+                throw new InvalidOperationException("The base network stream is null.");
+            }
 
-			if (m_sslStream != null) {
-				throw new InvalidOperationException("SSL Encryption has already been enabled on this stream.");
-			}
+            if (m_sslStream != null)
+            {
+                throw new InvalidOperationException("SSL Encryption has already been enabled on this stream.");
+            }
 
-			try {
-				DateTime auth_start;
-				TimeSpan auth_time_total;
+            try
+            {
+                DateTime auth_start;
+                TimeSpan auth_time_total;
 
-				CreateBufferStream();
+                CreateBufferStream();
 
-#if CORE
-				m_sslStream = new SslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
-					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
-				));
+#if NETFx
+                m_sslStream = new SslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
+                    delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
+                ));
 #else
-				m_sslStream = new FtpSslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
-					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
-				));
+                m_sslStream = new FtpSslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
+                    delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
+                ));
 #endif
 
-				auth_start = DateTime.Now;
-				try {
-					await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.ValidateCertificateRevocation);
-				}
-				catch (IOException ex) {
-					if (ex.InnerException is Win32Exception) {
-						var win32Exception = (Win32Exception) ex.InnerException;
-						if (win32Exception.NativeErrorCode == 10053) {
-							throw new FtpMissingSocketException(ex);
-						}
-					}
+                auth_start = DateTime.Now;
+                try
+                {
+                    await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.ValidateCertificateRevocation);
+                }
+                catch (IOException ex)
+                {
+                    if (ex.InnerException is Win32Exception)
+                    {
+                        var win32Exception = (Win32Exception)ex.InnerException;
+                        if (win32Exception.NativeErrorCode == 10053)
+                        {
+                            throw new FtpMissingSocketException(ex);
+                        }
+                    }
 
-					throw;
-				}
+                    throw;
+                }
 
-				auth_time_total = DateTime.Now.Subtract(auth_start);
-				Client.LogStatus(FtpTraceLevel.Info, "FTPS Authentication Successful");
-				Client.LogStatus(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
-			}
-			catch (AuthenticationException) {
-				// authentication failed and in addition it left our 
-				// ssl stream in an unusable state so cleanup needs
-				// to be done and the exception can be re-thrown for
-				// handling down the chain. (Add logging?)
-				Close();
-				Client.LogStatus(FtpTraceLevel.Error, "FTPS Authentication Failed");
-				throw;
-			}
-		}
-#endif
-
+                auth_time_total = DateTime.Now.Subtract(auth_start);
+                Client.LogStatus(FtpTraceLevel.Info, "FTPS Authentication Successful");
+                Client.LogStatus(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
+            }
+            catch (AuthenticationException)
+            {
+                // authentication failed and in addition it left our 
+                // ssl stream in an unusable state so cleanup needs
+                // to be done and the exception can be re-thrown for
+                // handling down the chain. (Add logging?)
+                Close();
+                Client.LogStatus(FtpTraceLevel.Error, "FTPS Authentication Failed");
+                throw;
+            }
+        }
 #endif
 
 #if !CORE
@@ -2247,20 +2269,19 @@ namespace System.Data.Dubber
 		}
 #endif
 
-#if ASYNC && !NET45
-		/// <summary>
-		/// Accepts a connection from a listening socket
-		/// </summary>
-		public async Task AcceptAsync() {
-			if (m_socket != null) {
-				m_socket = await m_socket.AcceptAsync();
-#if CORE
-				m_netStream = new NetworkStream(m_socket);
-				m_netStream.ReadTimeout = m_readTimeout;
-#endif
-			}
-		}
-
+#if NETFx
+        /// <summary>
+        /// Accepts a connection from a listening socket
+        /// </summary>
+        public async Task AcceptAsync()
+        {
+            if (m_socket != null)
+            {
+                m_socket = await m_socket.AcceptAsync();
+                m_netStream = new NetworkStream(m_socket);
+                m_netStream.ReadTimeout = m_readTimeout;
+            }
+        }
 #else
         /// <summary>
         /// Asynchronously accepts a connection from a listening socket
@@ -2294,62 +2315,70 @@ namespace System.Data.Dubber
 #endif
         private void BindSocketToLocalIp()
         {
-#if ASYNC && !CORE14 && !CORE16
-			if (Client.SocketLocalIp != null) {
+#if !NET40
+            if (Client.SocketLocalIp != null)
+            {
 
-				var localPort = LocalPorts.GetRandomAvailable(Client.SocketLocalIp);
-				var localEndpoint = new IPEndPoint(Client.SocketLocalIp, localPort);
+                var localPort = LocalPorts.GetRandomAvailable(Client.SocketLocalIp);
+                var localEndpoint = new IPEndPoint(Client.SocketLocalIp, localPort);
 
 #if DEBUG
-				Client.LogStatus(FtpTraceLevel.Verbose, $"Will now bind to {localEndpoint}");
+                Client.LogStatus(FtpTraceLevel.Verbose, $"Will now bind to {localEndpoint}");
 #endif
 
-				this.m_socket.Bind(localEndpoint);
-			}
+                this.m_socket.Bind(localEndpoint);
+            }
 #endif
         }
 
-#if CORE
-		internal SocketAsyncEventArgs BeginAccept() {
-			var args = new SocketAsyncEventArgs();
-			var connectEvent = new ManualResetEvent(false);
-			args.UserToken = connectEvent;
-			args.Completed += (s, e) => { connectEvent.Set(); };
-			if (!m_socket.AcceptAsync(args)) {
-				CheckResult(args);
-				return null;
-			}
+#if NETFx
+        internal SocketAsyncEventArgs BeginAccept()
+        {
+            var args = new SocketAsyncEventArgs();
+            var connectEvent = new ManualResetEvent(false);
+            args.UserToken = connectEvent;
+            args.Completed += (s, e) => { connectEvent.Set(); };
+            if (!m_socket.AcceptAsync(args))
+            {
+                CheckResult(args);
+                return null;
+            }
 
-			return args;
-		}
+            return args;
+        }
 
-		internal void EndAccept(SocketAsyncEventArgs args, int timeout) {
-			if (args == null) {
-				return;
-			}
+        internal void EndAccept(SocketAsyncEventArgs args, int timeout)
+        {
+            if (args == null)
+            {
+                return;
+            }
 
-			var connectEvent = (ManualResetEvent) args.UserToken;
-			if (!connectEvent.WaitOne(timeout)) {
-				Close();
-				throw new TimeoutException("Timed out waiting for the server to connect to the active data socket.");
-			}
+            var connectEvent = (ManualResetEvent)args.UserToken;
+            if (!connectEvent.WaitOne(timeout))
+            {
+                Close();
+                throw new TimeoutException("Timed out waiting for the server to connect to the active data socket.");
+            }
 
-			CheckResult(args);
-		}
+            CheckResult(args);
+        }
 
-		private void CheckResult(SocketAsyncEventArgs args) {
-			if (args.SocketError != SocketError.Success) {
-				throw new SocketException((int) args.SocketError);
-			}
+        private void CheckResult(SocketAsyncEventArgs args)
+        {
+            if (args.SocketError != SocketError.Success)
+            {
+                throw new SocketException((int)args.SocketError);
+            }
 
-			m_socket = args.AcceptSocket;
-			m_netStream = new NetworkStream(args.AcceptSocket);
-			m_netStream.ReadTimeout = m_readTimeout;
-		}
+            m_socket = args.AcceptSocket;
+            m_netStream = new NetworkStream(args.AcceptSocket);
+            m_netStream.ReadTimeout = m_readTimeout;
+        }
 
 #endif
     }
-#if !CORE
+#if !NETFx
     /// <summary>
     /// .NET SslStream doesn't close TLS connection properly.
     /// It does not send the close_notify alert before closing the connection.

@@ -55,7 +55,7 @@ namespace System.Data.Dubber
         FtpHashAlgorithm HashAlgorithms { get; }
         FtpEncryptionMode EncryptionMode { get; set; }
         bool DataConnectionEncryption { get; set; }
-#if !CORE
+#if !NETFx
         bool PlainTextEncryption { get; set; }
 #endif
         SslProtocols SslProtocols { get; set; }
@@ -74,8 +74,8 @@ namespace System.Data.Dubber
         CultureInfo ListingCulture { get; set; }
         bool RecursiveList { get; set; }
         double TimeZone { get; set; }
-#if CORE
-		double LocalTimeZone { get; set; }
+#if NETFx
+        double LocalTimeZone { get; set; }
 #endif
         FtpDate TimeConversion { get; set; }
         bool BulkListing { get; set; }
@@ -109,17 +109,16 @@ namespace System.Data.Dubber
         bool HasFeature(FtpCapability cap);
         void DisableUTF8();
 
-#if ASYNC
-		Task<FtpReply> ExecuteAsync(string command, CancellationToken token = default(CancellationToken));
-		Task<FtpReply> GetReplyAsync(CancellationToken token = default(CancellationToken));
-		Task ConnectAsync(CancellationToken token = default(CancellationToken));
-		Task ConnectAsync(FtpProfile profile, CancellationToken token = default(CancellationToken));
-		Task<List<FtpProfile>> AutoDetectAsync(bool firstOnly = true, bool cloneConnection = true, CancellationToken token = default(CancellationToken));
-		Task<FtpProfile> AutoConnectAsync(CancellationToken token = default(CancellationToken));
+#if !NET40
+        Task<FtpReply> ExecuteAsync(string command, CancellationToken token = default(CancellationToken));
+        Task<FtpReply> GetReplyAsync(CancellationToken token = default(CancellationToken));
+        Task ConnectAsync(CancellationToken token = default(CancellationToken));
+        Task ConnectAsync(FtpProfile profile, CancellationToken token = default(CancellationToken));
+        Task<List<FtpProfile>> AutoDetectAsync(bool firstOnly = true, bool cloneConnection = true, CancellationToken token = default(CancellationToken));
+        Task<FtpProfile> AutoConnectAsync(CancellationToken token = default(CancellationToken));
 
-		Task DisconnectAsync(CancellationToken token = default(CancellationToken));
+        Task DisconnectAsync(CancellationToken token = default(CancellationToken));
 #endif
-
 
         // MANAGEMENT
 
@@ -147,33 +146,32 @@ namespace System.Data.Dubber
         DateTime GetModifiedTime(string path);
         void SetModifiedTime(string path, DateTime date);
 
-#if ASYNC
-		Task DeleteFileAsync(string path, CancellationToken token = default(CancellationToken));
-		Task DeleteDirectoryAsync(string path, CancellationToken token = default(CancellationToken));
-		Task DeleteDirectoryAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken));
-		Task<bool> DirectoryExistsAsync(string path, CancellationToken token = default(CancellationToken));
-		Task<bool> FileExistsAsync(string path, CancellationToken token = default(CancellationToken));
-		Task<bool> CreateDirectoryAsync(string path, bool force, CancellationToken token = default(CancellationToken));
-		Task<bool> CreateDirectoryAsync(string path, CancellationToken token = default(CancellationToken));
-		Task RenameAsync(string path, string dest, CancellationToken token = default(CancellationToken));
-		Task<bool> MoveFileAsync(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken));
-		Task<bool> MoveDirectoryAsync(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken));
-		Task SetFilePermissionsAsync(string path, int permissions, CancellationToken token = default(CancellationToken));
-		Task ChmodAsync(string path, int permissions, CancellationToken token = default(CancellationToken));
-		Task SetFilePermissionsAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken));
-		Task ChmodAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken));
-		Task<FtpListItem> GetFilePermissionsAsync(string path, CancellationToken token = default(CancellationToken));
-		Task<int> GetChmodAsync(string path, CancellationToken token = default(CancellationToken));
-		Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, CancellationToken token = default(CancellationToken));
-		Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, CancellationToken token = default(CancellationToken));
-		Task SetWorkingDirectoryAsync(string path, CancellationToken token = default(CancellationToken));
-		Task<string> GetWorkingDirectoryAsync(CancellationToken token = default(CancellationToken));
-		Task<long> GetFileSizeAsync(string path, long defaultValue = -1, CancellationToken token = default(CancellationToken));
-		Task<DateTime> GetModifiedTimeAsync(string path, CancellationToken token = default(CancellationToken));
+#if !NET40
+        Task DeleteFileAsync(string path, CancellationToken token = default(CancellationToken));
+        Task DeleteDirectoryAsync(string path, CancellationToken token = default(CancellationToken));
+        Task DeleteDirectoryAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken));
+        Task<bool> DirectoryExistsAsync(string path, CancellationToken token = default(CancellationToken));
+        Task<bool> FileExistsAsync(string path, CancellationToken token = default(CancellationToken));
+        Task<bool> CreateDirectoryAsync(string path, bool force, CancellationToken token = default(CancellationToken));
+        Task<bool> CreateDirectoryAsync(string path, CancellationToken token = default(CancellationToken));
+        Task RenameAsync(string path, string dest, CancellationToken token = default(CancellationToken));
+        Task<bool> MoveFileAsync(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken));
+        Task<bool> MoveDirectoryAsync(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken));
+        Task SetFilePermissionsAsync(string path, int permissions, CancellationToken token = default(CancellationToken));
+        Task ChmodAsync(string path, int permissions, CancellationToken token = default(CancellationToken));
+        Task SetFilePermissionsAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken));
+        Task ChmodAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken));
+        Task<FtpListItem> GetFilePermissionsAsync(string path, CancellationToken token = default(CancellationToken));
+        Task<int> GetChmodAsync(string path, CancellationToken token = default(CancellationToken));
+        Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, CancellationToken token = default(CancellationToken));
+        Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, CancellationToken token = default(CancellationToken));
+        Task SetWorkingDirectoryAsync(string path, CancellationToken token = default(CancellationToken));
+        Task<string> GetWorkingDirectoryAsync(CancellationToken token = default(CancellationToken));
+        Task<long> GetFileSizeAsync(string path, long defaultValue = -1, CancellationToken token = default(CancellationToken));
+        Task<DateTime> GetModifiedTimeAsync(string path, CancellationToken token = default(CancellationToken));
 
-		Task SetModifiedTimeAsync(string path, DateTime date, CancellationToken token = default(CancellationToken));
+        Task SetModifiedTimeAsync(string path, DateTime date, CancellationToken token = default(CancellationToken));
 #endif
-
 
         // LISTING
 
@@ -185,19 +183,19 @@ namespace System.Data.Dubber
         string[] GetNameListing(string path);
 
 
-#if ASYNC
-		Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false, CancellationToken token = default(CancellationToken));
-		Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken));
-		Task<FtpListItem[]> GetListingAsync(string path, CancellationToken token = default(CancellationToken));
-		Task<FtpListItem[]> GetListingAsync(CancellationToken token = default(CancellationToken));
-		Task<string[]> GetNameListingAsync(string path, CancellationToken token = default(CancellationToken));
-		Task<string[]> GetNameListingAsync(CancellationToken token = default(CancellationToken));
+#if !NET40
+        Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false, CancellationToken token = default(CancellationToken));
+        Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken));
+        Task<FtpListItem[]> GetListingAsync(string path, CancellationToken token = default(CancellationToken));
+        Task<FtpListItem[]> GetListingAsync(CancellationToken token = default(CancellationToken));
+        Task<string[]> GetNameListingAsync(string path, CancellationToken token = default(CancellationToken));
+        Task<string[]> GetNameListingAsync(CancellationToken token = default(CancellationToken));
 #endif
 
-#if ASYNCPLUS
-		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(string path, FtpListOption options, CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
-		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(string path, CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
-		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
+#if NETFx
+        IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(string path, FtpListOption options, CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
+        IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(string path, CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
+        IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
 #endif
 
 
@@ -210,16 +208,14 @@ namespace System.Data.Dubber
         Stream OpenAppend(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true);
         Stream OpenAppend(string path, FtpDataType type, long fileLen);
 
-#if ASYNC
-		Task<Stream> OpenReadAsync(string path, FtpDataType type = FtpDataType.Binary, long restart = 0, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken));
-		Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, long fileLen, CancellationToken token = default(CancellationToken));
-		Task<Stream> OpenWriteAsync(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken));
-		Task<Stream> OpenWriteAsync(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken));
-		Task<Stream> OpenAppendAsync(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken));
-		Task<Stream> OpenAppendAsync(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken));
+#if !NET40
+        Task<Stream> OpenReadAsync(string path, FtpDataType type = FtpDataType.Binary, long restart = 0, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken));
+        Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, long fileLen, CancellationToken token = default(CancellationToken));
+        Task<Stream> OpenWriteAsync(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken));
+        Task<Stream> OpenWriteAsync(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken));
+        Task<Stream> OpenAppendAsync(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken));
+        Task<Stream> OpenAppendAsync(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken));
 #endif
-
-
         // HIGH LEVEL
 
         int UploadFiles(IEnumerable<string> localPaths, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true, FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, Action<FtpProgress> progress = null);
@@ -237,26 +233,26 @@ namespace System.Data.Dubber
         List<FtpResult> DownloadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null);
         List<FtpResult> UploadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null);
 
-#if ASYNC
-		Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true, FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken), IProgress<FtpProgress> progress = null);
-		Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken), IProgress<FtpProgress> progress = null);
+#if !NET40
+        Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true, FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken), IProgress<FtpProgress> progress = null);
+        Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken), IProgress<FtpProgress> progress = null);
 
-		Task<FtpStatus> UploadFileAsync(string localPath, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
-		Task<FtpStatus> UploadAsync(Stream fileStream, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
-		Task<FtpStatus> UploadAsync(byte[] fileData, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
-		Task<FtpStatus> DownloadFileAsync(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
-		Task<bool> DownloadAsync(Stream outStream, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
-		Task<byte[]> DownloadAsync(string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
+        Task<FtpStatus> UploadFileAsync(string localPath, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
+        Task<FtpStatus> UploadAsync(Stream fileStream, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
+        Task<FtpStatus> UploadAsync(byte[] fileData, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
+        Task<FtpStatus> DownloadFileAsync(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
+        Task<bool> DownloadAsync(Stream outStream, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
+        Task<byte[]> DownloadAsync(string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
 
-		Task<List<FtpResult>> DownloadDirectoryAsync(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
-		Task<List<FtpResult>> UploadDirectoryAsync(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
+        Task<List<FtpResult>> DownloadDirectoryAsync(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
+        Task<List<FtpResult>> UploadDirectoryAsync(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
 #endif
 
         // HASH
         FtpHash GetChecksum(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE);
 
-#if ASYNC
-		Task<FtpHash> GetChecksumAsync(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE, CancellationToken token = default(CancellationToken));
+#if !NET40
+        Task<FtpHash> GetChecksumAsync(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE, CancellationToken token = default(CancellationToken));
 
 #endif
     }
@@ -276,23 +272,22 @@ namespace System.Data.Dubber
         private static List<SysSslProtocols> autoConnectProtocols = new List<SysSslProtocols>
         {
 			//SysSslProtocols.None,
-#if ASYNC
-			SysSslProtocols.Tls12 | SysSslProtocols.Tls11, 
+#if !NET40
+			SysSslProtocols.Tls12 | SysSslProtocols.Tls11,
+#else
+            SysSslProtocols.Tls,
 #endif
-#if !ASYNC
-			SysSslProtocols.Tls,
-#endif
-#if !CORE
+#if !NETFx
 			SysSslProtocols.Default,
 #endif
 		};
 
-        private static List<FtpDataConnectionType> autoConnectData = new List<FtpDataConnectionType> 
+        private static List<FtpDataConnectionType> autoConnectData = new List<FtpDataConnectionType>
         {
-            FtpDataConnectionType.PASV, 
-            FtpDataConnectionType.EPSV, 
-            FtpDataConnectionType.PORT, 
-            FtpDataConnectionType.EPRT, 
+            FtpDataConnectionType.PASV,
+            FtpDataConnectionType.EPSV,
+            FtpDataConnectionType.PORT,
+            FtpDataConnectionType.EPRT,
             FtpDataConnectionType.PASVEX
         };
 
@@ -309,11 +304,8 @@ namespace System.Data.Dubber
         public List<FtpProfile> AutoDetect(bool firstOnly = true, bool cloneConnection = true)
         {
             var results = new List<FtpProfile>();
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 LogFunc(nameof(AutoDetect), new object[] { firstOnly, cloneConnection });
                 ValidateAutoDetect();
 
@@ -401,14 +393,10 @@ namespace System.Data.Dubber
                         }
                         catch (Exception ex)
                         {
-
-#if !CORE14
                             if (ex is AuthenticationException)
                             {
                                 throw new FtpInvalidCertificateException();
                             }
-#endif
-
                             // since the connection failed, disconnect and retry
                             conn.Disconnect();
 
@@ -471,167 +459,181 @@ namespace System.Data.Dubber
                 {
                     conn.Dispose();
                 }
-#if !CORE14
             }
-#endif
             return results;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Automatic FTP and FTPS connection negotiation.
-		/// This method tries every possible combination of the FTP connection properties, and returns the list of successful connection profiles.
-		/// You can configure it to stop after finding the first successful profile, or to collect all successful profiles.
-		/// You can then generate code for the profile using the FtpProfile.ToCode method.
-		/// If no successful profiles are found, a blank list is returned.
-		/// </summary>
-		/// <param name="firstOnly">Find all successful profiles (false) or stop after finding the first successful profile (true)</param>
-		/// <param name="cloneConnection">Use a new cloned FtpClient for testing connection profiles (true) or use the source FtpClient (false)</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns></returns>
-		public async Task<List<FtpProfile>> AutoDetectAsync(bool firstOnly, bool cloneConnection = true, CancellationToken token = default(CancellationToken)) {
-			var results = new List<FtpProfile>();
+#if !NET40
+        /// <summary>
+        /// Automatic FTP and FTPS connection negotiation.
+        /// This method tries every possible combination of the FTP connection properties, and returns the list of successful connection profiles.
+        /// You can configure it to stop after finding the first successful profile, or to collect all successful profiles.
+        /// You can then generate code for the profile using the FtpProfile.ToCode method.
+        /// If no successful profiles are found, a blank list is returned.
+        /// </summary>
+        /// <param name="firstOnly">Find all successful profiles (false) or stop after finding the first successful profile (true)</param>
+        /// <param name="cloneConnection">Use a new cloned FtpClient for testing connection profiles (true) or use the source FtpClient (false)</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns></returns>
+        public async Task<List<FtpProfile>> AutoDetectAsync(bool firstOnly, bool cloneConnection = true, CancellationToken token = default(CancellationToken))
+        {
+            var results = new List<FtpProfile>();
 
-			LogFunc(nameof(AutoDetectAsync), new object[] { firstOnly, cloneConnection });
-			ValidateAutoDetect();
+            LogFunc(nameof(AutoDetectAsync), new object[] { firstOnly, cloneConnection });
+            ValidateAutoDetect();
 
-			// get known working connection profile based on the host (if any)
-			var knownProfile = FtpServerSpecificHandler.GetWorkingProfileFromHost(Host, Port);
-			if (knownProfile != null) {
-				results.Add(knownProfile);
-				return results;
-			}
+            // get known working connection profile based on the host (if any)
+            var knownProfile = FtpServerSpecificHandler.GetWorkingProfileFromHost(Host, Port);
+            if (knownProfile != null)
+            {
+                results.Add(knownProfile);
+                return results;
+            }
 
-			var blacklistedEncryptions = new List<FtpEncryptionMode>();
-			bool resetPort = m_port == 0;
+            var blacklistedEncryptions = new List<FtpEncryptionMode>();
+            bool resetPort = m_port == 0;
 
-			// clone this connection or use this connection
-			var conn = cloneConnection ? CloneConnection() : this;
+            // clone this connection or use this connection
+            var conn = cloneConnection ? CloneConnection() : this;
 
-			// copy basic props if cloned connection
-			if (cloneConnection) {
-				conn.Host = this.Host;
-				conn.Port = this.Port;
-				conn.Credentials = this.Credentials;
-			}
+            // copy basic props if cloned connection
+            if (cloneConnection)
+            {
+                conn.Host = this.Host;
+                conn.Port = this.Port;
+                conn.Credentials = this.Credentials;
+            }
 
-			// disconnect if already connected
-			if (conn.IsConnected) {
-				await conn.DisconnectAsync(token);
-			}
+            // disconnect if already connected
+            if (conn.IsConnected)
+            {
+                await conn.DisconnectAsync(token);
+            }
 
-			// try each encryption mode
-			foreach (var encryption in autoConnectEncryption) {
+            // try each encryption mode
+            foreach (var encryption in autoConnectEncryption)
+            {
 
-				// skip if FTPS was tried and failed
-				if (blacklistedEncryptions.Contains(encryption)) {
-					continue;
-				}
+                // skip if FTPS was tried and failed
+                if (blacklistedEncryptions.Contains(encryption))
+                {
+                    continue;
+                }
 
-				// try each SSL protocol
-				foreach (var protocol in autoConnectProtocols) {
+                // try each SSL protocol
+                foreach (var protocol in autoConnectProtocols)
+                {
 
-					// skip plain protocols if testing secure FTPS -- disabled because 'None' is recommended by Microsoft
-					/*if (encryption != FtpEncryptionMode.None && protocol == SysSslProtocols.None) {
+                    // skip plain protocols if testing secure FTPS -- disabled because 'None' is recommended by Microsoft
+                    /*if (encryption != FtpEncryptionMode.None && protocol == SysSslProtocols.None) {
 						continue;
 					}*/
 
-					// skip secure protocols if testing plain FTP
-					if (encryption == FtpEncryptionMode.None && protocol != SysSslProtocols.None) {
-						continue;
-					}
+                    // skip secure protocols if testing plain FTP
+                    if (encryption == FtpEncryptionMode.None && protocol != SysSslProtocols.None)
+                    {
+                        continue;
+                    }
 
-					// reset port so it auto computes based on encryption type
-					if (resetPort) {
-						conn.Port = 0;
-					}
+                    // reset port so it auto computes based on encryption type
+                    if (resetPort)
+                    {
+                        conn.Port = 0;
+                    }
 
-					// set rolled props
-					conn.EncryptionMode = encryption;
-					conn.SslProtocols = protocol;
-					conn.DataConnectionType = FtpDataConnectionType.AutoPassive;
-					conn.Encoding = Encoding.UTF8;
+                    // set rolled props
+                    conn.EncryptionMode = encryption;
+                    conn.SslProtocols = protocol;
+                    conn.DataConnectionType = FtpDataConnectionType.AutoPassive;
+                    conn.Encoding = Encoding.UTF8;
 
-					// try to connect
-					var connected = false;
-					var dataConn = FtpDataConnectionType.PASV;
-					try {
-						await conn.ConnectAsync(token);
-						connected = true;
+                    // try to connect
+                    var connected = false;
+                    var dataConn = FtpDataConnectionType.PASV;
+                    try
+                    {
+                        await conn.ConnectAsync(token);
+                        connected = true;
 
-						// get data connection once connected
-						dataConn = AutoDataConnection(conn);
+                        // get data connection once connected
+                        dataConn = AutoDataConnection(conn);
 
-						// if non-cloned connection, we want to remain connected if it works
-						if (cloneConnection) {
-							await conn.DisconnectAsync(token);
-						}
-					}
-					catch (Exception ex) {
+                        // if non-cloned connection, we want to remain connected if it works
+                        if (cloneConnection)
+                        {
+                            await conn.DisconnectAsync(token);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex is AuthenticationException)
+                        {
+                            throw new FtpInvalidCertificateException();
+                        }
+                        // since the connection failed, disconnect and retry
+                        await conn.DisconnectAsync(token);
 
-#if !CORE14
-						if (ex is AuthenticationException)
-						{
-							throw new FtpInvalidCertificateException();
-						}
-#endif
+                        // if server does not support FTPS no point trying encryption again
+                        if (IsFtpsFailure(blacklistedEncryptions, encryption, ex))
+                        {
+                            goto SkipEncryptionMode;
+                        }
 
-						// since the connection failed, disconnect and retry
-						await conn.DisconnectAsync(token);
+                        // catch error "no such host is known" and hard abort
+                        if (IsPermanantConnectionFailure(ex))
+                        {
+                            if (cloneConnection)
+                            {
+                                conn.Dispose();
+                            }
 
-						// if server does not support FTPS no point trying encryption again
-						if (IsFtpsFailure(blacklistedEncryptions, encryption, ex)) {
-							goto SkipEncryptionMode;
-						}
+                            // rethrow permanent failures so caller can be made aware of it
+                            throw;
+                        }
+                    }
 
-						// catch error "no such host is known" and hard abort
-						if (IsPermanantConnectionFailure(ex)) {
-							if (cloneConnection) {
-								conn.Dispose();
-							}
+                    // if it worked, add the profile
+                    if (connected)
+                    {
 
-							// rethrow permanent failures so caller can be made aware of it
-							throw;
-						}
-					}
+                        // if connected by explicit FTPS failed, no point trying encryption again
+                        if (IsConnectedButFtpsFailure(blacklistedEncryptions, encryption, conn._ConnectionFTPSFailure))
+                        {
+                        }
 
-					// if it worked, add the profile
-					if (connected) {
+                        results.Add(new FtpProfile
+                        {
+                            Host = Host,
+                            Credentials = Credentials,
+                            Encryption = encryption,
+                            Protocols = protocol,
+                            DataConnection = dataConn,
+                            Encoding = Encoding.UTF8,
+                            EncodingVerified = conn._ConnectionUTF8Success || conn.HasFeature(FtpCapability.UTF8)
+                        });
 
-						// if connected by explicit FTPS failed, no point trying encryption again
-						if (IsConnectedButFtpsFailure(blacklistedEncryptions, encryption, conn._ConnectionFTPSFailure)) {
-						}
+                        // stop if only 1 wanted
+                        if (firstOnly)
+                        {
+                            goto Exit;
+                        }
+                    }
+                }
 
-						results.Add(new FtpProfile {
-							Host = Host,
-							Credentials = Credentials,
-							Encryption = encryption,
-							Protocols = protocol,
-							DataConnection = dataConn,
-							Encoding = Encoding.UTF8,
-							EncodingVerified = conn._ConnectionUTF8Success || conn.HasFeature(FtpCapability.UTF8)
-						});
+            SkipEncryptionMode:
+                var skip = true;
 
-						// stop if only 1 wanted
-						if (firstOnly) {
-							goto Exit;
-						}
-					}
-				}
-
-				SkipEncryptionMode:
-				var skip = true;
-
-			}
+            }
 
 
-			Exit:
-			if (cloneConnection) {
-				conn.Dispose();
-			}
+        Exit:
+            if (cloneConnection)
+            {
+                conn.Dispose();
+            }
 
-			return results;
-		}
+            return results;
+        }
 #endif
 
         private void ValidateAutoDetect()
@@ -774,18 +776,19 @@ namespace System.Data.Dubber
             Connect();
         }
 
-#if ASYNC
-		/// <summary>
-		/// Connect to the given server profile.
-		/// </summary>
-		public async Task ConnectAsync(FtpProfile profile, CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// Connect to the given server profile.
+        /// </summary>
+        public async Task ConnectAsync(FtpProfile profile, CancellationToken token = default(CancellationToken))
+        {
 
-			// copy over the profile properties to this instance
-			LoadProfile(profile);
+            // copy over the profile properties to this instance
+            LoadProfile(profile);
 
-			// begin connection
-			await ConnectAsync(token);
-		}
+            // begin connection
+            await ConnectAsync(token);
+        }
 #endif
 
         /// <summary>
@@ -867,34 +870,36 @@ namespace System.Data.Dubber
             return null;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Automatic FTP and FTPS connection negotiation.
-		/// This method tries every possible combination of the FTP connection properties, and connects to the first successful profile.
-		/// Returns the FtpProfile if the connection succeeded, or null if it failed.
-		/// It will throw exceptions for permanent failures like invalid host or invalid credentials.
-		/// </summary>
-		public async Task<FtpProfile> AutoConnectAsync(CancellationToken token = default(CancellationToken)) {
-			LogFunc(nameof(AutoConnectAsync));
+#if !NET40
+        /// <summary>
+        /// Automatic FTP and FTPS connection negotiation.
+        /// This method tries every possible combination of the FTP connection properties, and connects to the first successful profile.
+        /// Returns the FtpProfile if the connection succeeded, or null if it failed.
+        /// It will throw exceptions for permanent failures like invalid host or invalid credentials.
+        /// </summary>
+        public async Task<FtpProfile> AutoConnectAsync(CancellationToken token = default(CancellationToken))
+        {
+            LogFunc(nameof(AutoConnectAsync));
 
-			// connect to the first available connection profile
-			var results = await AutoDetectAsync(true, false, token);
-			if (results.Count > 0) {
-				var profile = results[0];
+            // connect to the first available connection profile
+            var results = await AutoDetectAsync(true, false, token);
+            if (results.Count > 0)
+            {
+                var profile = results[0];
 
-				// load the profile so final property selections are
-				// loaded into the current connection
-				LoadProfile(profile);
+                // load the profile so final property selections are
+                // loaded into the current connection
+                LoadProfile(profile);
 
-				// if we are using SSL, set a basic server acceptance function
-				SetDefaultCertificateValidation(profile);
+                // if we are using SSL, set a basic server acceptance function
+                SetDefaultCertificateValidation(profile);
 
-				// return the working profile
-				return profile;
-			}
+                // return the working profile
+                return profile;
+            }
 
-			return null;
-		}
+            return null;
+        }
 #endif
         private void SetDefaultCertificateValidation(FtpProfile profile)
         {
@@ -1074,7 +1079,7 @@ namespace System.Data.Dubber
             {
                 throw new ArgumentNullException(nameof(host), "Host is required");
             }
-#if !CORE
+#if !NETFx
             if (host.Scheme != Uri.UriSchemeFtp)
             {
                 throw new ArgumentException("Host is not a valid FTP path");
@@ -1098,10 +1103,8 @@ namespace System.Data.Dubber
         /// </summary>
         public virtual void Dispose()
         {
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 if (IsDisposed)
                 {
                     return;
@@ -1154,10 +1157,7 @@ namespace System.Data.Dubber
 
                 IsDisposed = true;
                 GC.SuppressFinalize(this);
-#if !CORE14
             }
-
-#endif
         }
 
         /// <summary>
@@ -1232,13 +1232,13 @@ namespace System.Data.Dubber
             conn.DownloadDirectoryDeleteExcluded = DownloadDirectoryDeleteExcluded;
 
             // configure new connection as clone of self (newer version .NET only)
-#if ASYNC && !CORE14 && !CORE16
-			conn.SocketLocalIp = SocketLocalIp;
+#if !NET40
+            conn.SocketLocalIp = SocketLocalIp;
 #endif
 
             // configure new connection as clone of self (.NET core props only)
-#if CORE
-			conn.LocalTimeZone = LocalTimeZone;
+#if NETFx
+            conn.LocalTimeZone = LocalTimeZone;
 #endif
 
             // fix for #428: OpenRead with EnableThreadSafeDataConnections always uses ASCII
@@ -1246,7 +1246,7 @@ namespace System.Data.Dubber
             conn.ForceSetDataType = true;
 
             // configure new connection as clone of self (.NET framework props only)
-#if !CORE
+#if !NETFx
             conn.PlainTextEncryption = PlainTextEncryption;
 #endif
 
@@ -1272,11 +1272,8 @@ namespace System.Data.Dubber
         public virtual void Connect()
         {
             FtpReply reply;
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
 
                 LogFunc(nameof(Connect));
 
@@ -1316,14 +1313,10 @@ namespace System.Data.Dubber
                 Connect(m_stream);
 
                 m_stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
-
-#if !NO_SSL
                 if (EncryptionMode == FtpEncryptionMode.Implicit)
                 {
                     m_stream.ActivateEncryption(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
                 }
-#endif
-
                 Handshake();
                 m_serverType = FtpServerSpecificHandler.DetectFtpServer(this, HandshakeReply);
 
@@ -1334,8 +1327,6 @@ namespace System.Data.Dubber
                         throw new FtpException("HOST command failed.");
                     }
                 }
-
-#if !NO_SSL
                 // try to upgrade this connection to SSL if supported by the server
                 if (EncryptionMode == FtpEncryptionMode.Explicit || EncryptionMode == FtpEncryptionMode.Auto)
                 {
@@ -1353,8 +1344,6 @@ namespace System.Data.Dubber
                         m_stream.ActivateEncryption(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
                     }
                 }
-#endif
-
                 if (m_credentials != null)
                 {
                     Authenticate();
@@ -1434,7 +1423,7 @@ namespace System.Data.Dubber
                     FtpServerSpecificHandler.AssumeCapabilities(this, ServerHandler, m_capabilities, ref m_hashAlgorithms);
                 }
 
-#if !NO_SSL && !CORE
+#if !NETFx
                 if (IsEncrypted && PlainTextEncryption)
                 {
                     if (!(reply = Execute("CCC")).Success)
@@ -1475,187 +1464,209 @@ namespace System.Data.Dubber
                 {
                     ServerHandler.AfterConnected(this);
                 }
-
-#if !CORE14
             }
-
-#endif
         }
 
-#if ASYNC
-		// TODO: add example
-		/// <summary>
-		/// Connect to the server
-		/// </summary>
-		/// <exception cref="ObjectDisposedException">Thrown if this object has been disposed.</exception>
-		public virtual async Task ConnectAsync(CancellationToken token = default(CancellationToken)) {
-			FtpReply reply;
+#if !NET40
+        // TODO: add example
+        /// <summary>
+        /// Connect to the server
+        /// </summary>
+        /// <exception cref="ObjectDisposedException">Thrown if this object has been disposed.</exception>
+        public virtual async Task ConnectAsync(CancellationToken token = default(CancellationToken))
+        {
+            FtpReply reply;
 
-			LogFunc(nameof(ConnectAsync));
+            LogFunc(nameof(ConnectAsync));
 
-			if (IsDisposed) {
-				throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
-			}
+            if (IsDisposed)
+            {
+                throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
+            }
 
-			if (m_stream == null) {
-				m_stream = new FtpSocketStream(this);
-				m_stream.ValidateCertificate += new FtpSocketStreamSslValidation(FireValidateCertficate);
-			}
-			else {
-				if (IsConnected) {
-					Disconnect();
-				}
-			}
+            if (m_stream == null)
+            {
+                m_stream = new FtpSocketStream(this);
+                m_stream.ValidateCertificate += new FtpSocketStreamSslValidation(FireValidateCertficate);
+            }
+            else
+            {
+                if (IsConnected)
+                {
+                    Disconnect();
+                }
+            }
 
-			if (Host == null) {
-				throw new FtpException("No host has been specified");
-			}
+            if (Host == null)
+            {
+                throw new FtpException("No host has been specified");
+            }
 
-			if (m_capabilities == null) {
-				m_capabilities = new List<FtpCapability>();
-			}
+            if (m_capabilities == null)
+            {
+                m_capabilities = new List<FtpCapability>();
+            }
 
-			ResetStateFlags();
+            ResetStateFlags();
 
-			m_hashAlgorithms = FtpHashAlgorithm.NONE;
-			m_stream.ConnectTimeout = m_connectTimeout;
-			m_stream.SocketPollInterval = m_socketPollInterval;
-			await ConnectAsync(m_stream, token);
+            m_hashAlgorithms = FtpHashAlgorithm.NONE;
+            m_stream.ConnectTimeout = m_connectTimeout;
+            m_stream.SocketPollInterval = m_socketPollInterval;
+            await ConnectAsync(m_stream, token);
 
-			m_stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
+            m_stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
 
-#if !NO_SSL
-			if (EncryptionMode == FtpEncryptionMode.Implicit) {
-				await m_stream.ActivateEncryptionAsync(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
-			}
+            if (EncryptionMode == FtpEncryptionMode.Implicit)
+            {
+                await m_stream.ActivateEncryptionAsync(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
+            }
+            await HandshakeAsync(token);
+            m_serverType = FtpServerSpecificHandler.DetectFtpServer(this, HandshakeReply);
+
+            if (SendHost)
+            {
+                if (!(reply = await ExecuteAsync("HOST " + (SendHostDomain != null ? SendHostDomain : Host), token)).Success)
+                {
+                    throw new FtpException("HOST command failed.");
+                }
+            }
+            // try to upgrade this connection to SSL if supported by the server
+            if (EncryptionMode == FtpEncryptionMode.Explicit || EncryptionMode == FtpEncryptionMode.Auto)
+            {
+                reply = await ExecuteAsync("AUTH TLS", token);
+                if (!reply.Success)
+                {
+                    _ConnectionFTPSFailure = true;
+                    if (EncryptionMode == FtpEncryptionMode.Explicit)
+                    {
+                        throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
+                    }
+                }
+                else if (reply.Success)
+                {
+                    await m_stream.ActivateEncryptionAsync(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
+                }
+            }
+            if (m_credentials != null)
+            {
+                await AuthenticateAsync(token);
+            }
+
+            // configure the default FTPS settings
+            if (IsEncrypted && DataConnectionEncryption)
+            {
+                if (!(reply = await ExecuteAsync("PBSZ 0", token)).Success)
+                {
+                    throw new FtpCommandException(reply);
+                }
+
+                if (!(reply = await ExecuteAsync("PROT P", token)).Success)
+                {
+                    throw new FtpCommandException(reply);
+                }
+            }
+
+            // if this is a clone these values should have already been loaded
+            // so save some bandwidth and CPU time and skip executing this again.
+            // otherwise clear the capabilities in case connection is reused to 
+            // a different server 
+            if (!m_isClone && m_checkCapabilities)
+            {
+                m_capabilities.Clear();
+            }
+            bool assumeCaps = false;
+            if (m_capabilities.IsBlank() && m_checkCapabilities)
+            {
+                if ((reply = await ExecuteAsync("FEAT", token)).Success && reply.InfoMessages != null)
+                {
+                    GetFeatures(reply);
+                }
+                else
+                {
+                    assumeCaps = true;
+                }
+            }
+
+            // Enable UTF8 if the encoding is ASCII and UTF8 is supported
+            if (m_textEncodingAutoUTF && m_textEncoding == Encoding.ASCII && HasFeature(FtpCapability.UTF8))
+            {
+                m_textEncoding = Encoding.UTF8;
+            }
+
+            LogStatus(FtpTraceLevel.Info, "Text encoding: " + m_textEncoding.ToString());
+
+            if (m_textEncoding == Encoding.UTF8)
+            {
+                // If the server supports UTF8 it should already be enabled and this
+                // command should not matter however there are conflicting drafts
+                // about this so we'll just execute it to be safe. 
+                if ((reply = await ExecuteAsync("OPTS UTF8 ON", token)).Success)
+                {
+                    _ConnectionUTF8Success = true;
+                }
+            }
+
+            // Get the system type - Needed to auto-detect file listing parser
+            if ((reply = await ExecuteAsync("SYST", token)).Success)
+            {
+                m_systemType = reply.Message;
+                m_serverType = FtpServerSpecificHandler.DetectFtpServerBySyst(this);
+                m_serverOS = FtpServerSpecificHandler.DetectFtpOSBySyst(this);
+            }
+
+            // Set a FTP server handler if a custom handler has not already been set
+            if (ServerHandler == null)
+            {
+                ServerHandler = FtpServerSpecificHandler.GetServerHandler(m_serverType);
+            }
+            // Assume the system's capabilities if FEAT command not supported by the server
+            if (assumeCaps)
+            {
+                FtpServerSpecificHandler.AssumeCapabilities(this, ServerHandler, m_capabilities, ref m_hashAlgorithms);
+            }
+
+#if !NETFx
+            if (IsEncrypted && PlainTextEncryption)
+            {
+                if (!(reply = await ExecuteAsync("CCC", token)).Success)
+                {
+                    throw new FtpSecurityNotAvailableException("Failed to disable encryption with CCC command. Perhaps your server does not support it or is not configured to allow it.");
+                }
+                else
+                {
+                    // close the SslStream and send close_notify command to server
+                    m_stream.DeactivateEncryption();
+
+                    // read stale data (server's reply?)
+                    await ReadStaleDataAsync(false, true, false, token);
+                }
+            }
 #endif
 
-			await HandshakeAsync(token);
-			m_serverType = FtpServerSpecificHandler.DetectFtpServer(this, HandshakeReply);
+            // Unless a custom list parser has been set,
+            // Detect the listing parser and prefer machine listings over any other type
+            // FIX : #739 prefer using machine listings to fix issues with GetListing and DeleteDirectory
+            if (ListingParser != FtpParser.Custom)
+            {
+                ListingParser = ServerHandler != null ? ServerHandler.GetParser() : FtpParser.Auto;
+                if (HasFeature(FtpCapability.MLSD))
+                {
+                    ListingParser = FtpParser.Machine;
+                }
+            }
 
-			if (SendHost) {
-				if (!(reply = await ExecuteAsync("HOST " + (SendHostDomain != null ? SendHostDomain : Host), token)).Success) {
-					throw new FtpException("HOST command failed.");
-				}
-			}
+            // Create the parser even if the auto-OS detection failed
+            m_listParser.Init(m_serverOS, ListingParser);
 
-#if !NO_SSL
-			// try to upgrade this connection to SSL if supported by the server
-			if (EncryptionMode == FtpEncryptionMode.Explicit || EncryptionMode == FtpEncryptionMode.Auto) {
-				reply = await ExecuteAsync("AUTH TLS", token);
-				if (!reply.Success) {
-					_ConnectionFTPSFailure = true;
-					if (EncryptionMode == FtpEncryptionMode.Explicit) {
-						throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
-					}
-				}
-				else if (reply.Success) {
-					await m_stream.ActivateEncryptionAsync(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
-				}
-			}
-#endif
+            // FIX : #318 always set the type when we create a new connection
+            ForceSetDataType = true;
 
-
-			if (m_credentials != null) {
-				await AuthenticateAsync(token);
-			}
-
-			// configure the default FTPS settings
-			if (IsEncrypted && DataConnectionEncryption) {
-				if (!(reply = await ExecuteAsync("PBSZ 0", token)).Success) {
-					throw new FtpCommandException(reply);
-				}
-
-				if (!(reply = await ExecuteAsync("PROT P", token)).Success) {
-					throw new FtpCommandException(reply);
-				}
-			}
-
-			// if this is a clone these values should have already been loaded
-			// so save some bandwidth and CPU time and skip executing this again.
-			// otherwise clear the capabilities in case connection is reused to 
-			// a different server 
-			if (!m_isClone && m_checkCapabilities) {
-				m_capabilities.Clear();
-			}
-			bool assumeCaps = false;
-			if (m_capabilities.IsBlank() && m_checkCapabilities) {
-				if ((reply = await ExecuteAsync("FEAT", token)).Success && reply.InfoMessages != null) {
-					GetFeatures(reply);
-				}
-				else {
-					assumeCaps = true;
-				}
-			}
-
-			// Enable UTF8 if the encoding is ASCII and UTF8 is supported
-			if (m_textEncodingAutoUTF && m_textEncoding == Encoding.ASCII && HasFeature(FtpCapability.UTF8)) {
-				m_textEncoding = Encoding.UTF8;
-			}
-
-			LogStatus(FtpTraceLevel.Info, "Text encoding: " + m_textEncoding.ToString());
-
-			if (m_textEncoding == Encoding.UTF8) {
-				// If the server supports UTF8 it should already be enabled and this
-				// command should not matter however there are conflicting drafts
-				// about this so we'll just execute it to be safe. 
-				if ((reply = await ExecuteAsync("OPTS UTF8 ON", token)).Success) {
-					_ConnectionUTF8Success = true;
-				}
-			}
-
-			// Get the system type - Needed to auto-detect file listing parser
-			if ((reply = await ExecuteAsync("SYST", token)).Success) {
-				m_systemType = reply.Message;
-				m_serverType = FtpServerSpecificHandler.DetectFtpServerBySyst(this);
-				m_serverOS = FtpServerSpecificHandler.DetectFtpOSBySyst(this);
-			}
-
-			// Set a FTP server handler if a custom handler has not already been set
-			if (ServerHandler == null) {
-				ServerHandler = FtpServerSpecificHandler.GetServerHandler(m_serverType);
-			}
-			// Assume the system's capabilities if FEAT command not supported by the server
-			if (assumeCaps) {
-				FtpServerSpecificHandler.AssumeCapabilities(this, ServerHandler, m_capabilities, ref m_hashAlgorithms);
-			}
-
-#if !NO_SSL && !CORE
-			if (IsEncrypted && PlainTextEncryption) {
-				if (!(reply = await ExecuteAsync("CCC", token)).Success) {
-					throw new FtpSecurityNotAvailableException("Failed to disable encryption with CCC command. Perhaps your server does not support it or is not configured to allow it.");
-				}
-				else {
-					// close the SslStream and send close_notify command to server
-					m_stream.DeactivateEncryption();
-
-					// read stale data (server's reply?)
-					await ReadStaleDataAsync(false, true, false, token);
-				}
-			}
-#endif
-
-			// Unless a custom list parser has been set,
-			// Detect the listing parser and prefer machine listings over any other type
-			// FIX : #739 prefer using machine listings to fix issues with GetListing and DeleteDirectory
-			if (ListingParser != FtpParser.Custom) {
-				ListingParser = ServerHandler != null ? ServerHandler.GetParser() : FtpParser.Auto;
-				if (HasFeature(FtpCapability.MLSD)) {
-					ListingParser = FtpParser.Machine;
-				}
-			}
-
-			// Create the parser even if the auto-OS detection failed
-			m_listParser.Init(m_serverOS, ListingParser);
-
-			// FIX : #318 always set the type when we create a new connection
-			ForceSetDataType = true;
-
-			// Execute server-specific post-connection event
-			if (ServerHandler != null) {
-				await ServerHandler.AfterConnectedAsync(this, token);
-			}
-		}
+            // Execute server-specific post-connection event
+            if (ServerHandler != null)
+            {
+                await ServerHandler.AfterConnectedAsync(this, token);
+            }
+        }
 
 #endif
 
@@ -1668,15 +1679,16 @@ namespace System.Data.Dubber
             stream.Connect(Host, Port, InternetProtocolVersions);
         }
 
-#if ASYNC
-		/// <summary>
-		/// Connect to the FTP server. Overridden in proxy classes.
-		/// </summary>
-		/// <param name="stream"></param>
-		/// <param name="token"></param>
-		protected virtual async Task ConnectAsync(FtpSocketStream stream, CancellationToken token) {
-			await stream.ConnectAsync(Host, Port, InternetProtocolVersions, token);
-		}
+#if !NET40
+        /// <summary>
+        /// Connect to the FTP server. Overridden in proxy classes.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="token"></param>
+        protected virtual async Task ConnectAsync(FtpSocketStream stream, CancellationToken token)
+        {
+            await stream.ConnectAsync(Host, Port, InternetProtocolVersions, token);
+        }
 #endif
 
         /// <summary>
@@ -1687,13 +1699,14 @@ namespace System.Data.Dubber
             stream.Connect(host, port, ipVersions);
         }
 
-#if ASYNC
-		/// <summary>
-		/// Connect to the FTP server. Overridden in proxy classes.
-		/// </summary>
-		protected virtual Task ConnectAsync(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions, CancellationToken token) {
-			return stream.ConnectAsync(host, port, ipVersions, token);
-		}
+#if !NET40
+        /// <summary>
+        /// Connect to the FTP server. Overridden in proxy classes.
+        /// </summary>
+        protected virtual Task ConnectAsync(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions, CancellationToken token)
+        {
+            return stream.ConnectAsync(host, port, ipVersions, token);
+        }
 #endif
 
         protected FtpReply HandshakeReply;
@@ -1719,23 +1732,27 @@ namespace System.Data.Dubber
             HandshakeReply = reply;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Called during <see cref="ConnectAsync()"/>. Typically extended by FTP proxies.
-		/// </summary>
-		protected virtual async Task HandshakeAsync(CancellationToken token = default(CancellationToken)) {
-			FtpReply reply;
-			if (!(reply = await GetReplyAsync(token)).Success) {
-				if (reply.Code == null) {
-					throw new IOException("The connection was terminated before a greeting could be read.");
-				}
-				else {
-					throw new FtpCommandException(reply);
-				}
-			}
+#if !NET40
+        /// <summary>
+        /// Called during <see cref="ConnectAsync()"/>. Typically extended by FTP proxies.
+        /// </summary>
+        protected virtual async Task HandshakeAsync(CancellationToken token = default(CancellationToken))
+        {
+            FtpReply reply;
+            if (!(reply = await GetReplyAsync(token)).Success)
+            {
+                if (reply.Code == null)
+                {
+                    throw new IOException("The connection was terminated before a greeting could be read.");
+                }
+                else
+                {
+                    throw new FtpCommandException(reply);
+                }
+            }
 
-			HandshakeReply = reply;
-		}
+            HandshakeReply = reply;
+        }
 #endif
 
         /// <summary>
@@ -1750,7 +1767,7 @@ namespace System.Data.Dubber
             FtpServerSpecificHandler.GetFeatures(this, m_capabilities, ref m_hashAlgorithms, reply.InfoMessages.Split('\n'));
         }
 
-#if !ASYNC
+#if NET40
         private delegate void AsyncConnect();
 
         /// <summary>
@@ -1797,15 +1814,16 @@ namespace System.Data.Dubber
             Authenticate(Credentials.UserName, Credentials.Password, Credentials.Domain);
         }
 
-#if ASYNC
-		/// <summary>
-		/// Performs a login on the server. This method is overridable so
-		/// that the login procedure can be changed to support, for example,
-		/// a FTP proxy.
-		/// </summary>
-		protected virtual async Task AuthenticateAsync(CancellationToken token) {
-			await AuthenticateAsync(Credentials.UserName, Credentials.Password, Credentials.Domain, token);
-		}
+#if !NET40
+        /// <summary>
+        /// Performs a login on the server. This method is overridable so
+        /// that the login procedure can be changed to support, for example,
+        /// a FTP proxy.
+        /// </summary>
+        protected virtual async Task AuthenticateAsync(CancellationToken token)
+        {
+            await AuthenticateAsync(Credentials.UserName, Credentials.Password, Credentials.Domain, token);
+        }
 #endif
 
         /// <summary>
@@ -1874,65 +1892,73 @@ namespace System.Data.Dubber
             }
         }
 
-#if ASYNC
-		/// <summary>
-		/// Performs a login on the server. This method is overridable so
-		/// that the login procedure can be changed to support, for example,
-		/// a FTP proxy.
-		/// </summary>
-		/// <exception cref="FtpAuthenticationException">On authentication failures</exception>
-		/// <remarks>
-		/// To handle authentication failures without retries, catch FtpAuthenticationException.
-		/// </remarks>
-		protected virtual async Task AuthenticateAsync(string userName, string password, string account, CancellationToken token) {
-			
-			// send the USER command along with the FTP username
-			FtpReply reply = await ExecuteAsync("USER " + userName, token);
+#if !NET40
+        /// <summary>
+        /// Performs a login on the server. This method is overridable so
+        /// that the login procedure can be changed to support, for example,
+        /// a FTP proxy.
+        /// </summary>
+        /// <exception cref="FtpAuthenticationException">On authentication failures</exception>
+        /// <remarks>
+        /// To handle authentication failures without retries, catch FtpAuthenticationException.
+        /// </remarks>
+        protected virtual async Task AuthenticateAsync(string userName, string password, string account, CancellationToken token)
+        {
 
-			// check the reply to the USER command
-			if (!reply.Success) {
-				throw new FtpAuthenticationException(reply);
-			}
+            // send the USER command along with the FTP username
+            FtpReply reply = await ExecuteAsync("USER " + userName, token);
 
-			// if it was accepted
-			else if (reply.Type == FtpResponseType.PositiveIntermediate) {
+            // check the reply to the USER command
+            if (!reply.Success)
+            {
+                throw new FtpAuthenticationException(reply);
+            }
 
-				// send the PASS command along with the FTP password
-				reply = await ExecuteAsync("PASS " + password, token);
+            // if it was accepted
+            else if (reply.Type == FtpResponseType.PositiveIntermediate)
+            {
 
-				// fix for #620: some servers send multiple responses that must be read and decoded,
-				// otherwise the connection is aborted and remade and it goes into an infinite loop
-				var staleData = await ReadStaleDataAsync(false, true, true, token);
-				if (staleData != null) {
-					var staleReply = new FtpReply();
-					if (DecodeStringToReply(staleData, ref staleReply) && !staleReply.Success) {
-						throw new FtpAuthenticationException(staleReply);
-					}
-				}
+                // send the PASS command along with the FTP password
+                reply = await ExecuteAsync("PASS " + password, token);
 
-				// check the first reply to the PASS command
-				if (!reply.Success) {
-					throw new FtpAuthenticationException(reply);
-				}
+                // fix for #620: some servers send multiple responses that must be read and decoded,
+                // otherwise the connection is aborted and remade and it goes into an infinite loop
+                var staleData = await ReadStaleDataAsync(false, true, true, token);
+                if (staleData != null)
+                {
+                    var staleReply = new FtpReply();
+                    if (DecodeStringToReply(staleData, ref staleReply) && !staleReply.Success)
+                    {
+                        throw new FtpAuthenticationException(staleReply);
+                    }
+                }
 
-				// only possible 3** here is `332 Need account for login`
-				if (reply.Type == FtpResponseType.PositiveIntermediate) {
-					reply = await ExecuteAsync("ACCT " + account, token);
+                // check the first reply to the PASS command
+                if (!reply.Success)
+                {
+                    throw new FtpAuthenticationException(reply);
+                }
 
-					if (!reply.Success) {
-						throw new FtpAuthenticationException(reply);
-					}
-					else
-					{
-						m_IsAuthenticated = true;
-					}
-				}
-				else if (reply.Type == FtpResponseType.PositiveCompletion)
-				{
-					m_IsAuthenticated = true;
-				}
-			}
-		}
+                // only possible 3** here is `332 Need account for login`
+                if (reply.Type == FtpResponseType.PositiveIntermediate)
+                {
+                    reply = await ExecuteAsync("ACCT " + account, token);
+
+                    if (!reply.Success)
+                    {
+                        throw new FtpAuthenticationException(reply);
+                    }
+                    else
+                    {
+                        m_IsAuthenticated = true;
+                    }
+                }
+                else if (reply.Type == FtpResponseType.PositiveCompletion)
+                {
+                    m_IsAuthenticated = true;
+                }
+            }
+        }
 #endif
 
         #endregion
@@ -1944,10 +1970,8 @@ namespace System.Data.Dubber
         /// </summary>
         public virtual void Disconnect()
         {
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 if (m_stream != null && m_stream.IsConnected)
                 {
                     try
@@ -1966,14 +1990,10 @@ namespace System.Data.Dubber
                         m_stream.Close();
                     }
                 }
-
-#if !CORE14
             }
-
-#endif
         }
 
-#if !ASYNC
+#if NET40
         private delegate void AsyncDisconnect();
 
         /// <summary>
@@ -2006,25 +2026,31 @@ namespace System.Data.Dubber
         }
 
 #endif
-#if ASYNC
-		/// <summary>
-		/// Disconnects from the server asynchronously
-		/// </summary>
-		public async Task DisconnectAsync(CancellationToken token = default(CancellationToken)) {
-			if (m_stream != null && m_stream.IsConnected) {
-				try {
-					if (!UngracefullDisconnection) {
-						await ExecuteAsync("QUIT", token);
-					}
-				}
-				catch (Exception ex) {
-					LogStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): Exception caught and discarded while closing control connection: " + ex.ToString());
-				}
-				finally {
-					m_stream.Close();
-				}
-			}
-		}
+#if !NET40
+        /// <summary>
+        /// Disconnects from the server asynchronously
+        /// </summary>
+        public async Task DisconnectAsync(CancellationToken token = default(CancellationToken))
+        {
+            if (m_stream != null && m_stream.IsConnected)
+            {
+                try
+                {
+                    if (!UngracefullDisconnection)
+                    {
+                        await ExecuteAsync("QUIT", token);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): Exception caught and discarded while closing control connection: " + ex.ToString());
+                }
+                finally
+                {
+                    m_stream.Close();
+                }
+            }
+        }
 #endif
 
         #endregion
@@ -2162,91 +2188,106 @@ namespace System.Data.Dubber
             return FtpCompareResult.Equal;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Compare the specified local file with the remote file on the FTP server using various kinds of quick equality checks.
-		/// In Auto mode, the file size and checksum are compared.
-		/// Comparing the checksum of a file is a quick way to check if the contents of the files are exactly equal without downloading a copy of the file.
-		/// You can use the option flags to compare any combination of: file size, checksum, date modified.
-		/// </summary>
-		/// <param name="localPath">The full or relative path to the file on the local file system</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="options">Types of equality checks to perform. Use Auto to compare file size and checksum.</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns></returns>
-		public async Task<FtpCompareResult> CompareFileAsync(string localPath, string remotePath, FtpCompareOption options = FtpCompareOption.Auto,
-			CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// Compare the specified local file with the remote file on the FTP server using various kinds of quick equality checks.
+        /// In Auto mode, the file size and checksum are compared.
+        /// Comparing the checksum of a file is a quick way to check if the contents of the files are exactly equal without downloading a copy of the file.
+        /// You can use the option flags to compare any combination of: file size, checksum, date modified.
+        /// </summary>
+        /// <param name="localPath">The full or relative path to the file on the local file system</param>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="options">Types of equality checks to perform. Use Auto to compare file size and checksum.</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns></returns>
+        public async Task<FtpCompareResult> CompareFileAsync(string localPath, string remotePath, FtpCompareOption options = FtpCompareOption.Auto,
+            CancellationToken token = default(CancellationToken))
+        {
 
-			// verify args
-			if (localPath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localPath");
-			}
+            // verify args
+            if (localPath.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "localPath");
+            }
 
-			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			}
+            if (remotePath.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+            }
 
-			remotePath = remotePath.GetFtpPath();
+            remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(CompareFileAsync), new object[] { localPath, remotePath, options });
+            LogFunc(nameof(CompareFileAsync), new object[] { localPath, remotePath, options });
 
 
-			// ensure both files exists
-			if (!File.Exists(localPath)) {
-				return FtpCompareResult.FileNotExisting;
-			}
-			if (!await FileExistsAsync(remotePath, token)) {
-				return FtpCompareResult.FileNotExisting;
-			}
+            // ensure both files exists
+            if (!File.Exists(localPath))
+            {
+                return FtpCompareResult.FileNotExisting;
+            }
+            if (!await FileExistsAsync(remotePath, token))
+            {
+                return FtpCompareResult.FileNotExisting;
+            }
 
-			// if file size check enabled
-			if (options == FtpCompareOption.Auto || options.HasFlag(FtpCompareOption.Size)) {
+            // if file size check enabled
+            if (options == FtpCompareOption.Auto || options.HasFlag(FtpCompareOption.Size))
+            {
 
-				// check file size
-				var localSize = await FtpFileStream.GetFileSizeAsync(localPath, false, token);
-				var remoteSize = await GetFileSizeAsync(remotePath, -1, token);
-				if (localSize != remoteSize) {
-					return FtpCompareResult.NotEqual;
-				}
+                // check file size
+                var localSize = await FtpFileStream.GetFileSizeAsync(localPath, false, token);
+                var remoteSize = await GetFileSizeAsync(remotePath, -1, token);
+                if (localSize != remoteSize)
+                {
+                    return FtpCompareResult.NotEqual;
+                }
 
-			}
+            }
 
-			// if date check enabled
-			if (options.HasFlag(FtpCompareOption.DateModified)) {
+            // if date check enabled
+            if (options.HasFlag(FtpCompareOption.DateModified))
+            {
 
-				// check file size
-				var localDate = await FtpFileStream.GetFileDateModifiedUtcAsync(localPath, token);
-				var remoteDate = await GetModifiedTimeAsync(remotePath, token);
-				if (!localDate.Equals(remoteDate)) {
-					return FtpCompareResult.NotEqual;
-				}
+                // check file size
+                var localDate = await FtpFileStream.GetFileDateModifiedUtcAsync(localPath, token);
+                var remoteDate = await GetModifiedTimeAsync(remotePath, token);
+                if (!localDate.Equals(remoteDate))
+                {
+                    return FtpCompareResult.NotEqual;
+                }
 
-			}
+            }
 
-			// if checksum check enabled
-			if (options == FtpCompareOption.Auto || options.HasFlag(FtpCompareOption.Checksum)) {
+            // if checksum check enabled
+            if (options == FtpCompareOption.Auto || options.HasFlag(FtpCompareOption.Checksum))
+            {
 
-				// check file checksum
-				if (SupportsChecksum()) {
-					var hash = await GetChecksumAsync(remotePath, FtpHashAlgorithm.NONE, token);
-					if (hash.IsValid) {
-						if (!hash.Verify(localPath)) {
-							return FtpCompareResult.NotEqual;
-						}
-					}
-					else {
-						return FtpCompareResult.ChecksumNotSupported;
-					}
-				}
-				else {
-					return FtpCompareResult.ChecksumNotSupported;
-				}
+                // check file checksum
+                if (SupportsChecksum())
+                {
+                    var hash = await GetChecksumAsync(remotePath, FtpHashAlgorithm.NONE, token);
+                    if (hash.IsValid)
+                    {
+                        if (!hash.Verify(localPath))
+                        {
+                            return FtpCompareResult.NotEqual;
+                        }
+                    }
+                    else
+                    {
+                        return FtpCompareResult.ChecksumNotSupported;
+                    }
+                }
+                else
+                {
+                    return FtpCompareResult.ChecksumNotSupported;
+                }
 
-			}
+            }
 
-			// all checks passed!
-			return FtpCompareResult.Equal;
-		}
+            // all checks passed!
+            return FtpCompareResult.Equal;
+        }
 
 #endif
         #endregion
@@ -2379,113 +2420,128 @@ namespace System.Data.Dubber
             }
         }
 
-#if ASYNC
-		/// <summary>
-		/// Downloads the specified files into a local single directory.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// Same speed as <see cref="o:DownloadFile"/>.
-		/// </summary>
-		/// <param name="localDir">The full or relative path to the directory that files will be downloaded.</param>
-		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
-		/// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it doesn't exists</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
-		/// <param name="errorHandling">Used to determine how errors are handled</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
-		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
-		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
-		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
-		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
-		/// to propagate from this method.
-		/// </remarks>
-		public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Overwrite,
-			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken), IProgress<FtpProgress> progress = null) {
-			
-			// verify args
-			if (!errorHandling.IsValidCombination()) {
-				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
-			}
+#if !NET40
+        /// <summary>
+        /// Downloads the specified files into a local single directory.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it downloads data in chunks.
+        /// Same speed as <see cref="o:DownloadFile"/>.
+        /// </summary>
+        /// <param name="localDir">The full or relative path to the directory that files will be downloaded.</param>
+        /// <param name="remotePaths">The full or relative paths to the files on the server</param>
+        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it doesn't exists</param>
+        /// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+        /// <param name="errorHandling">Used to determine how errors are handled</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
+        /// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
+        /// <remarks>
+        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
+        /// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+        /// to propagate from this method.
+        /// </remarks>
+        public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Overwrite,
+            FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken), IProgress<FtpProgress> progress = null)
+        {
 
-			if (localDir.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localDir");
-			}
+            // verify args
+            if (!errorHandling.IsValidCombination())
+            {
+                throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
+            }
 
-			LogFunc(nameof(DownloadFilesAsync), new object[] { localDir, remotePaths, existsMode, verifyOptions });
+            if (localDir.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "localDir");
+            }
 
-			//check if cancellation was requested and throw to set TaskStatus state to Canceled
-			token.ThrowIfCancellationRequested();
-			var errorEncountered = false;
-			var successfulDownloads = new List<string>();
+            LogFunc(nameof(DownloadFilesAsync), new object[] { localDir, remotePaths, existsMode, verifyOptions });
 
-			// ensure ends with slash
-			localDir = !localDir.EndsWith(Path.DirectorySeparatorChar.ToString()) ? localDir + Path.DirectorySeparatorChar.ToString() : localDir;
+            //check if cancellation was requested and throw to set TaskStatus state to Canceled
+            token.ThrowIfCancellationRequested();
+            var errorEncountered = false;
+            var successfulDownloads = new List<string>();
 
-			// per remote file
-			var r = -1;
-			foreach (var remotePath in remotePaths) {
-				r++;
+            // ensure ends with slash
+            localDir = !localDir.EndsWith(Path.DirectorySeparatorChar.ToString()) ? localDir + Path.DirectorySeparatorChar.ToString() : localDir;
 
-				//check if cancellation was requested and throw to set TaskStatus state to Canceled
-				token.ThrowIfCancellationRequested();
+            // per remote file
+            var r = -1;
+            foreach (var remotePath in remotePaths)
+            {
+                r++;
 
-				// calc local path
-				var localPath = localDir + remotePath.GetFtpFileName();
+                //check if cancellation was requested and throw to set TaskStatus state to Canceled
+                token.ThrowIfCancellationRequested();
 
-				// create meta progress to store the file progress
-				var metaProgress = new FtpProgress(remotePaths.Count(), r);
+                // calc local path
+                var localPath = localDir + remotePath.GetFtpFileName();
 
-				// try to download it
-				try {
-					var ok = await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, progress, token, metaProgress);
-					if (ok.IsSuccess()) {
-						successfulDownloads.Add(localPath);
-					}
-					else if ((int)errorHandling > 1) {
-						errorEncountered = true;
-						break;
-					}
-				}
-				catch (Exception ex) {
-					if (ex is OperationCanceledException) {
-						LogStatus(FtpTraceLevel.Info, "Download cancellation requested");
+                // create meta progress to store the file progress
+                var metaProgress = new FtpProgress(remotePaths.Count(), r);
 
-						//DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
-						throw;
-					}
+                // try to download it
+                try
+                {
+                    var ok = await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, progress, token, metaProgress);
+                    if (ok.IsSuccess())
+                    {
+                        successfulDownloads.Add(localPath);
+                    }
+                    else if ((int)errorHandling > 1)
+                    {
+                        errorEncountered = true;
+                        break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (ex is OperationCanceledException)
+                    {
+                        LogStatus(FtpTraceLevel.Info, "Download cancellation requested");
 
-					if (errorHandling.HasFlag(FtpError.Stop)) {
-						errorEncountered = true;
-						break;
-					}
+                        //DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
+                        throw;
+                    }
 
-					if (errorHandling.HasFlag(FtpError.Throw)) {
-						if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
-							PurgeSuccessfulDownloads(successfulDownloads);
-						}
+                    if (errorHandling.HasFlag(FtpError.Stop))
+                    {
+                        errorEncountered = true;
+                        break;
+                    }
 
-						throw new FtpException("An error occurred downloading file(s).  See inner exception for more info.", ex);
-					}
-				}
-			}
+                    if (errorHandling.HasFlag(FtpError.Throw))
+                    {
+                        if (errorHandling.HasFlag(FtpError.DeleteProcessed))
+                        {
+                            PurgeSuccessfulDownloads(successfulDownloads);
+                        }
 
-			if (errorEncountered) {
-				//Delete any successful uploads if needed
-				if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
-					PurgeSuccessfulDownloads(successfulDownloads);
-					successfulDownloads.Clear(); //forces return of 0
-				}
+                        throw new FtpException("An error occurred downloading file(s).  See inner exception for more info.", ex);
+                    }
+                }
+            }
 
-				//Throw generic error because requested
-				if (errorHandling.HasFlag(FtpError.Throw)) {
-					throw new FtpException("An error occurred downloading one or more files.  Refer to trace output if available.");
-				}
-			}
+            if (errorEncountered)
+            {
+                //Delete any successful uploads if needed
+                if (errorHandling.HasFlag(FtpError.DeleteProcessed))
+                {
+                    PurgeSuccessfulDownloads(successfulDownloads);
+                    successfulDownloads.Clear(); //forces return of 0
+                }
 
-			return successfulDownloads.Count;
-		}
+                //Throw generic error because requested
+                if (errorHandling.HasFlag(FtpError.Throw))
+                {
+                    throw new FtpException("An error occurred downloading one or more files.  Refer to trace output if available.");
+                }
+            }
+
+            return successfulDownloads.Count;
+        }
 #endif
 
         #endregion
@@ -2627,149 +2683,169 @@ namespace System.Data.Dubber
             return downloadSuccess && verified ? FtpStatus.Success : FtpStatus.Failed;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Downloads the specified file onto the local file system asynchronously.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="localPath">The full or relative path to the file on the local file system</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it doesn't exists</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress.</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>FtpStatus flag indicating if the file was downloaded, skipped or failed to transfer.</returns>
-		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
-		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
-		/// </remarks>
-		public async Task<FtpStatus> DownloadFileAsync(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Resume, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
-			// verify args
-			if (localPath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localPath");
-			}
+#if !NET40
+        /// <summary>
+        /// Downloads the specified file onto the local file system asynchronously.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it downloads data in chunks.
+        /// </summary>
+        /// <param name="localPath">The full or relative path to the file on the local file system</param>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it doesn't exists</param>
+        /// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+        /// <param name="progress">Provide an implementation of IProgress to track download progress.</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>FtpStatus flag indicating if the file was downloaded, skipped or failed to transfer.</returns>
+        /// <remarks>
+        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
+        /// </remarks>
+        public async Task<FtpStatus> DownloadFileAsync(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Resume, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken))
+        {
+            // verify args
+            if (localPath.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "localPath");
+            }
 
-			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			}
-			
-			return await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, progress, token, new FtpProgress(1, 0));
-		}
+            if (remotePath.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+            }
 
-		private async Task<FtpStatus> DownloadFileToFileAsync(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
-			
-			// verify args
-			if (localPath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localPath");
-			}
+            return await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, progress, token, new FtpProgress(1, 0));
+        }
 
-			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			}
+        private async Task<FtpStatus> DownloadFileToFileAsync(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress)
+        {
 
-			// skip downloading if the localPath is a folder
-			if (LocalPaths.IsLocalFolderPath(localPath)) {
-				throw new ArgumentException("Local path must specify a file path and not a folder path.", "localPath");
-			}
+            // verify args
+            if (localPath.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "localPath");
+            }
 
-			remotePath = remotePath.GetFtpPath();
+            if (remotePath.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+            }
 
-			LogFunc(nameof(DownloadFileAsync), new object[] { localPath, remotePath, existsMode, verifyOptions });
+            // skip downloading if the localPath is a folder
+            if (LocalPaths.IsLocalFolderPath(localPath))
+            {
+                throw new ArgumentException("Local path must specify a file path and not a folder path.", "localPath");
+            }
+
+            remotePath = remotePath.GetFtpPath();
+
+            LogFunc(nameof(DownloadFileAsync), new object[] { localPath, remotePath, existsMode, verifyOptions });
 
 
-			bool isAppend = false;
+            bool isAppend = false;
 
-			// skip downloading if the local file exists
-			long knownFileSize = 0;
-			long restartPos = 0;
-#if CORE
-			if (existsMode == FtpLocalExists.Resume && await Task.Run(() => File.Exists(localPath), token)) {
+            // skip downloading if the local file exists
+            long knownFileSize = 0;
+            long restartPos = 0;
+#if NETFx
+            if (existsMode == FtpLocalExists.Resume && await Task.Run(() => File.Exists(localPath), token)) {
 				knownFileSize = (await GetFileSizeAsync(remotePath, -1, token));
 				restartPos = await FtpFileStream.GetFileSizeAsync(localPath, false, token);
 				if (knownFileSize.Equals(restartPos)) {
 #else
-			if (existsMode == FtpLocalExists.Resume && File.Exists(localPath)) {
-				knownFileSize = (await GetFileSizeAsync(remotePath, -1, token));
-				restartPos = FtpFileStream.GetFileSize(localPath, false);
-				if (knownFileSize.Equals(restartPos)) {
+            if (existsMode == FtpLocalExists.Resume && File.Exists(localPath))
+            {
+                knownFileSize = (await GetFileSizeAsync(remotePath, -1, token));
+                restartPos = FtpFileStream.GetFileSize(localPath, false);
+                if (knownFileSize.Equals(restartPos))
+                {
 #endif
-					LogStatus(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully downloaded (Remote: " + remotePath + ", Local: " + localPath + ")");
-					return FtpStatus.Skipped;
-				}
-				else {
-					isAppend = true;
-				}
-			}
-#if CORE
-			else if (existsMode == FtpLocalExists.Skip && await Task.Run(() => File.Exists(localPath), token)) {
+                    LogStatus(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully downloaded (Remote: " + remotePath + ", Local: " + localPath + ")");
+                    return FtpStatus.Skipped;
+                }
+                else
+                {
+                    isAppend = true;
+                }
+            }
+#if NETFx
+            else if (existsMode == FtpLocalExists.Skip && await Task.Run(() => File.Exists(localPath), token)) {
 #else
-			else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
+            else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath))
+            {
 #endif
-				LogStatus(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists locally (Remote: " + remotePath + ", Local: " + localPath + ")");
-				return FtpStatus.Skipped;
-			}
+                LogStatus(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists locally (Remote: " + remotePath + ", Local: " + localPath + ")");
+                return FtpStatus.Skipped;
+            }
 
-			try {
-				// create the folders
-				var dirPath = Path.GetDirectoryName(localPath);
-#if CORE
-				if (!string.IsNullOrWhiteSpace(dirPath) && !await Task.Run(() => Directory.Exists(dirPath), token)) {
+            try
+            {
+                // create the folders
+                var dirPath = Path.GetDirectoryName(localPath);
+#if NETFx
+                if (!string.IsNullOrWhiteSpace(dirPath) && !await Task.Run(() => Directory.Exists(dirPath), token)) {
 #else
-				if (!string.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath)) {
+                if (!string.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath))
+                {
 #endif
-					Directory.CreateDirectory(dirPath);
-				}
-			}
-			catch (Exception ex1) {
-				// catch errors creating directory
-				throw new FtpException("Error while crated directories. See InnerException for more info.", ex1);
-			}
+                    Directory.CreateDirectory(dirPath);
+                }
+            }
+            catch (Exception ex1)
+            {
+                // catch errors creating directory
+                throw new FtpException("Error while crated directories. See InnerException for more info.", ex1);
+            }
 
-			// if not appending then fetch remote file size since mode is determined by that
-			/*if (knownFileSize == 0 && !isAppend) {
+            // if not appending then fetch remote file size since mode is determined by that
+            /*if (knownFileSize == 0 && !isAppend) {
 				knownFileSize = GetFileSize(remotePath);
 			}*/
 
-			bool downloadSuccess;
-			var verified = true;
-			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
-			do {
+            bool downloadSuccess;
+            var verified = true;
+            var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
+            do
+            {
 
-				// download the file from the server to a file stream or memory stream
-				downloadSuccess = await DownloadFileInternalAsync(localPath, remotePath, null, restartPos, progress, token, metaProgress, knownFileSize, isAppend);
-				attemptsLeft--;
+                // download the file from the server to a file stream or memory stream
+                downloadSuccess = await DownloadFileInternalAsync(localPath, remotePath, null, restartPos, progress, token, metaProgress, knownFileSize, isAppend);
+                attemptsLeft--;
 
-				if (!downloadSuccess) {
-					LogStatus(FtpTraceLevel.Info, "Failed to download file.");
+                if (!downloadSuccess)
+                {
+                    LogStatus(FtpTraceLevel.Info, "Failed to download file.");
 
-					if (attemptsLeft > 0)
-						LogStatus(FtpTraceLevel.Info, "Retrying to download file.");
-				}
+                    if (attemptsLeft > 0)
+                        LogStatus(FtpTraceLevel.Info, "Retrying to download file.");
+                }
 
-				// if verification is needed
-				if (downloadSuccess && verifyOptions != FtpVerify.None) {
-					verified = await VerifyTransferAsync(localPath, remotePath, token);
-					LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
-					if (!verified && attemptsLeft > 0) {
-						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Resume ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
-						// Force overwrite if a retry is required
-						existsMode = FtpLocalExists.Overwrite;
-					}
-				}
-			} while ((!downloadSuccess || !verified) && attemptsLeft > 0);
+                // if verification is needed
+                if (downloadSuccess && verifyOptions != FtpVerify.None)
+                {
+                    verified = await VerifyTransferAsync(localPath, remotePath, token);
+                    LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+                    if (!verified && attemptsLeft > 0)
+                    {
+                        LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Resume ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+                        // Force overwrite if a retry is required
+                        existsMode = FtpLocalExists.Overwrite;
+                    }
+                }
+            } while ((!downloadSuccess || !verified) && attemptsLeft > 0);
 
-			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
-				File.Delete(localPath);
-			}
+            if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete))
+            {
+                File.Delete(localPath);
+            }
 
-			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
-				throw new FtpException("Downloaded file checksum value does not match remote file");
-			}
+            if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw))
+            {
+                throw new FtpException("Downloaded file checksum value does not match remote file");
+            }
 
-			return downloadSuccess && verified ? FtpStatus.Success : FtpStatus.Failed;
-		}
+            return downloadSuccess && verified ? FtpStatus.Success : FtpStatus.Failed;
+        }
 
 #endif
 
@@ -2846,75 +2922,82 @@ namespace System.Data.Dubber
             return ok;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Downloads the specified file into the specified stream asynchronously .
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress.</param>
-		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public async Task<bool> DownloadAsync(Stream outStream, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
-			// verify args
-			if (outStream == null) {
-				throw new ArgumentException("Required parameter is null or blank.", "outStream");
-			}
+#if !NET40
+        /// <summary>
+        /// Downloads the specified file into the specified stream asynchronously .
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it downloads data in chunks.
+        /// </summary>
+        /// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <param name="progress">Provide an implementation of IProgress to track download progress.</param>
+        /// <returns>If true then the file was downloaded, false otherwise.</returns>
+        public async Task<bool> DownloadAsync(Stream outStream, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken))
+        {
+            // verify args
+            if (outStream == null)
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "outStream");
+            }
 
-			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			}
+            if (remotePath.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+            }
 
-			remotePath = remotePath.GetFtpPath();
+            remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(DownloadAsync), new object[] { remotePath });
+            LogFunc(nameof(DownloadAsync), new object[] { remotePath });
 
-			// download the file from the server
-			return await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0), 0, false);
-		}
+            // download the file from the server
+            return await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0), 0, false);
+        }
 
-		/// <summary>
-		/// Downloads the specified file and return the raw byte array.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress.</param>
-		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
-		public async Task<byte[]> DownloadAsync(string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
-			// verify args
-			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			}
+        /// <summary>
+        /// Downloads the specified file and return the raw byte array.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it downloads data in chunks.
+        /// </summary>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <param name="progress">Provide an implementation of IProgress to track download progress.</param>
+        /// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
+        public async Task<byte[]> DownloadAsync(string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken))
+        {
+            // verify args
+            if (remotePath.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+            }
 
-			remotePath = remotePath.GetFtpPath();
+            remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(DownloadAsync), new object[] { remotePath });
+            LogFunc(nameof(DownloadAsync), new object[] { remotePath });
 
-			// download the file from the server
-			using (var outStream = new MemoryStream()) {
-				var ok = await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0), 0, false);
-				return ok ? outStream.ToArray() : null;
-			}
-		}
+            // download the file from the server
+            using (var outStream = new MemoryStream())
+            {
+                var ok = await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0), 0, false);
+                return ok ? outStream.ToArray() : null;
+            }
+        }
 
-		/// <summary>
-		/// Downloads the specified file into the specified stream asynchronously .
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
-		public async Task<byte[]> DownloadAsync(string remotePath, CancellationToken token = default(CancellationToken)) {
-			// download the file from the server
-			return await DownloadAsync(remotePath, 0, null, token);
-		}
+        /// <summary>
+        /// Downloads the specified file into the specified stream asynchronously .
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it downloads data in chunks.
+        /// </summary>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
+        public async Task<byte[]> DownloadAsync(string remotePath, CancellationToken token = default(CancellationToken))
+        {
+            // download the file from the server
+            return await DownloadAsync(remotePath, 0, null, token);
+        }
 #endif
 
         #endregion
@@ -3018,11 +3101,7 @@ namespace System.Data.Dubber
                                 var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
                                 if (timeShouldTake > swTime)
                                 {
-#if CORE14
-									Task.Delay((int) (timeShouldTake - swTime)).Wait();
-#else
-                                    Thread.Sleep((int)(timeShouldTake - swTime));
-#endif
+                                    Thread.Sleep((int)(timeShouldTake - swTime)); // Task.Delay((int)(timeShouldTake - swTime)).Wait();
                                 }
                                 else if (swTime > timeShouldTake + rateControlResolution)
                                 {
@@ -3197,226 +3276,263 @@ namespace System.Data.Dubber
             return chunkSize;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Download a file from the server and write the data into the given stream asynchronously.
-		/// Reads data in chunks. Retries if server disconnects midway.
-		/// </summary>
-		private async Task<bool> DownloadFileInternalAsync(string localPath, string remotePath, Stream outStream, long restartPosition,
-			IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress, long knownFileSize, bool isAppend) {
+#if !NET40
+        /// <summary>
+        /// Download a file from the server and write the data into the given stream asynchronously.
+        /// Reads data in chunks. Retries if server disconnects midway.
+        /// </summary>
+        private async Task<bool> DownloadFileInternalAsync(string localPath, string remotePath, Stream outStream, long restartPosition,
+            IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress, long knownFileSize, bool isAppend)
+        {
 
-			Stream downStream = null;
-			var disposeOutStream = false;
+            Stream downStream = null;
+            var disposeOutStream = false;
 
-			try {
-				// get file size if progress requested
-				long fileLen = 0;
+            try
+            {
+                // get file size if progress requested
+                long fileLen = 0;
 
-				if (progress != null) {
-					fileLen = knownFileSize > 0 ? knownFileSize : await GetFileSizeAsync(remotePath, -1, token);
-				}
+                if (progress != null)
+                {
+                    fileLen = knownFileSize > 0 ? knownFileSize : await GetFileSizeAsync(remotePath, -1, token);
+                }
 
-				// open the file for reading
-				downStream = await OpenReadAsync(remotePath, DownloadDataType, restartPosition, fileLen, token);
+                // open the file for reading
+                downStream = await OpenReadAsync(remotePath, DownloadDataType, restartPosition, fileLen, token);
 
-				// if the server has not provided a length for this file or
-				// if the mode is ASCII or
-				// if the server is IBM z/OS
-				// we read until EOF instead of reading a specific number of bytes
-				var readToEnd = (fileLen <= 0) || 
-								(DownloadDataType == FtpDataType.ASCII) || 
-								(ServerType == FtpServer.IBMzOSFTP);
+                // if the server has not provided a length for this file or
+                // if the mode is ASCII or
+                // if the server is IBM z/OS
+                // we read until EOF instead of reading a specific number of bytes
+                var readToEnd = (fileLen <= 0) ||
+                                (DownloadDataType == FtpDataType.ASCII) ||
+                                (ServerType == FtpServer.IBMzOSFTP);
 
-				const int rateControlResolution = 100;
-				var rateLimitBytes = DownloadRateLimit != 0 ? (long)DownloadRateLimit * 1024 : 0;
-				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
+                const int rateControlResolution = 100;
+                var rateLimitBytes = DownloadRateLimit != 0 ? (long)DownloadRateLimit * 1024 : 0;
+                var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
 
-				// loop till entire file downloaded
-				var buffer = new byte[chunkSize];
-				var offset = restartPosition;
+                // loop till entire file downloaded
+                var buffer = new byte[chunkSize];
+                var offset = restartPosition;
 
-				var transferStarted = DateTime.Now;
-				var sw = new Stopwatch();
+                var transferStarted = DateTime.Now;
+                var sw = new Stopwatch();
 
-				var anyNoop = false;
+                var anyNoop = false;
 
-				// Fix #554: ability to download zero-byte files
-				if (DownloadZeroByteFiles && outStream == null && localPath != null) {
-					outStream = FtpFileStream.GetFileWriteStream(this, localPath, true, QuickTransferLimit, knownFileSize, isAppend, restartPosition);
-					disposeOutStream = true;
-				}
+                // Fix #554: ability to download zero-byte files
+                if (DownloadZeroByteFiles && outStream == null && localPath != null)
+                {
+                    outStream = FtpFileStream.GetFileWriteStream(this, localPath, true, QuickTransferLimit, knownFileSize, isAppend, restartPosition);
+                    disposeOutStream = true;
+                }
 
-				while (offset < fileLen || readToEnd) {
-					try {
-						// read a chunk of bytes from the FTP stream
-						var readBytes = 1;
-						long limitCheckBytes = 0;
-						long bytesProcessed = 0;
+                while (offset < fileLen || readToEnd)
+                {
+                    try
+                    {
+                        // read a chunk of bytes from the FTP stream
+                        var readBytes = 1;
+                        long limitCheckBytes = 0;
+                        long bytesProcessed = 0;
 
-						sw.Start();
-						while ((readBytes = await downStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
-							
-							// Fix #552: only create outstream when first bytes downloaded
-							if (outStream == null && localPath != null) {
-								outStream = FtpFileStream.GetFileWriteStream(this, localPath, true, QuickTransferLimit, knownFileSize, isAppend, restartPosition);
-								disposeOutStream = true;
-							}
+                        sw.Start();
+                        while ((readBytes = await downStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
+                        {
 
-							// write chunk to output stream
-							await outStream.WriteAsync(buffer, 0, readBytes, token);
-							offset += readBytes;
-							bytesProcessed += readBytes;
-							limitCheckBytes += readBytes;
+                            // Fix #552: only create outstream when first bytes downloaded
+                            if (outStream == null && localPath != null)
+                            {
+                                outStream = FtpFileStream.GetFileWriteStream(this, localPath, true, QuickTransferLimit, knownFileSize, isAppend, restartPosition);
+                                disposeOutStream = true;
+                            }
 
-							// send progress reports
-							if (progress != null) {
-								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
-							}
+                            // write chunk to output stream
+                            await outStream.WriteAsync(buffer, 0, readBytes, token);
+                            offset += readBytes;
+                            bytesProcessed += readBytes;
+                            limitCheckBytes += readBytes;
 
-							// Fix #387: keep alive with NOOP as configured and needed
-							if (!m_threadSafeDataChannels) {
-								anyNoop = await NoopAsync(token) || anyNoop;
-							}
+                            // send progress reports
+                            if (progress != null)
+                            {
+                                ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
+                            }
 
-							// honor the rate limit
-							var swTime = sw.ElapsedMilliseconds;
-							if (rateLimitBytes > 0) {
-								var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
-								if (timeShouldTake > swTime) {
-									await Task.Delay((int)(timeShouldTake - swTime), token);
-									token.ThrowIfCancellationRequested();
-								}
-								else if (swTime > timeShouldTake + rateControlResolution) {
-									limitCheckBytes = 0;
-									sw.Restart();
-								}
-							}
-						}
+                            // Fix #387: keep alive with NOOP as configured and needed
+                            if (!m_threadSafeDataChannels)
+                            {
+                                anyNoop = await NoopAsync(token) || anyNoop;
+                            }
 
-						// if we reach here means EOF encountered
-						// stop if we are in "read until EOF" mode
-						if (readToEnd || offset == fileLen) {
-							break;
-						}
+                            // honor the rate limit
+                            var swTime = sw.ElapsedMilliseconds;
+                            if (rateLimitBytes > 0)
+                            {
+                                var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
+                                if (timeShouldTake > swTime)
+                                {
+                                    await Task.Delay((int)(timeShouldTake - swTime), token);
+                                    token.ThrowIfCancellationRequested();
+                                }
+                                else if (swTime > timeShouldTake + rateControlResolution)
+                                {
+                                    limitCheckBytes = 0;
+                                    sw.Restart();
+                                }
+                            }
+                        }
 
-						// zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
-						throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
-					}
-					catch (IOException ex) {
+                        // if we reach here means EOF encountered
+                        // stop if we are in "read until EOF" mode
+                        if (readToEnd || offset == fileLen)
+                        {
+                            break;
+                        }
 
-						// resume if server disconnected midway, or throw if there is an exception doing that as well
-						var resumeResult = await ResumeDownloadAsync(remotePath, downStream, offset, ex);
-						if (resumeResult.Item1) {
-							downStream = resumeResult.Item2;
-						}
-						else {
-							sw.Stop();
-							throw;
-						}
-					}
-					catch (TimeoutException ex) {
+                        // zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
+                        throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
+                    }
+                    catch (IOException ex)
+                    {
 
-						// fix: attempting to download data after we reached the end of the stream
-						// often throws a timeout exception, so we silently absorb that here
-						if (offset >= fileLen && !readToEnd) {
-							break;
-						}
-						else {
-							sw.Stop();
-							throw;
-						}
-					}
-				}
+                        // resume if server disconnected midway, or throw if there is an exception doing that as well
+                        var resumeResult = await ResumeDownloadAsync(remotePath, downStream, offset, ex);
+                        if (resumeResult.Item1)
+                        {
+                            downStream = resumeResult.Item2;
+                        }
+                        else
+                        {
+                            sw.Stop();
+                            throw;
+                        }
+                    }
+                    catch (TimeoutException ex)
+                    {
 
-				sw.Stop();
+                        // fix: attempting to download data after we reached the end of the stream
+                        // often throws a timeout exception, so we silently absorb that here
+                        if (offset >= fileLen && !readToEnd)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            sw.Stop();
+                            throw;
+                        }
+                    }
+                }
 
-				// disconnect FTP stream before exiting
-				if (outStream != null) {
-					await outStream.FlushAsync(token);
-				}
-				downStream.Dispose();
+                sw.Stop();
 
-				// Fix #552: close the filestream if it was created in this method
-				if (disposeOutStream) {
-					outStream.Dispose();
-					disposeOutStream = false;
-				}
+                // disconnect FTP stream before exiting
+                if (outStream != null)
+                {
+                    await outStream.FlushAsync(token);
+                }
+                downStream.Dispose();
 
-				// send progress reports
-				if (progress != null) {
-					progress.Report(new FtpProgress(100.0, offset, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
-				}
+                // Fix #552: close the filestream if it was created in this method
+                if (disposeOutStream)
+                {
+                    outStream.Dispose();
+                    disposeOutStream = false;
+                }
 
-				// FIX : if this is not added, there appears to be "stale data" on the socket
-				// listen for a success/failure reply
-				try {
-					while (!m_threadSafeDataChannels) {
-						FtpReply status = await GetReplyAsync(token);
+                // send progress reports
+                if (progress != null)
+                {
+                    progress.Report(new FtpProgress(100.0, offset, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
+                }
 
-						// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
-						if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
-							continue;
-						}
+                // FIX : if this is not added, there appears to be "stale data" on the socket
+                // listen for a success/failure reply
+                try
+                {
+                    while (!m_threadSafeDataChannels)
+                    {
+                        FtpReply status = await GetReplyAsync(token);
 
-						// Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
-						// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
-						if (status.Code != null && !status.Success) {
-							return false;
-						}
+                        // Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
+                        if (anyNoop && status.Message != null && status.Message.Contains("NOOP"))
+                        {
+                            continue;
+                        }
 
-						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
-						if (anyNoop) {
-							await ReadStaleDataAsync(false, true, true, token);
-						}
+                        // Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
+                        // Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
+                        if (status.Code != null && !status.Success)
+                        {
+                            return false;
+                        }
 
-						break;
-					}
-				}
+                        // Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
+                        if (anyNoop)
+                        {
+                            await ReadStaleDataAsync(false, true, true, token);
+                        }
 
-				// absorb "System.TimeoutException: Timed out trying to read data from the socket stream!" at GetReply()
-				catch (Exception) { }
+                        break;
+                    }
+                }
 
-				return true;
-			}
-			catch (Exception ex1) {
+                // absorb "System.TimeoutException: Timed out trying to read data from the socket stream!" at GetReply()
+                catch (Exception) { }
 
-				// close stream before throwing error
-				try {
-					downStream.Dispose();
-				}
-				catch (Exception) {
-				}
+                return true;
+            }
+            catch (Exception ex1)
+            {
 
-				// Fix #552: close the filestream if it was created in this method
-				if (disposeOutStream) {
-					try {
-						outStream.Dispose();
-						disposeOutStream = false;
-					}
-					catch (Exception) {
-					}
-				}
+                // close stream before throwing error
+                try
+                {
+                    downStream.Dispose();
+                }
+                catch (Exception)
+                {
+                }
 
-				if (ex1 is IOException) {
-					LogStatus(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
-					return false;
-				}
+                // Fix #552: close the filestream if it was created in this method
+                if (disposeOutStream)
+                {
+                    try
+                    {
+                        outStream.Dispose();
+                        disposeOutStream = false;
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
 
-				if (ex1 is OperationCanceledException) {
-					LogStatus(FtpTraceLevel.Info, "Download cancellation requested");
-					throw;
-				}
+                if (ex1 is IOException)
+                {
+                    LogStatus(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
+                    return false;
+                }
 
-				// absorb "file does not exist" exceptions and simply return false
-				if (ex1.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
-					LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1.Message);
-					return false;
-				}
+                if (ex1 is OperationCanceledException)
+                {
+                    LogStatus(FtpTraceLevel.Info, "Download cancellation requested");
+                    throw;
+                }
 
-				// catch errors during download
-				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
-			}
-		}
+                // absorb "file does not exist" exceptions and simply return false
+                if (ex1.Message.IsKnownError(FtpServerStrings.fileNotFound))
+                {
+                    LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1.Message);
+                    return false;
+                }
+
+                // catch errors during download
+                throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
+            }
+        }
 #endif
 
         private bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex)
@@ -3432,17 +3548,18 @@ namespace System.Data.Dubber
             return false;
         }
 
-#if ASYNC
-		private async Task<Tuple<bool, Stream>> ResumeDownloadAsync(string remotePath, Stream downStream, long offset, IOException ex) {
-			if (ex.IsResumeAllowed())
-			{
-				downStream.Dispose();
+#if !NET40
+        private async Task<Tuple<bool, Stream>> ResumeDownloadAsync(string remotePath, Stream downStream, long offset, IOException ex)
+        {
+            if (ex.IsResumeAllowed())
+            {
+                downStream.Dispose();
 
-				return Tuple.Create(true, await OpenReadAsync(remotePath, DownloadDataType, offset));
-			}
+                return Tuple.Create(true, await OpenReadAsync(remotePath, DownloadDataType, offset));
+            }
 
-			return Tuple.Create(false, (Stream)null);
-		}
+            return Tuple.Create(false, (Stream)null);
+        }
 #endif
 
         #endregion
@@ -3464,11 +3581,8 @@ namespace System.Data.Dubber
             {
                 throw new ArgumentException("Required parameter is null or blank.", "path");
             }
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 path = path.GetFtpPath();
 
                 LogFunc(nameof(DeleteFile), new object[] { path });
@@ -3477,35 +3591,34 @@ namespace System.Data.Dubber
                 {
                     throw new FtpCommandException(reply);
                 }
-
-#if !CORE14
             }
-
-#endif
         }
 
-#if ASYNC
-		/// <summary>
-		/// Deletes a file from the server asynchronously
-		/// </summary>
-		/// <param name="path">The full or relative path to the file</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public async Task DeleteFileAsync(string path, CancellationToken token = default(CancellationToken)) {
-			FtpReply reply;
+#if !NET40
+        /// <summary>
+        /// Deletes a file from the server asynchronously
+        /// </summary>
+        /// <param name="path">The full or relative path to the file</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        public async Task DeleteFileAsync(string path, CancellationToken token = default(CancellationToken))
+        {
+            FtpReply reply;
 
-			// verify args
-			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
-			}
+            // verify args
+            if (path.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "path");
+            }
 
-			path = path.GetFtpPath();
+            path = path.GetFtpPath();
 
-			LogFunc(nameof(DeleteFileAsync), new object[] { path });
+            LogFunc(nameof(DeleteFileAsync), new object[] { path });
 
-			if (!(reply = await ExecuteAsync("DELE " + path, token)).Success) {
-				throw new FtpCommandException(reply);
-			}
-		}
+            if (!(reply = await ExecuteAsync("DELE " + path, token)).Success)
+            {
+                throw new FtpCommandException(reply);
+            }
+        }
 #endif
 
         #endregion
@@ -3524,11 +3637,8 @@ namespace System.Data.Dubber
             {
                 throw new ArgumentException("Required parameter is null or blank.", "path");
             }
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 path = path.GetFtpPath();
 
                 LogFunc(nameof(FileExists), new object[] { path });
@@ -3588,11 +3698,7 @@ namespace System.Data.Dubber
                     var fileList = GetNameListing(path.GetFtpDirectoryName());
                     return FileListings.FileExistsInNameListing(fileList, path);
                 }
-
-#if !CORE14
             }
-
-#endif
         }
 
         private bool? CheckFileExistsBySize(FtpSizeReply sizeReply)
@@ -3620,73 +3726,82 @@ namespace System.Data.Dubber
             return null;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Checks if a file exists on the server asynchronously.
-		/// </summary>
-		/// <param name="path">The full or relative path to the file</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>True if the file exists, false otherwise</returns>
-		public async Task<bool> FileExistsAsync(string path, CancellationToken token = default(CancellationToken)) {
-			// verify args
-			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
-			}
+#if !NET40
+        /// <summary>
+        /// Checks if a file exists on the server asynchronously.
+        /// </summary>
+        /// <param name="path">The full or relative path to the file</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>True if the file exists, false otherwise</returns>
+        public async Task<bool> FileExistsAsync(string path, CancellationToken token = default(CancellationToken))
+        {
+            // verify args
+            if (path.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "path");
+            }
 
-			path = path.GetFtpPath();
+            path = path.GetFtpPath();
 
-			LogFunc(nameof(FileExistsAsync), new object[] { path });
+            LogFunc(nameof(FileExistsAsync), new object[] { path });
 
-			// A check for path.StartsWith("/") tells us, even if it is z/OS, we can use the normal unix logic
+            // A check for path.StartsWith("/") tells us, even if it is z/OS, we can use the normal unix logic
 
-			// Do not need GetAbsolutePath(path) if z/OS
-			if (ServerType != FtpServer.IBMzOSFTP || path.StartsWith("/")) {
-				// calc the absolute filepath
-				path = await GetAbsolutePathAsync(path, token);
-			}
+            // Do not need GetAbsolutePath(path) if z/OS
+            if (ServerType != FtpServer.IBMzOSFTP || path.StartsWith("/"))
+            {
+                // calc the absolute filepath
+                path = await GetAbsolutePathAsync(path, token);
+            }
 
-			// since FTP does not include a specific command to check if a file exists
-			// here we check if file exists by attempting to get its filesize (SIZE)
-			// If z/OS: Do not do SIZE, unless we have a leading slash
-			if (HasFeature(FtpCapability.SIZE) && (ServerType != FtpServer.IBMzOSFTP || path.StartsWith("/"))) {
+            // since FTP does not include a specific command to check if a file exists
+            // here we check if file exists by attempting to get its filesize (SIZE)
+            // If z/OS: Do not do SIZE, unless we have a leading slash
+            if (HasFeature(FtpCapability.SIZE) && (ServerType != FtpServer.IBMzOSFTP || path.StartsWith("/")))
+            {
 
-				// Fix #328: get filesize in ASCII or Binary mode as required by server
-				FtpSizeReply sizeReply = new FtpSizeReply();
-				await GetFileSizeInternalAsync(path, -1, token, sizeReply);
+                // Fix #328: get filesize in ASCII or Binary mode as required by server
+                FtpSizeReply sizeReply = new FtpSizeReply();
+                await GetFileSizeInternalAsync(path, -1, token, sizeReply);
 
-				// handle known errors to the SIZE command
-				var sizeKnownError = CheckFileExistsBySize(sizeReply);
-				if (sizeKnownError.HasValue) {
-					return sizeKnownError.Value;
-				}
-			}
+                // handle known errors to the SIZE command
+                var sizeKnownError = CheckFileExistsBySize(sizeReply);
+                if (sizeKnownError.HasValue)
+                {
+                    return sizeKnownError.Value;
+                }
+            }
 
-			// check if file exists by attempting to get its date modified (MDTM)
-			// If z/OS: Do not do MDTM, unless we have a leading slash
-			if (HasFeature(FtpCapability.MDTM) && (ServerType != FtpServer.IBMzOSFTP || path.StartsWith("/"))) {
-				FtpReply reply = await ExecuteAsync("MDTM " + path, token);
-				var ch = reply.Code[0];
-				if (ch == '2') {
-					return true;
-				}
+            // check if file exists by attempting to get its date modified (MDTM)
+            // If z/OS: Do not do MDTM, unless we have a leading slash
+            if (HasFeature(FtpCapability.MDTM) && (ServerType != FtpServer.IBMzOSFTP || path.StartsWith("/")))
+            {
+                FtpReply reply = await ExecuteAsync("MDTM " + path, token);
+                var ch = reply.Code[0];
+                if (ch == '2')
+                {
+                    return true;
+                }
 
-				if (ch == '5' && reply.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
-					return false;
-				}
-			}
+                if (ch == '5' && reply.Message.IsKnownError(FtpServerStrings.fileNotFound))
+                {
+                    return false;
+                }
+            }
 
-			// If z/OS: different handling, unless we have a leading slash
-			if (ServerType == FtpServer.IBMzOSFTP && !path.StartsWith("/")) {
-				var fileList = await GetNameListingAsync(path, token);
-				return fileList.Count() > 0;
-			}
-			else
-			// check if file exists by getting a name listing (NLST)
-			{
-				var fileList = await GetNameListingAsync(path.GetFtpDirectoryName(), token);
-				return FileListings.FileExistsInNameListing(fileList, path);
-			}
-		}
+            // If z/OS: different handling, unless we have a leading slash
+            if (ServerType == FtpServer.IBMzOSFTP && !path.StartsWith("/"))
+            {
+                var fileList = await GetNameListingAsync(path, token);
+                return fileList.Count() > 0;
+            }
+            else
+            // check if file exists by getting a name listing (NLST)
+            {
+                var fileList = await GetNameListingAsync(path.GetFtpDirectoryName(), token);
+                return FileListings.FileExistsInNameListing(fileList, path);
+            }
+        }
 #endif
 
         #endregion
@@ -3714,11 +3829,8 @@ namespace System.Data.Dubber
             {
                 throw new ArgumentException("Required parameter is null or blank.", "dest");
             }
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 path = path.GetFtpPath();
                 dest = dest.GetFtpPath();
 
@@ -3737,51 +3849,52 @@ namespace System.Data.Dubber
                 {
                     throw new FtpCommandException(reply);
                 }
-
-#if !CORE14
             }
-
-#endif
         }
 
-#if ASYNC
-		/// <summary>
-		/// Renames an object on the remote file system asynchronously.
-		/// Low level method that should NOT be used in most cases. Prefer MoveFile() and MoveDirectory().
-		/// Throws exceptions if the file does not exist, or if the destination file already exists.
-		/// </summary>
-		/// <param name="path">The full or relative path to the object</param>
-		/// <param name="dest">The new full or relative path including the new name of the object</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public async Task RenameAsync(string path, string dest, CancellationToken token = default(CancellationToken)) {
-			FtpReply reply;
+#if !NET40
+        /// <summary>
+        /// Renames an object on the remote file system asynchronously.
+        /// Low level method that should NOT be used in most cases. Prefer MoveFile() and MoveDirectory().
+        /// Throws exceptions if the file does not exist, or if the destination file already exists.
+        /// </summary>
+        /// <param name="path">The full or relative path to the object</param>
+        /// <param name="dest">The new full or relative path including the new name of the object</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        public async Task RenameAsync(string path, string dest, CancellationToken token = default(CancellationToken))
+        {
+            FtpReply reply;
 
-			// verify args
-			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
-			}
+            // verify args
+            if (path.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "path");
+            }
 
-			if (dest.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "dest");
-			}
+            if (dest.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "dest");
+            }
 
-			path = path.GetFtpPath();
-			dest = dest.GetFtpPath();
+            path = path.GetFtpPath();
+            dest = dest.GetFtpPath();
 
-			LogFunc(nameof(RenameAsync), new object[] { path, dest });
+            LogFunc(nameof(RenameAsync), new object[] { path, dest });
 
-			// calc the absolute filepaths
-			path = await GetAbsolutePathAsync(path, token);
-			dest = await GetAbsolutePathAsync(dest, token);
+            // calc the absolute filepaths
+            path = await GetAbsolutePathAsync(path, token);
+            dest = await GetAbsolutePathAsync(dest, token);
 
-			if (!(reply = await ExecuteAsync("RNFR " + path, token)).Success) {
-				throw new FtpCommandException(reply);
-			}
+            if (!(reply = await ExecuteAsync("RNFR " + path, token)).Success)
+            {
+                throw new FtpCommandException(reply);
+            }
 
-			if (!(reply = await ExecuteAsync("RNTO " + dest, token)).Success) {
-				throw new FtpCommandException(reply);
-			}
-		}
+            if (!(reply = await ExecuteAsync("RNTO " + dest, token)).Success)
+            {
+                throw new FtpCommandException(reply);
+            }
+        }
 #endif
 
         #endregion
@@ -3844,56 +3957,63 @@ namespace System.Data.Dubber
             return false;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Moves a file asynchronously on the remote file system from one directory to another.
-		/// Always checks if the source file exists. Checks if the dest file exists based on the `existsMode` parameter.
-		/// Only throws exceptions for critical errors.
-		/// </summary>
-		/// <param name="path">The full or relative path to the object</param>
-		/// <param name="dest">The new full or relative path including the new name of the object</param>
-		/// <param name="existsMode">Should we check if the dest file exists? And if it does should we overwrite/skip the operation?</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>Whether the file was moved</returns>
-		public async Task<bool> MoveFileAsync(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken)) {
-			// verify args
-			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
-			}
+#if !NET40
+        /// <summary>
+        /// Moves a file asynchronously on the remote file system from one directory to another.
+        /// Always checks if the source file exists. Checks if the dest file exists based on the `existsMode` parameter.
+        /// Only throws exceptions for critical errors.
+        /// </summary>
+        /// <param name="path">The full or relative path to the object</param>
+        /// <param name="dest">The new full or relative path including the new name of the object</param>
+        /// <param name="existsMode">Should we check if the dest file exists? And if it does should we overwrite/skip the operation?</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>Whether the file was moved</returns>
+        public async Task<bool> MoveFileAsync(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken))
+        {
+            // verify args
+            if (path.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "path");
+            }
 
-			if (dest.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "dest");
-			}
+            if (dest.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "dest");
+            }
 
-			path = path.GetFtpPath();
-			dest = dest.GetFtpPath();
+            path = path.GetFtpPath();
+            dest = dest.GetFtpPath();
 
-			LogFunc(nameof(MoveFileAsync), new object[] { path, dest, existsMode });
+            LogFunc(nameof(MoveFileAsync), new object[] { path, dest, existsMode });
 
-			if (await FileExistsAsync(path, token)) {
-				// check if dest file exists and act accordingly
-				if (existsMode != FtpRemoteExists.NoCheck) {
-					bool destExists = await FileExistsAsync(dest, token);
-					if (destExists) {
-						switch (existsMode) {
-							case FtpRemoteExists.Overwrite:
-								await DeleteFileAsync(dest, token);
-								break;
+            if (await FileExistsAsync(path, token))
+            {
+                // check if dest file exists and act accordingly
+                if (existsMode != FtpRemoteExists.NoCheck)
+                {
+                    bool destExists = await FileExistsAsync(dest, token);
+                    if (destExists)
+                    {
+                        switch (existsMode)
+                        {
+                            case FtpRemoteExists.Overwrite:
+                                await DeleteFileAsync(dest, token);
+                                break;
 
-							case FtpRemoteExists.Skip:
-								return false;
-						}
-					}
-				}
+                            case FtpRemoteExists.Skip:
+                                return false;
+                        }
+                    }
+                }
 
-				// move the file
-				await RenameAsync(path, dest, token);
+                // move the file
+                await RenameAsync(path, dest, token);
 
-				return true;
-			}
+                return true;
+            }
 
-			return false;
-		}
+            return false;
+        }
 #endif
 
         #endregion
@@ -3919,11 +4039,8 @@ namespace System.Data.Dubber
             {
                 throw new ArgumentException("Required parameter is null or blank.", "path");
             }
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 path = path.GetFtpPath();
 
                 LogFunc(nameof(SetFilePermissions), new object[] { path, permissions });
@@ -3932,40 +4049,39 @@ namespace System.Data.Dubber
                 {
                     throw new FtpCommandException(reply);
                 }
-
-#if !CORE14
             }
-
-#endif
         }
 
-#if ASYNC
-		/// <summary>
-		/// Modify the permissions of the given file/folder.
-		/// Only works on *NIX systems, and not on Windows/IIS servers.
-		/// Only works if the FTP server supports the SITE CHMOD command
-		/// (requires the CHMOD extension to be installed and enabled).
-		/// Throws FtpCommandException if there is an issue.
-		/// </summary>
-		/// <param name="path">The full or relative path to the item</param>
-		/// <param name="permissions">The permissions in CHMOD format</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public async Task SetFilePermissionsAsync(string path, int permissions, CancellationToken token = default(CancellationToken)) {
-			FtpReply reply;
+#if !NET40
+        /// <summary>
+        /// Modify the permissions of the given file/folder.
+        /// Only works on *NIX systems, and not on Windows/IIS servers.
+        /// Only works if the FTP server supports the SITE CHMOD command
+        /// (requires the CHMOD extension to be installed and enabled).
+        /// Throws FtpCommandException if there is an issue.
+        /// </summary>
+        /// <param name="path">The full or relative path to the item</param>
+        /// <param name="permissions">The permissions in CHMOD format</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        public async Task SetFilePermissionsAsync(string path, int permissions, CancellationToken token = default(CancellationToken))
+        {
+            FtpReply reply;
 
-			// verify args
-			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
-			}
+            // verify args
+            if (path.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "path");
+            }
 
-			path = path.GetFtpPath();
+            path = path.GetFtpPath();
 
-			LogFunc(nameof(SetFilePermissionsAsync), new object[] { path, permissions });
+            LogFunc(nameof(SetFilePermissionsAsync), new object[] { path, permissions });
 
-			if (!(reply = await ExecuteAsync("SITE CHMOD " + permissions.ToString() + " " + path, token)).Success) {
-				throw new FtpCommandException(reply);
-			}
-		}
+            if (!(reply = await ExecuteAsync("SITE CHMOD " + permissions.ToString() + " " + path, token)).Success)
+            {
+                throw new FtpCommandException(reply);
+            }
+        }
 #endif
 
         /// <summary>
@@ -3982,20 +4098,21 @@ namespace System.Data.Dubber
             SetFilePermissions(path, permissions);
         }
 
-#if ASYNC
-		/// <summary>
-		/// Modify the permissions of the given file/folder.
-		/// Only works on *NIX systems, and not on Windows/IIS servers.
-		/// Only works if the FTP server supports the SITE CHMOD command
-		/// (requires the CHMOD extension to be installed and enabled).
-		/// Throws FtpCommandException if there is an issue.
-		/// </summary>
-		/// <param name="path">The full or relative path to the item</param>
-		/// <param name="permissions">The permissions in CHMOD format</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public Task ChmodAsync(string path, int permissions, CancellationToken token = default(CancellationToken)) {
-			return SetFilePermissionsAsync(path, permissions, token);
-		}
+#if !NET40
+        /// <summary>
+        /// Modify the permissions of the given file/folder.
+        /// Only works on *NIX systems, and not on Windows/IIS servers.
+        /// Only works if the FTP server supports the SITE CHMOD command
+        /// (requires the CHMOD extension to be installed and enabled).
+        /// Throws FtpCommandException if there is an issue.
+        /// </summary>
+        /// <param name="path">The full or relative path to the item</param>
+        /// <param name="permissions">The permissions in CHMOD format</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        public Task ChmodAsync(string path, int permissions, CancellationToken token = default(CancellationToken))
+        {
+            return SetFilePermissionsAsync(path, permissions, token);
+        }
 #endif
 
         /// <summary>
@@ -4014,22 +4131,23 @@ namespace System.Data.Dubber
             SetFilePermissions(path, Permissions.CalcChmod(owner, group, other));
         }
 
-#if ASYNC
-		/// <summary>
-		/// Modify the permissions of the given file/folder.
-		/// Only works on *NIX systems, and not on Windows/IIS servers.
-		/// Only works if the FTP server supports the SITE CHMOD command
-		/// (requires the CHMOD extension to be installed and enabled).
-		/// Throws FtpCommandException if there is an issue.
-		/// </summary>
-		/// <param name="path">The full or relative path to the item</param>
-		/// <param name="owner">The owner permissions</param>
-		/// <param name="group">The group permissions</param>
-		/// <param name="other">The other permissions</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public Task SetFilePermissionsAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken)) {
-			return SetFilePermissionsAsync(path, Permissions.CalcChmod(owner, group, other), token);
-		}
+#if !NET40
+        /// <summary>
+        /// Modify the permissions of the given file/folder.
+        /// Only works on *NIX systems, and not on Windows/IIS servers.
+        /// Only works if the FTP server supports the SITE CHMOD command
+        /// (requires the CHMOD extension to be installed and enabled).
+        /// Throws FtpCommandException if there is an issue.
+        /// </summary>
+        /// <param name="path">The full or relative path to the item</param>
+        /// <param name="owner">The owner permissions</param>
+        /// <param name="group">The group permissions</param>
+        /// <param name="other">The other permissions</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        public Task SetFilePermissionsAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken))
+        {
+            return SetFilePermissionsAsync(path, Permissions.CalcChmod(owner, group, other), token);
+        }
 #endif
 
         /// <summary>
@@ -4048,22 +4166,23 @@ namespace System.Data.Dubber
             SetFilePermissions(path, owner, group, other);
         }
 
-#if ASYNC
-		/// <summary>
-		/// Modify the permissions of the given file/folder.
-		/// Only works on *NIX systems, and not on Windows/IIS servers.
-		/// Only works if the FTP server supports the SITE CHMOD command
-		/// (requires the CHMOD extension to be installed and enabled).
-		/// Throws FtpCommandException if there is an issue.
-		/// </summary>
-		/// <param name="path">The full or relative path to the item</param>
-		/// <param name="owner">The owner permissions</param>
-		/// <param name="group">The group permissions</param>
-		/// <param name="other">The other permissions</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public Task ChmodAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken)) {
-			return SetFilePermissionsAsync(path, owner, group, other, token);
-		}
+#if !NET40
+        /// <summary>
+        /// Modify the permissions of the given file/folder.
+        /// Only works on *NIX systems, and not on Windows/IIS servers.
+        /// Only works if the FTP server supports the SITE CHMOD command
+        /// (requires the CHMOD extension to be installed and enabled).
+        /// Throws FtpCommandException if there is an issue.
+        /// </summary>
+        /// <param name="path">The full or relative path to the item</param>
+        /// <param name="owner">The owner permissions</param>
+        /// <param name="group">The group permissions</param>
+        /// <param name="other">The other permissions</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        public Task ChmodAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken))
+        {
+            return SetFilePermissionsAsync(path, owner, group, other, token);
+        }
 #endif
 
         /// <summary>
@@ -4090,29 +4209,31 @@ namespace System.Data.Dubber
             return result;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Retrieve the permissions of the given file/folder as an FtpListItem object with all "Permission" properties set.
-		/// Throws FtpCommandException if there is an issue.
-		/// Returns null if the server did not specify a permission value.
-		/// Use `GetChmod` if you required the integer value instead.
-		/// </summary>
-		/// <param name="path">The full or relative path to the item</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public async Task<FtpListItem> GetFilePermissionsAsync(string path, CancellationToken token = default(CancellationToken)) {
-			// verify args
-			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
-			}
+#if !NET40
+        /// <summary>
+        /// Retrieve the permissions of the given file/folder as an FtpListItem object with all "Permission" properties set.
+        /// Throws FtpCommandException if there is an issue.
+        /// Returns null if the server did not specify a permission value.
+        /// Use `GetChmod` if you required the integer value instead.
+        /// </summary>
+        /// <param name="path">The full or relative path to the item</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        public async Task<FtpListItem> GetFilePermissionsAsync(string path, CancellationToken token = default(CancellationToken))
+        {
+            // verify args
+            if (path.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "path");
+            }
 
-			path = path.GetFtpPath();
+            path = path.GetFtpPath();
 
-			LogFunc(nameof(GetFilePermissionsAsync), new object[] { path });
+            LogFunc(nameof(GetFilePermissionsAsync), new object[] { path });
 
-			var result = await GetObjectInfoAsync(path, false, token);
+            var result = await GetObjectInfoAsync(path, false, token);
 
-			return result;
-		}
+            return result;
+        }
 #endif
 
         /// <summary>
@@ -4128,19 +4249,20 @@ namespace System.Data.Dubber
             return item != null ? item.Chmod : 0;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Retrieve the permissions of the given file/folder as an integer in the CHMOD format.
-		/// Throws FtpCommandException if there is an issue.
-		/// Returns 0 if the server did not specify a permission value.
-		/// Use `GetFilePermissions` if you required the permissions in the FtpPermission format.
-		/// </summary>
-		/// <param name="path">The full or relative path to the item</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public async Task<int> GetChmodAsync(string path, CancellationToken token = default(CancellationToken)) {
-			FtpListItem item = await GetFilePermissionsAsync(path, token);
-			return item != null ? item.Chmod : 0;
-		}
+#if !NET40
+        /// <summary>
+        /// Retrieve the permissions of the given file/folder as an integer in the CHMOD format.
+        /// Throws FtpCommandException if there is an issue.
+        /// Returns 0 if the server did not specify a permission value.
+        /// Use `GetFilePermissions` if you required the permissions in the FtpPermission format.
+        /// </summary>
+        /// <param name="path">The full or relative path to the item</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        public async Task<int> GetChmodAsync(string path, CancellationToken token = default(CancellationToken))
+        {
+            FtpListItem item = await GetFilePermissionsAsync(path, token);
+            return item != null ? item.Chmod : 0;
+        }
 #endif
 
         #endregion
@@ -4229,76 +4351,88 @@ namespace System.Data.Dubber
             return null;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Dereference a FtpListItem object
-		/// </summary>
-		/// <param name="item">The item to dereference</param>
-		/// <param name="recMax">Maximum recursive calls</param>
-		/// <param name="count">Counter</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-		private async Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, IntRef count, CancellationToken token = default(CancellationToken)) {
-			if (item.Type != FtpFileSystemObjectType.Link) {
-				throw new FtpException("You can only dereference a symbolic link. Please verify the item type is Link.");
-			}
+#if !NET40
+        /// <summary>
+        /// Dereference a FtpListItem object
+        /// </summary>
+        /// <param name="item">The item to dereference</param>
+        /// <param name="recMax">Maximum recursive calls</param>
+        /// <param name="count">Counter</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>FtpListItem, null if the link can't be dereferenced</returns>
+        private async Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, IntRef count, CancellationToken token = default(CancellationToken))
+        {
+            if (item.Type != FtpFileSystemObjectType.Link)
+            {
+                throw new FtpException("You can only dereference a symbolic link. Please verify the item type is Link.");
+            }
 
-			if (item.LinkTarget == null) {
-				throw new FtpException("The link target was null. Please check this before trying to dereference the link.");
-			}
-			var listing = await GetListingAsync(item.LinkTarget.GetFtpDirectoryName(), token);
-			foreach (FtpListItem obj in listing) {
-				if (item.LinkTarget == obj.FullName) {
-					if (obj.Type == FtpFileSystemObjectType.Link) {
-						if (++count.Value == recMax) {
-							return null;
-						}
+            if (item.LinkTarget == null)
+            {
+                throw new FtpException("The link target was null. Please check this before trying to dereference the link.");
+            }
+            var listing = await GetListingAsync(item.LinkTarget.GetFtpDirectoryName(), token);
+            foreach (FtpListItem obj in listing)
+            {
+                if (item.LinkTarget == obj.FullName)
+                {
+                    if (obj.Type == FtpFileSystemObjectType.Link)
+                    {
+                        if (++count.Value == recMax)
+                        {
+                            return null;
+                        }
 
-						return await DereferenceLinkAsync(obj, recMax, count, token);
-					}
+                        return await DereferenceLinkAsync(obj, recMax, count, token);
+                    }
 
-					if (HasFeature(FtpCapability.MDTM)) {
-						var modify = GetModifiedTime(obj.FullName);
+                    if (HasFeature(FtpCapability.MDTM))
+                    {
+                        var modify = GetModifiedTime(obj.FullName);
 
-						if (modify != DateTime.MinValue) {
-							obj.Modified = modify;
-						}
-					}
+                        if (modify != DateTime.MinValue)
+                        {
+                            obj.Modified = modify;
+                        }
+                    }
 
-					if (obj.Type == FtpFileSystemObjectType.File && obj.Size < 0 && HasFeature(FtpCapability.SIZE)) {
-						obj.Size = GetFileSize(obj.FullName);
-					}
+                    if (obj.Type == FtpFileSystemObjectType.File && obj.Size < 0 && HasFeature(FtpCapability.SIZE))
+                    {
+                        obj.Size = GetFileSize(obj.FullName);
+                    }
 
-					return obj;
-				}
-			}
+                    return obj;
+                }
+            }
 
-			return null;
-		}
+            return null;
+        }
 
-		/// <summary>
-		/// Dereference a <see cref="FtpListItem"/> object asynchronously
-		/// </summary>
-		/// <param name="item">The item to dereference</param>
-		/// <param name="recMax">Maximum recursive calls</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-		public Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, CancellationToken token = default(CancellationToken)) {
-			LogFunc(nameof(DereferenceLinkAsync), new object[] { item.FullName, recMax });
+        /// <summary>
+        /// Dereference a <see cref="FtpListItem"/> object asynchronously
+        /// </summary>
+        /// <param name="item">The item to dereference</param>
+        /// <param name="recMax">Maximum recursive calls</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>FtpListItem, null if the link can't be dereferenced</returns>
+        public Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, CancellationToken token = default(CancellationToken))
+        {
+            LogFunc(nameof(DereferenceLinkAsync), new object[] { item.FullName, recMax });
 
-			var count = new IntRef { Value = 0 };
-			return DereferenceLinkAsync(item, recMax, count, token);
-		}
+            var count = new IntRef { Value = 0 };
+            return DereferenceLinkAsync(item, recMax, count, token);
+        }
 
-		/// <summary>
-		/// Dereference a <see cref="FtpListItem"/> object asynchronously
-		/// </summary>
-		/// <param name="item">The item to dereference</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-		public Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, CancellationToken token = default(CancellationToken)) {
-			return DereferenceLinkAsync(item, MaximumDereferenceCount, token);
-		}
+        /// <summary>
+        /// Dereference a <see cref="FtpListItem"/> object asynchronously
+        /// </summary>
+        /// <param name="item">The item to dereference</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>FtpListItem, null if the link can't be dereferenced</returns>
+        public Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, CancellationToken token = default(CancellationToken))
+        {
+            return DereferenceLinkAsync(item, MaximumDereferenceCount, token);
+        }
 #endif
 
         #endregion
@@ -4335,14 +4469,10 @@ namespace System.Data.Dubber
             }
 
             var sizeReply = new FtpSizeReply();
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 GetFileSizeInternal(path, sizeReply, defaultValue);
-#if !CORE14
             }
-#endif
             return sizeReply.FileSize;
         }
 
@@ -4387,76 +4517,85 @@ namespace System.Data.Dubber
             sizeReply.FileSize = length;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Asynchronously gets the size of a remote file, in bytes.
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="defaultValue">Value to return if there was an error obtaining the file size, or if the file does not exist</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>The size of the file, or defaultValue if there was a problem.</returns>
-		public async Task<long> GetFileSizeAsync(string path, long defaultValue = -1, CancellationToken token = default(CancellationToken)) {
-			// verify args
-			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
-			}
+#if !NET40
+        /// <summary>
+        /// Asynchronously gets the size of a remote file, in bytes.
+        /// </summary>
+        /// <param name="path">The full or relative path of the file</param>
+        /// <param name="defaultValue">Value to return if there was an error obtaining the file size, or if the file does not exist</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>The size of the file, or defaultValue if there was a problem.</returns>
+        public async Task<long> GetFileSizeAsync(string path, long defaultValue = -1, CancellationToken token = default(CancellationToken))
+        {
+            // verify args
+            if (path.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "path");
+            }
 
-			path = path.GetFtpPath();
+            path = path.GetFtpPath();
 
-			LogFunc(nameof(GetFileSizeAsync), new object[] { path, defaultValue });
+            LogFunc(nameof(GetFileSizeAsync), new object[] { path, defaultValue });
 
-			// execute server-specific file size fetching logic, if any
-			if (ServerHandler != null && ServerHandler.IsCustomFileSize()) {
-				return await ServerHandler.GetFileSizeAsync(this, path, token);
-			}
+            // execute server-specific file size fetching logic, if any
+            if (ServerHandler != null && ServerHandler.IsCustomFileSize())
+            {
+                return await ServerHandler.GetFileSizeAsync(this, path, token);
+            }
 
-			if (!HasFeature(FtpCapability.SIZE)) {
-				return defaultValue;
-			}
+            if (!HasFeature(FtpCapability.SIZE))
+            {
+                return defaultValue;
+            }
 
-			FtpSizeReply sizeReply = new FtpSizeReply();
-			await GetFileSizeInternalAsync(path, defaultValue, token, sizeReply);
+            FtpSizeReply sizeReply = new FtpSizeReply();
+            await GetFileSizeInternalAsync(path, defaultValue, token, sizeReply);
 
-			return sizeReply.FileSize;
-		}
+            return sizeReply.FileSize;
+        }
 
-		/// <summary>
-		/// Gets the file size of an object, without locking
-		/// </summary>
-		private async Task GetFileSizeInternalAsync(string path, long defaultValue, CancellationToken token, FtpSizeReply sizeReply) {
-			long length = defaultValue;
-			
-			path = path.GetFtpPath();
+        /// <summary>
+        /// Gets the file size of an object, without locking
+        /// </summary>
+        private async Task GetFileSizeInternalAsync(string path, long defaultValue, CancellationToken token, FtpSizeReply sizeReply)
+        {
+            long length = defaultValue;
 
-			// Fix #137: Switch to binary mode since some servers don't support SIZE command for ASCII files.
-			if (_FileSizeASCIINotSupported) {
-				await SetDataTypeNoLockAsync(FtpDataType.Binary, token);
-			}
+            path = path.GetFtpPath();
 
-			// execute the SIZE command
-			var reply = await ExecuteAsync("SIZE " + path, token);
-			sizeReply.Reply = reply;
-			if (!reply.Success) {
-				sizeReply.FileSize = defaultValue;
+            // Fix #137: Switch to binary mode since some servers don't support SIZE command for ASCII files.
+            if (_FileSizeASCIINotSupported)
+            {
+                await SetDataTypeNoLockAsync(FtpDataType.Binary, token);
+            }
 
-				// Fix #137: FTP server returns 'SIZE not allowed in ASCII mode'
-				if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(FtpServerStrings.fileSizeNotInASCII)) {
-					// set the flag so mode switching is done
-					_FileSizeASCIINotSupported = true;
+            // execute the SIZE command
+            var reply = await ExecuteAsync("SIZE " + path, token);
+            sizeReply.Reply = reply;
+            if (!reply.Success)
+            {
+                sizeReply.FileSize = defaultValue;
 
-					// retry getting the file size
-					await GetFileSizeInternalAsync(path, defaultValue, token, sizeReply);
-					return;
-				}
-			}
-			else if (!long.TryParse(reply.Message, out length)) {
-				length = defaultValue;
-			}
+                // Fix #137: FTP server returns 'SIZE not allowed in ASCII mode'
+                if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(FtpServerStrings.fileSizeNotInASCII))
+                {
+                    // set the flag so mode switching is done
+                    _FileSizeASCIINotSupported = true;
 
-			sizeReply.FileSize = length;
+                    // retry getting the file size
+                    await GetFileSizeInternalAsync(path, defaultValue, token, sizeReply);
+                    return;
+                }
+            }
+            else if (!long.TryParse(reply.Message, out length))
+            {
+                length = defaultValue;
+            }
 
-			return;
-		}
+            sizeReply.FileSize = length;
+
+            return;
+        }
 
 
 #endif
@@ -4483,54 +4622,49 @@ namespace System.Data.Dubber
 
             var date = DateTime.MinValue;
             FtpReply reply;
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
-
                 // get modified date of a file
                 if ((reply = Execute("MDTM " + path)).Success)
                 {
                     date = reply.Message.ParseFtpDate(this);
                     date = ConvertDate(date);
                 }
-
-#if !CORE14
             }
-#endif
-
             return date;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Gets the modified time of a remote file asynchronously
-		/// </summary>
-		/// <param name="path">The full path to the file</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
-		public async Task<DateTime> GetModifiedTimeAsync(string path, CancellationToken token = default(CancellationToken)) {
-			// verify args
-			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
-			}
+#if !NET40
+        /// <summary>
+        /// Gets the modified time of a remote file asynchronously
+        /// </summary>
+        /// <param name="path">The full path to the file</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
+        public async Task<DateTime> GetModifiedTimeAsync(string path, CancellationToken token = default(CancellationToken))
+        {
+            // verify args
+            if (path.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "path");
+            }
 
-			path = path.GetFtpPath();
+            path = path.GetFtpPath();
 
-			LogFunc(nameof(GetModifiedTimeAsync), new object[] { path });
+            LogFunc(nameof(GetModifiedTimeAsync), new object[] { path });
 
-			var date = DateTime.MinValue;
-			FtpReply reply;
+            var date = DateTime.MinValue;
+            FtpReply reply;
 
-			// get modified date of a file
-			if ((reply = await ExecuteAsync("MDTM " + path, token)).Success) {
-				date = reply.Message.ParseFtpDate(this);
-				date = ConvertDate(date);
-			}
+            // get modified date of a file
+            if ((reply = await ExecuteAsync("MDTM " + path, token)).Success)
+            {
+                date = reply.Message.ParseFtpDate(this);
+                date = ConvertDate(date);
+            }
 
-			return date;
-		}
+            return date;
+        }
 #endif
 
         #endregion
@@ -4560,12 +4694,8 @@ namespace System.Data.Dubber
             LogFunc(nameof(SetModifiedTime), new object[] { path, date });
 
             FtpReply reply;
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
-
                 // calculate the final date string with the timezone conversion
                 date = ConvertDate(date, true);
                 var timeStr = date.GenerateFtpDate();
@@ -4574,44 +4704,44 @@ namespace System.Data.Dubber
                 if ((reply = Execute("MFMT " + timeStr + " " + path)).Success)
                 {
                 }
-
-#if !CORE14
             }
-
-#endif
         }
 
-#if ASYNC
-		/// <summary>
-		/// Gets the modified time of a remote file asynchronously
-		/// </summary>
-		/// <param name="path">The full path to the file</param>
-		/// <param name="date">The new modified date/time value</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public async Task SetModifiedTimeAsync(string path, DateTime date, CancellationToken token = default(CancellationToken)) {
-			// verify args
-			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
-			}
+#if !NET40
+        /// <summary>
+        /// Gets the modified time of a remote file asynchronously
+        /// </summary>
+        /// <param name="path">The full path to the file</param>
+        /// <param name="date">The new modified date/time value</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        public async Task SetModifiedTimeAsync(string path, DateTime date, CancellationToken token = default(CancellationToken))
+        {
+            // verify args
+            if (path.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "path");
+            }
 
-			if (date == null) {
-				throw new ArgumentException("Required parameter is null or blank.", "date");
-			}
+            if (date == null)
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "date");
+            }
 
-			path = path.GetFtpPath();
+            path = path.GetFtpPath();
 
-			LogFunc(nameof(SetModifiedTimeAsync), new object[] { path, date });
+            LogFunc(nameof(SetModifiedTimeAsync), new object[] { path, date });
 
-			FtpReply reply;
+            FtpReply reply;
 
-			// calculate the final date string with the timezone conversion
-			date = ConvertDate(date, true);
-			var timeStr = date.GenerateFtpDate();
+            // calculate the final date string with the timezone conversion
+            date = ConvertDate(date, true);
+            var timeStr = date.GenerateFtpDate();
 
-			// set modified date of a file
-			if ((reply = await ExecuteAsync("MFMT " + timeStr + " " + path, token)).Success) {
-			}
-		}
+            // set modified date of a file
+            if ((reply = await ExecuteAsync("MFMT " + timeStr + " " + path, token)).Success)
+            {
+            }
+        }
 #endif
 
         #endregion
@@ -4809,157 +4939,180 @@ namespace System.Data.Dubber
             return UploadFiles(localFiles.Select(f => f.FullName), remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling, progress);
         }
 
-#if ASYNC
-		/// <summary>
-		/// Uploads the given file paths to a single folder on the server asynchronously.
-		/// All files are placed directly into the given folder regardless of their path on the local filesystem.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it uploads data in chunks.
-		/// Faster than uploading single files with <see cref="o:UploadFile"/> since it performs a single "file exists" check rather than one check per file.
-		/// </summary>
-		/// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
-		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
-		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
-		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
-		/// <param name="errorHandling">Used to determine how errors are handled</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
-		/// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
-		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
-		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
-		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
-		/// to propagate from this method.
-		/// </remarks>
-		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true,
-			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken), IProgress<FtpProgress> progress = null) {
-			
-			// verify args
-			if (!errorHandling.IsValidCombination()) {
-				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
-			}
+#if !NET40
+        /// <summary>
+        /// Uploads the given file paths to a single folder on the server asynchronously.
+        /// All files are placed directly into the given folder regardless of their path on the local filesystem.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it uploads data in chunks.
+        /// Faster than uploading single files with <see cref="o:UploadFile"/> since it performs a single "file exists" check rather than one check per file.
+        /// </summary>
+        /// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
+        /// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
+        /// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
+        /// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
+        /// <param name="errorHandling">Used to determine how errors are handled</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
+        /// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
+        /// <remarks>
+        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
+        /// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+        /// to propagate from this method.
+        /// </remarks>
+        public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true,
+            FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken), IProgress<FtpProgress> progress = null)
+        {
 
-			if (remoteDir.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remoteDir");
-			}
+            // verify args
+            if (!errorHandling.IsValidCombination())
+            {
+                throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
+            }
 
-			remoteDir = remoteDir.GetFtpPath();
+            if (remoteDir.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "remoteDir");
+            }
 
-			LogFunc(nameof(UploadFilesAsync), new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
+            remoteDir = remoteDir.GetFtpPath();
 
-			//check if cancellation was requested and throw to set TaskStatus state to Canceled
-			token.ThrowIfCancellationRequested();
+            LogFunc(nameof(UploadFilesAsync), new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
 
-			//int count = 0;
-			var errorEncountered = false;
-			var successfulUploads = new List<string>();
+            //check if cancellation was requested and throw to set TaskStatus state to Canceled
+            token.ThrowIfCancellationRequested();
 
-			// ensure ends with slash if remote is not PDS (MVS Dataset)
-			bool isPDS = false;
-			if (remoteDir.StartsWith("'") && ServerType == FtpServer.IBMzOSFTP) {
-				isPDS = true;
-			}
-			else {
-				remoteDir = !remoteDir.EndsWith("/") ? remoteDir + "/" : remoteDir;
-			}
+            //int count = 0;
+            var errorEncountered = false;
+            var successfulUploads = new List<string>();
 
-			//flag to determine if existence checks are required
-			var checkFileExistence = true;
+            // ensure ends with slash if remote is not PDS (MVS Dataset)
+            bool isPDS = false;
+            if (remoteDir.StartsWith("'") && ServerType == FtpServer.IBMzOSFTP)
+            {
+                isPDS = true;
+            }
+            else
+            {
+                remoteDir = !remoteDir.EndsWith("/") ? remoteDir + "/" : remoteDir;
+            }
 
-			// create remote dir if wanted
-			if (createRemoteDir) {
-				if (!await DirectoryExistsAsync(remoteDir, token)) {
-					await CreateDirectoryAsync(remoteDir, token);
-					checkFileExistence = false;
-				}
-			}
+            //flag to determine if existence checks are required
+            var checkFileExistence = true;
 
-			// get all the already existing files (if directory was created just create an empty array)
-			var existingFiles = checkFileExistence ? await GetNameListingAsync(remoteDir, token) : new string[0];
+            // create remote dir if wanted
+            if (createRemoteDir)
+            {
+                if (!await DirectoryExistsAsync(remoteDir, token))
+                {
+                    await CreateDirectoryAsync(remoteDir, token);
+                    checkFileExistence = false;
+                }
+            }
 
-			// per local file
-			var r = -1;
-			foreach (var localPath in localPaths) {
-				r++;
+            // get all the already existing files (if directory was created just create an empty array)
+            var existingFiles = checkFileExistence ? await GetNameListingAsync(remoteDir, token) : new string[0];
 
-				// check if cancellation was requested and throw to set TaskStatus state to Canceled
-				token.ThrowIfCancellationRequested();
+            // per local file
+            var r = -1;
+            foreach (var localPath in localPaths)
+            {
+                r++;
 
-				// calc remote path
-				var fileName = Path.GetFileName(localPath);
-				var remotePath = "";
+                // check if cancellation was requested and throw to set TaskStatus state to Canceled
+                token.ThrowIfCancellationRequested();
 
-				if (isPDS) {
-					// STOR cmd is intelligent enough to determine the full path
-					// and if it needs to append the ".filename" or "(filename)"
-					// addition to the remote path internally for Dsorgs.
-					remotePath = fileName;
-				}
-				else {
-					remotePath = remoteDir + fileName;
-				}
+                // calc remote path
+                var fileName = Path.GetFileName(localPath);
+                var remotePath = "";
 
-				// create meta progress to store the file progress
-				var metaProgress = new FtpProgress(localPaths.Count(), r);
+                if (isPDS)
+                {
+                    // STOR cmd is intelligent enough to determine the full path
+                    // and if it needs to append the ".filename" or "(filename)"
+                    // addition to the remote path internally for Dsorgs.
+                    remotePath = fileName;
+                }
+                else
+                {
+                    remotePath = remoteDir + fileName;
+                }
 
-				// try to upload it
-				try {
-					var ok = await UploadFileFromFileAsync(localPath, remotePath, false, existsMode, FileListings.FileExistsInNameListing(existingFiles, remotePath), true, verifyOptions, token, progress, metaProgress);
-					if (ok.IsSuccess()) {
-						successfulUploads.Add(remotePath);
-					}
-					else if ((int)errorHandling > 1) {
-						errorEncountered = true;
-						break;
-					}
-				}
-				catch (Exception ex) {
-					if (ex is OperationCanceledException) {
-						//DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
-						LogStatus(FtpTraceLevel.Info, "Upload cancellation requested");
-						throw;
-					}
+                // create meta progress to store the file progress
+                var metaProgress = new FtpProgress(localPaths.Count(), r);
 
-					//suppress all other upload exceptions (errors are still written to FtpTrace)
-					LogStatus(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
-					if (errorHandling.HasFlag(FtpError.Stop)) {
-						errorEncountered = true;
-						break;
-					}
+                // try to upload it
+                try
+                {
+                    var ok = await UploadFileFromFileAsync(localPath, remotePath, false, existsMode, FileListings.FileExistsInNameListing(existingFiles, remotePath), true, verifyOptions, token, progress, metaProgress);
+                    if (ok.IsSuccess())
+                    {
+                        successfulUploads.Add(remotePath);
+                    }
+                    else if ((int)errorHandling > 1)
+                    {
+                        errorEncountered = true;
+                        break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (ex is OperationCanceledException)
+                    {
+                        //DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
+                        LogStatus(FtpTraceLevel.Info, "Upload cancellation requested");
+                        throw;
+                    }
 
-					if (errorHandling.HasFlag(FtpError.Throw)) {
-						if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
-							PurgeSuccessfulUploads(successfulUploads);
-						}
+                    //suppress all other upload exceptions (errors are still written to FtpTrace)
+                    LogStatus(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
+                    if (errorHandling.HasFlag(FtpError.Stop))
+                    {
+                        errorEncountered = true;
+                        break;
+                    }
 
-						throw new FtpException("An error occurred uploading file(s).  See inner exception for more info.", ex);
-					}
-				}
-			}
+                    if (errorHandling.HasFlag(FtpError.Throw))
+                    {
+                        if (errorHandling.HasFlag(FtpError.DeleteProcessed))
+                        {
+                            PurgeSuccessfulUploads(successfulUploads);
+                        }
 
-			if (errorEncountered) {
-				//Delete any successful uploads if needed
-				if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
-					await PurgeSuccessfulUploadsAsync(successfulUploads);
-					successfulUploads.Clear(); //forces return of 0
-				}
+                        throw new FtpException("An error occurred uploading file(s).  See inner exception for more info.", ex);
+                    }
+                }
+            }
 
-				//Throw generic error because requested
-				if (errorHandling.HasFlag(FtpError.Throw)) {
-					throw new FtpException("An error occurred uploading one or more files.  Refer to trace output if available.");
-				}
-			}
+            if (errorEncountered)
+            {
+                //Delete any successful uploads if needed
+                if (errorHandling.HasFlag(FtpError.DeleteProcessed))
+                {
+                    await PurgeSuccessfulUploadsAsync(successfulUploads);
+                    successfulUploads.Clear(); //forces return of 0
+                }
 
-			return successfulUploads.Count;
-		}
+                //Throw generic error because requested
+                if (errorHandling.HasFlag(FtpError.Throw))
+                {
+                    throw new FtpException("An error occurred uploading one or more files.  Refer to trace output if available.");
+                }
+            }
 
-		private async Task PurgeSuccessfulUploadsAsync(IEnumerable<string> remotePaths) {
-			foreach (var remotePath in remotePaths) {
-				await DeleteFileAsync(remotePath);
-			}
-		}
+            return successfulUploads.Count;
+        }
+
+        private async Task PurgeSuccessfulUploadsAsync(IEnumerable<string> remotePaths)
+        {
+            foreach (var remotePath in remotePaths)
+            {
+                await DeleteFileAsync(remotePath);
+            }
+        }
 #endif
 
         #endregion
@@ -5070,100 +5223,112 @@ namespace System.Data.Dubber
             return uploadSuccess && verified ? uploadStatus : FtpStatus.Failed;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Uploads the specified file directly onto the server asynchronously.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it uploads data in chunks.
-		/// </summary>
-		/// <param name="localPath">The full or relative path to the file on the local file system</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to  <see cref="FtpRemoteExists.NoCheck"/> for fastest performance
-		///  but only if you are SURE that the files do not exist on the server.</param>
-		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
-		/// <param name="token">The token that can be used to cancel the entire process.</param>
-		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
-		/// <returns>FtpStatus flag indicating if the file was uploaded, skipped or failed to transfer.</returns>
-		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
-		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
-		/// </remarks>
-		public async Task<FtpStatus> UploadFileAsync(string localPath, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
-			// verify args
-			if (localPath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localPath");
-			}
+#if !NET40
+        /// <summary>
+        /// Uploads the specified file directly onto the server asynchronously.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it uploads data in chunks.
+        /// </summary>
+        /// <param name="localPath">The full or relative path to the file on the local file system</param>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to  <see cref="FtpRemoteExists.NoCheck"/> for fastest performance
+        ///  but only if you are SURE that the files do not exist on the server.</param>
+        /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+        /// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
+        /// <param name="token">The token that can be used to cancel the entire process.</param>
+        /// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
+        /// <returns>FtpStatus flag indicating if the file was uploaded, skipped or failed to transfer.</returns>
+        /// <remarks>
+        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
+        /// </remarks>
+        public async Task<FtpStatus> UploadFileAsync(string localPath, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken))
+        {
+            // verify args
+            if (localPath.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "localPath");
+            }
 
-			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			}
+            if (remotePath.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+            }
 
-			return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, token, progress, new FtpProgress(1, 0));
-		}
+            return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, token, progress, new FtpProgress(1, 0));
+        }
 
-		private async Task<FtpStatus> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
-			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token, IProgress<FtpProgress> progress, FtpProgress metaProgress) {
+        private async Task<FtpStatus> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
+            bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token, IProgress<FtpProgress> progress, FtpProgress metaProgress)
+        {
 
 
-			// skip uploading if the local file does not exist
-#if CORE
-			if (!await Task.Run(() => File.Exists(localPath), token)) {
+            // skip uploading if the local file does not exist
+#if NETFx
+            if (!await Task.Run(() => File.Exists(localPath), token)) {
 #else
-			if (!File.Exists(localPath)) {
+            if (!File.Exists(localPath))
+            {
 #endif
-				LogStatus(FtpTraceLevel.Error, "File does not exist.");
-				return FtpStatus.Failed;
-			}
+                LogStatus(FtpTraceLevel.Error, "File does not exist.");
+                return FtpStatus.Failed;
+            }
 
-			LogFunc(nameof(UploadFileAsync), new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
-			
-			// If retries are allowed set the retry counter to the allowed count
-			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
+            LogFunc(nameof(UploadFileAsync), new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
 
-			// Default validation to true (if verification isn't needed it'll allow a pass-through)
-			var verified = true;
-			FtpStatus uploadStatus;
-			bool uploadSuccess;
-			do {
-				// write the file onto the server
-				using (var fileStream = FtpFileStream.GetFileReadStream(this, localPath, true, QuickTransferLimit)) {
-					uploadStatus = await UploadFileInternalAsync(fileStream, localPath, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, progress, token, metaProgress);
-					uploadSuccess = uploadStatus.IsSuccess();
-					attemptsLeft--;
+            // If retries are allowed set the retry counter to the allowed count
+            var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 
-					if (!uploadSuccess) {
-						LogStatus(FtpTraceLevel.Info, "Failed to upload file.");
+            // Default validation to true (if verification isn't needed it'll allow a pass-through)
+            var verified = true;
+            FtpStatus uploadStatus;
+            bool uploadSuccess;
+            do
+            {
+                // write the file onto the server
+                using (var fileStream = FtpFileStream.GetFileReadStream(this, localPath, true, QuickTransferLimit))
+                {
+                    uploadStatus = await UploadFileInternalAsync(fileStream, localPath, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, progress, token, metaProgress);
+                    uploadSuccess = uploadStatus.IsSuccess();
+                    attemptsLeft--;
 
-						if (attemptsLeft > 0)
-							LogStatus(FtpTraceLevel.Info, "Retrying to upload file.");
-					}
+                    if (!uploadSuccess)
+                    {
+                        LogStatus(FtpTraceLevel.Info, "Failed to upload file.");
 
-					// If verification is needed, update the validated flag
-					if (verifyOptions != FtpVerify.None) {
-						verified = await VerifyTransferAsync(localPath, remotePath, token);
-						LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
-						if (!verified && attemptsLeft > 0) {
-							LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpRemoteExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
-							// Force overwrite if a retry is required
-							existsMode = FtpRemoteExists.Overwrite;
-						}
-					}
-				}
-			} while ((!uploadSuccess || !verified) && attemptsLeft > 0);
+                        if (attemptsLeft > 0)
+                            LogStatus(FtpTraceLevel.Info, "Retrying to upload file.");
+                    }
 
-			if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
-				await DeleteFileAsync(remotePath, token);
-			}
+                    // If verification is needed, update the validated flag
+                    if (verifyOptions != FtpVerify.None)
+                    {
+                        verified = await VerifyTransferAsync(localPath, remotePath, token);
+                        LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+                        if (!verified && attemptsLeft > 0)
+                        {
+                            LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpRemoteExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
+                            // Force overwrite if a retry is required
+                            existsMode = FtpRemoteExists.Overwrite;
+                        }
+                    }
+                }
+            } while ((!uploadSuccess || !verified) && attemptsLeft > 0);
 
-			if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
-				throw new FtpException("Uploaded file checksum value does not match local file");
-			}
+            if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete))
+            {
+                await DeleteFileAsync(remotePath, token);
+            }
 
-			// if uploaded OK then correctly return Skipped or Success, else return Failed
-			return uploadSuccess && verified ? uploadStatus : FtpStatus.Failed;
-		}
+            if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw))
+            {
+                throw new FtpException("Uploaded file checksum value does not match local file");
+            }
+
+            // if uploaded OK then correctly return Skipped or Success, else return Failed
+            return uploadSuccess && verified ? uploadStatus : FtpStatus.Failed;
+        }
 
 #endif
 
@@ -5240,71 +5405,78 @@ namespace System.Data.Dubber
         }
 
 
-#if ASYNC
-		/// <summary>
-		/// Uploads the specified stream as a file onto the server asynchronously.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it uploads data in chunks.
-		/// </summary>
-		/// <param name="fileStream">The full data of the file, as a stream</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpRemoteExists.NoCheck"/> for fastest performance,
-		///  but only if you are SURE that the files do not exist on the server.</param>
-		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		/// <param name="token">The token that can be used to cancel the entire process.</param>
-		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
-		/// <returns>FtpStatus flag indicating if the file was uploaded, skipped or failed to transfer.</returns>
-		public async Task<FtpStatus> UploadAsync(Stream fileStream, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
-			// verify args
-			if (fileStream == null) {
-				throw new ArgumentException("Required parameter is null or blank.", "fileStream");
-			}
+#if !NET40
+        /// <summary>
+        /// Uploads the specified stream as a file onto the server asynchronously.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it uploads data in chunks.
+        /// </summary>
+        /// <param name="fileStream">The full data of the file, as a stream</param>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpRemoteExists.NoCheck"/> for fastest performance,
+        ///  but only if you are SURE that the files do not exist on the server.</param>
+        /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+        /// <param name="token">The token that can be used to cancel the entire process.</param>
+        /// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
+        /// <returns>FtpStatus flag indicating if the file was uploaded, skipped or failed to transfer.</returns>
+        public async Task<FtpStatus> UploadAsync(Stream fileStream, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken))
+        {
+            // verify args
+            if (fileStream == null)
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "fileStream");
+            }
 
-			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			}
+            if (remotePath.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+            }
 
-			remotePath = remotePath.GetFtpPath();
+            remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(UploadAsync), new object[] { remotePath, existsMode, createRemoteDir });
+            LogFunc(nameof(UploadAsync), new object[] { remotePath, existsMode, createRemoteDir });
 
-			// write the file onto the server
-			return await UploadFileInternalAsync(fileStream, null, remotePath, createRemoteDir, existsMode, false, false, progress, token, new FtpProgress(1, 0));
-		}
+            // write the file onto the server
+            return await UploadFileInternalAsync(fileStream, null, remotePath, createRemoteDir, existsMode, false, false, progress, token, new FtpProgress(1, 0));
+        }
 
-		/// <summary>
-		/// Uploads the specified byte array as a file onto the server asynchronously.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it uploads data in chunks.
-		/// </summary>
-		/// <param name="fileData">The full data of the file, as a byte array</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpRemoteExists.NoCheck"/> for fastest performance,
-		///  but only if you are SURE that the files do not exist on the server.</param>
-		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		/// <param name="token">The token that can be used to cancel the entire process.</param>
-		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
-		/// <returns>FtpStatus flag indicating if the file was uploaded, skipped or failed to transfer.</returns>
-		public async Task<FtpStatus> UploadAsync(byte[] fileData, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
-			// verify args
-			if (fileData == null) {
-				throw new ArgumentException("Required parameter is null or blank.", "fileData");
-			}
+        /// <summary>
+        /// Uploads the specified byte array as a file onto the server asynchronously.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it uploads data in chunks.
+        /// </summary>
+        /// <param name="fileData">The full data of the file, as a byte array</param>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpRemoteExists.NoCheck"/> for fastest performance,
+        ///  but only if you are SURE that the files do not exist on the server.</param>
+        /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+        /// <param name="token">The token that can be used to cancel the entire process.</param>
+        /// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
+        /// <returns>FtpStatus flag indicating if the file was uploaded, skipped or failed to transfer.</returns>
+        public async Task<FtpStatus> UploadAsync(byte[] fileData, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken))
+        {
+            // verify args
+            if (fileData == null)
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "fileData");
+            }
 
-			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			}
+            if (remotePath.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+            }
 
-			remotePath = remotePath.GetFtpPath();
+            remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(UploadAsync), new object[] { remotePath, existsMode, createRemoteDir });
+            LogFunc(nameof(UploadAsync), new object[] { remotePath, existsMode, createRemoteDir });
 
-			// write the file onto the server
-			using (var ms = new MemoryStream(fileData)) {
-				ms.Position = 0;
-				return await UploadFileInternalAsync(ms, null, remotePath, createRemoteDir, existsMode, false, false, progress, token, new FtpProgress(1, 0));
-			}
-		}
+            // write the file onto the server
+            using (var ms = new MemoryStream(fileData))
+            {
+                ms.Position = 0;
+                return await UploadFileInternalAsync(ms, null, remotePath, createRemoteDir, existsMode, false, false, progress, token, new FtpProgress(1, 0));
+            }
+        }
 #endif
 
         #endregion
@@ -5514,11 +5686,7 @@ namespace System.Data.Dubber
                                 var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
                                 if (timeShouldTake > swTime)
                                 {
-#if CORE14
-										Task.Delay((int) (timeShouldTake - swTime)).Wait();
-#else
-                                    Thread.Sleep((int)(timeShouldTake - swTime));
-#endif
+                                    Thread.Sleep((int)(timeShouldTake - swTime)); // Task.Delay((int)(timeShouldTake - swTime)).Wait();
                                 }
                                 else if (swTime > timeShouldTake + rateControlResolution)
                                 {
@@ -5647,299 +5815,353 @@ namespace System.Data.Dubber
             }
         }
 
-#if ASYNC
-		/// <summary>
-		/// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
-		/// Writes data in chunks. Retries if server disconnects midway.
-		/// </summary>
-		private async Task<FtpStatus> UploadFileInternalAsync(Stream fileData, string localPath, string remotePath, bool createRemoteDir,
-			FtpRemoteExists existsMode, bool fileExists, bool fileExistsKnown, IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
+#if !NET40
+        /// <summary>
+        /// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
+        /// Writes data in chunks. Retries if server disconnects midway.
+        /// </summary>
+        private async Task<FtpStatus> UploadFileInternalAsync(Stream fileData, string localPath, string remotePath, bool createRemoteDir,
+            FtpRemoteExists existsMode, bool fileExists, bool fileExistsKnown, IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress)
+        {
 
-			Stream upStream = null;
+            Stream upStream = null;
 
-			// throw an error if need to resume uploading and cannot seek the local file stream
-			if (!fileData.CanSeek && existsMode == FtpRemoteExists.Resume) {
-				throw new ArgumentException("You have requested resuming file upload with FtpRemoteExists.Resume, but the local file stream cannot be seeked. Use another type of Stream or another existsMode.", "fileData");
-			}
+            // throw an error if need to resume uploading and cannot seek the local file stream
+            if (!fileData.CanSeek && existsMode == FtpRemoteExists.Resume)
+            {
+                throw new ArgumentException("You have requested resuming file upload with FtpRemoteExists.Resume, but the local file stream cannot be seeked. Use another type of Stream or another existsMode.", "fileData");
+            }
 
-			try {
-				long localPosition = 0, remotePosition = 0, remoteFileLen = 0;
+            try
+            {
+                long localPosition = 0, remotePosition = 0, remoteFileLen = 0;
 
-				// check if the file exists, and skip, overwrite or append
-				if (existsMode == FtpRemoteExists.NoCheck) {
-				}
-				else if (existsMode == FtpRemoteExists.ResumeNoCheck || existsMode == FtpRemoteExists.AddToEndNoCheck) {
+                // check if the file exists, and skip, overwrite or append
+                if (existsMode == FtpRemoteExists.NoCheck)
+                {
+                }
+                else if (existsMode == FtpRemoteExists.ResumeNoCheck || existsMode == FtpRemoteExists.AddToEndNoCheck)
+                {
 
-					// start from the end of the remote file, or if failed to read the length then start from the beginning
-					remoteFileLen = remotePosition = await GetFileSizeAsync(remotePath, 0, token);
+                    // start from the end of the remote file, or if failed to read the length then start from the beginning
+                    remoteFileLen = remotePosition = await GetFileSizeAsync(remotePath, 0, token);
 
-					// calculate the local position for appending / resuming
-					localPosition = CalculateAppendLocalPosition(remotePath, existsMode, remotePosition);
+                    // calculate the local position for appending / resuming
+                    localPosition = CalculateAppendLocalPosition(remotePath, existsMode, remotePosition);
 
-				}
-				else {
+                }
+                else
+                {
 
-					// check if the remote file exists
-					if (!fileExistsKnown) {
-						fileExists = await FileExistsAsync(remotePath, token);
-					}
+                    // check if the remote file exists
+                    if (!fileExistsKnown)
+                    {
+                        fileExists = await FileExistsAsync(remotePath, token);
+                    }
 
-					if (existsMode == FtpRemoteExists.Skip) {
+                    if (existsMode == FtpRemoteExists.Skip)
+                    {
 
-						if (fileExists) {
-							LogStatus(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists on server (Remote: " + remotePath + ", Local: " + localPath + ")");
+                        if (fileExists)
+                        {
+                            LogStatus(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists on server (Remote: " + remotePath + ", Local: " + localPath + ")");
 
-							// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
-							// send progress reports for skipped files
-							if (progress != null) {
-								progress.Report(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
-							}
+                            // Fix #413 - progress callback isn't called if the file has already been uploaded to the server
+                            // send progress reports for skipped files
+                            if (progress != null)
+                            {
+                                progress.Report(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
+                            }
 
-							return FtpStatus.Skipped;
-						}
+                            return FtpStatus.Skipped;
+                        }
 
-					}
-					else if (existsMode == FtpRemoteExists.Overwrite) {
+                    }
+                    else if (existsMode == FtpRemoteExists.Overwrite)
+                    {
 
-						// delete the remote file if it exists and we need to overwrite
-						if (fileExists) {
-							await DeleteFileAsync(remotePath, token);
-						}
+                        // delete the remote file if it exists and we need to overwrite
+                        if (fileExists)
+                        {
+                            await DeleteFileAsync(remotePath, token);
+                        }
 
-					}
-					else if (existsMode == FtpRemoteExists.Resume || existsMode == FtpRemoteExists.AddToEnd) {
-						if (fileExists) {
+                    }
+                    else if (existsMode == FtpRemoteExists.Resume || existsMode == FtpRemoteExists.AddToEnd)
+                    {
+                        if (fileExists)
+                        {
 
-							// start from the end of the remote file, or if failed to read the length then start from the beginning
-							remoteFileLen = remotePosition = await GetFileSizeAsync(remotePath, 0, token);
+                            // start from the end of the remote file, or if failed to read the length then start from the beginning
+                            remoteFileLen = remotePosition = await GetFileSizeAsync(remotePath, 0, token);
 
-							// calculate the local position for appending / resuming
-							localPosition = CalculateAppendLocalPosition(remotePath, existsMode, remotePosition);
-						}
+                            // calculate the local position for appending / resuming
+                            localPosition = CalculateAppendLocalPosition(remotePath, existsMode, remotePosition);
+                        }
 
-					}
+                    }
 
-				}
+                }
 
-				// ensure the remote dir exists .. only if the file does not already exist!
-				if (createRemoteDir && !fileExists) {
-					var dirname = remotePath.GetFtpDirectoryName();
-					if (!await DirectoryExistsAsync(dirname, token)) {
-						await CreateDirectoryAsync(dirname, token);
-					}
-				}
+                // ensure the remote dir exists .. only if the file does not already exist!
+                if (createRemoteDir && !fileExists)
+                {
+                    var dirname = remotePath.GetFtpDirectoryName();
+                    if (!await DirectoryExistsAsync(dirname, token))
+                    {
+                        await CreateDirectoryAsync(dirname, token);
+                    }
+                }
 
-				// FIX #213 : Do not change Stream.Position if not supported
-				if (fileData.CanSeek) {
-					try {
-						// seek to required offset
-						fileData.Position = localPosition;
-					}
-					catch (Exception ex2) {
-					}
-				}
+                // FIX #213 : Do not change Stream.Position if not supported
+                if (fileData.CanSeek)
+                {
+                    try
+                    {
+                        // seek to required offset
+                        fileData.Position = localPosition;
+                    }
+                    catch (Exception ex2)
+                    {
+                    }
+                }
 
-				// calc local file len
-				var localFileLen = fileData.Length;
+                // calc local file len
+                var localFileLen = fileData.Length;
 
-				// skip uploading if the mode is resume and the local and remote file have the same length
-				if ((existsMode == FtpRemoteExists.Resume || existsMode == FtpRemoteExists.ResumeNoCheck) &&
-					(localFileLen == remoteFileLen)) {
-					LogStatus(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully uploaded (Remote: " + remotePath + ", Local: " + localPath + ")");
+                // skip uploading if the mode is resume and the local and remote file have the same length
+                if ((existsMode == FtpRemoteExists.Resume || existsMode == FtpRemoteExists.ResumeNoCheck) &&
+                    (localFileLen == remoteFileLen))
+                {
+                    LogStatus(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully uploaded (Remote: " + remotePath + ", Local: " + localPath + ")");
 
-					// send progress reports for skipped files
-					if (progress != null) {
-						progress.Report(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
-					}
-					return FtpStatus.Skipped;
-				}
+                    // send progress reports for skipped files
+                    if (progress != null)
+                    {
+                        progress.Report(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
+                    }
+                    return FtpStatus.Skipped;
+                }
 
-				// open a file connection
-				if (remotePosition == 0 && existsMode != FtpRemoteExists.ResumeNoCheck && existsMode != FtpRemoteExists.AddToEndNoCheck) {
-					upStream = await OpenWriteAsync(remotePath, UploadDataType, remoteFileLen, token);
-				}
-				else {
-					upStream = await OpenAppendAsync(remotePath, UploadDataType, remoteFileLen, token);
-				}
+                // open a file connection
+                if (remotePosition == 0 && existsMode != FtpRemoteExists.ResumeNoCheck && existsMode != FtpRemoteExists.AddToEndNoCheck)
+                {
+                    upStream = await OpenWriteAsync(remotePath, UploadDataType, remoteFileLen, token);
+                }
+                else
+                {
+                    upStream = await OpenAppendAsync(remotePath, UploadDataType, remoteFileLen, token);
+                }
 
-				// calculate chunk size and rate limiting
-				const int rateControlResolution = 100;
-				var rateLimitBytes = UploadRateLimit != 0 ? (long)UploadRateLimit * 1024 : 0;
-				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
+                // calculate chunk size and rate limiting
+                const int rateControlResolution = 100;
+                var rateLimitBytes = UploadRateLimit != 0 ? (long)UploadRateLimit * 1024 : 0;
+                var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
 
-				// calc desired length based on the mode (if need to append to the end of remote file, length is sum of local+remote)
-				var remoteFileDesiredLen = (existsMode == FtpRemoteExists.AddToEnd || existsMode == FtpRemoteExists.AddToEndNoCheck) ?
-					(upStream.Length + localFileLen)
-					: localFileLen;
+                // calc desired length based on the mode (if need to append to the end of remote file, length is sum of local+remote)
+                var remoteFileDesiredLen = (existsMode == FtpRemoteExists.AddToEnd || existsMode == FtpRemoteExists.AddToEndNoCheck) ?
+                    (upStream.Length + localFileLen)
+                    : localFileLen;
 
-				var buffer = new byte[chunkSize];
+                var buffer = new byte[chunkSize];
 
-				var transferStarted = DateTime.Now;
-				var sw = new Stopwatch();
+                var transferStarted = DateTime.Now;
+                var sw = new Stopwatch();
 
-				// always set the length of the remote file based on the desired size
-				// also fixes #288 - Upload hangs with only a few bytes left
-				try {
-					upStream.SetLength(remoteFileDesiredLen);
-				}
-				catch (Exception ex2) {
-				}
+                // always set the length of the remote file based on the desired size
+                // also fixes #288 - Upload hangs with only a few bytes left
+                try
+                {
+                    upStream.SetLength(remoteFileDesiredLen);
+                }
+                catch (Exception ex2)
+                {
+                }
 
-				var anyNoop = false;
+                var anyNoop = false;
 
-				// loop till entire file uploaded
-				while (localPosition < localFileLen) {
-					try {
-						// read a chunk of bytes from the file
-						int readBytes;
-						long limitCheckBytes = 0;
-						long bytesProcessed = 0;
+                // loop till entire file uploaded
+                while (localPosition < localFileLen)
+                {
+                    try
+                    {
+                        // read a chunk of bytes from the file
+                        int readBytes;
+                        long limitCheckBytes = 0;
+                        long bytesProcessed = 0;
 
-						sw.Start();
-						while ((readBytes = await fileData.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
-							// write chunk to the FTP stream
-							await upStream.WriteAsync(buffer, 0, readBytes, token);
-							await upStream.FlushAsync(token);
+                        sw.Start();
+                        while ((readBytes = await fileData.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
+                        {
+                            // write chunk to the FTP stream
+                            await upStream.WriteAsync(buffer, 0, readBytes, token);
+                            await upStream.FlushAsync(token);
 
 
-							// move file pointers ahead
-							localPosition += readBytes;
-							remotePosition += readBytes;
-							bytesProcessed += readBytes;
-							limitCheckBytes += readBytes;
+                            // move file pointers ahead
+                            localPosition += readBytes;
+                            remotePosition += readBytes;
+                            bytesProcessed += readBytes;
+                            limitCheckBytes += readBytes;
 
-							// send progress reports
-							if (progress != null) {
-								ReportProgress(progress, localFileLen, localPosition, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
-							}
+                            // send progress reports
+                            if (progress != null)
+                            {
+                                ReportProgress(progress, localFileLen, localPosition, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
+                            }
 
-							// Fix #387: keep alive with NOOP as configured and needed
-							if (!m_threadSafeDataChannels) {
-								anyNoop = await NoopAsync(token) || anyNoop;
-							}
+                            // Fix #387: keep alive with NOOP as configured and needed
+                            if (!m_threadSafeDataChannels)
+                            {
+                                anyNoop = await NoopAsync(token) || anyNoop;
+                            }
 
-							// honor the rate limit
-							var swTime = sw.ElapsedMilliseconds;
-							if (rateLimitBytes > 0) {
-								var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
-								if (timeShouldTake > swTime) {
-									await Task.Delay((int)(timeShouldTake - swTime), token);
-									token.ThrowIfCancellationRequested();
-								}
-								else if (swTime > timeShouldTake + rateControlResolution) {
-									limitCheckBytes = 0;
-									sw.Restart();
-								}
-							}
-						}
+                            // honor the rate limit
+                            var swTime = sw.ElapsedMilliseconds;
+                            if (rateLimitBytes > 0)
+                            {
+                                var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
+                                if (timeShouldTake > swTime)
+                                {
+                                    await Task.Delay((int)(timeShouldTake - swTime), token);
+                                    token.ThrowIfCancellationRequested();
+                                }
+                                else if (swTime > timeShouldTake + rateControlResolution)
+                                {
+                                    limitCheckBytes = 0;
+                                    sw.Restart();
+                                }
+                            }
+                        }
 
-						// zero return value (with no Exception) indicates EOS; so we should terminate the outer loop here
-						break;
-					}
-					catch (IOException ex) {
+                        // zero return value (with no Exception) indicates EOS; so we should terminate the outer loop here
+                        break;
+                    }
+                    catch (IOException ex)
+                    {
 
-						// resume if server disconnected midway, or throw if there is an exception doing that as well
-						var resumeResult = await ResumeUploadAsync(remotePath, upStream, remotePosition, ex);
-						if (resumeResult.Item1) {
-							upStream = resumeResult.Item2;
+                        // resume if server disconnected midway, or throw if there is an exception doing that as well
+                        var resumeResult = await ResumeUploadAsync(remotePath, upStream, remotePosition, ex);
+                        if (resumeResult.Item1)
+                        {
+                            upStream = resumeResult.Item2;
 
-							// since the remote stream has been seeked, we need to reposition the local stream too
-							if (fileData.CanSeek) {
-								fileData.Seek(localPosition, SeekOrigin.Begin);
-							}
-							else {
-								sw.Stop();
-								throw;
-							}
+                            // since the remote stream has been seeked, we need to reposition the local stream too
+                            if (fileData.CanSeek)
+                            {
+                                fileData.Seek(localPosition, SeekOrigin.Begin);
+                            }
+                            else
+                            {
+                                sw.Stop();
+                                throw;
+                            }
 
-						}
-						else {
-							sw.Stop();
-							throw;
-						}
-					}
-					catch (TimeoutException ex) {
-						// fix: attempting to upload data after we reached the end of the stream
-						// often throws a timeout exception, so we silently absorb that here
-						if (localPosition >= localFileLen) {
-							break;
-						}
-						else {
-							sw.Stop();
-							throw;
-						}
-					}
-				}
+                        }
+                        else
+                        {
+                            sw.Stop();
+                            throw;
+                        }
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        // fix: attempting to upload data after we reached the end of the stream
+                        // often throws a timeout exception, so we silently absorb that here
+                        if (localPosition >= localFileLen)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            sw.Stop();
+                            throw;
+                        }
+                    }
+                }
 
-				sw.Stop();
+                sw.Stop();
 
-				// wait for transfer to get over
-				while (upStream.Position < upStream.Length) {
-				}
+                // wait for transfer to get over
+                while (upStream.Position < upStream.Length)
+                {
+                }
 
-				// send progress reports
-				if (progress != null) {
-					progress.Report(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
-				}
+                // send progress reports
+                if (progress != null)
+                {
+                    progress.Report(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
+                }
 
-				// disconnect FTP stream before exiting
-				upStream.Dispose();
+                // disconnect FTP stream before exiting
+                upStream.Dispose();
 
-				// FIX : if this is not added, there appears to be "stale data" on the socket
-				// listen for a success/failure reply
-				try {
-					while (!m_threadSafeDataChannels) {
-						FtpReply status = await GetReplyAsync(token);
+                // FIX : if this is not added, there appears to be "stale data" on the socket
+                // listen for a success/failure reply
+                try
+                {
+                    while (!m_threadSafeDataChannels)
+                    {
+                        FtpReply status = await GetReplyAsync(token);
 
-						// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
-						if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
-							continue;
-						}
+                        // Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
+                        if (anyNoop && status.Message != null && status.Message.Contains("NOOP"))
+                        {
+                            continue;
+                        }
 
-						// Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
-						// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
-						if (status.Code != null && !status.Success) {
-							return FtpStatus.Failed;
-						}
+                        // Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
+                        // Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
+                        if (status.Code != null && !status.Success)
+                        {
+                            return FtpStatus.Failed;
+                        }
 
-						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
-						if (anyNoop) {
-							await ReadStaleDataAsync(false, true, true, token);
-						}
+                        // Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
+                        if (anyNoop)
+                        {
+                            await ReadStaleDataAsync(false, true, true, token);
+                        }
 
-						break;
-					}
-				}
+                        break;
+                    }
+                }
 
-				// absorb "System.TimeoutException: Timed out trying to read data from the socket stream!" at GetReply()
-				catch (Exception) { }
+                // absorb "System.TimeoutException: Timed out trying to read data from the socket stream!" at GetReply()
+                catch (Exception) { }
 
-				return FtpStatus.Success;
-			}
-			catch (Exception ex1) {
-				// close stream before throwing error
-				try {
-					if (upStream != null) {
-						upStream.Dispose();
-					}
-				}
-				catch (Exception) {
-				}
-				
-				if (ex1 is IOException ) {
-					LogStatus(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
-					return FtpStatus.Failed;
-				}
+                return FtpStatus.Success;
+            }
+            catch (Exception ex1)
+            {
+                // close stream before throwing error
+                try
+                {
+                    if (upStream != null)
+                    {
+                        upStream.Dispose();
+                    }
+                }
+                catch (Exception)
+                {
+                }
 
-				if (ex1 is OperationCanceledException) {
-					LogStatus(FtpTraceLevel.Info, "Upload cancellation requested");
-					throw;
-				}
+                if (ex1 is IOException)
+                {
+                    LogStatus(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
+                    return FtpStatus.Failed;
+                }
 
-				// catch errors during upload
-				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
-			}
-		}
+                if (ex1 is OperationCanceledException)
+                {
+                    LogStatus(FtpTraceLevel.Info, "Upload cancellation requested");
+                    throw;
+                }
+
+                // catch errors during upload
+                throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
+            }
+        }
 
 #endif
 
@@ -5963,24 +6185,26 @@ namespace System.Data.Dubber
             return false;
         }
 
-#if ASYNC
-		private async Task<Tuple<bool, Stream>> ResumeUploadAsync(string remotePath, Stream upStream, long remotePosition, IOException ex) {
+#if !NET40
+        private async Task<Tuple<bool, Stream>> ResumeUploadAsync(string remotePath, Stream upStream, long remotePosition, IOException ex)
+        {
 
-			// if resume possible
-			if (ex.IsResumeAllowed()) {
+            // if resume possible
+            if (ex.IsResumeAllowed())
+            {
 
-				// dispose the old bugged out stream
-				upStream.Dispose();
+                // dispose the old bugged out stream
+                upStream.Dispose();
 
-				// create and return a new stream starting at the current remotePosition
-				var returnStream = await OpenAppendAsync(remotePath, UploadDataType, 0);
-				returnStream.Position = remotePosition;
-				return Tuple.Create(true, returnStream);
-			}
+                // create and return a new stream starting at the current remotePosition
+                var returnStream = await OpenAppendAsync(remotePath, UploadDataType, 0);
+                returnStream.Position = remotePosition;
+                return Tuple.Create(true, returnStream);
+            }
 
-			// resume not allowed
-			return Tuple.Create(false, (Stream)null);
-		}
+            // resume not allowed
+            return Tuple.Create(false, (Stream)null);
+        }
 #endif
         private long CalculateAppendLocalPosition(string remotePath, FtpRemoteExists existsMode, long remotePosition)
         {
@@ -6051,36 +6275,43 @@ namespace System.Data.Dubber
             }
         }
 
-#if ASYNC
-		private async Task<bool> VerifyTransferAsync(string localPath, string remotePath, CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        private async Task<bool> VerifyTransferAsync(string localPath, string remotePath, CancellationToken token = default(CancellationToken))
+        {
 
-			// verify args
-			if (localPath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localPath");
-			}
-			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			}
+            // verify args
+            if (localPath.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "localPath");
+            }
+            if (remotePath.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+            }
 
-			try {
-				if (SupportsChecksum()) {
-					FtpHash hash = await GetChecksumAsync(remotePath, FtpHashAlgorithm.NONE, token);
-					if (!hash.IsValid) {
-						return false;
-					}
+            try
+            {
+                if (SupportsChecksum())
+                {
+                    FtpHash hash = await GetChecksumAsync(remotePath, FtpHashAlgorithm.NONE, token);
+                    if (!hash.IsValid)
+                    {
+                        return false;
+                    }
 
-					return hash.Verify(localPath);
-				}
+                    return hash.Verify(localPath);
+                }
 
-				// not supported, so return true to ignore validation
-				return true;
-			}
-			catch (IOException ex) {
-				LogStatus(FtpTraceLevel.Warn, "Failed to verify file " + localPath + " : " + ex.Message);
-				return false;
-			}
-		}
-		
+                // not supported, so return true to ignore validation
+                return true;
+            }
+            catch (IOException ex)
+            {
+                LogStatus(FtpTraceLevel.Warn, "Failed to verify file " + localPath + " : " + ex.Message);
+                return false;
+            }
+        }
+
 #endif
 
         #endregion
@@ -6189,89 +6420,93 @@ namespace System.Data.Dubber
             return results;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Downloads the specified directory onto the local file system.
-		/// In Mirror mode, we will download missing files, and delete any extra files from disk that are not present on the server. This is very useful when creating an exact local backup of an FTP directory.
-		/// In Update mode, we will only download missing files and preserve any extra files on disk. This is useful when you want to simply download missing files from an FTP directory.
-		/// Only downloads the files and folders matching all the rules provided, if any.
-		/// All exceptions during downloading are caught, and the exception is stored in the related FtpResult object.
-		/// </summary>
-		/// <param name="localFolder">The full path of the local folder on disk to download into. It is created if it does not exist.</param>
-		/// <param name="remoteFolder">The full path of the remote FTP folder that you want to download. If it does not exist, an empty result list is returned.</param>
-		/// <param name="mode">Mirror or Update mode, as explained above</param>
-		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
-		/// <param name="rules">Only files and folders that pass all these rules are downloaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
-		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
-		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically switch to true for subsequent attempts.
-		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
-		/// to propagate from this method.
-		/// </remarks>
-		/// <returns>
-		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
-		/// Returns a blank list if nothing was transfered. Never returns null.
-		/// </returns>
-		public async Task<List<FtpResult>> DownloadDirectoryAsync(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
-			FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// Downloads the specified directory onto the local file system.
+        /// In Mirror mode, we will download missing files, and delete any extra files from disk that are not present on the server. This is very useful when creating an exact local backup of an FTP directory.
+        /// In Update mode, we will only download missing files and preserve any extra files on disk. This is useful when you want to simply download missing files from an FTP directory.
+        /// Only downloads the files and folders matching all the rules provided, if any.
+        /// All exceptions during downloading are caught, and the exception is stored in the related FtpResult object.
+        /// </summary>
+        /// <param name="localFolder">The full path of the local folder on disk to download into. It is created if it does not exist.</param>
+        /// <param name="remoteFolder">The full path of the remote FTP folder that you want to download. If it does not exist, an empty result list is returned.</param>
+        /// <param name="mode">Mirror or Update mode, as explained above</param>
+        /// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
+        /// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+        /// <param name="rules">Only files and folders that pass all these rules are downloaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
+        /// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <remarks>
+        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically switch to true for subsequent attempts.
+        /// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+        /// to propagate from this method.
+        /// </remarks>
+        /// <returns>
+        /// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
+        /// Returns a blank list if nothing was transfered. Never returns null.
+        /// </returns>
+        public async Task<List<FtpResult>> DownloadDirectoryAsync(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
+            FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken))
+        {
 
-			if (localFolder.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localFolder");
-			}
+            if (localFolder.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "localFolder");
+            }
 
-			if (remoteFolder.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
-			}
+            if (remoteFolder.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
+            }
 
-			// ensure the local path ends with slash
-			localFolder = localFolder.EnsurePostfix(Path.DirectorySeparatorChar.ToString());
+            // ensure the local path ends with slash
+            localFolder = localFolder.EnsurePostfix(Path.DirectorySeparatorChar.ToString());
 
-			// cleanup the remote path
-			remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
+            // cleanup the remote path
+            remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
 
-			LogFunc(nameof(DownloadDirectoryAsync), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+            LogFunc(nameof(DownloadDirectoryAsync), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
 
-			var results = new List<FtpResult>();
+            var results = new List<FtpResult>();
 
-			// if the dir does not exist, fail fast
-			if (!await DirectoryExistsAsync(remoteFolder, token)) {
-				return results;
-			}
+            // if the dir does not exist, fail fast
+            if (!await DirectoryExistsAsync(remoteFolder, token))
+            {
+                return results;
+            }
 
-			// ensure the local dir exists
-			localFolder.EnsureDirectory();
+            // ensure the local dir exists
+            localFolder.EnsureDirectory();
 
-			// get all the files in the remote directory
-			var listing = await GetListingAsync(remoteFolder, FtpListOption.Recursive | FtpListOption.Size, token);
+            // get all the files in the remote directory
+            var listing = await GetListingAsync(remoteFolder, FtpListOption.Recursive | FtpListOption.Size, token);
 
-			// break if task is cancelled
-			token.ThrowIfCancellationRequested();
+            // break if task is cancelled
+            token.ThrowIfCancellationRequested();
 
-			// collect paths of the files that should exist (lowercase for CI checks)
-			var shouldExist = new Dictionary<string, bool>();
+            // collect paths of the files that should exist (lowercase for CI checks)
+            var shouldExist = new Dictionary<string, bool>();
 
-			// loop thru each file and transfer it #1
-			var toDownload = GetFilesToDownload(localFolder, remoteFolder, rules, results, listing, shouldExist);
+            // loop thru each file and transfer it #1
+            var toDownload = GetFilesToDownload(localFolder, remoteFolder, rules, results, listing, shouldExist);
 
-			// break if task is cancelled
-			token.ThrowIfCancellationRequested();
+            // break if task is cancelled
+            token.ThrowIfCancellationRequested();
 
-			/*-------------------------------------------------------------------------------------/
+            /*-------------------------------------------------------------------------------------/
 			 *   Cancelling after this point would leave the FTP server in an inconsistent state   *
 			 *-------------------------------------------------------------------------------------*/
 
-			// loop thru each file and transfer it #2
-			await DownloadServerFilesAsync(toDownload, existsMode, verifyOptions, progress, token);
+            // loop thru each file and transfer it #2
+            await DownloadServerFilesAsync(toDownload, existsMode, verifyOptions, progress, token);
 
-			// delete the extra local files if in mirror mode
-			DeleteExtraLocalFiles(localFolder, mode, shouldExist, rules);
+            // delete the extra local files if in mirror mode
+            DeleteExtraLocalFiles(localFolder, mode, shouldExist, rules);
 
-			return results;
-		}
+            return results;
+        }
 #endif
 
         /// <summary>
@@ -6395,65 +6630,73 @@ namespace System.Data.Dubber
 
         }
 
-#if ASYNC
-		/// <summary>
-		/// Download all the listed files and folders from the main directory
-		/// </summary>
-		private async Task DownloadServerFilesAsync(List<FtpResult> toDownload, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Download all the listed files and folders from the main directory
+        /// </summary>
+        private async Task DownloadServerFilesAsync(List<FtpResult> toDownload, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, CancellationToken token)
+        {
 
-			LogFunc(nameof(DownloadServerFilesAsync), new object[] { toDownload.Count + " files" });
+            LogFunc(nameof(DownloadServerFilesAsync), new object[] { toDownload.Count + " files" });
 
-			// per object to download
-			var r = -1;
-			foreach (var result in toDownload) {
-				r++;
+            // per object to download
+            var r = -1;
+            foreach (var result in toDownload)
+            {
+                r++;
 
-				if (result.Type == FtpFileSystemObjectType.File) {
+                if (result.Type == FtpFileSystemObjectType.File)
+                {
 
-					// absorb errors
-					try {
+                    // absorb errors
+                    try
+                    {
 
-						// create meta progress to store the file progress
-						var metaProgress = new FtpProgress(toDownload.Count, r);
+                        // create meta progress to store the file progress
+                        var metaProgress = new FtpProgress(toDownload.Count, r);
 
-						// download the file
-						var transferred = await DownloadFileToFileAsync(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, token, metaProgress);
-						result.IsSuccess = transferred.IsSuccess();
-						result.IsSkipped = transferred == FtpStatus.Skipped;
-					}
-					catch (Exception ex) {
+                        // download the file
+                        var transferred = await DownloadFileToFileAsync(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, token, metaProgress);
+                        result.IsSuccess = transferred.IsSuccess();
+                        result.IsSkipped = transferred == FtpStatus.Skipped;
+                    }
+                    catch (Exception ex)
+                    {
 
-						LogStatus(FtpTraceLevel.Warn, "File failed to download: " + result.RemotePath);
+                        LogStatus(FtpTraceLevel.Warn, "File failed to download: " + result.RemotePath);
 
-						// mark that the file failed to download
-						result.IsFailed = true;
-						result.Exception = ex;
-					}
+                        // mark that the file failed to download
+                        result.IsFailed = true;
+                        result.Exception = ex;
+                    }
 
-				}
-				else if (result.Type == FtpFileSystemObjectType.Directory) {
+                }
+                else if (result.Type == FtpFileSystemObjectType.Directory)
+                {
 
-					// absorb errors
-					try {
+                    // absorb errors
+                    try
+                    {
 
-						// create directory on local filesystem
-						// to ensure we download the blank remote dirs as well
-						var created = result.LocalPath.EnsureDirectory();
-						result.IsSuccess = true;
-						result.IsSkipped = !created;
+                        // create directory on local filesystem
+                        // to ensure we download the blank remote dirs as well
+                        var created = result.LocalPath.EnsureDirectory();
+                        result.IsSuccess = true;
+                        result.IsSkipped = !created;
 
-					}
-					catch (Exception ex) {
+                    }
+                    catch (Exception ex)
+                    {
 
-						// mark that the file failed to download
-						result.IsFailed = true;
-						result.Exception = ex;
-					}
+                        // mark that the file failed to download
+                        result.IsFailed = true;
+                        result.Exception = ex;
+                    }
 
-				}
-			}
+                }
+            }
 
-		}
+        }
 #endif
 
         /// <summary>
@@ -6582,14 +6825,8 @@ namespace System.Data.Dubber
             FtpReply reply;
 
             path = path.GetFtpPath();
-
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
-
-
                 // server-specific directory deletion
                 if (!path.IsFtpRootDirectory())
                 {
@@ -6662,11 +6899,7 @@ namespace System.Data.Dubber
                 {
                     throw new FtpCommandException(reply);
                 }
-
-#if !CORE14
             }
-
-#endif
         }
 
         /// <summary>
@@ -6681,115 +6914,130 @@ namespace System.Data.Dubber
             return (options & FtpListOption.Recursive) == FtpListOption.Recursive;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Asynchronously removes a directory and all its contents.
-		/// </summary>
-		/// <param name="path">The full or relative path of the directory to delete</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public Task DeleteDirectoryAsync(string path, CancellationToken token = default(CancellationToken)) {
-			// verify args
-			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
-			}
+#if !NET40
+        /// <summary>
+        /// Asynchronously removes a directory and all its contents.
+        /// </summary>
+        /// <param name="path">The full or relative path of the directory to delete</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        public Task DeleteDirectoryAsync(string path, CancellationToken token = default(CancellationToken))
+        {
+            // verify args
+            if (path.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "path");
+            }
 
-			path = path.GetFtpPath();
+            path = path.GetFtpPath();
 
-			LogFunc(nameof(DeleteDirectoryAsync), new object[] { path });
-			return DeleteDirInternalAsync(path, true, FtpListOption.Recursive, token);
-		}
+            LogFunc(nameof(DeleteDirectoryAsync), new object[] { path });
+            return DeleteDirInternalAsync(path, true, FtpListOption.Recursive, token);
+        }
 
-		/// <summary>
-		/// Asynchronously removes a directory and all its contents.
-		/// </summary>
-		/// <param name="path">The full or relative path of the directory to delete</param>
-		/// <param name="options">Useful to delete hidden files or dot-files.</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public Task DeleteDirectoryAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
-			// verify args
-			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
-			}
+        /// <summary>
+        /// Asynchronously removes a directory and all its contents.
+        /// </summary>
+        /// <param name="path">The full or relative path of the directory to delete</param>
+        /// <param name="options">Useful to delete hidden files or dot-files.</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        public Task DeleteDirectoryAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken))
+        {
+            // verify args
+            if (path.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "path");
+            }
 
-			path = path.GetFtpPath();
+            path = path.GetFtpPath();
 
-			LogFunc(nameof(DeleteDirectoryAsync), new object[] { path, options });
-			return DeleteDirInternalAsync(path, true, options, token);
-		}
+            LogFunc(nameof(DeleteDirectoryAsync), new object[] { path, options });
+            return DeleteDirInternalAsync(path, true, options, token);
+        }
 
-		/// <summary>
-		/// Asynchronously removes a directory. Used by <see cref="DeleteDirectoryAsync(string)"/> and
-		/// <see cref="DeleteDirectoryAsync(string, FtpListOption)"/>.
-		/// </summary>
-		/// <param name="path">The full or relative path of the directory to delete</param>
-		/// <param name="deleteContents">Delete the contents before deleting the folder</param>
-		/// <param name="options">Useful to delete hidden files or dot-files.</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns></returns>
-		private async Task DeleteDirInternalAsync(string path, bool deleteContents, FtpListOption options, CancellationToken token = default(CancellationToken)) {
-			FtpReply reply;
-			path = path.GetFtpPath();
+        /// <summary>
+        /// Asynchronously removes a directory. Used by <see cref="DeleteDirectoryAsync(string)"/> and
+        /// <see cref="DeleteDirectoryAsync(string, FtpListOption)"/>.
+        /// </summary>
+        /// <param name="path">The full or relative path of the directory to delete</param>
+        /// <param name="deleteContents">Delete the contents before deleting the folder</param>
+        /// <param name="options">Useful to delete hidden files or dot-files.</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns></returns>
+        private async Task DeleteDirInternalAsync(string path, bool deleteContents, FtpListOption options, CancellationToken token = default(CancellationToken))
+        {
+            FtpReply reply;
+            path = path.GetFtpPath();
 
-			// server-specific directory deletion
-			if (!path.IsFtpRootDirectory()) {
+            // server-specific directory deletion
+            if (!path.IsFtpRootDirectory())
+            {
 
-				// ask the server handler to delete a directory
-				if (ServerHandler != null) {
-					if (await ServerHandler.DeleteDirectoryAsync(this, path, path, deleteContents, options, token)) {
-						return;
-					}
-				}
-			}
+                // ask the server handler to delete a directory
+                if (ServerHandler != null)
+                {
+                    if (await ServerHandler.DeleteDirectoryAsync(this, path, path, deleteContents, options, token))
+                    {
+                        return;
+                    }
+                }
+            }
 
-			// DELETE CONTENTS OF THE DIRECTORY
-			if (deleteContents) {
-				// when GetListing is called with recursive option, then it does not
-				// make any sense to call another DeleteDirectory with force flag set.
-				// however this requires always delete files first.
-				var recurse = !WasGetListingRecursive(options);
+            // DELETE CONTENTS OF THE DIRECTORY
+            if (deleteContents)
+            {
+                // when GetListing is called with recursive option, then it does not
+                // make any sense to call another DeleteDirectory with force flag set.
+                // however this requires always delete files first.
+                var recurse = !WasGetListingRecursive(options);
 
-				// items that are deeper in directory tree are listed first, 
-				// then files will be listed before directories. This matters
-				// only if GetListing was called with recursive option.
-				FtpListItem[] itemList;
-				if (recurse) {
-					itemList = await GetListingAsync(path, options, token);
-				}
-				else {
-					itemList = (await GetListingAsync(path, options, token)).OrderByDescending(x => x.FullName.Count(c => c.Equals('/'))).ThenBy(x => x.Type).ToArray();
-				}
+                // items that are deeper in directory tree are listed first, 
+                // then files will be listed before directories. This matters
+                // only if GetListing was called with recursive option.
+                FtpListItem[] itemList;
+                if (recurse)
+                {
+                    itemList = await GetListingAsync(path, options, token);
+                }
+                else
+                {
+                    itemList = (await GetListingAsync(path, options, token)).OrderByDescending(x => x.FullName.Count(c => c.Equals('/'))).ThenBy(x => x.Type).ToArray();
+                }
 
-				// delete the item based on the type
-				foreach (var item in itemList) {
-					switch (item.Type) {
-						case FtpFileSystemObjectType.File:
-							await DeleteFileAsync(item.FullName, token);
-							break;
+                // delete the item based on the type
+                foreach (var item in itemList)
+                {
+                    switch (item.Type)
+                    {
+                        case FtpFileSystemObjectType.File:
+                            await DeleteFileAsync(item.FullName, token);
+                            break;
 
-						case FtpFileSystemObjectType.Directory:
-							await DeleteDirInternalAsync(item.FullName, recurse, options, token);
-							break;
+                        case FtpFileSystemObjectType.Directory:
+                            await DeleteDirInternalAsync(item.FullName, recurse, options, token);
+                            break;
 
-						default:
-							throw new FtpException("Don't know how to delete object type: " + item.Type);
-					}
-				}
-			}
+                        default:
+                            throw new FtpException("Don't know how to delete object type: " + item.Type);
+                    }
+                }
+            }
 
-			// SKIP DELETING ROOT DIRS
+            // SKIP DELETING ROOT DIRS
 
-			// can't delete the working directory and
-			// can't delete the server root.
-			if (path.IsFtpRootDirectory()) {
-				return;
-			}
+            // can't delete the working directory and
+            // can't delete the server root.
+            if (path.IsFtpRootDirectory())
+            {
+                return;
+            }
 
-			// DELETE ACTUAL DIRECTORY
+            // DELETE ACTUAL DIRECTORY
 
-			if (!(reply = await ExecuteAsync("RMD " + path, token)).Success) {
-				throw new FtpCommandException(reply);
-			}
-		}
+            if (!(reply = await ExecuteAsync("RMD " + path, token)).Success)
+            {
+                throw new FtpCommandException(reply);
+            }
+        }
 #endif
 
         #endregion
@@ -6825,10 +7073,8 @@ namespace System.Data.Dubber
             }
 
             // check if a folder exists by changing the working dir to it
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 pwd = GetWorkingDirectory();
 
                 if (Execute("CWD " + path).Success)
@@ -6842,57 +7088,58 @@ namespace System.Data.Dubber
 
                     return true;
                 }
-
-#if !CORE14
             }
-#endif
 
             return false;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Tests if the specified directory exists on the server asynchronously. This
-		/// method works by trying to change the working directory to
-		/// the path specified. If it succeeds, the directory is changed
-		/// back to the old working directory and true is returned. False
-		/// is returned otherwise and since the CWD failed it is assumed
-		/// the working directory is still the same.
-		/// </summary>
-		/// <param name='path'>The full or relative path of the directory to check for</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>True if the directory exists. False otherwise.</returns>
-		public async Task<bool> DirectoryExistsAsync(string path, CancellationToken token = default(CancellationToken)) {
-			string pwd;
+#if !NET40
+        /// <summary>
+        /// Tests if the specified directory exists on the server asynchronously. This
+        /// method works by trying to change the working directory to
+        /// the path specified. If it succeeds, the directory is changed
+        /// back to the old working directory and true is returned. False
+        /// is returned otherwise and since the CWD failed it is assumed
+        /// the working directory is still the same.
+        /// </summary>
+        /// <param name='path'>The full or relative path of the directory to check for</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>True if the directory exists. False otherwise.</returns>
+        public async Task<bool> DirectoryExistsAsync(string path, CancellationToken token = default(CancellationToken))
+        {
+            string pwd;
 
-			// don't verify args as blank/null path is OK
-			//if (path.IsBlank())
-			//	throw new ArgumentException("Required parameter is null or blank.", "path");
+            // don't verify args as blank/null path is OK
+            //if (path.IsBlank())
+            //	throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			path = path.GetFtpPath();
+            path = path.GetFtpPath();
 
-			LogFunc(nameof(DirectoryExistsAsync), new object[] { path });
+            LogFunc(nameof(DirectoryExistsAsync), new object[] { path });
 
-			// quickly check if root path, then it always exists!
-			if (path.IsFtpRootDirectory()) {
-				return true;
-			}
+            // quickly check if root path, then it always exists!
+            if (path.IsFtpRootDirectory())
+            {
+                return true;
+            }
 
-			// check if a folder exists by changing the working dir to it
-			pwd = await GetWorkingDirectoryAsync(token);
+            // check if a folder exists by changing the working dir to it
+            pwd = await GetWorkingDirectoryAsync(token);
 
-			if ((await ExecuteAsync("CWD " + path, token)).Success) {
-				FtpReply reply = await ExecuteAsync("CWD " + pwd, token);
+            if ((await ExecuteAsync("CWD " + path, token)).Success)
+            {
+                FtpReply reply = await ExecuteAsync("CWD " + pwd, token);
 
-				if (!reply.Success) {
-					throw new FtpException("DirectoryExists(): Failed to restore the working directory.");
-				}
+                if (!reply.Success)
+                {
+                    throw new FtpException("DirectoryExists(): Failed to restore the working directory.");
+                }
 
-				return true;
-			}
+                return true;
+            }
 
-			return false;
-		}
+            return false;
+        }
 #endif
 
         #endregion
@@ -6932,12 +7179,8 @@ namespace System.Data.Dubber
             {
                 return false;
             }
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
-
                 // server-specific directory creation
                 // ask the server handler to create a directory
                 if (ServerHandler != null)
@@ -6979,83 +7222,88 @@ namespace System.Data.Dubber
                     throw new FtpCommandException(reply);
                 }
                 return true;
-
-#if !CORE14
             }
-
-#endif
         }
 
-#if ASYNC
-		/// <summary>
-		/// Creates a remote directory asynchronously
-		/// </summary>
-		/// <param name="path">The full or relative path to the new remote directory</param>
-		/// <param name="force">Try to create the whole path if the preceding directories do not exist</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>True if directory was created, false if it was skipped</returns>
-		public async Task<bool> CreateDirectoryAsync(string path, bool force, CancellationToken token = default(CancellationToken)) {
-			// don't verify args as blank/null path is OK
-			//if (path.IsBlank())
-			//	throw new ArgumentException("Required parameter is null or blank.", "path");
+#if !NET40
+        /// <summary>
+        /// Creates a remote directory asynchronously
+        /// </summary>
+        /// <param name="path">The full or relative path to the new remote directory</param>
+        /// <param name="force">Try to create the whole path if the preceding directories do not exist</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>True if directory was created, false if it was skipped</returns>
+        public async Task<bool> CreateDirectoryAsync(string path, bool force, CancellationToken token = default(CancellationToken))
+        {
+            // don't verify args as blank/null path is OK
+            //if (path.IsBlank())
+            //	throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			path = path.GetFtpPath();
+            path = path.GetFtpPath();
 
-			LogFunc(nameof(CreateDirectoryAsync), new object[] { path, force });
+            LogFunc(nameof(CreateDirectoryAsync), new object[] { path, force });
 
-			FtpReply reply;
+            FtpReply reply;
 
-			// cannot create root or working directory
-			if (path.IsFtpRootDirectory()) {
-				return false;
-			}
+            // cannot create root or working directory
+            if (path.IsFtpRootDirectory())
+            {
+                return false;
+            }
 
-			// server-specific directory creation
-			// ask the server handler to create a directory
-			if (ServerHandler != null) {
-				if (await ServerHandler.CreateDirectoryAsync(this, path, path, force, token)) {
-					return true;
-				}
-			}
+            // server-specific directory creation
+            // ask the server handler to create a directory
+            if (ServerHandler != null)
+            {
+                if (await ServerHandler.CreateDirectoryAsync(this, path, path, force, token))
+                {
+                    return true;
+                }
+            }
 
-			path = path.TrimEnd('/');
+            path = path.TrimEnd('/');
 
-			if (force && !await DirectoryExistsAsync(path.GetFtpDirectoryName(), token)) {
-				LogStatus(FtpTraceLevel.Verbose, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
-				await CreateDirectoryAsync(path.GetFtpDirectoryName(), true, token);
-			}
+            if (force && !await DirectoryExistsAsync(path.GetFtpDirectoryName(), token))
+            {
+                LogStatus(FtpTraceLevel.Verbose, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
+                await CreateDirectoryAsync(path.GetFtpDirectoryName(), true, token);
+            }
 
-			// fix: improve performance by skipping the directory exists check
-			/*else if (await DirectoryExistsAsync(path, token)) {
+            // fix: improve performance by skipping the directory exists check
+            /*else if (await DirectoryExistsAsync(path, token)) {
 				return false;
 			}*/
 
-			LogStatus(FtpTraceLevel.Verbose, "CreateDirectory " + path);
+            LogStatus(FtpTraceLevel.Verbose, "CreateDirectory " + path);
 
-			if (!(reply = await ExecuteAsync("MKD " + path, token)).Success) {
+            if (!(reply = await ExecuteAsync("MKD " + path, token)).Success)
+            {
 
-				// if the error indicates the directory already exists, its not an error
-				if (reply.Code == "550") {
-					return false;
-				}
-				if (reply.Code[0] == '5' && reply.Message.IsKnownError(FtpServerStrings.folderExists)) {
-					return false;
-				}
+                // if the error indicates the directory already exists, its not an error
+                if (reply.Code == "550")
+                {
+                    return false;
+                }
+                if (reply.Code[0] == '5' && reply.Message.IsKnownError(FtpServerStrings.folderExists))
+                {
+                    return false;
+                }
 
-				throw new FtpCommandException(reply);
-			}
-			return true;
-		}
+                throw new FtpCommandException(reply);
+            }
+            return true;
+        }
 
-		/// <summary>
-		/// Creates a remote directory asynchronously. If the preceding
-		/// directories do not exist, then they are created.
-		/// </summary>
-		/// <param name="path">The full or relative path to the new remote directory</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public Task<bool> CreateDirectoryAsync(string path, CancellationToken token = default(CancellationToken)) {
-			return CreateDirectoryAsync(path, true, token);
-		}
+        /// <summary>
+        /// Creates a remote directory asynchronously. If the preceding
+        /// directories do not exist, then they are created.
+        /// </summary>
+        /// <param name="path">The full or relative path to the new remote directory</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        public Task<bool> CreateDirectoryAsync(string path, CancellationToken token = default(CancellationToken))
+        {
+            return CreateDirectoryAsync(path, true, token);
+        }
 #endif
 
         #endregion
@@ -7118,56 +7366,63 @@ namespace System.Data.Dubber
             return false;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Moves a directory asynchronously on the remote file system from one directory to another.
-		/// Always checks if the source directory exists. Checks if the dest directory exists based on the `existsMode` parameter.
-		/// Only throws exceptions for critical errors.
-		/// </summary>
-		/// <param name="path">The full or relative path to the object</param>
-		/// <param name="dest">The new full or relative path including the new name of the object</param>
-		/// <param name="existsMode">Should we check if the dest directory exists? And if it does should we overwrite/skip the operation?</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>Whether the directory was moved</returns>
-		public async Task<bool> MoveDirectoryAsync(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken)) {
-			// verify args
-			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
-			}
+#if !NET40
+        /// <summary>
+        /// Moves a directory asynchronously on the remote file system from one directory to another.
+        /// Always checks if the source directory exists. Checks if the dest directory exists based on the `existsMode` parameter.
+        /// Only throws exceptions for critical errors.
+        /// </summary>
+        /// <param name="path">The full or relative path to the object</param>
+        /// <param name="dest">The new full or relative path including the new name of the object</param>
+        /// <param name="existsMode">Should we check if the dest directory exists? And if it does should we overwrite/skip the operation?</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>Whether the directory was moved</returns>
+        public async Task<bool> MoveDirectoryAsync(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken))
+        {
+            // verify args
+            if (path.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "path");
+            }
 
-			if (dest.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "dest");
-			}
+            if (dest.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "dest");
+            }
 
-			path = path.GetFtpPath();
-			dest = dest.GetFtpPath();
+            path = path.GetFtpPath();
+            dest = dest.GetFtpPath();
 
-			LogFunc(nameof(MoveDirectoryAsync), new object[] { path, dest, existsMode });
+            LogFunc(nameof(MoveDirectoryAsync), new object[] { path, dest, existsMode });
 
-			if (await DirectoryExistsAsync(path, token)) {
-				// check if dest directory exists and act accordingly
-				if (existsMode != FtpRemoteExists.NoCheck) {
-					bool destExists = await DirectoryExistsAsync(dest, token);
-					if (destExists) {
-						switch (existsMode) {
-							case FtpRemoteExists.Overwrite:
-								await DeleteDirectoryAsync(dest, token);
-								break;
+            if (await DirectoryExistsAsync(path, token))
+            {
+                // check if dest directory exists and act accordingly
+                if (existsMode != FtpRemoteExists.NoCheck)
+                {
+                    bool destExists = await DirectoryExistsAsync(dest, token);
+                    if (destExists)
+                    {
+                        switch (existsMode)
+                        {
+                            case FtpRemoteExists.Overwrite:
+                                await DeleteDirectoryAsync(dest, token);
+                                break;
 
-							case FtpRemoteExists.Skip:
-								return false;
-						}
-					}
-				}
+                            case FtpRemoteExists.Skip:
+                                return false;
+                        }
+                    }
+                }
 
-				// move the directory
-				await RenameAsync(path, dest, token);
+                // move the directory
+                await RenameAsync(path, dest, token);
 
-				return true;
-			}
+                return true;
+            }
 
-			return false;
-		}
+            return false;
+        }
 #endif
 
         #endregion
@@ -7192,11 +7447,8 @@ namespace System.Data.Dubber
             {
                 return;
             }
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 // modify working dir
                 if (!(reply = Execute("CWD " + path)).Success)
                 {
@@ -7206,42 +7458,41 @@ namespace System.Data.Dubber
                 // invalidate the cached path
                 // This is redundant, Execute(...) will see the CWD and do this
                 //_LastWorkingDir = null;
-
-#if !CORE14
             }
-
-#endif
         }
 
 
-#if ASYNC
-		/// <summary>
-		/// Sets the working directory on the server asynchronously
-		/// </summary>
-		/// <param name="path">The directory to change to</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public async Task SetWorkingDirectoryAsync(string path, CancellationToken token = default(CancellationToken)) {
-			
-			path = path.GetFtpPath();
+#if !NET40
+        /// <summary>
+        /// Sets the working directory on the server asynchronously
+        /// </summary>
+        /// <param name="path">The directory to change to</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        public async Task SetWorkingDirectoryAsync(string path, CancellationToken token = default(CancellationToken))
+        {
 
-			LogFunc(nameof(SetWorkingDirectoryAsync), new object[] { path });
+            path = path.GetFtpPath();
 
-			FtpReply reply;
+            LogFunc(nameof(SetWorkingDirectoryAsync), new object[] { path });
 
-			// exit if invalid path
-			if (path == "." || path == "./") {
-				return;
-			}
+            FtpReply reply;
 
-			// modify working dir
-			if (!(reply = await ExecuteAsync("CWD " + path, token)).Success) {
-				throw new FtpCommandException(reply);
-			}
+            // exit if invalid path
+            if (path == "." || path == "./")
+            {
+                return;
+            }
 
-			// invalidate the cached path
-			// This is redundant, Execute(...) will see the CWD and do this
-			//_LastWorkingDir = null;
-		}
+            // modify working dir
+            if (!(reply = await ExecuteAsync("CWD " + path, token)).Success)
+            {
+                throw new FtpCommandException(reply);
+            }
+
+            // invalidate the cached path
+            // This is redundant, Execute(...) will see the CWD and do this
+            //_LastWorkingDir = null;
+        }
 
 
 #endif
@@ -7266,40 +7517,36 @@ namespace System.Data.Dubber
             return _LastWorkingDir;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Gets the current working directory asynchronously
-		/// </summary>
-		/// <returns>The current working directory, ./ if the response couldn't be parsed.</returns>
-		public async Task<string> GetWorkingDirectoryAsync(CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// Gets the current working directory asynchronously
+        /// </summary>
+        /// <returns>The current working directory, ./ if the response couldn't be parsed.</returns>
+        public async Task<string> GetWorkingDirectoryAsync(CancellationToken token = default(CancellationToken))
+        {
 
-			// this case occurs immediately after connection and after the working dir has changed
-			if (_LastWorkingDir == null) {
-				await ReadCurrentWorkingDirectoryAsync(token);
-			}
+            // this case occurs immediately after connection and after the working dir has changed
+            if (_LastWorkingDir == null)
+            {
+                await ReadCurrentWorkingDirectoryAsync(token);
+            }
 
-			return _LastWorkingDir;
-		}
+            return _LastWorkingDir;
+        }
 
 #endif
 
         private FtpReply ReadCurrentWorkingDirectory()
         {
             FtpReply reply;
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 // read the absolute path of the current working dir
                 if (!(reply = Execute("PWD")).Success)
                 {
                     throw new FtpCommandException(reply);
                 }
-#if !CORE14
             }
-#endif
-
             // cache the last working dir
             _LastWorkingDir = ParseWorkingDirectory(reply);
             return reply;
@@ -7324,21 +7571,23 @@ namespace System.Data.Dubber
 
             return "/";
         }
-#if ASYNC
+#if !NET40
 
-		private async Task<FtpReply> ReadCurrentWorkingDirectoryAsync(CancellationToken token) {
+        private async Task<FtpReply> ReadCurrentWorkingDirectoryAsync(CancellationToken token)
+        {
 
-			FtpReply reply;
+            FtpReply reply;
 
-			// read the absolute path of the current working dir
-			if (!(reply = await ExecuteAsync("PWD", token)).Success) {
-				throw new FtpCommandException(reply);
-			}
+            // read the absolute path of the current working dir
+            if (!(reply = await ExecuteAsync("PWD", token)).Success)
+            {
+                throw new FtpCommandException(reply);
+            }
 
-			// cache the last working dir
-			_LastWorkingDir = ParseWorkingDirectory(reply);
-			return reply;
-		}
+            // cache the last working dir
+            _LastWorkingDir = ParseWorkingDirectory(reply);
+            return reply;
+        }
 #endif
 
         #endregion
@@ -7372,32 +7621,33 @@ namespace System.Data.Dubber
             return false;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Is the current working directory the root?
-		/// </summary>
-		/// <returns>true if root.</returns>
-		public async Task<bool> IsRootAsync(CancellationToken token = default(CancellationToken))
-		{
+#if !NET40
+        /// <summary>
+        /// Is the current working directory the root?
+        /// </summary>
+        /// <returns>true if root.</returns>
+        public async Task<bool> IsRootAsync(CancellationToken token = default(CancellationToken))
+        {
 
-			// this case occurs immediately after connection and after the working dir has changed
-			if (_LastWorkingDir == null)
-			{
-				await ReadCurrentWorkingDirectoryAsync(token);
-			}
+            // this case occurs immediately after connection and after the working dir has changed
+            if (_LastWorkingDir == null)
+            {
+                await ReadCurrentWorkingDirectoryAsync(token);
+            }
 
-			if (_LastWorkingDir.IsFtpRootDirectory())
-			{
-				return true;
-			}
+            if (_LastWorkingDir.IsFtpRootDirectory())
+            {
+                return true;
+            }
 
-			// execute server-specific check if the current working dir is a root directory
-			if (ServerHandler != null && ServerHandler.IsRoot(this, _LastWorkingDir)) {
-				return true;
-			}
+            // execute server-specific check if the current working dir is a root directory
+            if (ServerHandler != null && ServerHandler.IsRoot(this, _LastWorkingDir))
+            {
+                return true;
+            }
 
-			return false;
-		}
+            return false;
+        }
 #endif
         #endregion
         #endregion // FtpClient_FolderManagement.cs
@@ -7493,111 +7743,116 @@ namespace System.Data.Dubber
             return results;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Uploads the specified directory onto the server.
-		/// In Mirror mode, we will upload missing files, and delete any extra files from the server that are not present on disk. This is very useful when publishing an exact copy of a local folder onto an FTP server.
-		/// In Update mode, we will only upload missing files and preserve any extra files on the server. This is useful when you want to simply upload missing files to a server.
-		/// Only uploads the files and folders matching all the rules provided, if any.
-		/// All exceptions during uploading are caught, and the exception is stored in the related FtpResult object.
-		/// </summary>
-		/// <param name="localFolder">The full path of the local folder on disk that you want to upload. If it does not exist, an empty result list is returned.</param>
-		/// <param name="remoteFolder">The full path of the remote FTP folder to upload into. It is created if it does not exist.</param>
-		/// <param name="mode">Mirror or Update mode, as explained above</param>
-		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the upload or restart the upload?</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
-		/// <param name="rules">Only files and folders that pass all these rules are downloaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
-		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
-		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically switch to true for subsequent attempts.
-		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
-		/// to propagate from this method.
-		/// </remarks>
-		/// <returns>
-		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
-		/// Returns a blank list if nothing was transfered. Never returns null.
-		/// </returns>
-		public async Task<List<FtpResult>> UploadDirectoryAsync(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
-			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// Uploads the specified directory onto the server.
+        /// In Mirror mode, we will upload missing files, and delete any extra files from the server that are not present on disk. This is very useful when publishing an exact copy of a local folder onto an FTP server.
+        /// In Update mode, we will only upload missing files and preserve any extra files on the server. This is useful when you want to simply upload missing files to a server.
+        /// Only uploads the files and folders matching all the rules provided, if any.
+        /// All exceptions during uploading are caught, and the exception is stored in the related FtpResult object.
+        /// </summary>
+        /// <param name="localFolder">The full path of the local folder on disk that you want to upload. If it does not exist, an empty result list is returned.</param>
+        /// <param name="remoteFolder">The full path of the remote FTP folder to upload into. It is created if it does not exist.</param>
+        /// <param name="mode">Mirror or Update mode, as explained above</param>
+        /// <param name="existsMode">If the file exists on disk, should we skip it, resume the upload or restart the upload?</param>
+        /// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
+        /// <param name="rules">Only files and folders that pass all these rules are downloaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
+        /// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <remarks>
+        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically switch to true for subsequent attempts.
+        /// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+        /// to propagate from this method.
+        /// </remarks>
+        /// <returns>
+        /// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
+        /// Returns a blank list if nothing was transfered. Never returns null.
+        /// </returns>
+        public async Task<List<FtpResult>> UploadDirectoryAsync(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
+            FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken))
+        {
 
-			if (localFolder.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localFolder");
-			}
+            if (localFolder.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "localFolder");
+            }
 
-			if (remoteFolder.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
-			}
+            if (remoteFolder.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
+            }
 
-			// ensure the local path ends with slash
-			localFolder = localFolder.EnsurePostfix(Path.DirectorySeparatorChar.ToString());
+            // ensure the local path ends with slash
+            localFolder = localFolder.EnsurePostfix(Path.DirectorySeparatorChar.ToString());
 
-			// cleanup the remote path
-			remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
+            // cleanup the remote path
+            remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
 
-			LogFunc(nameof(UploadDirectoryAsync), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+            LogFunc(nameof(UploadDirectoryAsync), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
 
-			var results = new List<FtpResult>();
+            var results = new List<FtpResult>();
 
-			// if the dir does not exist, fail fast
-			if (!Directory.Exists(localFolder)) {
-				return results;
-			}
+            // if the dir does not exist, fail fast
+            if (!Directory.Exists(localFolder))
+            {
+                return results;
+            }
 
-			// flag to determine if existence checks are required
-			var checkFileExistence = true;
+            // flag to determine if existence checks are required
+            var checkFileExistence = true;
 
-			// ensure the remote dir exists
-			if (!await DirectoryExistsAsync(remoteFolder, token)) {
-				await CreateDirectoryAsync(remoteFolder, token);
-				checkFileExistence = false;
-			}
+            // ensure the remote dir exists
+            if (!await DirectoryExistsAsync(remoteFolder, token))
+            {
+                await CreateDirectoryAsync(remoteFolder, token);
+                checkFileExistence = false;
+            }
 
-			// break if task is cancelled
-			token.ThrowIfCancellationRequested();
+            // break if task is cancelled
+            token.ThrowIfCancellationRequested();
 
-			// collect paths of the files that should exist (lowercase for CI checks)
-			var shouldExist = new Dictionary<string, bool>();
+            // collect paths of the files that should exist (lowercase for CI checks)
+            var shouldExist = new Dictionary<string, bool>();
 
-			// get all the folders in the local directory
-			var dirListing = Directory.GetDirectories(localFolder, "*.*", SearchOption.AllDirectories);
+            // get all the folders in the local directory
+            var dirListing = Directory.GetDirectories(localFolder, "*.*", SearchOption.AllDirectories);
 
-			// break if task is cancelled
-			token.ThrowIfCancellationRequested();
+            // break if task is cancelled
+            token.ThrowIfCancellationRequested();
 
-			// get all the already existing files
-			var remoteListing = checkFileExistence ? GetListing(remoteFolder, FtpListOption.Recursive) : null;
+            // get all the already existing files
+            var remoteListing = checkFileExistence ? GetListing(remoteFolder, FtpListOption.Recursive) : null;
 
-			// break if task is cancelled
-			token.ThrowIfCancellationRequested();
+            // break if task is cancelled
+            token.ThrowIfCancellationRequested();
 
-			// loop thru each folder and ensure it exists #1
-			var dirsToUpload = GetSubDirectoriesToUpload(localFolder, remoteFolder, rules, results, dirListing);
+            // loop thru each folder and ensure it exists #1
+            var dirsToUpload = GetSubDirectoriesToUpload(localFolder, remoteFolder, rules, results, dirListing);
 
-			// break if task is cancelled
-			token.ThrowIfCancellationRequested();
+            // break if task is cancelled
+            token.ThrowIfCancellationRequested();
 
-			/*-------------------------------------------------------------------------------------/
+            /*-------------------------------------------------------------------------------------/
 			 *   Cancelling after this point would leave the FTP server in an inconsistent state   *
 			 *-------------------------------------------------------------------------------------*/
 
-			// loop thru each folder and ensure it exists #2
-			await CreateSubDirectoriesAsync(this, dirsToUpload, token);
+            // loop thru each folder and ensure it exists #2
+            await CreateSubDirectoriesAsync(this, dirsToUpload, token);
 
-			// get all the files in the local directory
-			var fileListing = Directory.GetFiles(localFolder, "*.*", SearchOption.AllDirectories);
+            // get all the files in the local directory
+            var fileListing = Directory.GetFiles(localFolder, "*.*", SearchOption.AllDirectories);
 
-			// loop thru each file and transfer it
-			var filesToUpload = GetFilesToUpload(localFolder, remoteFolder, rules, results, shouldExist, fileListing);
-			await UploadDirectoryFilesAsync(filesToUpload, existsMode, verifyOptions, progress, remoteListing, token);
+            // loop thru each file and transfer it
+            var filesToUpload = GetFilesToUpload(localFolder, remoteFolder, rules, results, shouldExist, fileListing);
+            await UploadDirectoryFilesAsync(filesToUpload, existsMode, verifyOptions, progress, remoteListing, token);
 
-			// delete the extra remote files if in mirror mode and the directory was pre-existing
-			await DeleteExtraServerFilesAsync(mode, remoteFolder, shouldExist, remoteListing, rules, token);
+            // delete the extra remote files if in mirror mode and the directory was pre-existing
+            await DeleteExtraServerFilesAsync(mode, remoteFolder, shouldExist, remoteListing, rules, token);
 
-			return results;
-		}
+            return results;
+        }
 #endif
 
         /// <summary>
@@ -7676,35 +7931,41 @@ namespace System.Data.Dubber
             }
         }
 
-#if ASYNC
-		/// <summary>
-		/// Create all the sub directories within the main directory
-		/// </summary>
-		private async Task CreateSubDirectoriesAsync(FtpClient client, List<FtpResult> dirsToUpload, CancellationToken token) {
-			foreach (var result in dirsToUpload) {
+#if !NET40
+        /// <summary>
+        /// Create all the sub directories within the main directory
+        /// </summary>
+        private async Task CreateSubDirectoriesAsync(FtpClient client, List<FtpResult> dirsToUpload, CancellationToken token)
+        {
+            foreach (var result in dirsToUpload)
+            {
 
-				// absorb errors
-				try {
+                // absorb errors
+                try
+                {
 
-					// create directory on the server
-					// to ensure we upload the blank remote dirs as well
-					if (await client.CreateDirectoryAsync(result.RemotePath, token)) {
-						result.IsSuccess = true;
-						result.IsSkipped = false;
-					}
-					else {
-						result.IsSkipped = true;
-					}
+                    // create directory on the server
+                    // to ensure we upload the blank remote dirs as well
+                    if (await client.CreateDirectoryAsync(result.RemotePath, token))
+                    {
+                        result.IsSuccess = true;
+                        result.IsSkipped = false;
+                    }
+                    else
+                    {
+                        result.IsSkipped = true;
+                    }
 
-				}
-				catch (Exception ex) {
+                }
+                catch (Exception ex)
+                {
 
-					// mark that the folder failed to upload
-					result.IsFailed = true;
-					result.Exception = ex;
-				}
-			}
-		}
+                    // mark that the folder failed to upload
+                    result.IsFailed = true;
+                    result.Exception = ex;
+                }
+            }
+        }
 #endif
 
         /// <summary>
@@ -7826,47 +8087,52 @@ namespace System.Data.Dubber
             return true;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Upload all the files within the main directory
-		/// </summary>
-		private async Task UploadDirectoryFilesAsync(List<FtpResult> filesToUpload, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Upload all the files within the main directory
+        /// </summary>
+        private async Task UploadDirectoryFilesAsync(List<FtpResult> filesToUpload, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token)
+        {
 
-			LogFunc(nameof(UploadDirectoryFilesAsync), new object[] { filesToUpload.Count + " files" });
+            LogFunc(nameof(UploadDirectoryFilesAsync), new object[] { filesToUpload.Count + " files" });
 
-			var r = -1;
-			foreach (var result in filesToUpload) {
-				r++;
+            var r = -1;
+            foreach (var result in filesToUpload)
+            {
+                r++;
 
-				// absorb errors
-				try {
+                // absorb errors
+                try
+                {
 
-					// skip uploading if the file already exists on the server
-					FtpRemoteExists existsModeToUse;
-					if (!CanUploadFile(result, remoteListing, existsMode, out existsModeToUse)) {
-						continue;
-					}
+                    // skip uploading if the file already exists on the server
+                    FtpRemoteExists existsModeToUse;
+                    if (!CanUploadFile(result, remoteListing, existsMode, out existsModeToUse))
+                    {
+                        continue;
+                    }
 
-					// create meta progress to store the file progress
-					var metaProgress = new FtpProgress(filesToUpload.Count, r);
+                    // create meta progress to store the file progress
+                    var metaProgress = new FtpProgress(filesToUpload.Count, r);
 
-					// upload the file
-					var transferred = await UploadFileFromFileAsync(result.LocalPath, result.RemotePath, false, existsModeToUse, false, false, verifyOptions, token, progress, metaProgress);
-					result.IsSuccess = transferred.IsSuccess();
-					result.IsSkipped = transferred == FtpStatus.Skipped;
+                    // upload the file
+                    var transferred = await UploadFileFromFileAsync(result.LocalPath, result.RemotePath, false, existsModeToUse, false, false, verifyOptions, token, progress, metaProgress);
+                    result.IsSuccess = transferred.IsSuccess();
+                    result.IsSkipped = transferred == FtpStatus.Skipped;
 
-				}
-				catch (Exception ex) {
+                }
+                catch (Exception ex)
+                {
 
-					LogStatus(FtpTraceLevel.Warn, "File failed to upload: " + result.LocalPath);
+                    LogStatus(FtpTraceLevel.Warn, "File failed to upload: " + result.LocalPath);
 
-					// mark that the file failed to upload
-					result.IsFailed = true;
-					result.Exception = ex;
-				}
-			}
+                    // mark that the file failed to upload
+                    result.IsFailed = true;
+                    result.Exception = ex;
+                }
+            }
 
-		}
+        }
 #endif
 
         /// <summary>
@@ -7910,40 +8176,47 @@ namespace System.Data.Dubber
             }
         }
 
-#if ASYNC
-		/// <summary>
-		/// Delete the extra remote files if in mirror mode and the directory was pre-existing
-		/// </summary>
-		private async Task DeleteExtraServerFilesAsync(FtpFolderSyncMode mode, string remoteFolder, Dictionary<string, bool> shouldExist, FtpListItem[] remoteListing, List<FtpRule> rules, CancellationToken token) {
-			if (mode == FtpFolderSyncMode.Mirror && remoteListing != null) {
+#if !NET40
+        /// <summary>
+        /// Delete the extra remote files if in mirror mode and the directory was pre-existing
+        /// </summary>
+        private async Task DeleteExtraServerFilesAsync(FtpFolderSyncMode mode, string remoteFolder, Dictionary<string, bool> shouldExist, FtpListItem[] remoteListing, List<FtpRule> rules, CancellationToken token)
+        {
+            if (mode == FtpFolderSyncMode.Mirror && remoteListing != null)
+            {
 
-				LogFunc(nameof(DeleteExtraServerFilesAsync));
+                LogFunc(nameof(DeleteExtraServerFilesAsync));
 
-				// delete files that are not in listed in shouldExist
-				foreach (var existingServerFile in remoteListing) {
+                // delete files that are not in listed in shouldExist
+                foreach (var existingServerFile in remoteListing)
+                {
 
-					if (existingServerFile.Type == FtpFileSystemObjectType.File) {
+                    if (existingServerFile.Type == FtpFileSystemObjectType.File)
+                    {
 
-						if (!shouldExist.ContainsKey(existingServerFile.FullName.ToLower())) {
+                        if (!shouldExist.ContainsKey(existingServerFile.FullName.ToLower()))
+                        {
 
-							// only delete the remote file if its permitted by the configuration
-							if (CanDeleteRemoteFile(rules, existingServerFile)) {
-								LogStatus(FtpTraceLevel.Info, "Delete extra file from server: " + existingServerFile.FullName);
+                            // only delete the remote file if its permitted by the configuration
+                            if (CanDeleteRemoteFile(rules, existingServerFile))
+                            {
+                                LogStatus(FtpTraceLevel.Info, "Delete extra file from server: " + existingServerFile.FullName);
 
-								// delete the file from the server
-								try {
-									await DeleteFileAsync(existingServerFile.FullName, token);
-								}
-								catch (Exception ex) { }
-							}
-						}
+                                // delete the file from the server
+                                try
+                                {
+                                    await DeleteFileAsync(existingServerFile.FullName, token);
+                                }
+                                catch (Exception ex) { }
+                            }
+                        }
 
-					}
+                    }
 
-				}
+                }
 
-			}
-		}
+            }
+        }
 
 #endif
 
@@ -8083,93 +8356,105 @@ namespace System.Data.Dubber
             };
         }
 
-#if ASYNC
+#if !NET40
 
-		/// <summary>
-		/// Opens a FXP PASV connection between the source FTP Server and the destination FTP Server
-		/// </summary>
-		/// <param name="remoteClient">Valid FTP connection to the destination FTP Server</param>
-		/// <returns>A data stream ready to be used</returns>
-		private async Task<FtpFxpSession> OpenPassiveFXPConnectionAsync(FtpClient remoteClient, bool trackProgress, CancellationToken token) {
-			FtpReply reply, reply2;
-			Match m;
-			FtpClient sourceClient = null;
-			FtpClient destinationClient = null;
-			FtpClient progressClient = null;
+        /// <summary>
+        /// Opens a FXP PASV connection between the source FTP Server and the destination FTP Server
+        /// </summary>
+        /// <param name="remoteClient">Valid FTP connection to the destination FTP Server</param>
+        /// <returns>A data stream ready to be used</returns>
+        private async Task<FtpFxpSession> OpenPassiveFXPConnectionAsync(FtpClient remoteClient, bool trackProgress, CancellationToken token)
+        {
+            FtpReply reply, reply2;
+            Match m;
+            FtpClient sourceClient = null;
+            FtpClient destinationClient = null;
+            FtpClient progressClient = null;
 
-			// create a new connection to the source FTP server if EnableThreadSafeDataConnections is set
-			if (m_threadSafeDataChannels) {
-				sourceClient = CloneConnection();
-				sourceClient._AutoDispose = true;
-				sourceClient.CopyStateFlags(this);
-				await sourceClient.ConnectAsync(token);
-				await sourceClient.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync(token), token);
-			}
-			else {
-				sourceClient = this;
-			}
+            // create a new connection to the source FTP server if EnableThreadSafeDataConnections is set
+            if (m_threadSafeDataChannels)
+            {
+                sourceClient = CloneConnection();
+                sourceClient._AutoDispose = true;
+                sourceClient.CopyStateFlags(this);
+                await sourceClient.ConnectAsync(token);
+                await sourceClient.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync(token), token);
+            }
+            else
+            {
+                sourceClient = this;
+            }
 
-			// create a new connection to the target FTP server if EnableThreadSafeDataConnections is set
-			if (remoteClient.EnableThreadSafeDataConnections) {
-				destinationClient = remoteClient.CloneConnection();
-				destinationClient._AutoDispose = true;
-				destinationClient.CopyStateFlags(remoteClient);
-				await destinationClient.ConnectAsync(token);
-				await destinationClient.SetWorkingDirectoryAsync(await remoteClient.GetWorkingDirectoryAsync(token), token);
-			}
-			else {
-				destinationClient = remoteClient;
-			}
+            // create a new connection to the target FTP server if EnableThreadSafeDataConnections is set
+            if (remoteClient.EnableThreadSafeDataConnections)
+            {
+                destinationClient = remoteClient.CloneConnection();
+                destinationClient._AutoDispose = true;
+                destinationClient.CopyStateFlags(remoteClient);
+                await destinationClient.ConnectAsync(token);
+                await destinationClient.SetWorkingDirectoryAsync(await remoteClient.GetWorkingDirectoryAsync(token), token);
+            }
+            else
+            {
+                destinationClient = remoteClient;
+            }
 
-			// create a new connection to the target FTP server to track progress
-			// if progress tracking is enabled during this FXP transfer
-			if (trackProgress) {
-				progressClient = remoteClient.CloneConnection();
-				progressClient._AutoDispose = true;
-				progressClient.CopyStateFlags(remoteClient);
-				await progressClient.ConnectAsync(token);
-				await progressClient.SetWorkingDirectoryAsync(await remoteClient.GetWorkingDirectoryAsync(token), token);
-			}
+            // create a new connection to the target FTP server to track progress
+            // if progress tracking is enabled during this FXP transfer
+            if (trackProgress)
+            {
+                progressClient = remoteClient.CloneConnection();
+                progressClient._AutoDispose = true;
+                progressClient.CopyStateFlags(remoteClient);
+                await progressClient.ConnectAsync(token);
+                await progressClient.SetWorkingDirectoryAsync(await remoteClient.GetWorkingDirectoryAsync(token), token);
+            }
 
-			await sourceClient.SetDataTypeAsync(sourceClient.FXPDataType, token);
-			await destinationClient.SetDataTypeAsync(destinationClient.FXPDataType, token);
+            await sourceClient.SetDataTypeAsync(sourceClient.FXPDataType, token);
+            await destinationClient.SetDataTypeAsync(destinationClient.FXPDataType, token);
 
-			// send PASV/CPSV commands to destination FTP server to get passive port to be used from source FTP server
-			// first try with PASV - commonly supported by all servers
-			if (!(reply = await destinationClient.ExecuteAsync("PASV", token)).Success) {
+            // send PASV/CPSV commands to destination FTP server to get passive port to be used from source FTP server
+            // first try with PASV - commonly supported by all servers
+            if (!(reply = await destinationClient.ExecuteAsync("PASV", token)).Success)
+            {
 
-				// then try with CPSV - known to be supported by glFTPd server
-				// FIXES #666 - glFTPd server - 435 Failed TLS negotiation on data channel
-				if (!(reply2 = await destinationClient.ExecuteAsync("CPSV", token)).Success) {
-					throw new FtpCommandException(reply);
-				}
-				else {
+                // then try with CPSV - known to be supported by glFTPd server
+                // FIXES #666 - glFTPd server - 435 Failed TLS negotiation on data channel
+                if (!(reply2 = await destinationClient.ExecuteAsync("CPSV", token)).Success)
+                {
+                    throw new FtpCommandException(reply);
+                }
+                else
+                {
 
-					// use the CPSV response and extract the port from it
-					reply = reply2;
-				}
-			}
+                    // use the CPSV response and extract the port from it
+                    reply = reply2;
+                }
+            }
 
-			// extract port from response
-			m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
+            // extract port from response
+            m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
 
-			if (!m.Success || m.Groups.Count != 7) {
-				throw new FtpException("Malformed PASV response: " + reply.Message);
-			}
+            if (!m.Success || m.Groups.Count != 7)
+            {
+                throw new FtpException("Malformed PASV response: " + reply.Message);
+            }
 
-			// Instruct source server to open a connection to the destination Server
+            // Instruct source server to open a connection to the destination Server
 
-			if (!(reply = await sourceClient.ExecuteAsync($"PORT {m.Value}", token)).Success) {
-				throw new FtpCommandException(reply);
-			}
+            if (!(reply = await sourceClient.ExecuteAsync($"PORT {m.Value}", token)).Success)
+            {
+                throw new FtpCommandException(reply);
+            }
 
-			// the FXP session stores the active connections used for this FXP transfer
-			return new FtpFxpSession {
-				SourceServer = sourceClient,
-				TargetServer = destinationClient,
-				ProgressServer = progressClient,
-			};
-		}
+            // the FXP session stores the active connections used for this FXP transfer
+            return new FtpFxpSession
+            {
+                SourceServer = sourceClient,
+                TargetServer = destinationClient,
+                ProgressServer = progressClient,
+            };
+        }
 
 #endif
 
@@ -8291,72 +8576,79 @@ namespace System.Data.Dubber
         }
 
 
-#if ASYNC
-		/// <summary>
-		/// Transfer the specified file from the source FTP Server to the destination FTP Server asynchronously using the FXP protocol.
-		/// High-level API that takes care of various edge cases internally.
-		/// </summary>
-		/// <param name="sourcePath">The full or relative path to the file on the source FTP Server</param>
-		/// <param name="remoteClient">Valid FTP connection to the destination FTP Server</param>
-		/// <param name="remotePath">The full or relative path to destination file on the remote FTP Server</param>
-		/// <param name="createRemoteDir">Indicates if the folder should be created on the remote FTP Server</param>
-		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
-		/// <param name="progress">Provide a callback to track download progress.</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// Returns a FtpStatus indicating if the file was transfered.
-		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
-		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
-		/// </remarks>
-		public async Task<FtpStatus> TransferFileAsync(string sourcePath, FtpClient remoteClient, string remotePath,
-			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Resume, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, FtpProgress metaProgress = null, CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// Transfer the specified file from the source FTP Server to the destination FTP Server asynchronously using the FXP protocol.
+        /// High-level API that takes care of various edge cases internally.
+        /// </summary>
+        /// <param name="sourcePath">The full or relative path to the file on the source FTP Server</param>
+        /// <param name="remoteClient">Valid FTP connection to the destination FTP Server</param>
+        /// <param name="remotePath">The full or relative path to destination file on the remote FTP Server</param>
+        /// <param name="createRemoteDir">Indicates if the folder should be created on the remote FTP Server</param>
+        /// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
+        /// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+        /// <param name="progress">Provide a callback to track download progress.</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// Returns a FtpStatus indicating if the file was transfered.
+        /// <remarks>
+        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
+        /// </remarks>
+        public async Task<FtpStatus> TransferFileAsync(string sourcePath, FtpClient remoteClient, string remotePath,
+            bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Resume, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, FtpProgress metaProgress = null, CancellationToken token = default(CancellationToken))
+        {
 
-			sourcePath = sourcePath.GetFtpPath();
-			remotePath = remotePath.GetFtpPath();
+            sourcePath = sourcePath.GetFtpPath();
+            remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(TransferFileAsync), new object[] { sourcePath, remoteClient, remotePath, FXPDataType, createRemoteDir, existsMode, verifyOptions });
+            LogFunc(nameof(TransferFileAsync), new object[] { sourcePath, remoteClient, remotePath, FXPDataType, createRemoteDir, existsMode, verifyOptions });
 
-			// verify input params
-			VerifyTransferFileParams(sourcePath, remoteClient, remotePath, existsMode);
+            // verify input params
+            VerifyTransferFileParams(sourcePath, remoteClient, remotePath, existsMode);
 
-			// ensure source file exists
-			if (!await FileExistsAsync(sourcePath, token)) {
-				throw new FtpException("Source File " + sourcePath + " cannot be found or does not exists!");
-			}
+            // ensure source file exists
+            if (!await FileExistsAsync(sourcePath, token))
+            {
+                throw new FtpException("Source File " + sourcePath + " cannot be found or does not exists!");
+            }
 
-			bool fxpSuccess;
-			var verified = true;
-			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
-			do {
+            bool fxpSuccess;
+            var verified = true;
+            var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
+            do
+            {
 
-				fxpSuccess = await TransferFileFXPInternalAsync(sourcePath, remoteClient, remotePath, createRemoteDir, existsMode, progress, token, metaProgress is null ? new FtpProgress(1, 0) : metaProgress);
-				attemptsLeft--;
+                fxpSuccess = await TransferFileFXPInternalAsync(sourcePath, remoteClient, remotePath, createRemoteDir, existsMode, progress, token, metaProgress is null ? new FtpProgress(1, 0) : metaProgress);
+                attemptsLeft--;
 
-				// if verification is needed
-				if (fxpSuccess && verifyOptions != FtpVerify.None) {
-					verified = await VerifyFXPTransferAsync(sourcePath, remoteClient, remotePath, token);
-					LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
-					if (!verified && attemptsLeft > 0) {
-						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpRemoteExists.Resume ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
-						// Force overwrite if a retry is required
-						existsMode = FtpRemoteExists.Overwrite;
-					}
-				}
-			} while (!verified && attemptsLeft > 0);
+                // if verification is needed
+                if (fxpSuccess && verifyOptions != FtpVerify.None)
+                {
+                    verified = await VerifyFXPTransferAsync(sourcePath, remoteClient, remotePath, token);
+                    LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+                    if (!verified && attemptsLeft > 0)
+                    {
+                        LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpRemoteExists.Resume ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+                        // Force overwrite if a retry is required
+                        existsMode = FtpRemoteExists.Overwrite;
+                    }
+                }
+            } while (!verified && attemptsLeft > 0);
 
-			if (fxpSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
-				await remoteClient.DeleteFileAsync(remotePath, token);
-			}
+            if (fxpSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete))
+            {
+                await remoteClient.DeleteFileAsync(remotePath, token);
+            }
 
-			if (fxpSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
-				throw new FtpException("Destination file checksum value does not match source file");
-			}
+            if (fxpSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw))
+            {
+                throw new FtpException("Destination file checksum value does not match source file");
+            }
 
-			return fxpSuccess && verified ? FtpStatus.Success : FtpStatus.Failed;
+            return fxpSuccess && verified ? FtpStatus.Success : FtpStatus.Failed;
 
-		}
+        }
 #endif
 
         /// <summary>
@@ -8514,11 +8806,7 @@ namespace System.Data.Dubber
                                 }
                             }
                         }
-#if CORE14
-						Task.Delay(FXPProgressInterval);
-#else
-                        Thread.Sleep(FXPProgressInterval);
-#endif
+                        Thread.Sleep(FXPProgressInterval); // Task.Delay(FXPProgressInterval);
                     }
 
                     FtpTrace.WriteLine(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");
@@ -8547,162 +8835,188 @@ namespace System.Data.Dubber
         }
 
 
-#if ASYNC
-		/// <summary>
-		/// Transfers a file from the source FTP Server to the destination FTP Server via the FXP protocol asynchronously.
-		/// </summary>
-		private async Task<bool> TransferFileFXPInternalAsync(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
-			IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
-			FtpReply reply;
-			long offset = 0;
-			bool fileExists = false;
-			long fileSize = 0;
+#if !NET40
+        /// <summary>
+        /// Transfers a file from the source FTP Server to the destination FTP Server via the FXP protocol asynchronously.
+        /// </summary>
+        private async Task<bool> TransferFileFXPInternalAsync(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
+            IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress)
+        {
+            FtpReply reply;
+            long offset = 0;
+            bool fileExists = false;
+            long fileSize = 0;
 
-			var ftpFxpSession = await OpenPassiveFXPConnectionAsync(remoteClient, progress != null, token);
+            var ftpFxpSession = await OpenPassiveFXPConnectionAsync(remoteClient, progress != null, token);
 
-			if (ftpFxpSession != null) {
+            if (ftpFxpSession != null)
+            {
 
-				try {
+                try
+                {
 
-					ftpFxpSession.SourceServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
-					ftpFxpSession.TargetServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
-
-
-					// check if the file exists, and skip, overwrite or append
-					if (existsMode == FtpRemoteExists.ResumeNoCheck) {
-						offset = await remoteClient.GetFileSizeAsync(remotePath, -1, token);
-						if (offset == -1) {
-							offset = 0; // start from the beginning
-						}
-					}
-					else {
-						fileExists = await remoteClient.FileExistsAsync(remotePath, token);
-
-						switch (existsMode) {
-							case FtpRemoteExists.Skip:
-
-								if (fileExists) {
-									LogStatus(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists (Source: " + sourcePath + ", Dest: " + remotePath + ")");
-
-									//Fix #413 - progress callback isn't called if the file has already been uploaded to the server
-									//send progress reports
-									if (progress != null) {
-										progress.Report(new FtpProgress(100.0, 0, 0, TimeSpan.FromSeconds(0), sourcePath, remotePath, metaProgress));
-									}
-
-									return true;
-								}
-
-								break;
-
-							case FtpRemoteExists.Overwrite:
-
-								if (fileExists) {
-									await remoteClient.DeleteFileAsync(remotePath, token);
-								}
-
-								break;
-
-							case FtpRemoteExists.Resume:
-
-								if (fileExists) {
-									offset = await remoteClient.GetFileSizeAsync(remotePath, 0, token);
-								}
-
-								break;
-						}
-
-					}
-
-					fileSize = await GetFileSizeAsync(sourcePath, -1, token);
-
-					// ensure the remote dir exists .. only if the file does not already exist!
-					if (createRemoteDir && !fileExists) {
-						var dirname = remotePath.GetFtpDirectoryName();
-						if (!await remoteClient.DirectoryExistsAsync(dirname, token)) {
-							await remoteClient.CreateDirectoryAsync(dirname, token);
-						}
-					}
-
-					if (offset == 0 && existsMode != FtpRemoteExists.ResumeNoCheck) {
-						// send command to tell the source server to 'send' the file to the destination server
-						if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"RETR {sourcePath}", token)).Success) {
-							throw new FtpCommandException(reply);
-						}
-
-						//Instruct destination server to store the file
-						if (!(reply = await ftpFxpSession.TargetServer.ExecuteAsync($"STOR {remotePath}", token)).Success) {
-							throw new FtpCommandException(reply);
-						}
-					}
-					else {
-						//tell source server to restart / resume
-						if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"REST {offset}", token)).Success) {
-							throw new FtpCommandException(reply);
-						}
-
-						// send command to tell the source server to 'send' the file to the destination server
-						if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"RETR {sourcePath}", token)).Success) {
-							throw new FtpCommandException(reply);
-						}
-
-						//Instruct destination server to append the file
-						if (!(reply = await ftpFxpSession.TargetServer.ExecuteAsync($"APPE {remotePath}", token)).Success) {
-							throw new FtpCommandException(reply);
-						}
-					}
-
-					var transferStarted = DateTime.Now;
-					long lastSize = 0;
+                    ftpFxpSession.SourceServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
+                    ftpFxpSession.TargetServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
 
 
-					var sourceFXPTransferReply = ftpFxpSession.SourceServer.GetReplyAsync(token);
-					var destinationFXPTransferReply = ftpFxpSession.TargetServer.GetReplyAsync(token);
+                    // check if the file exists, and skip, overwrite or append
+                    if (existsMode == FtpRemoteExists.ResumeNoCheck)
+                    {
+                        offset = await remoteClient.GetFileSizeAsync(remotePath, -1, token);
+                        if (offset == -1)
+                        {
+                            offset = 0; // start from the beginning
+                        }
+                    }
+                    else
+                    {
+                        fileExists = await remoteClient.FileExistsAsync(remotePath, token);
 
-					// while the transfer is not complete
-					while (!sourceFXPTransferReply.IsCompleted || !destinationFXPTransferReply.IsCompleted) {
+                        switch (existsMode)
+                        {
+                            case FtpRemoteExists.Skip:
 
-						// send progress reports every 1 second
-						if (ftpFxpSession.ProgressServer != null) {
+                                if (fileExists)
+                                {
+                                    LogStatus(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists (Source: " + sourcePath + ", Dest: " + remotePath + ")");
 
-							// send progress reports
-							if (progress != null && fileSize != -1) {
-								offset = await ftpFxpSession.ProgressServer.GetFileSizeAsync(remotePath, -1, token);
+                                    //Fix #413 - progress callback isn't called if the file has already been uploaded to the server
+                                    //send progress reports
+                                    if (progress != null)
+                                    {
+                                        progress.Report(new FtpProgress(100.0, 0, 0, TimeSpan.FromSeconds(0), sourcePath, remotePath, metaProgress));
+                                    }
 
-								if (offset != -1 && lastSize <= offset) {
-									long bytesProcessed = offset - lastSize;
-									lastSize = offset;
-									ReportProgress(progress, fileSize, offset, bytesProcessed, DateTime.Now - transferStarted, sourcePath, remotePath, metaProgress);
-								}
-							}
-						}
+                                    return true;
+                                }
 
-						await Task.Delay(FXPProgressInterval, token);
-					}
+                                break;
 
-					FtpTrace.WriteLine(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");
+                            case FtpRemoteExists.Overwrite:
 
-					await NoopAsync(token);
-					await remoteClient.NoopAsync(token);
+                                if (fileExists)
+                                {
+                                    await remoteClient.DeleteFileAsync(remotePath, token);
+                                }
 
-					ftpFxpSession.Dispose();
+                                break;
 
-					return true;
+                            case FtpRemoteExists.Resume:
 
-				}
+                                if (fileExists)
+                                {
+                                    offset = await remoteClient.GetFileSizeAsync(remotePath, 0, token);
+                                }
 
-				// Fix: catch all exceptions and dispose off the FTP clients if one occurs
-				catch (Exception ex) {
-					ftpFxpSession.Dispose();
-					throw ex;
-				}
-			}
-			else {
-				FtpTrace.WriteLine(FtpTraceLevel.Error, "Failed to open FXP passive Connection");
-				return false;
-			}
+                                break;
+                        }
 
-		}
+                    }
+
+                    fileSize = await GetFileSizeAsync(sourcePath, -1, token);
+
+                    // ensure the remote dir exists .. only if the file does not already exist!
+                    if (createRemoteDir && !fileExists)
+                    {
+                        var dirname = remotePath.GetFtpDirectoryName();
+                        if (!await remoteClient.DirectoryExistsAsync(dirname, token))
+                        {
+                            await remoteClient.CreateDirectoryAsync(dirname, token);
+                        }
+                    }
+
+                    if (offset == 0 && existsMode != FtpRemoteExists.ResumeNoCheck)
+                    {
+                        // send command to tell the source server to 'send' the file to the destination server
+                        if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"RETR {sourcePath}", token)).Success)
+                        {
+                            throw new FtpCommandException(reply);
+                        }
+
+                        //Instruct destination server to store the file
+                        if (!(reply = await ftpFxpSession.TargetServer.ExecuteAsync($"STOR {remotePath}", token)).Success)
+                        {
+                            throw new FtpCommandException(reply);
+                        }
+                    }
+                    else
+                    {
+                        //tell source server to restart / resume
+                        if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"REST {offset}", token)).Success)
+                        {
+                            throw new FtpCommandException(reply);
+                        }
+
+                        // send command to tell the source server to 'send' the file to the destination server
+                        if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"RETR {sourcePath}", token)).Success)
+                        {
+                            throw new FtpCommandException(reply);
+                        }
+
+                        //Instruct destination server to append the file
+                        if (!(reply = await ftpFxpSession.TargetServer.ExecuteAsync($"APPE {remotePath}", token)).Success)
+                        {
+                            throw new FtpCommandException(reply);
+                        }
+                    }
+
+                    var transferStarted = DateTime.Now;
+                    long lastSize = 0;
+
+
+                    var sourceFXPTransferReply = ftpFxpSession.SourceServer.GetReplyAsync(token);
+                    var destinationFXPTransferReply = ftpFxpSession.TargetServer.GetReplyAsync(token);
+
+                    // while the transfer is not complete
+                    while (!sourceFXPTransferReply.IsCompleted || !destinationFXPTransferReply.IsCompleted)
+                    {
+
+                        // send progress reports every 1 second
+                        if (ftpFxpSession.ProgressServer != null)
+                        {
+
+                            // send progress reports
+                            if (progress != null && fileSize != -1)
+                            {
+                                offset = await ftpFxpSession.ProgressServer.GetFileSizeAsync(remotePath, -1, token);
+
+                                if (offset != -1 && lastSize <= offset)
+                                {
+                                    long bytesProcessed = offset - lastSize;
+                                    lastSize = offset;
+                                    ReportProgress(progress, fileSize, offset, bytesProcessed, DateTime.Now - transferStarted, sourcePath, remotePath, metaProgress);
+                                }
+                            }
+                        }
+
+                        await Task.Delay(FXPProgressInterval, token);
+                    }
+
+                    FtpTrace.WriteLine(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");
+
+                    await NoopAsync(token);
+                    await remoteClient.NoopAsync(token);
+
+                    ftpFxpSession.Dispose();
+
+                    return true;
+
+                }
+
+                // Fix: catch all exceptions and dispose off the FTP clients if one occurs
+                catch (Exception ex)
+                {
+                    ftpFxpSession.Dispose();
+                    throw ex;
+                }
+            }
+            else
+            {
+                FtpTrace.WriteLine(FtpTraceLevel.Error, "Failed to open FXP passive Connection");
+                return false;
+            }
+
+        }
 #endif
 
         #endregion // FtpClient_FXPFileTransfer.cs
@@ -8798,112 +9112,117 @@ namespace System.Data.Dubber
             return results;
         }
 
-#if ASYNC
+#if !NET40
 
-		/// <summary>
-		/// Transfer the specified directory from the source FTP Server onto the remote FTP Server asynchronously using the FXP protocol.
-		/// You will need to create a valid connection to your remote FTP Server before calling this method.
-		/// In Update mode, we will only transfer missing files and preserve any extra files on the remote FTP Server. This is useful when you want to simply transfer missing files from an FTP directory.
-		/// Currently Mirror mode is not implemented.
-		/// Only transfers the files and folders matching all the rules provided, if any.
-		/// All exceptions during transfer are caught, and the exception is stored in the related FtpResult object.
-		/// </summary>
-		/// <param name="sourceFolder">The full or relative path to the folder on the source FTP Server. If it does not exist, an empty result list is returned.</param>
-		/// <param name="remoteClient">Valid FTP connection to the destination FTP Server</param>
-		/// <param name="remoteFolder">The full or relative path to destination folder on the remote FTP Server</param>
-		/// <param name="mode">Only Update mode is currently implemented</param>
-		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
-		/// <param name="rules">Only files and folders that pass all these rules are downloaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
-		/// <param name="progress">Provide a callback to track download progress.</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
-		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically switch to true for subsequent attempts.
-		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
-		/// to propagate from this method.
-		/// </remarks>
-		/// <returns>
-		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
-		/// Returns a blank list if nothing was transfered. Never returns null.
-		/// </returns>
-		public async Task<List<FtpResult>> TransferDirectoryAsync(string sourceFolder, FtpClient remoteClient, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
-			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+        /// <summary>
+        /// Transfer the specified directory from the source FTP Server onto the remote FTP Server asynchronously using the FXP protocol.
+        /// You will need to create a valid connection to your remote FTP Server before calling this method.
+        /// In Update mode, we will only transfer missing files and preserve any extra files on the remote FTP Server. This is useful when you want to simply transfer missing files from an FTP directory.
+        /// Currently Mirror mode is not implemented.
+        /// Only transfers the files and folders matching all the rules provided, if any.
+        /// All exceptions during transfer are caught, and the exception is stored in the related FtpResult object.
+        /// </summary>
+        /// <param name="sourceFolder">The full or relative path to the folder on the source FTP Server. If it does not exist, an empty result list is returned.</param>
+        /// <param name="remoteClient">Valid FTP connection to the destination FTP Server</param>
+        /// <param name="remoteFolder">The full or relative path to destination folder on the remote FTP Server</param>
+        /// <param name="mode">Only Update mode is currently implemented</param>
+        /// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
+        /// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+        /// <param name="rules">Only files and folders that pass all these rules are downloaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
+        /// <param name="progress">Provide a callback to track download progress.</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <remarks>
+        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically switch to true for subsequent attempts.
+        /// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+        /// to propagate from this method.
+        /// </remarks>
+        /// <returns>
+        /// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
+        /// Returns a blank list if nothing was transfered. Never returns null.
+        /// </returns>
+        public async Task<List<FtpResult>> TransferDirectoryAsync(string sourceFolder, FtpClient remoteClient, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
+            FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken))
+        {
 
-			if (sourceFolder.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "sourceFolder");
-			}
+            if (sourceFolder.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "sourceFolder");
+            }
 
-			if (remoteFolder.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
-			}
+            if (remoteFolder.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
+            }
 
-			// cleanup the FTP paths
-			sourceFolder = sourceFolder.GetFtpPath().EnsurePostfix("/");
-			remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
+            // cleanup the FTP paths
+            sourceFolder = sourceFolder.GetFtpPath().EnsurePostfix("/");
+            remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
 
-			LogFunc(nameof(TransferDirectoryAsync), new object[] { sourceFolder, remoteClient, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+            LogFunc(nameof(TransferDirectoryAsync), new object[] { sourceFolder, remoteClient, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
 
-			var results = new List<FtpResult>();
+            var results = new List<FtpResult>();
 
-			// if the source dir does not exist, fail fast
-			if (!await DirectoryExistsAsync(sourceFolder, token)) {
-				return results;
-			}
+            // if the source dir does not exist, fail fast
+            if (!await DirectoryExistsAsync(sourceFolder, token))
+            {
+                return results;
+            }
 
-			// flag to determine if existence checks are required
-			var checkFileExistence = true;
+            // flag to determine if existence checks are required
+            var checkFileExistence = true;
 
-			// ensure the remote dir exists
-			if (!await remoteClient.DirectoryExistsAsync(remoteFolder, token)) {
-				await remoteClient.CreateDirectoryAsync(remoteFolder, token);
-				checkFileExistence = false;
-			}
+            // ensure the remote dir exists
+            if (!await remoteClient.DirectoryExistsAsync(remoteFolder, token))
+            {
+                await remoteClient.CreateDirectoryAsync(remoteFolder, token);
+                checkFileExistence = false;
+            }
 
-			// break if task is cancelled
-			token.ThrowIfCancellationRequested();
+            // break if task is cancelled
+            token.ThrowIfCancellationRequested();
 
-			// collect paths of the files that should exist (lowercase for CI checks)
-			var shouldExist = new Dictionary<string, bool>();
+            // collect paths of the files that should exist (lowercase for CI checks)
+            var shouldExist = new Dictionary<string, bool>();
 
-			// get all the folders in the local directory
-			var dirListing = (await GetListingAsync(sourceFolder, FtpListOption.Recursive, token)).Where(x => x.Type == FtpFileSystemObjectType.Directory).Select(x => x.FullName).ToArray();
+            // get all the folders in the local directory
+            var dirListing = (await GetListingAsync(sourceFolder, FtpListOption.Recursive, token)).Where(x => x.Type == FtpFileSystemObjectType.Directory).Select(x => x.FullName).ToArray();
 
-			// break if task is cancelled
-			token.ThrowIfCancellationRequested();
+            // break if task is cancelled
+            token.ThrowIfCancellationRequested();
 
-			// get all the already existing files
-			var remoteListing = checkFileExistence ? await remoteClient.GetListingAsync(remoteFolder, FtpListOption.Recursive, token) : null;
+            // get all the already existing files
+            var remoteListing = checkFileExistence ? await remoteClient.GetListingAsync(remoteFolder, FtpListOption.Recursive, token) : null;
 
-			// break if task is cancelled
-			token.ThrowIfCancellationRequested();
+            // break if task is cancelled
+            token.ThrowIfCancellationRequested();
 
-			// loop thru each folder and ensure it exists #1
-			var dirsToUpload = GetSubDirectoriesToTransfer(sourceFolder, remoteFolder, rules, results, dirListing);
+            // loop thru each folder and ensure it exists #1
+            var dirsToUpload = GetSubDirectoriesToTransfer(sourceFolder, remoteFolder, rules, results, dirListing);
 
-			// break if task is cancelled
-			token.ThrowIfCancellationRequested();
+            // break if task is cancelled
+            token.ThrowIfCancellationRequested();
 
-			/*-------------------------------------------------------------------------------------/
+            /*-------------------------------------------------------------------------------------/
 			 *   Cancelling after this point would leave the FTP server in an inconsistent state   *
 			 *-------------------------------------------------------------------------------------*/
 
-			// loop thru each folder and ensure it exists #2
-			await CreateSubDirectoriesAsync(remoteClient, dirsToUpload, token);
+            // loop thru each folder and ensure it exists #2
+            await CreateSubDirectoriesAsync(remoteClient, dirsToUpload, token);
 
-			// get all the files in the local directory
-			var fileListing = (await GetListingAsync(sourceFolder, FtpListOption.Recursive, token)).Where(x => x.Type == FtpFileSystemObjectType.File).Select(x => x.FullName).ToArray();
-			
-			// loop thru each file and transfer it
-			var filesToUpload = GetFilesToTransfer(sourceFolder, remoteFolder, rules, results, shouldExist, fileListing);
-			await TransferServerFilesAsync(filesToUpload, remoteClient, existsMode, verifyOptions, progress, remoteListing, token);
+            // get all the files in the local directory
+            var fileListing = (await GetListingAsync(sourceFolder, FtpListOption.Recursive, token)).Where(x => x.Type == FtpFileSystemObjectType.File).Select(x => x.FullName).ToArray();
 
-			// delete the extra remote files if in mirror mode and the directory was pre-existing
-			// DeleteExtraServerFiles(mode, shouldExist, remoteListing);
+            // loop thru each file and transfer it
+            var filesToUpload = GetFilesToTransfer(sourceFolder, remoteFolder, rules, results, shouldExist, fileListing);
+            await TransferServerFilesAsync(filesToUpload, remoteClient, existsMode, verifyOptions, progress, remoteListing, token);
 
-			return results;
-		}
+            // delete the extra remote files if in mirror mode and the directory was pre-existing
+            // DeleteExtraServerFiles(mode, shouldExist, remoteListing);
+
+            return results;
+        }
 #endif
 
         private List<FtpResult> GetSubDirectoriesToTransfer(string sourceFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, string[] dirListing)
@@ -9028,45 +9347,50 @@ namespace System.Data.Dubber
 
         }
 
-#if ASYNC
+#if !NET40
 
-		private async Task TransferServerFilesAsync(List<FtpResult> filesToTransfer, FtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
+        private async Task TransferServerFilesAsync(List<FtpResult> filesToTransfer, FtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token)
+        {
 
-			LogFunc(nameof(TransferServerFilesAsync), new object[] { filesToTransfer.Count + " files" });
+            LogFunc(nameof(TransferServerFilesAsync), new object[] { filesToTransfer.Count + " files" });
 
-			int r = -1;
-			foreach (var result in filesToTransfer) {
-				r++;
+            int r = -1;
+            foreach (var result in filesToTransfer)
+            {
+                r++;
 
-				// absorb errors
-				try {
+                // absorb errors
+                try
+                {
 
-					// skip uploading if the file already exists on the server
-					FtpRemoteExists existsModeToUse;
-					if (!CanUploadFile(result, remoteListing, existsMode, out existsModeToUse)) {
-						continue;
-					}
+                    // skip uploading if the file already exists on the server
+                    FtpRemoteExists existsModeToUse;
+                    if (!CanUploadFile(result, remoteListing, existsMode, out existsModeToUse))
+                    {
+                        continue;
+                    }
 
-					// create meta progress to store the file progress
-					var metaProgress = new FtpProgress(filesToTransfer.Count, r);
+                    // create meta progress to store the file progress
+                    var metaProgress = new FtpProgress(filesToTransfer.Count, r);
 
-					// transfer the file
-					var transferred = await TransferFileAsync(result.LocalPath, remoteClient, result.RemotePath, false, existsModeToUse, verifyOptions, progress, metaProgress, token);
-					result.IsSuccess = transferred.IsSuccess();
-					result.IsSkipped = transferred == FtpStatus.Skipped;
+                    // transfer the file
+                    var transferred = await TransferFileAsync(result.LocalPath, remoteClient, result.RemotePath, false, existsModeToUse, verifyOptions, progress, metaProgress, token);
+                    result.IsSuccess = transferred.IsSuccess();
+                    result.IsSkipped = transferred == FtpStatus.Skipped;
 
-				}
-				catch (Exception ex) {
+                }
+                catch (Exception ex)
+                {
 
-					LogStatus(FtpTraceLevel.Warn, "File failed to transfer: " + result.LocalPath);
+                    LogStatus(FtpTraceLevel.Warn, "File failed to transfer: " + result.LocalPath);
 
-					// mark that the file failed to upload
-					result.IsFailed = true;
-					result.Exception = ex;
-				}
-			}
+                    // mark that the file failed to upload
+                    result.IsFailed = true;
+                    result.Exception = ex;
+                }
+            }
 
-		}
+        }
 
 #endif
         #endregion // FtpClient_FXPFolderTransfer.cs
@@ -9120,47 +9444,55 @@ namespace System.Data.Dubber
             return true;
         }
 
-#if ASYNC
-		private async Task<bool> VerifyFXPTransferAsync(string sourcePath, FtpClient fxpDestinationClient, string remotePath, CancellationToken token = default(CancellationToken)) {
-			
-			// verify args
-			if (sourcePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", nameof(sourcePath));
-			}
+#if !NET40
+        private async Task<bool> VerifyFXPTransferAsync(string sourcePath, FtpClient fxpDestinationClient, string remotePath, CancellationToken token = default(CancellationToken))
+        {
 
-			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
-			}
+            // verify args
+            if (sourcePath.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", nameof(sourcePath));
+            }
 
-			if (fxpDestinationClient is null) {
-				throw new ArgumentNullException(nameof(fxpDestinationClient), "Destination FXP FtpClient cannot be null!");
-			}
+            if (remotePath.IsBlank())
+            {
+                throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
+            }
 
-			// check if any algorithm is supported by both servers
-			var algorithm = GetFirstMutualChecksum(fxpDestinationClient);
-			if (algorithm != FtpHashAlgorithm.NONE) {
+            if (fxpDestinationClient is null)
+            {
+                throw new ArgumentNullException(nameof(fxpDestinationClient), "Destination FXP FtpClient cannot be null!");
+            }
 
-				// get the hashes of both files using the same mutual algorithm
+            // check if any algorithm is supported by both servers
+            var algorithm = GetFirstMutualChecksum(fxpDestinationClient);
+            if (algorithm != FtpHashAlgorithm.NONE)
+            {
 
-				FtpHash sourceHash = await GetChecksumAsync(sourcePath, algorithm, token);
-				if (!sourceHash.IsValid) {
-					return false;
-				}
+                // get the hashes of both files using the same mutual algorithm
 
-				FtpHash destinationHash = await fxpDestinationClient.GetChecksumAsync(remotePath, algorithm, token);
-				if (!destinationHash.IsValid) {
-					return false;
-				}
+                FtpHash sourceHash = await GetChecksumAsync(sourcePath, algorithm, token);
+                if (!sourceHash.IsValid)
+                {
+                    return false;
+                }
 
-				return sourceHash.Value == destinationHash.Value;
-			}
-			else {
-				LogLine(FtpTraceLevel.Info, "Source and Destination servers do not support any common hashing algorithm");
-			}
+                FtpHash destinationHash = await fxpDestinationClient.GetChecksumAsync(remotePath, algorithm, token);
+                if (!destinationHash.IsValid)
+                {
+                    return false;
+                }
 
-			// since not supported return true to ignore validation
-			return true;
-		}
+                return sourceHash.Value == destinationHash.Value;
+            }
+            else
+            {
+                LogLine(FtpTraceLevel.Info, "Source and Destination servers do not support any common hashing algorithm");
+            }
+
+            // since not supported return true to ignore validation
+            return true;
+        }
 
 #endif
         #endregion // FtpClient_FXPVerification.cs
@@ -9328,98 +9660,110 @@ namespace System.Data.Dubber
             }
         }
 
-#if ASYNC
-		/// <summary>
-		/// Retrieves a checksum of the given file using the specified checksum algorithm, or using the first available algorithm that the server supports.
-		/// </summary>
-		/// <remarks>
-		/// The algorithm used goes in this order:
-		/// 1. HASH command using the first supported algorithm.
-		/// 2. MD5 / XMD5 / MMD5 commands
-		/// 3. XSHA1 command
-		/// 4. XSHA256 command
-		/// 5. XSHA512 command
-		/// 6. XCRC command
-		/// </remarks>
-		/// <param name="path">Full or relative path of the file to checksum</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <param name="algorithm">Specify an algorithm that you prefer, or NONE to use the first available algorithm. If the preferred algorithm is not supported, a blank hash is returned.</param>
-		/// <returns><see cref="FtpHash"/> object containing the value and algorithm. Use the <see cref="FtpHash.IsValid"/> property to
-		/// determine if this command was successful. <see cref="FtpCommandException"/>s can be thrown from
-		/// the underlying calls.</returns>
-		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<FtpHash> GetChecksumAsync(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE, CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// Retrieves a checksum of the given file using the specified checksum algorithm, or using the first available algorithm that the server supports.
+        /// </summary>
+        /// <remarks>
+        /// The algorithm used goes in this order:
+        /// 1. HASH command using the first supported algorithm.
+        /// 2. MD5 / XMD5 / MMD5 commands
+        /// 3. XSHA1 command
+        /// 4. XSHA256 command
+        /// 5. XSHA512 command
+        /// 6. XCRC command
+        /// </remarks>
+        /// <param name="path">Full or relative path of the file to checksum</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <param name="algorithm">Specify an algorithm that you prefer, or NONE to use the first available algorithm. If the preferred algorithm is not supported, a blank hash is returned.</param>
+        /// <returns><see cref="FtpHash"/> object containing the value and algorithm. Use the <see cref="FtpHash.IsValid"/> property to
+        /// determine if this command was successful. <see cref="FtpCommandException"/>s can be thrown from
+        /// the underlying calls.</returns>
+        /// <exception cref="FtpCommandException">The command fails</exception>
+        public async Task<FtpHash> GetChecksumAsync(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE, CancellationToken token = default(CancellationToken))
+        {
 
-			if (path == null) {
-				throw new ArgumentException("Required argument is null", "path");
-			}
+            if (path == null)
+            {
+                throw new ArgumentException("Required argument is null", "path");
+            }
 
-			ValidateHashAlgorithm(algorithm);
+            ValidateHashAlgorithm(algorithm);
 
-			path = path.GetFtpPath();
+            path = path.GetFtpPath();
 
-			LogFunc(nameof(GetChecksumAsync), new object[] { path });
+            LogFunc(nameof(GetChecksumAsync), new object[] { path });
 
-			var useFirst = (algorithm == FtpHashAlgorithm.NONE);
+            var useFirst = (algorithm == FtpHashAlgorithm.NONE);
 
-			// if HASH is supported and the caller prefers an algorithm and that algorithm is supported
-			if (HasFeature(FtpCapability.HASH) && !useFirst && HashAlgorithms.HasFlag(algorithm)) {
+            // if HASH is supported and the caller prefers an algorithm and that algorithm is supported
+            if (HasFeature(FtpCapability.HASH) && !useFirst && HashAlgorithms.HasFlag(algorithm))
+            {
 
-				// switch to that algorithm
-				await SetHashAlgorithmInternalAsync(algorithm, token);
+                // switch to that algorithm
+                await SetHashAlgorithmInternalAsync(algorithm, token);
 
-				// get the hash of the file using HASH Command
-				return await HashCommandInternalAsync(path, token);
+                // get the hash of the file using HASH Command
+                return await HashCommandInternalAsync(path, token);
 
-			}
+            }
 
-			// if HASH is supported and the caller does not prefer any specific algorithm
-			else if (HasFeature(FtpCapability.HASH) && useFirst) {
+            // if HASH is supported and the caller does not prefer any specific algorithm
+            else if (HasFeature(FtpCapability.HASH) && useFirst)
+            {
 
-				// switch to the first preferred algorithm
-				await SetHashAlgorithmInternalAsync(HashAlgos.FirstSupported(HashAlgorithms), token);
+                // switch to the first preferred algorithm
+                await SetHashAlgorithmInternalAsync(HashAlgos.FirstSupported(HashAlgorithms), token);
 
-				// get the hash of the file using HASH Command
-				return await HashCommandInternalAsync(path, token);
-			}
+                // get the hash of the file using HASH Command
+                return await HashCommandInternalAsync(path, token);
+            }
 
-			else {
-				var result = new FtpHash();
+            else
+            {
+                var result = new FtpHash();
 
-				// execute the first available algorithm, or the preferred algorithm if specified
+                // execute the first available algorithm, or the preferred algorithm if specified
 
-				if (HasFeature(FtpCapability.MD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
-					result.Value = await GetHashInternalAsync(path, "MD5", token);
-					result.Algorithm = FtpHashAlgorithm.MD5;
-				}
-				else if (HasFeature(FtpCapability.XMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
-					result.Value = await GetHashInternalAsync(path, "XMD5", token);
-					result.Algorithm = FtpHashAlgorithm.MD5;
-				}
-				else if (HasFeature(FtpCapability.MMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
-					result.Value = await GetHashInternalAsync(path, "MMD5", token);
-					result.Algorithm = FtpHashAlgorithm.MD5;
-				}
-				else if (HasFeature(FtpCapability.XSHA1) && (useFirst || algorithm == FtpHashAlgorithm.SHA1)) {
-					result.Value = await GetHashInternalAsync(path, "XSHA1", token);
-					result.Algorithm = FtpHashAlgorithm.SHA1;
-				}
-				else if (HasFeature(FtpCapability.XSHA256) && (useFirst || algorithm == FtpHashAlgorithm.SHA256)) {
-					result.Value = await GetHashInternalAsync(path, "XSHA256", token);
-					result.Algorithm = FtpHashAlgorithm.SHA256;
-				}
-				else if (HasFeature(FtpCapability.XSHA512) && (useFirst || algorithm == FtpHashAlgorithm.SHA512)) {
-					result.Value = await GetHashInternalAsync(path, "XSHA512", token);
-					result.Algorithm = FtpHashAlgorithm.SHA512;
-				}
-				else if (HasFeature(FtpCapability.XCRC) && (useFirst || algorithm == FtpHashAlgorithm.CRC)) {
-					result.Value = await GetHashInternalAsync(path, "XCRC", token);
-					result.Algorithm = FtpHashAlgorithm.CRC;
-				}
+                if (HasFeature(FtpCapability.MD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5))
+                {
+                    result.Value = await GetHashInternalAsync(path, "MD5", token);
+                    result.Algorithm = FtpHashAlgorithm.MD5;
+                }
+                else if (HasFeature(FtpCapability.XMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5))
+                {
+                    result.Value = await GetHashInternalAsync(path, "XMD5", token);
+                    result.Algorithm = FtpHashAlgorithm.MD5;
+                }
+                else if (HasFeature(FtpCapability.MMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5))
+                {
+                    result.Value = await GetHashInternalAsync(path, "MMD5", token);
+                    result.Algorithm = FtpHashAlgorithm.MD5;
+                }
+                else if (HasFeature(FtpCapability.XSHA1) && (useFirst || algorithm == FtpHashAlgorithm.SHA1))
+                {
+                    result.Value = await GetHashInternalAsync(path, "XSHA1", token);
+                    result.Algorithm = FtpHashAlgorithm.SHA1;
+                }
+                else if (HasFeature(FtpCapability.XSHA256) && (useFirst || algorithm == FtpHashAlgorithm.SHA256))
+                {
+                    result.Value = await GetHashInternalAsync(path, "XSHA256", token);
+                    result.Algorithm = FtpHashAlgorithm.SHA256;
+                }
+                else if (HasFeature(FtpCapability.XSHA512) && (useFirst || algorithm == FtpHashAlgorithm.SHA512))
+                {
+                    result.Value = await GetHashInternalAsync(path, "XSHA512", token);
+                    result.Algorithm = FtpHashAlgorithm.SHA512;
+                }
+                else if (HasFeature(FtpCapability.XCRC) && (useFirst || algorithm == FtpHashAlgorithm.CRC))
+                {
+                    result.Value = await GetHashInternalAsync(path, "XCRC", token);
+                    result.Algorithm = FtpHashAlgorithm.CRC;
+                }
 
-				return result;
-			}
-		}
+                return result;
+            }
+        }
 #endif
 
         #endregion
@@ -9451,22 +9795,24 @@ namespace System.Data.Dubber
             return response;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Gets the hash of the specified file using the given command.
-		/// </summary>
-		internal async Task<string> GetHashInternalAsync(string path, string command, CancellationToken token = default(CancellationToken)) {
-			FtpReply reply;
-			string response;
+#if !NET40
+        /// <summary>
+        /// Gets the hash of the specified file using the given command.
+        /// </summary>
+        internal async Task<string> GetHashInternalAsync(string path, string command, CancellationToken token = default(CancellationToken))
+        {
+            FtpReply reply;
+            string response;
 
-			if (!(reply = await ExecuteAsync(command + " " + path, token)).Success) {
-				throw new FtpCommandException(reply);
-			}
+            if (!(reply = await ExecuteAsync(command + " " + path, token)).Success)
+            {
+                throw new FtpCommandException(reply);
+            }
 
-			response = reply.Message;
-			response = CleanHashResult(path, response);
-			return response;
-		}
+            response = reply.Message;
+            response = CleanHashResult(path, response);
+            return response;
+        }
 
 #endif
 
@@ -9481,11 +9827,8 @@ namespace System.Data.Dubber
         {
             FtpReply reply;
             var type = FtpHashAlgorithm.NONE;
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 LogFunc(nameof(GetHashAlgorithmUnused));
 
                 if ((reply = Execute("OPTS HASH")).Success)
@@ -9499,19 +9842,15 @@ namespace System.Data.Dubber
                         // Do nothing
                     }
                 }
-
-#if !CORE14
             }
-#endif
-
             return type;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Gets the currently selected hash algorithm for the HASH command asynchronously.
-		/// </summary>
-		internal async Task<FtpHashAlgorithm> GetHashAlgorithmUnusedAsync(CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// Gets the currently selected hash algorithm for the HASH command asynchronously.
+        /// </summary>
+        internal async Task<FtpHashAlgorithm> GetHashAlgorithmUnusedAsync(CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 			var type = FtpHashAlgorithm.NONE;
 
@@ -9542,11 +9881,8 @@ namespace System.Data.Dubber
             {
                 return;
             }
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 if ((HashAlgorithms & algorithm) != algorithm)
                 {
                     throw new NotImplementedException("The hash algorithm " + algorithm.ToString() + " was not advertised by the server.");
@@ -9561,18 +9897,14 @@ namespace System.Data.Dubber
 
                 // save the current hash algo so no need to repeat this command
                 _LastHashAlgo = algorithm;
-
-#if !CORE14
             }
-
-#endif
         }
 
-#if ASYNC
-		/// <summary>
-		/// Sets the hash algorithm on the server to be used with the HASH command asynchronously.
-		/// </summary>
-		internal async Task SetHashAlgorithmInternalAsync(FtpHashAlgorithm algorithm, CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// Sets the hash algorithm on the server to be used with the HASH command asynchronously.
+        /// </summary>
+        internal async Task SetHashAlgorithmInternalAsync(FtpHashAlgorithm algorithm, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
 			// skip setting the hash algo if the server is already configured to it
@@ -9602,29 +9934,22 @@ namespace System.Data.Dubber
         internal FtpHash HashCommandInternal(string path)
         {
             FtpReply reply;
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 if (!(reply = Execute("HASH " + path)).Success)
                 {
                     throw new FtpCommandException(reply);
                 }
-
-#if !CORE14
             }
-#endif
-
             // parse hash from the server reply
             return HashParser.Parse(reply.Message);
         }
 
-#if ASYNC
-		/// <summary>
-		/// Gets the hash of an object on the server using the currently selected hash algorithm.
-		/// </summary>
-		public async Task<FtpHash> HashCommandInternalAsync(string path, CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// Gets the hash of an object on the server using the currently selected hash algorithm.
+        /// </summary>
+        public async Task<FtpHash> HashCommandInternalAsync(string path, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
 			if (!(reply = await ExecuteAsync("HASH " + path, token)).Success) {
@@ -9754,8 +10079,8 @@ namespace System.Data.Dubber
         }
 
 
-#if ASYNC
-		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need. Or use CompareFile.", true)]
+#if !NET40
+        [ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need. Or use CompareFile.", true)]
 		public Task<FtpHashAlgorithm> GetHashAlgorithmAsync(CancellationToken token = default(CancellationToken)) {
 			return Task.FromResult(FtpHashAlgorithm.NONE);
 		}
@@ -9832,19 +10157,14 @@ namespace System.Data.Dubber
 
             // Ok, the CWD starts with a single quote. Classic z/OS dataset realm
             FtpReply reply;
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 // Fetch the current working directory. The reply will tell us what it is we are...
                 if (!(reply = Execute("CWD " + _LastWorkingDir)).Success)
                 {
                     throw new FtpCommandException(reply);
                 }
-#if !CORE14
             }
-#endif
             // 250-The working directory may be a load library                          
             // 250 The working directory "GEEK.PRODUCT.LOADLIB" is a partitioned data set
 
@@ -9862,13 +10182,13 @@ namespace System.Data.Dubber
             return FtpZOSListRealm.Dataset;
         }
 
-#if ASYNC
-		/// <summary>
-		/// If an FTP Server has "different realms", in which realm is the
-		/// current working directory. 
-		/// </summary>
-		/// <returns>The realm</returns>
-		public async Task<FtpZOSListRealm> GetZOSListRealmAsync(CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// If an FTP Server has "different realms", in which realm is the
+        /// current working directory. 
+        /// </summary>
+        /// <returns>The realm</returns>
+        public async Task<FtpZOSListRealm> GetZOSListRealmAsync(CancellationToken token = default(CancellationToken)) {
 			LogFunc(nameof(GetZOSListRealmAsync));
 
 			// this case occurs immediately after connection and after the working dir has changed
@@ -9997,23 +10317,23 @@ namespace System.Data.Dubber
             return result;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Return information about a remote file system object asynchronously. 
-		/// </summary>
-		/// <remarks>
-		/// You should check the <see cref="Capabilities"/> property for the <see cref="FtpCapability.MLSD"/> 
-		/// flag before calling this method. Failing to do so will result in an InvalidOperationException
-		/// being thrown when the server does not support machine listings. Returns null if the server response can't
-		/// be parsed or the server returns a failure completion code. The error for a failure
-		/// is logged with FtpTrace. No exception is thrown on error because that would negate
-		/// the usefulness of this method for checking for the existence of an object.</remarks>
-		/// <param name="path">Path of the item to retrieve information about</param>
-		/// <param name="dateModified">Get the accurate modified date using another MDTM command</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <exception cref="InvalidOperationException">Thrown if the server does not support this Capability</exception>
-		/// <returns>A <see cref="FtpListItem"/> if the command succeeded, or null if there was a problem.</returns>
-		public async Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false, CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// Return information about a remote file system object asynchronously. 
+        /// </summary>
+        /// <remarks>
+        /// You should check the <see cref="Capabilities"/> property for the <see cref="FtpCapability.MLSD"/> 
+        /// flag before calling this method. Failing to do so will result in an InvalidOperationException
+        /// being thrown when the server does not support machine listings. Returns null if the server response can't
+        /// be parsed or the server returns a failure completion code. The error for a failure
+        /// is logged with FtpTrace. No exception is thrown on error because that would negate
+        /// the usefulness of this method for checking for the existence of an object.</remarks>
+        /// <param name="path">Path of the item to retrieve information about</param>
+        /// <param name="dateModified">Get the accurate modified date using another MDTM command</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <exception cref="InvalidOperationException">Thrown if the server does not support this Capability</exception>
+        /// <returns>A <see cref="FtpListItem"/> if the command succeeded, or null if there was a problem.</returns>
+        public async Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -10173,15 +10493,10 @@ namespace System.Data.Dubber
             bool machineList;
             CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 rawlisting = GetListingInternal(listcmd, options, true);
-#if !CORE14
             }
-#endif
-
             for (var i = 0; i < rawlisting.Count; i++)
             {
                 buf = rawlisting[i];
@@ -10561,7 +10876,7 @@ namespace System.Data.Dubber
             return rawlisting;
         }
 
-#if ASYNCPLUS
+#if NETFx
 		/// <summary>
 		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
 		/// contains information about the file that was able to be retrieved. 
@@ -10684,22 +10999,22 @@ namespace System.Data.Dubber
 #endif
 
 
-#if ASYNC
-		/// <summary>
-		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
-		/// contains information about the file that was able to be retrieved. 
-		/// </summary>
-		/// <remarks>
-		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
-		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
-		/// is equal to 0, then it means the size of the object could also not
-		/// be retrieved.
-		/// </remarks>
-		/// <param name="path">The path to list</param>
-		/// <param name="options">Options that dictate how the list operation is performed</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>An array of items retrieved in the listing</returns>
-		public async Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
+        /// contains information about the file that was able to be retrieved. 
+        /// </summary>
+        /// <remarks>
+        /// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+        /// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+        /// is equal to 0, then it means the size of the object could also not
+        /// be retrieved.
+        /// </remarks>
+        /// <param name="path">The path to list</param>
+        /// <param name="options">Options that dictate how the list operation is performed</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>An array of items retrieved in the listing</returns>
+        public async Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
 			
 			// start recursive process if needed and unsupported by the server
 			if (options.HasFlag(FtpListOption.Recursive) && !IsServerSideRecursionSupported(options)) {
@@ -11013,7 +11328,7 @@ namespace System.Data.Dubber
             return allFiles.ToArray();
         }
 
-#if ASYNCPLUS
+#if NETFx
 		/// <summary>
 		/// Recursive method of GetListingAsync, to recurse through directories on servers that do not natively support recursion.
 		/// Automatically called by GetListingAsync where required.
@@ -11061,18 +11376,18 @@ namespace System.Data.Dubber
 #endif
 
 
-#if ASYNC
-		/// <summary>
-		/// Recursive method of GetListingAsync, to recurse through directories on servers that do not natively support recursion.
-		/// Automatically called by GetListingAsync where required.
-		/// Uses flat recursion instead of head recursion.
-		/// </summary>
-		/// <param name="path">The path of the directory to list</param>
-		/// <param name="options">Options that dictate how a list is performed and what information is gathered.</param>
-		/// <param name="token"></param>
-		/// <param name="enumToken"></param>
-		/// <returns>An array of FtpListItem objects</returns>
-		protected async Task<FtpListItem[]> GetListingRecursiveAsync(string path, FtpListOption options, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Recursive method of GetListingAsync, to recurse through directories on servers that do not natively support recursion.
+        /// Automatically called by GetListingAsync where required.
+        /// Uses flat recursion instead of head recursion.
+        /// </summary>
+        /// <param name="path">The path of the directory to list</param>
+        /// <param name="options">Options that dictate how a list is performed and what information is gathered.</param>
+        /// <param name="token"></param>
+        /// <param name="enumToken"></param>
+        /// <returns>An array of FtpListItem objects</returns>
+        protected async Task<FtpListItem[]> GetListingRecursiveAsync(string path, FtpListOption options, CancellationToken token) {
 
 			// remove the recursive flag
 			options &= ~FtpListOption.Recursive;
@@ -11152,12 +11467,8 @@ namespace System.Data.Dubber
                 // calc path to request
                 path = GetAbsolutePath(path);
             }
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
-
                 // always get the file listing in binary to avoid character translation issues with ASCII.
                 SetDataTypeNoLock(ListingDataType);
 
@@ -11201,15 +11512,11 @@ namespace System.Data.Dubber
                 {
                     // Some FTP servers forcibly close the connection, we absorb these errors
                 }
-
-#if !CORE14
             }
-#endif
-
             return listing.ToArray();
         }
 
-#if !ASYNC
+#if NET40
         private delegate string[] AsyncGetNameListing(string path);
 
         /// <summary>
@@ -11255,14 +11562,14 @@ namespace System.Data.Dubber
         }
 
 #endif
-#if ASYNC
-		/// <summary>
-		/// Returns a file/directory listing using the NLST command asynchronously
-		/// </summary>
-		/// <param name="path">The path of the directory to list</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>An array of file and directory names if any were returned.</returns>
-		public async Task<string[]> GetNameListingAsync(string path, CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// Returns a file/directory listing using the NLST command asynchronously
+        /// </summary>
+        /// <param name="path">The path of the directory to list</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>An array of file and directory names if any were returned.</returns>
+        public async Task<string[]> GetNameListingAsync(string path, CancellationToken token = default(CancellationToken)) {
 
 			// FIX : #768 NullOrEmpty is valid, means "use working directory".
 			if (!string.IsNullOrEmpty(path)) {
@@ -11481,8 +11788,6 @@ namespace System.Data.Dubber
         }
 
         #endregion
-
-#if !CORE14
         /// <summary>
         /// Used for internally synchronizing access to this
         /// object from multiple threads
@@ -11493,8 +11798,6 @@ namespace System.Data.Dubber
         /// For usage by FTP proxies only
         /// </summary>
         protected object Lock => m_lock;
-#endif
-
         /// <summary>
         /// A list of asynchronous methods that are in progress
         /// </summary>
@@ -11699,16 +12002,11 @@ namespace System.Data.Dubber
             get => m_textEncoding;
             set
             {
-#if !CORE14
                 lock (m_lock)
                 {
-#endif
                     m_textEncoding = value;
                     m_textEncodingAutoUTF = false;
-#if !CORE14
                 }
-
-#endif
             }
         }
 
@@ -12043,7 +12341,7 @@ namespace System.Data.Dubber
             set => m_dataConnectionEncryption = value;
         }
 
-#if !CORE
+#if !NETFx
         private bool m_plainTextEncryption = false;
 
         /// <summary>
@@ -12057,8 +12355,8 @@ namespace System.Data.Dubber
         }
 #endif
 
-#if CORE || NET45
-		private SslProtocols m_SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
+#if NETFx || NET45
+        private SslProtocols m_SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
 #else
         private SslProtocols m_SslProtocols = SslProtocols.Default;
 #endif
@@ -12327,8 +12625,8 @@ namespace System.Data.Dubber
         }
 
 
-#if CORE
-		private double m_localTimeZone = 0;
+#if NETFx
+        private double m_localTimeZone = 0;
 		private TimeSpan m_localTimeOffset = new TimeSpan();
 
 		/// <summary>
@@ -12585,8 +12883,8 @@ namespace System.Data.Dubber
             set => m_SendHostDomain = value;
         }
 
-#if ASYNC && !CORE14 && !CORE16
-		private IPAddress m_SocketLocalIp;
+#if !NET40
+        private IPAddress m_SocketLocalIp;
 		/// <summary>
 		/// The local socket will be bound to the given local IP/interface.
 		/// This is useful if you have several usable public IP addresses and want to use a particular one.
@@ -12736,21 +13034,23 @@ namespace System.Data.Dubber
         /// <returns>Public IP Address</returns>
         public static string GetPublicIP()
         {
-#if NETFX
-			try {
-				var request = WebRequest.Create("https://api.ipify.org/");
-				request.Method = "GET";
-
-				using (var response = request.GetResponse()) {
-					using (var stream = new StreamReader(response.GetResponseStream())) {
-						return stream.ReadToEnd();
-					}
-				}
-			}
-			catch (Exception) {
-			}
-
+            try
+            {
+#if NETFx
+                return new System.Net.Http.HttpClient().GetStringAsync("https://api.ipify.org").Result;
+#else
+                var request = WebRequest.Create("https://api.ipify.org");
+                request.Method = "GET";
+                using (var response = request.GetResponse())
+                {
+                    using (var stream = new StreamReader(response.GetResponseStream()))
+                    {
+                        return stream.ReadToEnd();
+                    }
+                }
 #endif
+            }
+            catch { }
             return null;
         }
         #endregion // FtpClient_Static.cs
@@ -12771,11 +13071,8 @@ namespace System.Data.Dubber
         public FtpReply Execute(string command)
         {
             FtpReply reply;
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 if (StaleDataCheck)
                 {
                     ReadStaleData(true, false, true);
@@ -12820,14 +13117,11 @@ namespace System.Data.Dubber
                 m_stream.WriteLine(m_textEncoding, command);
                 m_lastCommandUtc = DateTime.UtcNow;
                 reply = GetReply();
-#if !CORE14
             }
-#endif
-
             return reply;
         }
 
-#if !ASYNC
+#if NET40
         private delegate FtpReply AsyncExecute(string command);
 
         /// <summary>
@@ -12862,19 +13156,19 @@ namespace System.Data.Dubber
         }
 #endif
 
-#if ASYNC
-		/// <summary>
-		/// Performs an asynchronous execution of the specified command
-		/// </summary>
-		/// <param name="command">The command to execute</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>The servers reply to the command</returns>
-		public async Task<FtpReply> ExecuteAsync(string command, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Performs an asynchronous execution of the specified command
+        /// </summary>
+        /// <param name="command">The command to execute</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>The servers reply to the command</returns>
+        public async Task<FtpReply> ExecuteAsync(string command, CancellationToken token) {
 			FtpReply reply;
 
 			if (StaleDataCheck) {
-#if CORE
-				await ReadStaleDataAsync(true, false, true, token);
+#if NETFx
+                await ReadStaleDataAsync(true, false, true, token);
 #else
 				ReadStaleData(true, false, true);
 #endif
@@ -12939,15 +13233,15 @@ namespace System.Data.Dubber
             return false;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Sends the NOOP command according to <see cref="NoopInterval"/> (effectively a no-op if 0).
-		/// Please call <see cref="GetReplyAsync"/> as needed to read the "OK" command sent by the server and prevent stale data on the socket.
-		/// Note that response is not guaranteed by all FTP servers when sent during file transfers.
-		/// </summary>
-		/// <param name="token"></param>
-		/// <returns>true if NOOP command was sent</returns>
-		private async Task<bool> NoopAsync(CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Sends the NOOP command according to <see cref="NoopInterval"/> (effectively a no-op if 0).
+        /// Please call <see cref="GetReplyAsync"/> as needed to read the "OK" command sent by the server and prevent stale data on the socket.
+        /// Note that response is not guaranteed by all FTP servers when sent during file transfers.
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns>true if NOOP command was sent</returns>
+        private async Task<bool> NoopAsync(CancellationToken token) {
 			if (m_noopInterval > 0 && DateTime.UtcNow.Subtract(m_lastCommandUtc).TotalMilliseconds > m_noopInterval) {
 				LogLine(FtpTraceLevel.Verbose, "Command:  NOOP");
 
@@ -12976,11 +13270,8 @@ namespace System.Data.Dubber
         {
             var reply = new FtpReply();
             string buf;
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 if (!IsConnected)
                 {
                     throw new InvalidOperationException("No connection to the server has been established.");
@@ -13024,11 +13315,7 @@ namespace System.Data.Dubber
                     // log response code + message
                     LogLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
                 }
-
-#if !CORE14
             }
-
-#endif
             LastReply = reply;
 
             return reply;
@@ -13049,16 +13336,16 @@ namespace System.Data.Dubber
             return m.Success;
         }
 
-#if ASYNC
-		// TODO: add example
-		/// <summary>
-		/// Retrieves a reply from the server. Do not execute this method
-		/// unless you are sure that a reply has been sent, i.e., you
-		/// executed a command. Doing so will cause the code to hang
-		/// indefinitely waiting for a server reply that is never coming.
-		/// </summary>
-		/// <returns>FtpReply representing the response from the server</returns>
-		public async Task<FtpReply> GetReplyAsync(CancellationToken token) {
+#if !NET40
+        // TODO: add example
+        /// <summary>
+        /// Retrieves a reply from the server. Do not execute this method
+        /// unless you are sure that a reply has been sent, i.e., you
+        /// executed a command. Doing so will cause the code to hang
+        /// indefinitely waiting for a server reply that is never coming.
+        /// </summary>
+        /// <returns>FtpReply representing the response from the server</returns>
+        public async Task<FtpReply> GetReplyAsync(CancellationToken token) {
 			var reply = new FtpReply();
 			string buf;
 
@@ -13248,9 +13535,6 @@ namespace System.Data.Dubber
             // when the stream is closed so always set it
             // otherwise things can get out of sync.
             stream.CommandStatus = reply;
-
-#if !NO_SSL
-
             // this needs to take place after the command is executed
             if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
             {
@@ -13258,20 +13542,18 @@ namespace System.Data.Dubber
                     ClientCertificates.Count > 0 ? ClientCertificates : null,
                     m_SslProtocols);
             }
-#endif
-
             return stream;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Opens the specified type of passive data stream
-		/// </summary>
-		/// <param name="type">Type of passive data stream to open</param>
-		/// <param name="command">The command to execute that requires a data stream</param>
-		/// <param name="restart">Restart location in bytes for file transfer</param>
-		/// <returns>A data stream ready to be used</returns>
-		private async Task<FtpDataStream> OpenPassiveDataStreamAsync(FtpDataConnectionType type, string command, long restart, CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// Opens the specified type of passive data stream
+        /// </summary>
+        /// <param name="type">Type of passive data stream to open</param>
+        /// <param name="command">The command to execute that requires a data stream</param>
+        /// <param name="restart">Restart location in bytes for file transfer</param>
+        /// <returns>A data stream ready to be used</returns>
+        private async Task<FtpDataStream> OpenPassiveDataStreamAsync(FtpDataConnectionType type, string command, long restart, CancellationToken token = default(CancellationToken)) {
 			LogFunc(nameof(OpenPassiveDataStreamAsync), new object[] { type, command, restart });
 
 			FtpDataStream stream = null;
@@ -13376,16 +13658,12 @@ namespace System.Data.Dubber
 			// when the stream is closed so always set it
 			// otherwise things can get out of sync.
 			stream.CommandStatus = reply;
-
-#if !NO_SSL
 			// this needs to take place after the command is executed
 			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !_ConnectionFTPSFailure) {
 				await stream.ActivateEncryptionAsync(m_host,
 					ClientCertificates.Count > 0 ? ClientCertificates : null,
 					m_SslProtocols);
 			}
-#endif
-
 			return stream;
 		}
 #endif
@@ -13494,7 +13772,7 @@ namespace System.Data.Dubber
 
             var stream = new FtpDataStream(this);
             FtpReply reply;
-#if !CORE
+#if !NETFx
             IAsyncResult ar;
 #endif
 
@@ -13504,7 +13782,7 @@ namespace System.Data.Dubber
             }
 
             StartListeningOnPort(stream);
-#if CORE
+#if NETFx
 			var args = stream.BeginAccept();
 #else
             ar = stream.BeginAccept(null, null);
@@ -13581,8 +13859,8 @@ namespace System.Data.Dubber
             // otherwise things can get out of sync.
             stream.CommandStatus = reply;
 
-#if CORE
-			stream.EndAccept(args, m_dataConnectionConnectTimeout);
+#if NETFx
+            stream.EndAccept(args, m_dataConnectionConnectTimeout);
 #else
             ar.AsyncWaitHandle.WaitOne(m_dataConnectionConnectTimeout);
             ar.AsyncWaitHandle.Close();
@@ -13594,49 +13872,45 @@ namespace System.Data.Dubber
 
             stream.EndAccept(ar);
 #endif
-
-#if !NO_SSL
             if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
             {
                 stream.ActivateEncryption(m_host,
                     ClientCertificates.Count > 0 ? ClientCertificates : null,
                     m_SslProtocols);
             }
-#endif
-
             stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
             stream.ReadTimeout = m_dataConnectionReadTimeout;
 
             return stream;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Opens the specified type of active data stream
-		/// </summary>
-		/// <param name="type">Type of passive data stream to open</param>
-		/// <param name="command">The command to execute that requires a data stream</param>
-		/// <param name="restart">Restart location in bytes for file transfer</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A data stream ready to be used</returns>
-		private async Task<FtpDataStream> OpenActiveDataStreamAsync(FtpDataConnectionType type, string command, long restart, CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// Opens the specified type of active data stream
+        /// </summary>
+        /// <param name="type">Type of passive data stream to open</param>
+        /// <param name="command">The command to execute that requires a data stream</param>
+        /// <param name="restart">Restart location in bytes for file transfer</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>A data stream ready to be used</returns>
+        private async Task<FtpDataStream> OpenActiveDataStreamAsync(FtpDataConnectionType type, string command, long restart, CancellationToken token = default(CancellationToken)) {
 			LogFunc(nameof(OpenActiveDataStreamAsync), new object[] { type, command, restart });
 
 			var stream = new FtpDataStream(this);
 			FtpReply reply;
 
-#if !CORE
+#if !NETFx
 			IAsyncResult ar;
 #endif
 
-			if (m_stream == null) {
+            if (m_stream == null) {
 				throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open an active data stream.");
 			}
 
 			StartListeningOnPort(stream);
 
-#if CORE
-			var args = stream.BeginAccept();
+#if NETFx
+            var args = stream.BeginAccept();
 #else
 			ar = stream.BeginAccept(null, null);
 #endif
@@ -13701,8 +13975,8 @@ namespace System.Data.Dubber
 			// otherwise things can get out of sync.
 			stream.CommandStatus = reply;
 
-#if CORE
-			stream.EndAccept(args, m_dataConnectionConnectTimeout);
+#if NETFx
+            stream.EndAccept(args, m_dataConnectionConnectTimeout);
 #else
 			ar.AsyncWaitHandle.WaitOne(m_dataConnectionConnectTimeout);
 			ar.AsyncWaitHandle.Close();
@@ -13713,22 +13987,17 @@ namespace System.Data.Dubber
 
 			stream.EndAccept(ar);
 #endif
-
-#if !NO_SSL
 			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !_ConnectionFTPSFailure) {
 				await stream.ActivateEncryptionAsync(m_host,
 					ClientCertificates.Count > 0 ? ClientCertificates : null,
 					m_SslProtocols);
 			}
-#endif
-
 			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
 			stream.ReadTimeout = m_dataConnectionReadTimeout;
 
 			return stream;
 		}
 #endif
-
         /// <summary>
         /// Opens a data stream.
         /// </summary>
@@ -13739,11 +14008,8 @@ namespace System.Data.Dubber
         {
             var type = m_dataConnectionType;
             FtpDataStream stream = null;
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 if (!IsConnected)
                 {
                     Connect();
@@ -13789,23 +14055,19 @@ namespace System.Data.Dubber
                 {
                     throw new InvalidOperationException("The specified data channel type is not implemented.");
                 }
-
-#if !CORE14
             }
-#endif
-
             return stream;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Opens a data stream.
-		/// </summary>
-		/// <param name='command'>The command to execute that requires a data stream</param>
-		/// <param name="restart">Restart location in bytes for file transfer</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>The data stream.</returns>
-		private async Task<FtpDataStream> OpenDataStreamAsync(string command, long restart, CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// Opens a data stream.
+        /// </summary>
+        /// <param name='command'>The command to execute that requires a data stream</param>
+        /// <param name="restart">Restart location in bytes for file transfer</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>The data stream.</returns>
+        private async Task<FtpDataStream> OpenDataStreamAsync(string command, long restart, CancellationToken token = default(CancellationToken)) {
 			var type = m_dataConnectionType;
 			FtpDataStream stream = null;
 
@@ -13868,11 +14130,8 @@ namespace System.Data.Dubber
             {
                 throw new ArgumentException("The data stream parameter was null");
             }
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 try
                 {
                     if (IsConnected)
@@ -13901,11 +14160,7 @@ namespace System.Data.Dubber
                         Dispose();
                     }
                 }
-
-#if !CORE14
             }
-#endif
-
             return reply;
         }
 
@@ -13935,19 +14190,16 @@ namespace System.Data.Dubber
                     }
                     catch (SocketException se)
                     {
-#if NETFX
-
+#if NETFrame
 						// Already in use
 						if (se.ErrorCode != 10048) {
 							throw;
 						}
-
 #else
                         if (se.SocketErrorCode != SocketError.AddressAlreadyInUse)
                         {
                             throw;
                         }
-
 #endif
                     }
                 }
@@ -14007,11 +14259,8 @@ namespace System.Data.Dubber
             FtpClient client = null;
             FtpDataStream stream = null;
             long length = 0;
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 if (m_threadSafeDataChannels)
                 {
                     client = CloneConnection();
@@ -14028,10 +14277,7 @@ namespace System.Data.Dubber
 
                 client.SetDataType(type);
                 stream = client.OpenDataStream("RETR " + path, restart);
-#if !CORE14
             }
-#endif
-
             if (stream != null)
             {
                 if (length > 0)
@@ -14048,18 +14294,18 @@ namespace System.Data.Dubber
             return stream;
         }
 
-#if ASYNC
+#if !NET40
 
-		/// <summary>
-		/// Opens the specified file for reading asynchronously
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="restart">Resume location</param>
-		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A stream for reading the file on the server</returns>
-		[Obsolete("OpenReadAsync() is obsolete, please use DownloadAsync() or DownloadFileAsync() instead", false)]
+        /// <summary>
+        /// Opens the specified file for reading asynchronously
+        /// </summary>
+        /// <param name="path">The full or relative path of the file</param>
+        /// <param name="type">ASCII/Binary</param>
+        /// <param name="restart">Resume location</param>
+        /// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>A stream for reading the file on the server</returns>
+        [Obsolete("OpenReadAsync() is obsolete, please use DownloadAsync() or DownloadFileAsync() instead", false)]
 		public virtual Task<Stream> OpenReadAsync(string path, FtpDataType type = FtpDataType.Binary, long restart = 0,
 			bool checkIfFileExists = true, CancellationToken token = default(CancellationToken)) {
 			return OpenReadAsync(path, type, restart, checkIfFileExists ? 0 : -1, token);
@@ -14169,11 +14415,8 @@ namespace System.Data.Dubber
             FtpClient client = null;
             FtpDataStream stream = null;
             long length = 0;
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 if (m_threadSafeDataChannels)
                 {
                     client = CloneConnection();
@@ -14195,23 +14438,19 @@ namespace System.Data.Dubber
                 {
                     stream.SetLength(length);
                 }
-
-#if !CORE14
             }
-#endif
-
             return stream;
         }
-#if ASYNC
-		/// <summary>
-		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
-		/// </summary>
-		/// <param name="path">Full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A stream for writing to the file on the server</returns>
-		[Obsolete("OpenWriteAsync() is obsolete, please use UploadAsync() or UploadFileAsync() instead", false)]
+#if !NET40
+        /// <summary>
+        /// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
+        /// </summary>
+        /// <param name="path">Full or relative path of the file</param>
+        /// <param name="type">ASCII/Binary</param>
+        /// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>A stream for writing to the file on the server</returns>
+        [Obsolete("OpenWriteAsync() is obsolete, please use UploadAsync() or UploadFileAsync() instead", false)]
 		public virtual Task<Stream> OpenWriteAsync(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken)) {
 			return OpenWriteAsync(path, type, checkIfFileExists ? 0 : -1, token);
 		}
@@ -14313,11 +14552,8 @@ namespace System.Data.Dubber
             FtpClient client = null;
             FtpDataStream stream = null;
             long length = 0;
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 if (m_threadSafeDataChannels)
                 {
                     client = CloneConnection();
@@ -14340,24 +14576,20 @@ namespace System.Data.Dubber
                     stream.SetLength(length);
                     stream.SetPosition(length);
                 }
-
-#if !CORE14
             }
-#endif
-
             return stream;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Opens the specified file to be appended asynchronously
-		/// </summary>
-		/// <param name="path">Full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A stream for writing to the file on the server</returns>
-		[Obsolete("OpenAppendAsync() is obsolete, please use UploadFileAsync() with FtpRemoteExists.Resume or FtpRemoteExists.AddToEnd instead", false)]
+#if !NET40
+        /// <summary>
+        /// Opens the specified file to be appended asynchronously
+        /// </summary>
+        /// <param name="path">Full or relative path of the file</param>
+        /// <param name="type">ASCII/Binary</param>
+        /// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        /// <returns>A stream for writing to the file on the server</returns>
+        [Obsolete("OpenAppendAsync() is obsolete, please use UploadFileAsync() with FtpRemoteExists.Resume or FtpRemoteExists.AddToEnd instead", false)]
 		public virtual Task<Stream> OpenAppendAsync(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken)) {
 			return OpenAppendAsync(path, type, checkIfFileExists ? 0 : -1, token);
 		}
@@ -14428,17 +14660,10 @@ namespace System.Data.Dubber
         /// <param name="type">ASCII/Binary</param>
         protected void SetDataType(FtpDataType type)
         {
-#if !CORE14
             lock (m_lock)
             {
-#endif
-
                 SetDataTypeNoLock(type);
-
-#if !CORE14
             }
-
-#endif
         }
 
         /// <summary>Internal method that handles actually setting the data type.</summary>
@@ -14481,13 +14706,13 @@ namespace System.Data.Dubber
             }
         }
 
-#if ASYNC
-		/// <summary>
-		/// Sets the data type of information sent over the data stream asynchronously
-		/// </summary>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		protected async Task SetDataTypeAsync(FtpDataType type, CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        /// <summary>
+        /// Sets the data type of information sent over the data stream asynchronously
+        /// </summary>
+        /// <param name="type">ASCII/Binary</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        protected async Task SetDataTypeAsync(FtpDataType type, CancellationToken token = default(CancellationToken)) {
 
 			await SetDataTypeNoLockAsync(type, token);
 		}
@@ -14557,8 +14782,8 @@ namespace System.Data.Dubber
                     // convert UTC to local time if wanted (on .NET Core this is based on the LocalTimeZone property)
                     if (m_timeConversion == FtpDate.LocalTime)
                     {
-#if CORE
-					date = date + m_localTimeOffset;
+#if NETFx
+                        date = date + m_localTimeOffset;
 #else
                         date = System.TimeZone.CurrentTimeZone.ToLocalTime(date);
 #endif
@@ -14573,8 +14798,8 @@ namespace System.Data.Dubber
                     // convert local to UTC if wanted (on .NET Core this is based on the LocalTimeZone property)
                     if (m_timeConversion == FtpDate.LocalTime)
                     {
-#if CORE
-					date = date - m_localTimeOffset;
+#if NETFx
+                        date = date - m_localTimeOffset;
 #else
                         date = System.TimeZone.CurrentTimeZone.ToUniversalTime(date);
 #endif
@@ -14634,8 +14859,8 @@ namespace System.Data.Dubber
 
                 if (!(m_asyncmethods[ar] is T))
                 {
-#if CORE
-					throw new InvalidCastException("The AsyncResult cannot be matched to the specified delegate. ");
+#if NETFx
+                    throw new InvalidCastException("The AsyncResult cannot be matched to the specified delegate. ");
 #else
                     var st = new StackTrace(1);
 
@@ -14706,11 +14931,11 @@ namespace System.Data.Dubber
             return path;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Ensure a relative path is absolute by appending the working dir
-		/// </summary>
-		private async Task<string> GetAbsolutePathAsync(string path, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Ensure a relative path is absolute by appending the working dir
+        /// </summary>
+        private async Task<string> GetAbsolutePathAsync(string path, CancellationToken token) {
 
 			if (path == null || path.Trim().Length == 0) {
 				// if path not given, then use working dir
@@ -14749,8 +14974,8 @@ namespace System.Data.Dubber
 
         private static string DecodeUrl(string url)
         {
-#if CORE
-			return WebUtility.UrlDecode(url);
+#if NETFx
+            return WebUtility.UrlDecode(url);
 #else
             return HttpUtility.UrlDecode(url);
 #endif
@@ -14764,11 +14989,8 @@ namespace System.Data.Dubber
         public void DisableUTF8()
         {
             FtpReply reply;
-
-#if !CORE14
             lock (m_lock)
             {
-#endif
                 if (!(reply = Execute("OPTS UTF8 OFF")).Success)
                 {
                     throw new FtpCommandException(reply);
@@ -14776,10 +14998,7 @@ namespace System.Data.Dubber
 
                 m_textEncoding = Encoding.ASCII;
                 m_textEncodingAutoUTF = false;
-#if !CORE14
             }
-
-#endif
         }
 
         /// <summary>
@@ -14823,17 +15042,17 @@ namespace System.Data.Dubber
             return staleData;
         }
 
-#if ASYNC
-		/// <summary>
-		/// Data shouldn't be on the socket, if it is it probably means we've been disconnected.
-		/// Read and discard whatever is there and optionally close the connection.
-		/// Returns the stale data as text, if any, or null if none was found.
-		/// </summary>
-		/// <param name="closeStream">close the connection?</param>
-		/// <param name="evenEncrypted">even read encrypted data?</param>
-		/// <param name="traceData">trace data to logs?</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		private async Task<string> ReadStaleDataAsync(bool closeStream, bool evenEncrypted, bool traceData, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Data shouldn't be on the socket, if it is it probably means we've been disconnected.
+        /// Read and discard whatever is there and optionally close the connection.
+        /// Returns the stale data as text, if any, or null if none was found.
+        /// </summary>
+        /// <param name="closeStream">close the connection?</param>
+        /// <param name="evenEncrypted">even read encrypted data?</param>
+        /// <param name="traceData">trace data to logs?</param>
+        /// <param name="token">The token that can be used to cancel the entire process</param>
+        private async Task<string> ReadStaleDataAsync(bool closeStream, bool evenEncrypted, bool traceData, CancellationToken token) {
 			string staleData = null;
 			if (m_stream != null && m_stream.SocketDataAvailable > 0) {
 				if (traceData) {
@@ -14891,7 +15110,6 @@ namespace System.Data.Dubber
         #endregion // FtpClient_Utils.cs
     }
     #region // Proxy
-
     /// <summary> 
     /// A FTP client with a user@host proxy identification, that works with Blue Coat FTP Service servers.
     /// 
@@ -14980,12 +15198,12 @@ namespace System.Data.Dubber
             Connect(stream, Host, Port, FtpIpVersion.ANY);
         }
 
-#if ASYNC
-		/// <summary>
-		/// Connects to the server using an existing <see cref="FtpSocketStream"/>
-		/// </summary>
-		/// <param name="stream">The existing socket stream</param>
-		protected override Task ConnectAsync(FtpSocketStream stream, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Connects to the server using an existing <see cref="FtpSocketStream"/>
+        /// </summary>
+        /// <param name="stream">The existing socket stream</param>
+        protected override Task ConnectAsync(FtpSocketStream stream, CancellationToken token) {
 			return ConnectAsync(stream, Host, Port, FtpIpVersion.ANY, token);
 		}
 #endif
@@ -15017,16 +15235,16 @@ namespace System.Data.Dubber
             ProxyHandshake(stream);
         }
 
-#if ASYNC
-		/// <summary>
-		/// Connects to the server using an existing <see cref="FtpSocketStream"/>
-		/// </summary>
-		/// <param name="stream">The existing socket stream</param>
-		/// <param name="host">Host name</param>
-		/// <param name="port">Port number</param>
-		/// <param name="ipVersions">IP version to use</param>
-		/// <param name="token">IP version to use</param>
-		protected override async Task ConnectAsync(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions, CancellationToken token) {
+#if !NET40
+        /// <summary>
+        /// Connects to the server using an existing <see cref="FtpSocketStream"/>
+        /// </summary>
+        /// <param name="stream">The existing socket stream</param>
+        /// <param name="host">Host name</param>
+        /// <param name="port">Port number</param>
+        /// <param name="ipVersions">IP version to use</param>
+        /// <param name="token">IP version to use</param>
+        protected override async Task ConnectAsync(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions, CancellationToken token) {
 			await base.ConnectAsync(stream, token);
 
 			var writer = new StreamWriter(stream);
@@ -15054,8 +15272,8 @@ namespace System.Data.Dubber
             }
         }
 
-#if ASYNC
-		private async Task ProxyHandshakeAsync(FtpSocketStream stream, CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        private async Task ProxyHandshakeAsync(FtpSocketStream stream, CancellationToken token = default(CancellationToken)) {
 			var proxyConnectionReply = await GetProxyReplyAsync(stream, token);
 			if (!proxyConnectionReply.Success) {
 				throw new FtpException("Can't connect " + Host + " via proxy " + Proxy.Host + ".\nMessage : " + proxyConnectionReply.ErrorMessage);
@@ -15067,11 +15285,8 @@ namespace System.Data.Dubber
         {
             var reply = new FtpReply();
             string buf;
-
-#if !CORE14
             lock (Lock)
             {
-#endif
                 if (!IsConnected)
                 {
                     throw new InvalidOperationException("No connection to the server has been established.");
@@ -15106,16 +15321,12 @@ namespace System.Data.Dubber
 
                     reply.InfoMessages += buf + "\n";
                 }
-
-#if !CORE14
             }
-#endif
-
             return reply;
         }
 
-#if ASYNC
-		private async Task<FtpReply> GetProxyReplyAsync(FtpSocketStream stream, CancellationToken token = default(CancellationToken)) {
+#if !NET40
+        private async Task<FtpReply> GetProxyReplyAsync(FtpSocketStream stream, CancellationToken token = default(CancellationToken)) {
 			var reply = new FtpReply();
 			string buf;
 
@@ -15178,11 +15389,11 @@ namespace System.Data.Dubber
             stream.Connect(Proxy.Host, Proxy.Port, InternetProtocolVersions);
         }
 
-#if ASYNC
-		/// <summary> Redefine connect for FtpClient : authentication on the Proxy  </summary>
-		/// <param name="stream">The socket stream.</param>
-		/// <param name="token">Cancellation token.</param>
-		protected override Task ConnectAsync(FtpSocketStream stream, CancellationToken token) {
+#if !NET40
+        /// <summary> Redefine connect for FtpClient : authentication on the Proxy  </summary>
+        /// <param name="stream">The socket stream.</param>
+        /// <param name="token">Cancellation token.</param>
+        protected override Task ConnectAsync(FtpSocketStream stream, CancellationToken token) {
 			return stream.ConnectAsync(Proxy.Host, Proxy.Port, InternetProtocolVersions, token);
 		}
 
@@ -15213,8 +15424,8 @@ namespace System.Data.Dubber
             proxy.Connect();
         }
 
-#if ASYNC
-		protected override async Task ConnectAsync(FtpSocketStream stream, CancellationToken cancellationToken) {
+#if !NET40
+        protected override async Task ConnectAsync(FtpSocketStream stream, CancellationToken cancellationToken) {
 			await base.ConnectAsync(stream, cancellationToken);
 			var proxy = new SocksProxy(Host, Port, stream);
 			await proxy.NegotiateAsync();
@@ -15466,8 +15677,8 @@ namespace System.Data.Dubber
             return requestBuffer;
         }
 
-#if ASYNC
-		public async Task NegotiateAsync()
+#if !NET40
+        public async Task NegotiateAsync()
 		{
 			// The client connects to the server,
 			// and sends a version identifier / method selection message.

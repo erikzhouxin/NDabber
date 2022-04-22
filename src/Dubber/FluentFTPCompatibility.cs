@@ -2715,8 +2715,8 @@ namespace System.Linq {
 
 // $Id: Func.cs 71137f497bf2 2012/04/16 20:01:27 azizatif $
 
-namespace System {
-#if LINQBRIDGE_LIB
+namespace System 
+{
 	public delegate TResult Func<out TResult>();
 
 	public delegate TResult Func<in T, out TResult>(T a);
@@ -2726,19 +2726,6 @@ namespace System {
 	public delegate TResult Func<in T1, in T2, in T3, out TResult>(T1 arg1, T2 arg2, T3 arg3);
 
 	public delegate TResult Func<in T1, in T2, in T3, in T4, out TResult>(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
-
-#else
-	internal delegate TResult Func<TResult>();
-
-	internal delegate TResult Func<T, TResult>(T a);
-
-	internal delegate TResult Func<T1, T2, TResult>(T1 arg1, T2 arg2);
-
-	internal delegate TResult Func<T1, T2, T3, TResult>(T1 arg1, T2 arg2, T3 arg3);
-
-	internal delegate TResult Func<T1, T2, T3, T4, TResult>(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
-
-#endif
 }
 
 // $Id: IGrouping.cs 71137f497bf2 2012/04/16 20:01:27 azizatif $
@@ -3040,8 +3027,8 @@ namespace LinqBridge {
 
 // $Id: Action.cs 71137f497bf2 2012/04/16 20:01:27 azizatif $
 
-namespace System {
-#if LINQBRIDGE_LIB
+namespace System 
+{
 	public delegate void Action();
 
 	public delegate void Action<in T1, in T2>(T1 arg1, T2 arg2);
@@ -3049,17 +3036,6 @@ namespace System {
 	public delegate void Action<in T1, in T2, in T3>(T1 arg1, T2 arg2, T3 arg3);
 
 	public delegate void Action<in T1, in T2, in T3, in T4>(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
-
-#else
-	internal delegate void Action();
-
-	internal delegate void Action<T1, T2>(T1 arg1, T2 arg2);
-
-	internal delegate void Action<T1, T2, T3>(T1 arg1, T2 arg2, T3 arg3);
-
-	internal delegate void Action<T1, T2, T3, T4>(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
-
-#endif
 }
 
 #endif
