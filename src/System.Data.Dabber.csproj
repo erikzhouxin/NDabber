@@ -144,7 +144,4 @@
 	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
 	  </EmbeddedResource>
 	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Dubber\FluentFTP\" />
-	</ItemGroup>
 </Project>
