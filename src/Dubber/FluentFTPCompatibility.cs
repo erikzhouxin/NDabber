@@ -1,6 +1,13 @@
 ﻿using System;
+using System.Collections;
+using System.IO;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Globalization;
+using System.Net.Sockets;
+using System.Threading.Tasks;
+using System.Diagnostics;
 
 #region Extension Methods for .NET 2
 
@@ -40,7 +47,7 @@ public interface IProgress<T> {
 // Atif Aziz, Joseph Albahari. All rights reserved.
 
 namespace System.Linq {
-	#region Imports
+#region Imports
 
 	using System;
 	using Collections;
@@ -48,7 +55,7 @@ namespace System.Linq {
 	using Diagnostics;
 	using LinqBridge;
 
-	#endregion
+#endregion
 
 	/// <summary>
 	/// Provides a set of static (Shared in Visual Basic) methods for 
@@ -1803,12 +1810,12 @@ namespace System.Linq {
 // $Id: Enumerable.g.tt 71137f497bf2 2012/04/16 20:01:27 azizatif $
 
 namespace System.Linq {
-	#region Imports
+#region Imports
 
 	using System;
 	using Collections.Generic;
 
-	#endregion
+#endregion
 
 	// This partial implementation was template-generated:
 	// Mon, 16 Apr 2012 20:05:53 GMT
@@ -2737,11 +2744,11 @@ namespace System {
 // $Id: IGrouping.cs 71137f497bf2 2012/04/16 20:01:27 azizatif $
 
 namespace System.Linq {
-	#region Imports
+#region Imports
 
 	using Collections.Generic;
 
-	#endregion
+#endregion
 
 	/// <summary>
 	/// Represents a collection of objects that have a common key.
@@ -2775,12 +2782,12 @@ namespace System.Linq {
 // $Id: Internal.cs 1567e00f1a20 2012/04/17 16:09:51 azizatif $
 
 namespace LinqBridge {
-	#region Imports
+#region Imports
 
 	using System;
 	using System.Collections.Generic;
 
-	#endregion
+#endregion
 
 	/// <remarks>
 	/// This type is not intended to be used directly from user code.
@@ -2856,7 +2863,7 @@ namespace System.Linq {
 // $Id: Lookup.cs c08984d432b1 2012/04/17 16:05:19 azizatif $
 
 namespace System.Linq {
-	#region Imports
+#region Imports
 
 	using System;
 	using Collections;
@@ -2864,7 +2871,7 @@ namespace System.Linq {
 	using IEnumerable = Collections.IEnumerable;
 	using LinqBridge;
 
-	#endregion
+#endregion
 
 	/// <summary>
 	/// Represents a collection of keys each mapped to one or more values.
@@ -2946,7 +2953,7 @@ namespace System.Linq {
 // $Id: OrderedEnumerable.cs 71137f497bf2 2012/04/16 20:01:27 azizatif $
 
 namespace LinqBridge {
-	#region Imports
+#region Imports
 
 	using System;
 	using System.Collections;
@@ -2954,7 +2961,7 @@ namespace LinqBridge {
 	using System.Diagnostics;
 	using System.Linq;
 
-	#endregion
+#endregion
 
 	internal sealed class OrderedEnumerable<T, K> : IOrderedEnumerable<T> {
 		private readonly IEnumerable<T> _source;
@@ -3058,3 +3065,100 @@ namespace System {
 #endif
 
 #endregion
+
+#if NET20 || NET35
+namespace System.Data.Dubber {
+	/// <summary>
+	/// Extension methods related to FTP tasks
+	/// </summary>
+	public static class NET3Compatibility {
+
+		public static bool HasFlag(this FtpHashAlgorithm flags, FtpHashAlgorithm flag) {
+			return (flags & flag) == flag;
+		}
+
+		public static bool HasFlag(this FtpListOption flags, FtpListOption flag) {
+			return (flags & flag) == flag;
+		}
+
+		public static bool HasFlag(this FtpCompareOption flags, FtpCompareOption flag) {
+			return (flags & flag) == flag;
+		}
+
+		public static bool HasFlag(this FtpVerify flags, FtpVerify flag) {
+			return (flags & flag) == flag;
+		}
+
+		public static bool HasFlag(this FtpError flags, FtpError flag) {
+			return (flags & flag) == flag;
+		}
+
+		public static void Restart(this Stopwatch watch) {
+			watch.Stop();
+			watch.Start();
+		}
+
+	}
+}
+#endif
+
+#if NET45
+namespace System.Data.Dubber {
+	/// <summary>
+	/// Extension methods related to FTP tasks
+	/// </summary>
+	public static class NET45Compatibility {
+
+		/// <summary>
+		/// This creates a <see cref="System.Threading.Tasks.Task{TResult}"/> that represents a pair of begin and end methods
+		/// that conform to the Asynchronous Programming Model pattern.  This extends the maximum amount of arguments from
+		///  <see cref="o:System.Threading.TaskFactory.FromAsync"/> to 4 from a 3.  
+		/// </summary>
+		/// <typeparam name="TArg1">The type of the first argument passed to the <paramref name="beginMethod"/> delegate</typeparam>
+		/// <typeparam name="TArg2">The type of the second argument passed to the <paramref name="beginMethod"/> delegate</typeparam>
+		/// <typeparam name="TArg3">The type of the third argument passed to the <paramref name="beginMethod"/> delegate</typeparam>
+		/// <typeparam name="TArg4">The type of the forth argument passed to the <paramref name="beginMethod"/> delegate</typeparam>
+		/// <typeparam name="TResult">The type of the result.</typeparam>
+		/// <param name="factory">The <see cref="TaskFactory"/> used</param>
+		/// <param name="beginMethod">The delegate that begins the asynchronous operation</param>
+		/// <param name="endMethod">The delegate that ends the asynchronous operation</param>
+		/// <param name="arg1">The first argument passed to the <paramref name="beginMethod"/> delegate</param>
+		/// <param name="arg2">The second argument passed to the <paramref name="beginMethod"/> delegate</param>
+		/// <param name="arg3">The third argument passed to the <paramref name="beginMethod"/> delegate</param>
+		/// <param name="arg4">The forth argument passed to the <paramref name="beginMethod"/> delegate</param>
+		/// <param name="state">An object containing data to be used by the <paramref name="beginMethod"/> delegate</param>
+		/// <returns>The created <see cref="System.Threading.Tasks.Task{TResult}"/> that represents the asynchronous operation</returns>
+		/// <exception cref="System.ArgumentNullException">
+		/// beginMethod is null
+		/// or
+		/// endMethod is null
+		/// </exception>
+		public static Task<TResult> FromAsync<TArg1, TArg2, TArg3, TArg4, TResult>(this TaskFactory factory,
+			Func<TArg1, TArg2, TArg3, TArg4, AsyncCallback, object, IAsyncResult> beginMethod,
+			Func<IAsyncResult, TResult> endMethod,
+			TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4, object state) {
+			if (beginMethod == null) {
+				throw new ArgumentNullException("beginMethod");
+			}
+
+			if (endMethod == null) {
+				throw new ArgumentNullException("endMethod");
+			}
+
+			TaskCompletionSource<TResult> tcs = new TaskCompletionSource<TResult>(state, factory.CreationOptions);
+			try {
+				AsyncCallback callback = delegate (IAsyncResult asyncResult) { tcs.TrySetResult(endMethod(asyncResult)); };
+
+				beginMethod(arg1, arg2, arg3, arg4, callback, state);
+			}
+			catch {
+				tcs.TrySetResult(default(TResult));
+				throw;
+			}
+
+			return tcs.Task;
+		}
+
+	}
+}
+#endif

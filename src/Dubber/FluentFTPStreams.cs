@@ -20,69 +20,542 @@ using SysSslProtocols = System.Security.Authentication.SslProtocols;
 
 namespace System.Data.Dubber
 {
-	/// <summary>
-	/// Base class for data stream connections
-	/// </summary>
-	public class FtpDataStream : FtpSocketStream
-	{
-		private FtpReply m_commandStatus;
+    #region // Rules
+    /// <summary>
+    /// Only accept files that have the given extension, or exclude files of a given extension.
+    /// </summary>
+    public class FtpFileExtensionRule : FtpRule
+    {
 
-		/// <summary>
-		/// Gets the status of the command that was used to open
-		/// this data channel
-		/// </summary>
-		public FtpReply CommandStatus
-		{
-			get => m_commandStatus;
-			set => m_commandStatus = value;
-		}
+        /// <summary>
+        /// If true, only files of the given extension are uploaded or downloaded. If false, files of the given extension are excluded.
+        /// </summary>
+        public bool Whitelist;
 
-		private FtpClient m_control = null;
+        /// <summary>
+        /// The extensions to match
+        /// </summary>
+        public IList<string> Exts;
 
-		/// <summary>
-		/// Gets or sets the control connection for this data stream. Setting
-		/// the control connection causes the object to be cloned and a new
-		/// connection is made to the server to carry out the task. This ensures
-		/// that multiple streams can be opened simultaneously.
-		/// </summary>
-		public FtpClient ControlConnection
-		{
-			get => m_control;
-			set => m_control = value;
-		}
+        /// <summary>
+        /// Only accept files that have the given extension, or exclude files of a given extension.
+        /// </summary>
+        /// <param name="whitelist">If true, only files of the given extension are uploaded or downloaded. If false, files of the given extension are excluded.</param>
+        /// <param name="exts">The extensions to match</param>
+        public FtpFileExtensionRule(bool whitelist, IList<string> exts)
+        {
+            this.Whitelist = whitelist;
+            this.Exts = exts;
+        }
 
-		private long m_length = 0;
+        /// <summary>
+        /// Checks if the files has the given extension, or exclude files of the given extension.
+        /// </summary>
+        public override bool IsAllowed(FtpListItem item)
+        {
+            if (item.Type == FtpFileSystemObjectType.File)
+            {
+                var ext = Path.GetExtension(item.Name).Replace(".", "").ToLower();
+                if (Whitelist)
+                {
 
-		/// <summary>
-		/// Gets or sets the length of the stream. Only valid for file transfers
-		/// and only valid on servers that support the Size command.
-		/// </summary>
-		public override long Length => m_length;
+                    // whitelist
+                    if (ext.IsBlank())
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return Exts.Contains(ext);
+                    }
+                }
+                else
+                {
 
-		private long m_position = 0;
+                    // blacklist
+                    if (ext.IsBlank())
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return !Exts.Contains(ext);
+                    }
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
 
-		/// <summary>
-		/// Gets or sets the position of the stream
-		/// </summary>
-		public override long Position
-		{
-			get => m_position;
-			set => throw new InvalidOperationException("You cannot modify the position of a FtpDataStream. This property is updated as data is read or written to the stream.");
-		}
+    }
+    /// <summary>
+    /// Only accept files whose names match the given regular expression(s), or exclude files that match.
+    /// </summary>
+    public class FtpFileNameRegexRule : FtpRule
+    {
 
-		/// <summary>
-		/// Reads data off the stream
-		/// </summary>
-		/// <param name="buffer">The buffer to read into</param>
-		/// <param name="offset">Where to start in the buffer</param>
-		/// <param name="count">Number of bytes to read</param>
-		/// <returns>The number of bytes read</returns>
-		public override int Read(byte[] buffer, int offset, int count)
-		{
-			var read = base.Read(buffer, offset, count);
-			m_position += read;
-			return read;
-		}
+        /// <summary>
+        /// If true, only items where one of the supplied regex pattern matches are uploaded or downloaded.
+        /// If false, items where one of the supplied regex pattern matches are excluded.
+        /// </summary>
+        public bool Whitelist;
+
+        /// <summary>
+        /// The files names to match
+        /// </summary>
+        public List<string> RegexPatterns;
+
+        /// <summary>
+        /// Only accept items that match one of the supplied regex patterns.
+        /// </summary>
+        /// <param name="whitelist">If true, only items where one of the supplied regex pattern matches are uploaded or downloaded. If false, items where one of the supplied regex pattern matches are excluded.</param>
+        /// <param name="regexPatterns">The list of regex patterns to match. Only valid patterns are accepted and stored. If none of the patterns are valid, this rule is disabled and passes all objects.</param>
+        public FtpFileNameRegexRule(bool whitelist, IList<string> regexPatterns)
+        {
+            this.Whitelist = whitelist;
+            this.RegexPatterns = regexPatterns.Where(x => x.IsValidRegEx()).ToList();
+        }
+
+        /// <summary>
+        /// Checks if the FtpListItem Name does match any RegexPattern
+        /// </summary>
+        public override bool IsAllowed(FtpListItem item)
+        {
+
+            // if no valid regex patterns, accept all objects
+            if (RegexPatterns.Count == 0)
+            {
+                return true;
+            }
+
+            // only check files
+            if (item.Type == FtpFileSystemObjectType.File)
+            {
+                var fileName = item.Name;
+
+                if (Whitelist)
+                {
+                    return RegexPatterns.Any(x => Regex.IsMatch(fileName, x));
+                }
+                else
+                {
+                    return !RegexPatterns.Any(x => Regex.IsMatch(fileName, x));
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+    }
+    /// <summary>
+    /// Only accept files that have the given name, or exclude files of a given name.
+    /// </summary>
+    public class FtpFileNameRule : FtpRule
+    {
+
+        /// <summary>
+        /// If true, only files of the given name are uploaded or downloaded. If false, files of the given name are excluded.
+        /// </summary>
+        public bool Whitelist;
+
+        /// <summary>
+        /// The files names to match
+        /// </summary>
+        public IList<string> Names;
+
+        /// <summary>
+        /// Only accept files that have the given name, or exclude files of a given name.
+        /// </summary>
+        /// <param name="whitelist">If true, only files of the given name are downloaded. If false, files of the given name are excluded.</param>
+        /// <param name="names">The files names to match</param>
+        public FtpFileNameRule(bool whitelist, IList<string> names)
+        {
+            this.Whitelist = whitelist;
+            this.Names = names;
+        }
+
+        /// <summary>
+        /// Checks if the files has the given name, or exclude files of the given name.
+        /// </summary>
+        public override bool IsAllowed(FtpListItem item)
+        {
+            if (item.Type == FtpFileSystemObjectType.File)
+            {
+                var fileName = item.Name;
+                if (Whitelist)
+                {
+                    return Names.Contains(fileName);
+                }
+                else
+                {
+                    return !Names.Contains(fileName);
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+    }
+    /// <summary>
+    /// Only accept folders whose names match the given regular expression(s), or exclude folders that match.
+    /// </summary>
+    public class FtpFolderRegexRule : FtpRule
+    {
+
+        /// <summary>
+        /// If true, only folders where one of the supplied regex pattern matches are uploaded or downloaded.
+        /// If false, folders where one of the supplied regex pattern matches are excluded.
+        /// </summary>
+        public bool Whitelist;
+
+        /// <summary>
+        /// The files names to match
+        /// </summary>
+        public List<string> RegexPatterns;
+
+        /// <summary>
+        /// Which path segment to start checking from
+        /// </summary>
+        public int StartSegment;
+
+        /// <summary>
+        /// Only accept items that one of the supplied regex pattern.
+        /// </summary>
+        /// <param name="whitelist">If true, only folders where one of the supplied regex pattern matches are uploaded or downloaded. If false, folders where one of the supplied regex pattern matches are excluded.</param>
+        /// <param name="regexPatterns">The list of regex patterns to match. Only valid patterns are accepted and stored. If none of the patterns are valid, this rule is disabled and passes all objects.</param>
+        /// <param name="startSegment">Which path segment to start checking from. 0 checks root folder onwards. 1 skips root folder.</param>
+        public FtpFolderRegexRule(bool whitelist, IList<string> regexPatterns, int startSegment = 0)
+        {
+            this.Whitelist = whitelist;
+            this.RegexPatterns = regexPatterns.Where(x => x.IsValidRegEx()).ToList();
+            this.StartSegment = startSegment;
+        }
+
+        /// <summary>
+        /// Checks if the FtpListItem Name does match any RegexPattern
+        /// </summary>
+        public override bool IsAllowed(FtpListItem item)
+        {
+
+            // if no valid regex patterns, accept all objects
+            if (RegexPatterns.Count == 0)
+            {
+                return true;
+            }
+
+            // get the folder name of this item
+            string[] dirNameParts = null;
+            if (item.Type == FtpFileSystemObjectType.File)
+            {
+                dirNameParts = item.FullName.GetFtpDirectoryName().GetPathSegments();
+            }
+            else if (item.Type == FtpFileSystemObjectType.Directory)
+            {
+                dirNameParts = item.FullName.GetPathSegments();
+            }
+            else
+            {
+                return true;
+            }
+
+            // check against whitelist or blacklist
+            if (Whitelist)
+            {
+
+                // loop thru path segments starting at given index
+                for (int d = StartSegment; d < dirNameParts.Length; d++)
+                {
+                    var dirName = dirNameParts[d];
+
+                    // whitelist
+                    foreach (var pattern in RegexPatterns)
+                    {
+                        if (Regex.IsMatch(dirName.Trim(), pattern))
+                        {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            else
+            {
+
+                // loop thru path segments starting at given index
+                for (int d = StartSegment; d < dirNameParts.Length; d++)
+                {
+                    var dirName = dirNameParts[d];
+
+                    // blacklist
+                    foreach (var pattern in RegexPatterns)
+                    {
+                        if (Regex.IsMatch(dirName.Trim(), pattern))
+                        {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+        }
+
+    }
+    /// <summary>
+    /// Only accept folders that have the given name, or exclude folders of a given name.
+    /// </summary>
+    public class FtpFolderNameRule : FtpRule
+    {
+
+        public static List<string> CommonBlacklistedFolders = new List<string> {
+            ".git",
+            ".svn",
+            ".DS_Store",
+            "node_modules",
+        };
+
+        /// <summary>
+        /// If true, only folders of the given name are uploaded or downloaded.
+        /// If false, folders of the given name are excluded.
+        /// </summary>
+        public bool Whitelist;
+
+        /// <summary>
+        /// The folder names to match
+        /// </summary>
+        public IList<string> Names;
+
+        /// <summary>
+        /// Which path segment to start checking from
+        /// </summary>
+        public int StartSegment;
+
+        /// <summary>
+        /// Only accept folders that have the given name, or exclude folders of a given name.
+        /// </summary>
+        /// <param name="whitelist">If true, only folders of the given name are downloaded. If false, folders of the given name are excluded.</param>
+        /// <param name="names">The folder names to match</param>
+        /// <param name="startSegment">Which path segment to start checking from. 0 checks root folder onwards. 1 skips root folder.</param>
+        public FtpFolderNameRule(bool whitelist, IList<string> names, int startSegment = 0)
+        {
+            this.Whitelist = whitelist;
+            this.Names = names;
+            this.StartSegment = startSegment;
+        }
+
+        /// <summary>
+        /// Checks if the folders has the given name, or exclude folders of the given name.
+        /// </summary>
+        public override bool IsAllowed(FtpListItem item)
+        {
+
+            // get the folder name of this item
+            string[] dirNameParts = null;
+            if (item.Type == FtpFileSystemObjectType.File)
+            {
+                dirNameParts = item.FullName.GetFtpDirectoryName().GetPathSegments();
+            }
+            else if (item.Type == FtpFileSystemObjectType.Directory)
+            {
+                dirNameParts = item.FullName.GetPathSegments();
+            }
+            else
+            {
+                return true;
+            }
+
+            // check against whitelist or blacklist
+            if (Whitelist)
+            {
+
+                // loop thru path segments starting at given index
+                for (int d = StartSegment; d < dirNameParts.Length; d++)
+                {
+                    var dirName = dirNameParts[d];
+
+                    // whitelist
+                    if (Names.Contains(dirName.Trim()))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            else
+            {
+
+                // loop thru path segments starting at given index
+                for (int d = StartSegment; d < dirNameParts.Length; d++)
+                {
+                    var dirName = dirNameParts[d];
+
+                    // blacklist
+                    if (Names.Contains(dirName.Trim()))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+
+    }
+    /// <summary>
+    /// Base class used for all FTP Rules. Extend this class to create custom rules.
+    /// You only need to provide an implementation for IsAllowed, and add any custom arguments that you require.
+    /// </summary>
+    public class FtpRule
+    {
+
+        public FtpRule()
+        {
+        }
+
+        /// <summary>
+        /// Returns true if the object has passed this rules.
+        /// </summary>
+        public virtual bool IsAllowed(FtpListItem result)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Returns true if the object has passed all the rules.
+        /// </summary>
+        public static bool IsAllAllowed(List<FtpRule> rules, FtpListItem result)
+        {
+            foreach (var rule in rules)
+            {
+                if (!rule.IsAllowed(result))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+    }
+    /// <summary>
+    /// Only accept files that are of the given size, or within the given range of sizes.
+    /// </summary>
+    public class FtpSizeRule : FtpRule
+    {
+
+        /// <summary>
+        /// Which operator to use
+        /// </summary>
+        public FtpOperator Operator;
+
+        /// <summary>
+        /// The first value, required for all operators
+        /// </summary>
+        public long X;
+
+        /// <summary>
+        /// The second value, only required for BetweenRange and OutsideRange operators
+        /// </summary>
+        public long Y;
+
+        /// <summary>
+        /// Only accept files that are of the given size, or within the given range of sizes.
+        /// </summary>
+        /// <param name="ruleOperator">Which operator to use</param>
+        /// <param name="x">The first value, required for all operators</param>
+        /// <param name="y">The second value, only required for BetweenRange and OutsideRange operators.</param>
+        public FtpSizeRule(FtpOperator ruleOperator, long x, long y = 0)
+        {
+            this.Operator = ruleOperator;
+            this.X = x;
+            this.Y = y;
+        }
+
+        /// <summary>
+        /// Checks if the file is of the given size, or within the given range of sizes.
+        /// </summary>
+        public override bool IsAllowed(FtpListItem result)
+        {
+            if (result.Type == FtpFileSystemObjectType.File)
+            {
+                return Operators.Validate(Operator, result.Size, X, Y);
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+    }
+    #endregion // Rules
+    #region // Stream
+    /// <summary>
+    /// Base class for data stream connections
+    /// </summary>
+    public class FtpDataStream : FtpSocketStream
+    {
+        private FtpReply m_commandStatus;
+
+        /// <summary>
+        /// Gets the status of the command that was used to open
+        /// this data channel
+        /// </summary>
+        public FtpReply CommandStatus
+        {
+            get => m_commandStatus;
+            set => m_commandStatus = value;
+        }
+
+        private FtpClient m_control = null;
+
+        /// <summary>
+        /// Gets or sets the control connection for this data stream. Setting
+        /// the control connection causes the object to be cloned and a new
+        /// connection is made to the server to carry out the task. This ensures
+        /// that multiple streams can be opened simultaneously.
+        /// </summary>
+        public FtpClient ControlConnection
+        {
+            get => m_control;
+            set => m_control = value;
+        }
+
+        private long m_length = 0;
+
+        /// <summary>
+        /// Gets or sets the length of the stream. Only valid for file transfers
+        /// and only valid on servers that support the Size command.
+        /// </summary>
+        public override long Length => m_length;
+
+        private long m_position = 0;
+
+        /// <summary>
+        /// Gets or sets the position of the stream
+        /// </summary>
+        public override long Position
+        {
+            get => m_position;
+            set => throw new InvalidOperationException("You cannot modify the position of a FtpDataStream. This property is updated as data is read or written to the stream.");
+        }
+
+        /// <summary>
+        /// Reads data off the stream
+        /// </summary>
+        /// <param name="buffer">The buffer to read into</param>
+        /// <param name="offset">Where to start in the buffer</param>
+        /// <param name="count">Number of bytes to read</param>
+        /// <returns>The number of bytes read</returns>
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            var read = base.Read(buffer, offset, count);
+            m_position += read;
+            return read;
+        }
 
 #if ASYNC
 		/// <summary>
@@ -100,17 +573,17 @@ namespace System.Data.Dubber
 		}
 #endif
 
-		/// <summary>
-		/// Writes data to the stream
-		/// </summary>
-		/// <param name="buffer">The buffer to write to the stream</param>
-		/// <param name="offset">Where to start in the buffer</param>
-		/// <param name="count">The number of bytes to write to the buffer</param>
-		public override void Write(byte[] buffer, int offset, int count)
-		{
-			base.Write(buffer, offset, count);
-			m_position += count;
-		}
+        /// <summary>
+        /// Writes data to the stream
+        /// </summary>
+        /// <param name="buffer">The buffer to write to the stream</param>
+        /// <param name="offset">Where to start in the buffer</param>
+        /// <param name="count">The number of bytes to write to the buffer</param>
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            base.Write(buffer, offset, count);
+            m_position += count;
+        }
 
 #if ASYNC
 		/// <summary>
@@ -126,84 +599,84 @@ namespace System.Data.Dubber
 		}
 #endif
 
-		/// <summary>
-		/// Sets the length of this stream
-		/// </summary>
-		/// <param name="value">Value to apply to the Length property</param>
-		public override void SetLength(long value)
-		{
-			m_length = value;
-		}
+        /// <summary>
+        /// Sets the length of this stream
+        /// </summary>
+        /// <param name="value">Value to apply to the Length property</param>
+        public override void SetLength(long value)
+        {
+            m_length = value;
+        }
 
-		/// <summary>
-		/// Sets the position of the stream. Intended to be used
-		/// internally by FtpControlConnection.
-		/// </summary>
-		/// <param name="pos">The position</param>
-		public void SetPosition(long pos)
-		{
-			m_position = pos;
-		}
+        /// <summary>
+        /// Sets the position of the stream. Intended to be used
+        /// internally by FtpControlConnection.
+        /// </summary>
+        /// <param name="pos">The position</param>
+        public void SetPosition(long pos)
+        {
+            m_position = pos;
+        }
 
-		/// <summary>
-		/// Closes the connection and reads the server's reply
-		/// </summary>
-		public new FtpReply Close()
-		{
-			base.Close();
+        /// <summary>
+        /// Closes the connection and reads the server's reply
+        /// </summary>
+        public new FtpReply Close()
+        {
+            base.Close();
 
-			try
-			{
-				if (ControlConnection != null)
-				{
-					return ControlConnection.CloseDataStream(this);
-				}
-			}
-			finally
-			{
-				m_commandStatus = new FtpReply();
-				m_control = null;
-			}
+            try
+            {
+                if (ControlConnection != null)
+                {
+                    return ControlConnection.CloseDataStream(this);
+                }
+            }
+            finally
+            {
+                m_commandStatus = new FtpReply();
+                m_control = null;
+            }
 
-			return new FtpReply();
-		}
+            return new FtpReply();
+        }
 
-		/// <summary>
-		/// Creates a new data stream object
-		/// </summary>
-		/// <param name="conn">The control connection to be used for carrying out this operation</param>
-		public FtpDataStream(FtpClient conn) : base(conn)
-		{
-			if (conn == null)
-			{
-				throw new ArgumentException("The control connection cannot be null.");
-			}
+        /// <summary>
+        /// Creates a new data stream object
+        /// </summary>
+        /// <param name="conn">The control connection to be used for carrying out this operation</param>
+        public FtpDataStream(FtpClient conn) : base(conn)
+        {
+            if (conn == null)
+            {
+                throw new ArgumentException("The control connection cannot be null.");
+            }
 
-			ControlConnection = conn;
+            ControlConnection = conn;
 
-			// always accept certificate no matter what because if code execution ever
-			// gets here it means the certificate on the control connection object being
-			// cloned was already accepted.
-			ValidateCertificate += new FtpSocketStreamSslValidation(delegate (FtpSocketStream obj, FtpSslValidationEventArgs e) { e.Accept = true; });
+            // always accept certificate no matter what because if code execution ever
+            // gets here it means the certificate on the control connection object being
+            // cloned was already accepted.
+            ValidateCertificate += new FtpSocketStreamSslValidation(delegate (FtpSocketStream obj, FtpSslValidationEventArgs e) { e.Accept = true; });
 
-			m_position = 0;
-		}
+            m_position = 0;
+        }
 
-		/// <summary>
-		/// Finalizer
-		/// </summary>
-		~FtpDataStream()
-		{
-			// Fix: Hard catch and suppress all exceptions during disposing as there are constant issues with this method
-			try
-			{
-				Dispose(false);
-			}
-			catch (Exception ex)
-			{
-			}
-		}
-	}
+        /// <summary>
+        /// Finalizer
+        /// </summary>
+        ~FtpDataStream()
+        {
+            // Fix: Hard catch and suppress all exceptions during disposing as there are constant issues with this method
+            try
+            {
+                Dispose(false);
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+    }
 
     public static class FtpFileStream
     {
@@ -2188,4 +2661,5 @@ namespace System.Data.Dubber
     }
 
 #endif
+    #endregion // Stream
 }
