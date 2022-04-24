@@ -431,6 +431,7 @@ namespace System.Data.Dubber
         /// </summary>
         /// <param name="client">The FTP client</param>
         /// <param name="record">A line from the listing</param>
+        /// <param name="path"></param>
         /// <returns>FtpListItem if the item is able to be parsed</returns>
         public static FtpListItem Parse(FtpClient client, string record, string path)
         {
@@ -1908,9 +1909,9 @@ namespace System.Data.Dubber
                 {
                     txt = "null";
                 }
-                else if (v is string)
+                else if (v is string vs)
                 {
-                    txt = "\"" + v as string + "\"";
+                    txt = "\"" + vs + "\"";
                 }
                 else
                 {
@@ -1948,6 +1949,7 @@ namespace System.Data.Dubber
         /// Converts the FTP date string into a DateTime object, without performing any timezone conversion.
         /// </summary>
         /// <param name="dateString">The date string</param>
+        /// <param name="client"></param>
         /// <param name="formats">Date formats to try parsing the value from (eg "yyyyMMddHHmmss")</param>
         /// <returns>A <see cref="DateTime"/> object representing the date, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
         public static DateTime ParseFtpDate(this string dateString, FtpClient client, string[] formats = null)

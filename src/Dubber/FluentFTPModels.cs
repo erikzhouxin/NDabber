@@ -514,6 +514,9 @@ namespace System.Data.Dubber
             return sb.ToString();
         }
     }
+    /// <summary>
+    /// Ftp档案
+    /// </summary>
 #if !NETFx
     [Serializable]
 #endif
@@ -987,7 +990,10 @@ namespace System.Data.Dubber
                 FullName = useLocalPath ? LocalPath : RemotePath,
             };
         }
-
+        /// <summary>
+        /// 转换成文本
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             var sb = new StringBuilder();
@@ -1781,6 +1787,9 @@ namespace System.Data.Dubber
         /// </summary>
         SunOS,
     }
+    /// <summary>
+    /// 操作比较符
+    /// </summary>
     public enum FtpOperator
     {
 
@@ -2293,25 +2302,68 @@ namespace System.Data.Dubber
         MemberU = 3
     }
     #region // Socks
-
+    /// <summary>
+    /// 认证类型
+    /// </summary>
     public enum SocksAuthType
     {
+        /// <summary>
+        /// 无
+        /// </summary>
         NoAuthRequired = 0x00,
+        /// <summary>
+        /// GSSAPI
+        /// </summary>
         GSSAPI = 0x01,
+        /// <summary>
+        /// 用户名密码
+        /// </summary>
         UsernamePassword = 0x02,
+        /// <summary>
+        /// 不可访问的方法
+        /// </summary>
         NoAcceptableMethods = 0xFF
     }
-
+    /// <summary>
+    /// 握手回复
+    /// </summary>
     public enum SocksReply
     {
+        /// <summary>
+        /// 成功
+        /// </summary>
         Succeeded = 0x00,
+        /// <summary>
+        /// 普通错误
+        /// </summary>
         GeneralSOCKSServerFailure = 0x01,
+        /// <summary>
+        /// 不允许的权限
+        /// </summary>
         NotAllowedByRuleset = 0x02,
+        /// <summary>
+        /// 网络不可达
+        /// </summary>
         NetworkUnreachable = 0x03,
+        /// <summary>
+        /// 网站无法访问
+        /// </summary>
         HostUnreachable = 0x04,
+        /// <summary>
+        /// 连接拒绝
+        /// </summary>
         ConnectionRefused = 0x05,
+        /// <summary>
+        /// TTL超时
+        /// </summary>
         TTLExpired = 0x06,
+        /// <summary>
+        /// 命令不支持
+        /// </summary>
         CommandNotSupported = 0x07,
+        /// <summary>
+        /// 地址类型不支持
+        /// </summary>
         AddressTypeNotSupported = 0x08
     }
 
@@ -2693,17 +2745,30 @@ namespace System.Data.Dubber
 
 
     }
+    /// <summary>
+    /// 握手代理异常
+    /// </summary>
     public class SocksProxyException : Exception
     {
+        /// <summary>
+        /// 构造
+        /// </summary>
         public SocksProxyException()
         {
         }
-
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="message"></param>
         public SocksProxyException(string message)
             : base(message)
         {
         }
-
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="inner"></param>
         public SocksProxyException(string message, Exception inner)
             : base(message, inner)
         {

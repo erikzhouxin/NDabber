@@ -1085,7 +1085,10 @@ namespace System.Data.Dubber
 #endif
 
         #region Get z/OS File Size
-
+        /// <summary>
+        /// 是自定义文件大小
+        /// </summary>
+        /// <returns></returns>
         public override bool IsCustomFileSize()
         {
             return true;
@@ -1094,6 +1097,7 @@ namespace System.Data.Dubber
         /// <summary>
         /// Get z/OS file size
         /// </summary>
+        /// <param name="client"></param>
         /// <param name="path">The full path of the file whose size you want to retrieve</param>
         /// <remarks>
         /// Make sure you are in the right realm (z/OS or HFS) before doing this
@@ -1122,7 +1126,9 @@ namespace System.Data.Dubber
         /// <summary>
         /// Get z/OS file size
         /// </summary>
+        /// <param name="client"></param>
         /// <param name="path">The full path of the file whose size you want to retrieve</param>
+        /// <param name="token"></param>
         /// <remarks>
         /// Make sure you are in the right realm (z/OS or HFS) before doing this
         /// </remarks>

@@ -312,7 +312,9 @@ namespace System.Data.Dubber
     /// </summary>
     public class FtpFolderNameRule : FtpRule
     {
-
+        /// <summary>
+        /// 不列举的文件目录
+        /// </summary>
         public static List<string> CommonBlacklistedFolders = new List<string> {
             ".git",
             ".svn",
@@ -412,7 +414,9 @@ namespace System.Data.Dubber
     /// </summary>
     public class FtpRule
     {
-
+        /// <summary>
+        /// 构造
+        /// </summary>
         public FtpRule()
         {
         }
@@ -674,12 +678,12 @@ namespace System.Data.Dubber
             {
                 Dispose(false);
             }
-            catch (Exception ex)
-            {
-            }
+            catch (Exception) { }
         }
     }
-
+    /// <summary>
+    /// 文件流
+    /// </summary>
     public static class FtpFileStream
     {
 
@@ -866,8 +870,14 @@ namespace System.Data.Dubber
     /// </summary>
     public class FtpSocketStream : Stream, IDisposable
     {
+        /// <summary>
+        /// 客户端
+        /// </summary>
         public readonly FtpClient Client;
-
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="conn"></param>
         public FtpSocketStream(FtpClient conn)
         {
             Client = conn;
@@ -1328,6 +1338,7 @@ namespace System.Data.Dubber
         /// Bypass the stream and read directly off the socket.
         /// </summary>
         /// <param name="buffer">The buffer to read into</param>
+        /// <param name="token"></param>
         /// <returns>The number of bytes read</returns>
         internal async Task<int> RawSocketReadAsync(byte[] buffer, CancellationToken token)
         {
@@ -1520,6 +1531,7 @@ namespace System.Data.Dubber
         /// </summary>
         /// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
         /// <param name="bufferSize">The size of the buffer</param>
+        /// <param name="token"></param>
         /// <returns>A list of lines from the stream</returns>
         public async Task<IEnumerable<string>> ReadAllLinesAsync(System.Text.Encoding encoding, int bufferSize, CancellationToken token)
         {
@@ -1625,7 +1637,7 @@ namespace System.Data.Dubber
         /// <summary>
         /// Disconnects from server
         /// </summary>
-        public virtual void Close()
+        public override void Close()
         {
             Dispose(true);
         }
@@ -1653,14 +1665,12 @@ namespace System.Data.Dubber
             {
                 try
                 {
-#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETFx
                     m_sslStream.ShutdownAsync().RunSynchronously();
 #endif
                     m_sslStream.Dispose();
                 }
-                catch (Exception ex)
-                {
-                }
+                catch { }
 
                 m_sslStream = null;
             }
@@ -1673,9 +1683,7 @@ namespace System.Data.Dubber
                     m_bufStream.Flush();
                     m_bufStream.Dispose();
                 }
-                catch (Exception ex)
-                {
-                }
+                catch (Exception) { }
 
                 m_bufStream = null;
             }
@@ -1685,9 +1693,7 @@ namespace System.Data.Dubber
                 {
                     m_netStream.Dispose();
                 }
-                catch (Exception ex)
-                {
-                }
+                catch (Exception) { }
 
                 m_netStream = null;
             }
@@ -2206,7 +2212,7 @@ namespace System.Data.Dubber
         }
 #endif
 
-#if !CORE
+#if !NETFx
         /// <summary>
         /// Deactivates SSL on this stream using the specified protocols and reverts back to plain-text FTP.
         /// </summary>

@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net4;net45;netstandard2.1;netcoreapp2.1;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+		<TargetFrameworks>net4;net45;netstandard2.1;netcoreapp3.1;net5.0;net6.0;net6.0-windows</TargetFrameworks>
 		<Description>.NET管道通信项目</Description>
 		<AssemblyName>NSystem.Data.Piper</AssemblyName>
 		<RootNamespace>System.Data.Piper</RootNamespace>
@@ -31,9 +31,6 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|netstandard2.1'">
 		<DefineConstants>TRACE;DEBUG;NETFx;NETStd</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|netcoreapp2.1'">
-		<DefineConstants>TRACE;DEBUG;NETFx;NETCore</DefineConstants>
-	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|netcoreapp3.1'">
 		<DefineConstants>TRACE;DEBUG;NETFx;NETCore</DefineConstants>
 	</PropertyGroup>
@@ -42,6 +39,9 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|net6.0'">
 		<DefineConstants>TRACE;DEBUG;NETFx;NET60</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|net6.0-windows'">
+		<DefineConstants>TRACE;DEBUG;NETFx;NETWFx;NET60</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net4'">
 		<DefineConstants>TRACE;NETFrame;NET40</DefineConstants>
@@ -52,9 +52,6 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|netstandard2.1'">
 		<DefineConstants>TRACE;NETFx;NETStd</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|netcoreapp2.1'">
-		<DefineConstants>TRACE;NETFx;NETCore</DefineConstants>
-	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|netcoreapp3.1'">
 		<DefineConstants>TRACE;NETFx;NETCore</DefineConstants>
 	</PropertyGroup>
@@ -63,6 +60,9 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net6.0'">
 		<DefineConstants>TRACE;NETFx;NET60</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net6.0-windows'">
+		<DefineConstants>TRACE;NETFx;NETWFx;NET60</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net4'">
 	</ItemGroup>
@@ -85,6 +85,10 @@
 		<PackageReference Include="System.Security.Permissions" Version="4.7.0" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+		<PackageReference Include="System.IO.Pipes.AccessControl" Version="5.0.0" />
+		<PackageReference Include="System.Security.Permissions" Version="4.7.0" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
 		<PackageReference Include="System.IO.Pipes.AccessControl" Version="5.0.0" />
 		<PackageReference Include="System.Security.Permissions" Version="4.7.0" />
 	</ItemGroup>
