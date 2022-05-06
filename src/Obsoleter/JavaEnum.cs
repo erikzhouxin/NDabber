@@ -18,7 +18,21 @@ namespace System.Data.Cobber
     /// Java枚举接口
     /// </summary>
     [Obsolete("替代方案:INEnumerable")]
-    public interface IJavaEnum : INEnumerable { }
+    public interface IJavaEnum
+    {
+        /// <summary>
+        /// 枚举值
+        /// </summary>
+        int Value { get; }
+        /// <summary>
+        /// 枚举名
+        /// </summary>
+        string EnumName { get; }
+        /// <summary>
+        /// 名称
+        /// </summary>
+        string Name { get; }
+    }
     /// <summary>
     /// 抽象Java枚举
     /// </summary>
@@ -37,18 +51,6 @@ namespace System.Data.Cobber
         /// 名称
         /// </summary>
         public string Name { get; }
-
-        object INEnumerable.Enum => throw new NotImplementedException();
-
-        DescriptionAttribute INEnumerable.Description => throw new NotImplementedException();
-
-        DisplayNameAttribute INEnumerable.DisplayName => throw new NotImplementedException();
-
-        EDisplayAttribute INEnumerable.EDisplay => throw new NotImplementedException();
-
-        DisplayAttribute INEnumerable.Display => throw new NotImplementedException();
-
-        FieldInfo INEnumerable.Field => throw new NotImplementedException();
 
         /// <summary>
         /// 构造

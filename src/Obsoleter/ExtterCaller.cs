@@ -3682,7 +3682,7 @@ namespace System.Data.Extter
         /// </summary>
         /// <param name="special"></param>
         /// <returns></returns>
-        public static String GetFullPath(this Environment.SpecialFolder special)
+        public static String GetFullPath(Environment.SpecialFolder special)
         {
             return Path.GetFullPath(Environment.GetFolderPath(special));
         }

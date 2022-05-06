@@ -132,6 +132,36 @@ namespace System.Data.Cobber
             return JsonConvert.SerializeObject(value, LowerNewtonsoftSetting);
         }
     }
+    /// <summary>
+    /// 小写转换
+    /// </summary>
+    public class LowercaseContractResolver : DefaultContractResolver
+    {
+        /// <summary>
+        /// 转换属性名
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <returns></returns>
+        protected override string ResolvePropertyName(string propertyName)
+        {
+            return propertyName.ToLower();
+        }
+    }
+    /// <summary>
+    /// 大写转换
+    /// </summary>
+    public class UppercaseContractResolver : DefaultContractResolver
+    {
+        /// <summary>
+        /// 转换属性名
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <returns></returns>
+        protected override string ResolvePropertyName(string propertyName)
+        {
+            return propertyName.ToUpper();
+        }
+    }
 }
 namespace System.Data.Extter
 {

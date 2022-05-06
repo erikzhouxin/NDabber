@@ -4,29 +4,21 @@ using System.Data.Cobber;
 using System.Linq;
 using System.Text;
 
-namespace System.Data.Cobber
+namespace System.Data.Extter
 {
     /// <summary>
-    /// 表达式属性创建者
+    /// 扩展创建调用类
     /// </summary>
-    public static class ExpressionPropertyBuilder
+    public static partial class ExtterBuilder
     {
-        /// <summary>
-        /// 创建内容
-        /// </summary>
-        /// <returns></returns>
-        public static StringBuilder BuilderContent(Type type)
-        {
-            return BuilderContent(new Type[] { type });
-        }
         /// <summary>
         /// 创建内容
         /// </summary>
         /// <param name="types"></param>
         /// <returns></returns>
-        public static StringBuilder BuilderContent(params Type[] types)
+        public static StringBuilder BuildExpressionClassContent(params Type[] types)
         {
-            if (types.IsEmpty()) { return new StringBuilder(); }
+            if (types == null || types.Length == 0) { return new StringBuilder(); }
             var result = new StringBuilder();
             var usingList = new HashSet<string>()
             {
@@ -77,6 +69,12 @@ namespace System.Data.Cobber
                 .Append(typeBuilder);
             return result;
         }
-
+        /// <summary>
+        /// 创建内容
+        /// </summary>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        [Obsolete("替代方案:BuildExpressionClassContent")]
+        public static StringBuilder BuilderContent(params Type[] types) => BuildExpressionClassContent(types);
     }
 }

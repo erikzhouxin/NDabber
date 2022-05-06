@@ -420,14 +420,4 @@ namespace System.Data.Cobber
         public static Func<Int32, NEnumerable<TEnum>> GetFromInt32 { get; }
         #endregion
     }
-    /// <summary>
-    /// 枚举显示泛型类
-    /// </summary>
-    /// <typeparam name="TEnum"></typeparam>
-    [Obsolete("替代方案:NEnumerable<TEnum>")]
-    public class EDisplayAttr<TEnum> : NEnumerable<TEnum>
-        where TEnum : struct, Enum
-    {
-        private EDisplayAttr() : base(default(TEnum)) { }
-    }
 }

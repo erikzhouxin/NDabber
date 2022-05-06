@@ -789,7 +789,7 @@ namespace System.Data.Cobber
             var getMethodBody = Expression.Block(typeof(object), new[] { nameHash }, calHash, Expression.Switch(nameHash, Expression.Constant(null), getCases.ToArray()));
             InternalGetValue = Expression.Lambda<Func<T, string, object>>(getMethodBody, instance, memberName).Compile();
 
-            var getTypeMethodBody = Expression.Block(typeof(Type), new[] { nameHash }, calHash, Expression.Switch(nameHash, Expression.Constant(null), getTypeCases.ToArray()));
+            var getTypeMethodBody = Expression.Block(typeof(Type), new[] { nameHash }, calHash, Expression.Switch(nameHash, Expression.Constant(typeof(object)), getTypeCases.ToArray()));
             InternalGetType = Expression.Lambda<Func<string, Type>>(getTypeMethodBody, memberName).Compile();
 
             var setMethodBody = Expression.Block(typeof(object), new[] { nameHash }, calHash, Expression.Switch(nameHash, Expression.Constant(null), setCases.ToArray()));

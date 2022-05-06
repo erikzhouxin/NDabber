@@ -25,5 +25,18 @@ namespace System.Data.Extter
         {
             Process.Start(new ProcessStartInfo(fileName.FullName) { UseShellExecute = true });
         }
+        /// <summary>
+        /// 打开目录
+        /// </summary>
+        /// <param name="dir"></param>
+        public static void StartFolder(string dir) => StartFolder(new DirectoryInfo(dir));
+        /// <summary>
+        /// 打开目录
+        /// </summary>
+        /// <param name="fileName"></param>
+        public static void StartFolder(this DirectoryInfo fileName)
+        {
+            ExecHidden("explorer.exe", fileName.FullName, fileName.FullName);
+        }
     }
 }

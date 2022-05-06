@@ -2172,7 +2172,7 @@ namespace System.Data.Dubber
 
             return string.Format("{0:0.#} {1}", len, sizePostfix[order]);
         }
-        private static string[] sizePostfix = { "bytes", "KB", "MB", "GB", "TB" };
+        private static string[] sizePostfix = { "byte", "KB", "MB", "GB", "TB" };
 
 
     }
