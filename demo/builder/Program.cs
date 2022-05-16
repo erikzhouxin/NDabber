@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace builder
 {
@@ -25,7 +28,6 @@ namespace builder
                 ReplaceVersion(proj);
             }
         }
-
         private static void ReplaceVersion(string projFile)
         {
             var coreProj = Path.GetFullPath(projFile);

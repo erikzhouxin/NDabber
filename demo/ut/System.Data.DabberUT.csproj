@@ -27,7 +27,5 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\System.Data.Dabber.csproj" />
-		<ProjectReference Include="..\..\tools\Sqller\System.Data.Sqller.csproj" />
-		<ProjectReference Include="..\..\tools\Piper\System.Data.Piper.csproj" />
 	</ItemGroup>
 </Project>

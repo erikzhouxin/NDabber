@@ -350,5 +350,21 @@ namespace System.Data.Extter
         {
             return FuncIf(model) ? model : GetTrue(model);
         }
+        /// <summary>
+        /// 当为空时继续查找后续内容
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static string IfEmpty(this string value, params string[] args)
+        {
+            if (!string.IsNullOrEmpty(value)) { return value; }
+            if (args == null || args.Length == 0) { return value; }
+            foreach (var item in args)
+            {
+                if (!string.IsNullOrEmpty(item)) { return item; }
+            }
+            return string.Empty;
+        }
     }
 }

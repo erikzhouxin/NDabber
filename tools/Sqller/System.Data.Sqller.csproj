@@ -84,6 +84,9 @@
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
 	</ItemGroup>
 	<ItemGroup>
+	  <Compile Include="..\..\src\Dobber\SqlScriptBuilder.cs" Link="SqlScriptBuilder.cs" />
+	</ItemGroup>
+	<ItemGroup>
 		<ProjectReference Include="..\..\src\System.Data.Dabber.csproj" />
 	</ItemGroup>
 </Project>

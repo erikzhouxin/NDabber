@@ -756,5 +756,28 @@ namespace System.Data.Extter
             }
             return res.ToArray();
         }
+        /// <summary>
+        /// 计数
+        /// </summary>
+        /// <param name="ie"></param>
+        /// <returns></returns>
+        public static Int32 GetCount(this IEnumerable ie)
+        {
+            var index = 0;
+            foreach (var item in ie)
+            {
+                index++;
+            }
+            return index;
+        }
+        /// <summary>
+        /// 有元素
+        /// </summary>
+        /// <param name="ie"></param>
+        /// <returns></returns>
+        public static bool HasElement(this IEnumerable ie)
+        {
+            return ie.GetEnumerator().MoveNext();
+        }
     }
 }

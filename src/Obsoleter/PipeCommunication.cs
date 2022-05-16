@@ -12,7 +12,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 管道发送
     /// </summary>
-    [Obsolete("管道连接已经移植到[NSystem.Data.Piper]项目中")]
+    [Obsolete("管道连接已经移植到[System.Data.Dubber]目录中")]
     public class PipeCommunication
     {
         /// <summary>

@@ -52,13 +52,13 @@ namespace System.Data.DabberUT
         public void TestExpressionCode()
         {
             var path = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "CodeGeners"));
-            var typeBuilder = ExpressionPropertyBuilder.BuilderContent(typeof(TSysParams));
+            var typeBuilder = ExtterBuilder.BuilderContent(typeof(TSysParams));
             File.WriteAllText(Path.Combine(path, "ExpressionLambda.cs"), typeBuilder.ToString());
         }
         [TestMethod]
         public void TestExpressionToSql()
         {
-            ITestClass model = SampleClassBuilder<ITestClass>.CreateInstance();
+            ITestClass model = CobberBuilder.CreateSampleInstance<ITestClass>();
             model.ID = 1;
             model.Name = "周鑫";
             Console.WriteLine(model.GetJsonString());

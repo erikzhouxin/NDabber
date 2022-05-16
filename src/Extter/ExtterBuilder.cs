@@ -12,6 +12,19 @@ namespace System.Data.Extter
     public static partial class ExtterBuilder
     {
         /// <summary>
+        /// 创建一个参数字典
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static Dictionary<string, object> CreateParamDic(string key, object value)
+        {
+            return new Dictionary<string, object>()
+            {
+                { key, value }
+            };
+        }
+        /// <summary>
         /// 创建内容
         /// </summary>
         /// <param name="types"></param>

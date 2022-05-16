@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace System.Data.Sqller
+namespace System.Data.Dobber
 {
     /// <summary>
     /// SQL表达式调用

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Cobber;
 using System.Data.Dabber;
@@ -15,15 +14,13 @@ using System.Security.Permissions;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace System.Data.Piper
 {
     /// <summary>
     /// 管道调用方法
     /// </summary>
-    [SecurityCritical]
-    public static class PiperCaller
+    public static partial class PiperCaller
     {
         /// <summary>
         /// 创建一个命名管道实例
@@ -238,8 +235,6 @@ namespace System.Data.Piper
         [SecurityCritical]
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true, BestFitMapping = false)]
         internal static extern SafePipeHandle CreateNamedPipe(string pipeName, int openMode, int pipeMode, int maxInstances, int outBufferSize, int inBufferSize, int defaultTimeout, SECURITY_ATTRIBUTES securityAttributes);
-
-
         [SecurityCritical]
         internal static unsafe SECURITY_ATTRIBUTES GetSecAttrs(HandleInheritability inheritability, PipeSecurity pipeSecurity, out object pinningHandle)
         {
@@ -261,7 +256,6 @@ namespace System.Data.Piper
             }
             return securityAttributes;
         }
-
         [SecurityCritical]
         internal static void WinIOError(int errorCode, string maybeFullPath)
         {
@@ -300,7 +294,6 @@ namespace System.Data.Piper
             }
             throw new IOException(GetMessage(errorCode), MakeHRFromErrorCode(errorCode));
         }
-
         [SecuritySafeCritical]
         internal static string GetDisplayablePath(string path, bool isInvalidPath)
         {
@@ -342,13 +335,10 @@ namespace System.Data.Piper
         {
             return -2147024896 | errorCode;
         }
-
         [SecurityCritical]
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, BestFitMapping = false)]
         internal static extern int FormatMessage(int dwFlags, IntPtr lpSource, int dwMessageId, int dwLanguageId, StringBuilder lpBuffer, int nSize, IntPtr va_list_arguments);
-
         internal static readonly IntPtr NULL = IntPtr.Zero;
-
         [SecurityCritical]
         internal static string GetMessage(int errorCode)
         {
@@ -511,6 +501,112 @@ namespace System.Data.Piper
                 return new AlertPipeResult(true, "发送命令成功");
             }
             return AlertPipeResult.GetUnknown(model);
+        }
+    }
+    /// <summary>
+    /// 字符串数据
+    /// </summary>
+    public class AlertPipeString
+    {
+        /// <summary>
+        /// 命令
+        /// </summary>
+        public virtual string C { get; set; }
+        /// <summary>
+        /// 模型内容
+        /// </summary>
+        public virtual String M { get; set; }
+    }
+    /// <summary>
+    /// 管道提示结果
+    /// </summary>
+    public class AlertPipeResult : AlertPipeString
+    {
+        /// <summary>
+        /// 代码
+        /// </summary>
+        public int K { get; set; }
+        /// <summary>
+        /// 是否成功
+        /// </summary>
+        public bool I { get; set; }
+        /// <summary>
+        /// 文本提示
+        /// </summary>
+        public dynamic D { get; set; }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="alert"></param>
+        public AlertPipeResult(IAlertMsg alert)
+        {
+            C = alert.Code.ToString();
+            I = alert.IsSuccess;
+            M = alert.Message;
+            D = alert.Data;
+            K = alert.Code;
+        }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public AlertPipeResult() { }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="isSuccess"></param>
+        /// <param name="message"></param>
+        public AlertPipeResult(bool isSuccess, string message)
+        {
+            this.I = isSuccess;
+            this.M = message;
+        }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="isSuccess"></param>
+        /// <param name="message"></param>
+        /// <param name="code"></param>
+        /// <param name="data"></param>
+        public AlertPipeResult(bool isSuccess, string message, int code, object data)
+        {
+            this.I = isSuccess;
+            this.M = message;
+            this.C = code.ToString();
+            this.D = data;
+            this.K = code;
+        }
+        /// <summary>
+        /// 隐式转换
+        /// </summary>
+        /// <param name="alert"></param>
+        public static implicit operator AlertPipeResult(AlertMsg alert)
+        {
+            return new AlertPipeResult(alert);
+        }
+        /// <summary>
+        /// 隐式转换
+        /// </summary>
+        /// <param name="alert"></param>
+        public static implicit operator AlertMsg(AlertPipeResult alert)
+        {
+            return new AlertMsg(alert.I, alert.M) { Code = alert.K, Data = alert.D };
+        }
+        /// <summary>
+        /// 获取未知命令结果
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <returns></returns>
+        public static AlertPipeResult GetUnknown(AlertPipeString arg)
+        {
+            return new AlertPipeResult(false, "未知命令", 404, arg);
+        }
+        /// <summary>
+        /// 获取未知命令结果
+        /// </summary>
+        /// <returns></returns>
+        public static AlertPipeResult GetUnknown(string cmd, string msg)
+        {
+            return new AlertPipeResult(false, "未知命令", 404, new AlertPipeString() { C = cmd, M = msg });
         }
     }
 }
