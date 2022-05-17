@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Data.Cobber;
 using System.Linq;
 using System.Text;
 
@@ -51,6 +54,10 @@ public interface IPageResult
     /// 获取
     /// </summary>
     int Take { get; }
+    /// <summary>
+    /// 是客户端分页
+    /// </summary>
+    bool IsClient { get; }
 }
 /// <summary>
 /// 查询结果
@@ -130,6 +137,10 @@ public class PagingResult<T> : IPageResult<T>
     /// 获取
     /// </summary>
     public int Take { get { return Size; } }
+    /// <summary>
+    /// 是客户端分页
+    /// </summary>
+    public bool IsClient { get; set; }
 
     IEnumerable<object> IPageResult.Items => Items as IEnumerable<object>;
 
@@ -143,5 +154,39 @@ public class PagingResult<T> : IPageResult<T>
     {
         if (divisor == 0) { return 0; }
         return (int)Math.Ceiling(((decimal)devidend) / divisor);
+    }
+    /// <summary>
+    /// 隐式转换
+    /// </summary>
+    /// <param name="paging"></param>
+    public static implicit operator List<T>(PagingResult<T> paging)
+    {
+        return paging.Items.AsList();
+    }
+    /// <summary>
+    /// 隐式转换
+    /// </summary>
+    /// <param name="items"></param>
+    public static implicit operator PagingResult<T>(List<T> items)
+    {
+        return new PagingResult<T>(1, 20)
+        {
+            Items = items,
+            IsClient = true,
+            TotalCount = items.Count()
+        };
+    }
+    /// <summary>
+    /// 隐式转换
+    /// </summary>
+    /// <param name="items"></param>
+    public static implicit operator PagingResult<T>(ObservableCollection<T> items)
+    {
+        return new PagingResult<T>(1, 20)
+        {
+            Items = items,
+            IsClient = true,
+            TotalCount = items.Count()
+        };
     }
 }

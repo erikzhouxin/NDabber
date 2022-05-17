@@ -194,6 +194,51 @@ namespace System.Data.Cobber
         /// 通知序列集合
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static ObservableCollection<T> AsObservable<T>(this IEnumerable<T> list)
+        {
+            return list == null ? null : (list is ObservableCollection<T> olist ? olist : new ObservableCollection<T>(list));
+        }
+        /// <summary>
+        /// 通知序列集合
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static ObservableCollection<T> AsObservable<T>(this IEnumerable<object> list)
+            where T : class
+        {
+            if (list == null) { return null; }
+            var res = new ObservableCollection<T>();
+            foreach (var item in list)
+            {
+                res.Add(item as T);
+            }
+            return res;
+        }
+        /// <summary>
+        /// 通知序列集合
+        /// </summary>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="Convert"></param>
+        /// <returns></returns>
+        public static ObservableCollection<T2> AsObservable<T1, T2>(this IEnumerable<T1> list, Func<T1, T2> Convert)
+        {
+            if (list == null) { return null; }
+            var res = new ObservableCollection<T2>();
+            foreach (var item in list)
+            {
+                res.Add(Convert(item));
+            }
+            return res;
+        }
+        /// <summary>
+        /// 通知序列集合
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="array"></param>
         /// <returns></returns>
         public static IEnumerable<T> ToEnumerable<T>(this Array array)
