@@ -9706,7 +9706,7 @@ namespace System.Data.Dubber
                                 }
                             }
                         }
-                        Thread.Sleep(FXPProgressInterval); // Task.Delay(FXPProgressInterval);
+                        Thread.Sleep(FXPProgressInterval); // Task.Delay(FXPProgressInterval).Wait();
                     }
 
                     FtpTrace.WriteLine(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");

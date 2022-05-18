@@ -210,6 +210,7 @@ namespace System.Data.Cobber
             where T : class
         {
             if (list == null) { return null; }
+            if (list is ObservableCollection<T> olist) { return olist; }
             var res = new ObservableCollection<T>();
             foreach (var item in list)
             {
