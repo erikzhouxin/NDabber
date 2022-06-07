@@ -245,6 +245,20 @@ namespace System.Data.Extter
         /// <summary>
         /// 查询模型
         /// </summary>
+        /// <param name="page">模型,为空时,空列表</param>
+        /// <param name="values">查询值,为空时,源列表</param>
+        /// <returns></returns>
+        public static IPageResult<T> SearchModels<T>(this IPageResult<T> page, params string[] values)
+        {
+            if (page.Items.IsEmpty() || values.IsEmpty()) { return page; }
+            var valItems = values.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()).ToArray();
+            if (valItems.Length == 0) { return page; }
+            var funcGetList = PropertyAccess.GetAccess(page.Items.First()).FuncGetDic.Values;
+            return page.Reset(page.Items.Where(m => SearchContains<T>(m, valItems, funcGetList)));
+        }
+        /// <summary>
+        /// 查询模型
+        /// </summary>
         /// <param name="models"></param>
         /// <param name="values"></param>
         /// <returns></returns>
@@ -289,6 +303,14 @@ namespace System.Data.Extter
         /// <param name="searchContent">查询值,为空时,源列表</param>
         /// <param name="properties">查询属性,为空时,false</param>
         /// <returns></returns>
+        public static IPageResult<T> SearchModels<T>(this IPageResult<T> models, string searchContent, string[] properties) => SearchModels(models, GetSearchKeys(searchContent), properties);
+        /// <summary>
+        /// 查询模型
+        /// </summary>
+        /// <param name="models">模型,为空时,空列表</param>
+        /// <param name="searchContent">查询值,为空时,源列表</param>
+        /// <param name="properties">查询属性,为空时,false</param>
+        /// <returns></returns>
         public static IEnumerable<T> SearchOrModels<T>(this IEnumerable<T> models, string searchContent, string[] properties) => SearchOrModels(models, GetSearchKeys(searchContent), properties);
         /// <summary>
         /// 查询模型(指定字段,指定查找值)
@@ -305,6 +327,21 @@ namespace System.Data.Extter
             if (valItems.Length == 0) { return models; }
             var funcGetList = properties.IsEmpty() ? PropertyAccess.GetAccess(models.First()).FuncGetDic.Values : PropertyAccess.GetAccess(models.First()).FuncGetDic.Where(s => properties.Contains(s.Key)).Select(s => s.Value);
             return models.Where(m => SearchContains<T>(m, valItems, funcGetList));
+        }
+        /// <summary>
+        /// 查询模型(指定字段,指定查找值)
+        /// </summary>
+        /// <param name="page">模型,为空时,空列表</param>
+        /// <param name="properties">查找属性,为空时,空列表</param>
+        /// <param name="values">查找值,为空时,源列表</param>
+        /// <returns></returns>
+        public static IPageResult<T> SearchModels<T>(this IPageResult<T> page, string[] values, string[] properties)
+        {
+            if (page.Items.IsEmpty() || values.IsEmpty()) { return page; }
+            var valItems = values.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()).ToArray();
+            if (valItems.Length == 0) { return page; }
+            var funcGetList = properties.IsEmpty() ? PropertyAccess.GetAccess(page.Items.First()).FuncGetDic.Values : PropertyAccess.GetAccess(page.Items.First()).FuncGetDic.Where(s => properties.Contains(s.Key)).Select(s => s.Value);
+            return page.Reset(page.Items.Where(m => SearchContains<T>(m, valItems, funcGetList)));
         }
         /// <summary>
         /// 查询模型

@@ -25,6 +25,19 @@ namespace System.Data.Extter
             };
         }
         /// <summary>
+        /// 创建一个参数字典
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static Dictionary<string, object> CPDic(string key, object value)
+        {
+            return new Dictionary<string, object>()
+            {
+                { key, value }
+            };
+        }
+        /// <summary>
         /// 创建内容
         /// </summary>
         /// <param name="types"></param>

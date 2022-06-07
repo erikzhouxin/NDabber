@@ -181,6 +181,20 @@ namespace System.Data.Cobber
             return model;
         }
         /// <summary>
+        /// 附加内容
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="dic"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static Dictionary<TKey, TValue> Append<TKey, TValue>(this Dictionary<TKey, TValue> dic, TKey key, TValue value)
+        {
+            dic[key] = value;
+            return dic;
+        }
+        /// <summary>
         /// 通知序列集合
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -330,6 +344,19 @@ namespace System.Data.Cobber
             }
         }
         /// <summary>
+        /// 转换成列表
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> ToEnumerable<T>(this IEnumerable list, Func<object, T> action)
+        {
+            foreach (var item in list)
+            {
+                yield return action(item);
+            }
+        }
+        /// <summary>
         /// 循环处理
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -341,6 +368,35 @@ namespace System.Data.Cobber
             {
                 action(item);
             }
+        }
+        /// <summary>
+        /// 循环处理
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="action"></param>
+        public static IEnumerable<T> ForEach<T>(this IEnumerable list, Func<object, T> action)
+        {
+            foreach (var item in list)
+            {
+                yield return action(item);
+            }
+        }
+        /// <summary>
+        /// 循环处理
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="action"></param>
+        public static IEnumerable<T> ForEach<T>(this IEnumerable list, Action<T> action)
+        {
+            var ls = new List<T>();
+            foreach (T item in list)
+            {
+                action(item);
+                ls.Add(item);
+            }
+            return ls;
         }
         /// <summary>
         /// 循环处理
@@ -588,6 +644,26 @@ namespace System.Data.Cobber
                     yield return item;
                 }
             }
+        }
+        /// <summary>
+        /// 防止重复键导致的异常
+        /// </summary>
+        /// <typeparam name="TItem"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="models"></param>
+        /// <param name="GetKey"></param>
+        /// <param name="GetValue"></param>
+        /// <returns></returns>
+        public static Dictionary<TKey, TValue> GetDictionary<TItem, TKey, TValue>(this IEnumerable<TItem> models, Func<TItem, TKey> GetKey, Func<TItem, TValue> GetValue)
+        {
+            var res = new Dictionary<TKey, TValue>();
+            if (models == null) { return res; }
+            foreach (var model in models)
+            {
+                res[GetKey(model)] = GetValue(model);
+            }
+            return res;
         }
     }
 }

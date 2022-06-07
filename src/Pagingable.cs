@@ -16,6 +16,11 @@ public interface IPageResult<out T> : IPageResult
     /// 结果项
     /// </summary>
     new IEnumerable<T> Items { get; }
+    /// <summary>
+    /// 重置结果项
+    /// </summary>
+    /// <returns></returns>
+    new IPageResult<T> Reset<TRes>(IEnumerable<TRes> items);
 }
 /// <summary>
 /// 分页结果接口
@@ -45,7 +50,7 @@ public interface IPageResult
     /// <summary>
     /// 结果项
     /// </summary>
-    IEnumerable<object> Items { get; }
+    IEnumerable<object> Items { get; set; }
     /// <summary>
     /// 跳过
     /// </summary>
@@ -58,6 +63,16 @@ public interface IPageResult
     /// 是客户端分页
     /// </summary>
     bool IsClient { get; }
+    /// <summary>
+    /// 重置结果项
+    /// </summary>
+    /// <returns></returns>
+    IPageResult Reset();
+    /// <summary>
+    /// 重置结果项
+    /// </summary>
+    /// <returns></returns>
+    IPageResult Reset<TRes>(IEnumerable<TRes> items);
 }
 /// <summary>
 /// 查询结果
@@ -142,7 +157,7 @@ public class PagingResult<T> : IPageResult<T>
     /// </summary>
     public bool IsClient { get; set; }
 
-    IEnumerable<object> IPageResult.Items => Items as IEnumerable<object>;
+    IEnumerable<object> IPageResult.Items { get => Items as IEnumerable<object>; set => Items = value as IEnumerable<T>; }
 
     /// <summary>
     /// 进一除法
@@ -152,9 +167,41 @@ public class PagingResult<T> : IPageResult<T>
     /// <returns></returns>
     public static int CeilDividend(int devidend, int divisor)
     {
-        if (divisor == 0) { return 0; }
+        if (divisor == 0 || devidend == 0) { return 1; }
         return (int)Math.Ceiling(((decimal)devidend) / divisor);
     }
+    /// <summary>
+    /// 重置
+    /// </summary>
+    /// <returns></returns>
+    public IPageResult Reset()
+    {
+        Items = new List<T>();
+        return this;
+    }
+    /// <summary>
+    /// 重设项
+    /// </summary>
+    /// <typeparam name="TRes"></typeparam>
+    /// <param name="items"></param>
+    /// <returns></returns>
+    IPageResult IPageResult.Reset<TRes>(IEnumerable<TRes> items)
+    {
+        Items = items as IEnumerable<T>;
+        return this;
+    }
+    /// <summary>
+    /// 重设项
+    /// </summary>
+    /// <typeparam name="TRes"></typeparam>
+    /// <param name="items"></param>
+    /// <returns></returns>
+    public IPageResult<T> Reset<TRes>(IEnumerable<TRes> items)
+    {
+        Items = items as IEnumerable<T>;
+        return this;
+    }
+
     /// <summary>
     /// 隐式转换
     /// </summary>

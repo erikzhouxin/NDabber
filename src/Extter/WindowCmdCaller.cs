@@ -86,5 +86,10 @@ namespace System.Data.Extter
         /// <param name="serviceName"></param>
         /// <returns></returns>
         public static IAlertMsg NetStop(string serviceName) => ExecHidden("net", WindowDir, $" stop {serviceName}");
+        /// <summary>
+        /// 资源管理器打开目录(不重复打开)
+        /// </summary>
+        /// <param name="dir"></param>
+        public static void StartExplorer(this DirectoryInfo dir) => ExecHidden("cmd", dir.FullName, $" /c start \"\" \"{dir.FullName}\"");
     }
 }

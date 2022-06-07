@@ -190,6 +190,10 @@ namespace System.Data.Sqller
         /// </summary>
         public virtual String SqlScript => ToString();
         /// <summary>
+        /// 计数脚本
+        /// </summary>
+        public virtual String SqlCount => GetSqlCount();
+        /// <summary>
         /// 构造
         /// </summary>
         /// <param name="storeType"></param>
@@ -425,6 +429,11 @@ namespace System.Data.Sqller
             }
             return String.Empty;
         }
+        /// <summary>
+        /// 获取SQL计数
+        /// </summary>
+        /// <returns></returns>
+        public abstract String GetSqlCount();
     }
 
     #region // SqlScriptDeleteBuilder
@@ -517,7 +526,18 @@ namespace System.Data.Sqller
                 .Append(_whereClause == null ? "" : $" WHERE {_whereClause}")
                 .ToString();
         }
-
+        /// <summary>
+        /// 获取SQL计数
+        /// </summary>
+        /// <returns></returns>
+        public override String GetSqlCount()
+        {
+            return new StringBuilder()
+                .Append($"SELECT COUNT(*) AS {GetQuot("ANum")} FROM ")
+                .Append(CurrentTag.TAlias)
+                .Append(_whereClause == null ? "" : $" WHERE {_whereClause}")
+                .ToString();
+        }
         /// <summary>
         /// 删除条件
         /// </summary>
@@ -654,6 +674,14 @@ namespace System.Data.Sqller
                     .ToString();
             }
             return CurrentTag.SqlModel.Insert;
+        }
+        /// <summary>
+        /// 获取SQL计数
+        /// </summary>
+        /// <returns></returns>
+        public override String GetSqlCount()
+        {
+            return CurrentTag.SqlModel.SelectCount;
         }
         #region // Select部分
         private bool _isSelect;
@@ -955,6 +983,18 @@ namespace System.Data.Sqller
                 .Append(_whereClause == null ? "" : $" WHERE {_whereClause}")
                 .ToString();
         }
+        /// <summary>
+        /// 获取SQL计数
+        /// </summary>
+        /// <returns></returns>
+        public override String GetSqlCount()
+        {
+            return new StringBuilder()
+                .Append($"SELECT COUNT(*) AS {GetQuot("ANum")} FROM ")
+                .Append(CurrentTag.Table)
+                .Append(_whereClause == null ? "" : $" WHERE {_whereClause}")
+                .ToString();
+        }
         #region // From部分
         /// <summary>
         /// 设置修改表
@@ -1234,6 +1274,10 @@ namespace System.Data.Sqller
         /// </summary>
         string SqlScript { get; }
         /// <summary>
+        /// 计数脚本
+        /// </summary>
+        string SqlCount { get; }
+        /// <summary>
         /// 获取SQL及模型参数
         /// </summary>
         /// <param name="model"></param>
@@ -1246,6 +1290,11 @@ namespace System.Data.Sqller
         /// <param name="model"></param>
         /// <returns></returns>
         ISqlScriptParameters SetParameter<T>(T model) where T : class;
+        /// <summary>
+        /// 获取计数SQL
+        /// </summary>
+        /// <returns></returns>
+        string GetSqlCount();
     }
     /// <summary>
     /// 查询创建
@@ -1620,6 +1669,20 @@ namespace System.Data.Sqller
                 .Append(_havingClause == null ? String.Empty : $" HAVING {_havingClause}")
                 .Append(_orderClause == null ? String.Empty : $" ORDER BY {_orderClause}")
                 .Append(GetLimit())
+                .ToString();
+        }
+        /// <summary>
+        /// 获取SQL计数
+        /// </summary>
+        /// <returns></returns>
+        public override String GetSqlCount()
+        {
+            return new StringBuilder()
+                .Append($"SELECT COUNT(*) AS {GetQuot("ANum")} FROM ")
+                .Append(_fromClause)
+                .Append(_whereClause == null ? String.Empty : $" WHERE {_whereClause}")
+                .Append(_groupClause == null ? String.Empty : $" GROUP BY {_groupClause}")
+                .Append(_havingClause == null ? String.Empty : $" HAVING {_havingClause}")
                 .ToString();
         }
         #region // FROM

@@ -150,6 +150,34 @@ namespace System.Data.Cobber
             }
         }
         /// <summary>
+        /// 获取泛型类型对象列表及计数
+        /// </summary>
+        /// <returns></returns>
+        public virtual IPageResult<T> QueryAndCount<T>(String querySql, string countSql, int page, int size, object queryArgs = null, object countArgs = null)
+        {
+            using (var conn = Connection)
+            {
+                return new PagingResult<T>(page, size)
+                {
+                    TotalCount = conn.QueryFirstOrDefault<int>(countSql, countArgs),
+                    Items = conn.Query<T>(querySql, queryArgs).ToList(),
+                };
+            }
+        }
+        /// <summary>
+        /// 获取泛型类型对象列表及计数
+        /// </summary>
+        /// <returns></returns>
+        public virtual IPageResult<T> QueryAndCount<T>(String querySql, string countSql, PagingResult<T> pageResult, object queryArgs = null, object countArgs = null)
+        {
+            using (var conn = Connection)
+            {
+                pageResult.TotalCount = conn.QueryFirstOrDefault<int>(countSql, countArgs);
+                pageResult.Items = conn.Query<T>(querySql, queryArgs).ToList();
+                return pageResult;
+            }
+        }
+        /// <summary>
         /// 获取动态类型对象列表
         /// </summary>
         /// <param name="sql"></param>
