@@ -25,6 +25,16 @@ namespace System.Data.Extter
             };
         }
         /// <summary>
+        /// 创建
+        /// </summary>
+        /// <param name="dllPath"></param>
+        /// <returns></returns>
+        public static IAssemblyCDllModel CreateCDllModel(string dllPath)
+        {
+            return new AssemblyCDllModel(dllPath);
+        }
+
+        /// <summary>
         /// 创建一个参数字典
         /// </summary>
         /// <param name="key"></param>

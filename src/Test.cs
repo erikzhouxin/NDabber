@@ -124,4 +124,17 @@ public static class TestTry
             }
         });
     }
+    /// <summary>
+    /// 调试输出
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    public static T DebugConsole<T>(this T model)
+    {
+#if DEBUG
+        Console.WriteLine(model);
+#endif
+        return model;
+    }
 }

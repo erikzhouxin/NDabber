@@ -13,6 +13,7 @@ namespace System.Data.DabberUT
         [TestMethod]
         public void MyTestMethod()
         {
+            new Dictionary<int, int[]> { { 209, new int[] { 209, 290 } } }.GetJsonString().DebugConsole();
             int times = 10000;
             var now = DateTime.Now;
             TestJsonSerial(times, now);

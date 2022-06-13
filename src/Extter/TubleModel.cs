@@ -12,67 +12,91 @@ namespace System.Data.Extter
     public static class Tuble
     {
         /// <summary>
+        /// 创建一元组
+        /// </summary>
+        /// <returns></returns>
+        public static Tuble<T1> Create<T1>(T1 model1)
+            => new Tuble<T1>(model1);
+        /// <summary>
         /// 创建二元组
         /// </summary>
         /// <returns></returns>
         public static Tuble<T1, T2> Create<T1, T2>(T1 model1, T2 model2)
-        {
-            return new Tuble<T1, T2>(model1, model2);
-        }
+            => new Tuble<T1, T2>(model1, model2);
         /// <summary>
         /// 创建三元组
         /// </summary>
         /// <returns></returns>
         public static Tuble<T1, T2, T3> Create<T1, T2, T3>(T1 model1, T2 model2, T3 model3)
-        {
-            return new Tuble<T1, T2, T3>(model1, model2, model3);
-        }
+            => new Tuble<T1, T2, T3>(model1, model2, model3);
         /// <summary>
         /// 创建四元组
         /// </summary>
         /// <returns></returns>
         public static Tuble<T1, T2, T3, T4> Create<T1, T2, T3, T4>(T1 model1, T2 model2, T3 model3, T4 model4)
-        {
-            return new Tuble<T1, T2, T3, T4>(model1, model2, model3, model4);
-        }
+            => new Tuble<T1, T2, T3, T4>(model1, model2, model3, model4);
         /// <summary>
         /// 创建五元组
         /// </summary>
         /// <returns></returns>
         public static Tuble<T1, T2, T3, T4, T5> Create<T1, T2, T3, T4, T5>(T1 model1, T2 model2, T3 model3, T4 model4, T5 model5)
-        {
-            return new Tuble<T1, T2, T3, T4, T5>(model1, model2, model3, model4, model5);
-        }
+            => new Tuble<T1, T2, T3, T4, T5>(model1, model2, model3, model4, model5);
         /// <summary>
         /// 创建六元组
         /// </summary>
         /// <returns></returns>
         public static Tuble<T1, T2, T3, T4, T5, T6> Create<T1, T2, T3, T4, T5, T6>(T1 model1, T2 model2, T3 model3, T4 model4, T5 model5, T6 model6)
-        {
-            return new Tuble<T1, T2, T3, T4, T5, T6>(model1, model2, model3, model4, model5, model6);
-        }
+            => new Tuble<T1, T2, T3, T4, T5, T6>(model1, model2, model3, model4, model5, model6);
         /// <summary>
         /// 创建七元组
         /// </summary>
         /// <returns></returns>
         public static Tuble<T1, T2, T3, T4, T5, T6, T7> Create<T1, T2, T3, T4, T5, T6, T7>(T1 model1, T2 model2, T3 model3, T4 model4, T5 model5, T6 model6, T7 model7)
-        {
-            return new Tuble<T1, T2, T3, T4, T5, T6, T7>(model1, model2, model3, model4, model5, model6, model7);
-        }
+            => new Tuble<T1, T2, T3, T4, T5, T6, T7>(model1, model2, model3, model4, model5, model6, model7);
         /// <summary>
         /// 创建八元组
         /// </summary>
         /// <returns></returns>
         public static Tuble<T1, T2, T3, T4, T5, T6, T7, T8> Create<T1, T2, T3, T4, T5, T6, T7, T8>(T1 model1, T2 model2, T3 model3, T4 model4, T5 model5, T6 model6, T7 model7, T8 model8)
-        {
-            return new Tuble<T1, T2, T3, T4, T5, T6, T7, T8>(model1, model2, model3, model4, model5, model6, model7, model8);
-        }
+            => new Tuble<T1, T2, T3, T4, T5, T6, T7, T8>(model1, model2, model3, model4, model5, model6, model7, model8);
     }
     #region // 扩展类
     /// <summary>
+    /// 一元组
+    /// </summary>
+    /// <typeparam name="T1"></typeparam>
+    public class Tuble<T1> : ITuble<T1>, ICloneable
+    {
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public Tuble()
+        {
+
+        }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="item1"></param>
+        public Tuble(T1 item1)
+        {
+            Item1 = item1;
+        }
+        /// <summary>
+        /// 项一
+        /// </summary>
+        public virtual T1 Item1 { get; set; }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        public virtual ITuble<T1> Clone() => new Tuble<T1>(Item1);
+        object ICloneable.Clone() => Clone();
+    }
+    /// <summary>
     /// 二元组
     /// </summary>
-    public class Tuble<T1, T2> : ITuble<T1, T2>
+    public class Tuble<T1, T2> : Tuble<T1>, ITuble<T1, T2>, ICloneable
     {
         /// <summary>
         /// 构造
@@ -89,18 +113,20 @@ namespace System.Data.Extter
             Item2 = item2;
         }
         /// <summary>
-        /// 项一
-        /// </summary>
-        public virtual T1 Item1 { get; set; }
-        /// <summary>
         /// 项二
         /// </summary>
         public virtual T2 Item2 { get; set; }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        public new ITuble<T1, T2> Clone() => new Tuble<T1, T2>(Item1, Item2);
+        object ICloneable.Clone() => Clone();
     }
     /// <summary>
     /// 二元组
     /// </summary>
-    public class TubleInt32 : Tuble<int, int>
+    public class TubleInt32 : Tuble<int, int>, ICloneable
     {
         /// <summary>
         /// 构造
@@ -124,7 +150,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 二元组
     /// </summary>
-    public class Tuble2Int32 : TubleInt32
+    public class Tuble2Int32 : TubleInt32, ICloneable
     {
         /// <summary>
         /// 构造
@@ -140,7 +166,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 二元组
     /// </summary>
-    public class TubleString : Tuble<string, string>
+    public class TubleString : Tuble<string, string>, ICloneable
     {
         /// <summary>
         /// 构造
@@ -164,7 +190,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 二元组
     /// </summary>
-    public class Tuble2CheckString : Tuble<bool, string>
+    public class Tuble2CheckString : Tuble<bool, string>, ICloneable
     {
         /// <summary>
         /// 构造
@@ -383,7 +409,7 @@ namespace System.Data.Extter
     /// <typeparam name="T1"></typeparam>
     /// <typeparam name="T2"></typeparam>
     /// <typeparam name="T3"></typeparam>
-    public class Tuble<T1, T2, T3> : ITuble<T1, T2, T3>
+    public class Tuble<T1, T2, T3> : Tuble<T1, T2>, ITuble<T1, T2, T3>, ICloneable
     {
         /// <summary>
         /// 无参构造
@@ -402,17 +428,15 @@ namespace System.Data.Extter
             Item3 = m3;
         }
         /// <summary>
-        /// 项一
-        /// </summary>
-        public virtual T1 Item1 { get; set; }
-        /// <summary>
-        /// 项二
-        /// </summary>
-        public virtual T2 Item2 { get; set; }
-        /// <summary>
         /// 项三
         /// </summary>
         public virtual T3 Item3 { get; set; }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        public new ITuble<T1, T2, T3> Clone() => new Tuble<T1, T2, T3>(Item1, Item2, Item3);
+        object ICloneable.Clone() => Clone();
     }
     /// <summary>
     /// 二元组类型标记
@@ -729,7 +753,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 四元组
     /// </summary>
-    public class Tuble<T1, T2, T3, T4> : ITuble<T1, T2, T3, T4>
+    public class Tuble<T1, T2, T3, T4> : Tuble<T1, T2, T3>, ITuble<T1, T2, T3, T4>, ICloneable
     {
         /// <summary>
         /// 无参构造
@@ -750,21 +774,15 @@ namespace System.Data.Extter
             Item4 = m4;
         }
         /// <summary>
-        /// 项一
-        /// </summary>
-        public virtual T1 Item1 { get; set; }
-        /// <summary>
-        /// 项二
-        /// </summary>
-        public virtual T2 Item2 { get; set; }
-        /// <summary>
-        /// 项三
-        /// </summary>
-        public virtual T3 Item3 { get; set; }
-        /// <summary>
         /// 项四
         /// </summary>
         public virtual T4 Item4 { get; set; }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        public new ITuble<T1, T2, T3, T4> Clone() => new Tuble<T1, T2, T3, T4>(Item1, Item2, Item3, Item4);
+        object ICloneable.Clone() => Clone();
     }
     /// <summary>
     /// 4元组检查对象
@@ -841,7 +859,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 五元组
     /// </summary>
-    public class Tuble<T1, T2, T3, T4, T5> : ITuble<T1, T2, T3, T4, T5>
+    public class Tuble<T1, T2, T3, T4, T5> : Tuble<T1, T2, T3, T4>, ITuble<T1, T2, T3, T4, T5>, ICloneable
     {
         /// <summary>
         /// 无参构造
@@ -864,25 +882,15 @@ namespace System.Data.Extter
             Item5 = m5;
         }
         /// <summary>
-        /// 项一
-        /// </summary>
-        public virtual T1 Item1 { get; set; }
-        /// <summary>
-        /// 项二
-        /// </summary>
-        public virtual T2 Item2 { get; set; }
-        /// <summary>
-        /// 项三
-        /// </summary>
-        public virtual T3 Item3 { get; set; }
-        /// <summary>
-        /// 项四
-        /// </summary>
-        public virtual T4 Item4 { get; set; }
-        /// <summary>
         /// 项五
         /// </summary>
         public virtual T5 Item5 { get; set; }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        public new ITuble<T1, T2, T3, T4, T5> Clone() => new Tuble<T1, T2, T3, T4, T5>(Item1, Item2, Item3, Item4, Item5);
+        object ICloneable.Clone() => Clone();
     }
     /// <summary>
     /// 5元组检查对象
@@ -963,7 +971,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 六元组
     /// </summary>
-    public class Tuble<T1, T2, T3, T4, T5, T6> : ITuble<T1, T2, T3, T4, T5, T6>
+    public class Tuble<T1, T2, T3, T4, T5, T6> : Tuble<T1, T2, T3, T4, T5>, ITuble<T1, T2, T3, T4, T5, T6>, ICloneable
     {
         /// <summary>
         /// 无参构造
@@ -988,29 +996,15 @@ namespace System.Data.Extter
             Item6 = m6;
         }
         /// <summary>
-        /// 项一
-        /// </summary>
-        public virtual T1 Item1 { get; set; }
-        /// <summary>
-        /// 项二
-        /// </summary>
-        public virtual T2 Item2 { get; set; }
-        /// <summary>
-        /// 项三
-        /// </summary>
-        public virtual T3 Item3 { get; set; }
-        /// <summary>
-        /// 项四
-        /// </summary>
-        public virtual T4 Item4 { get; set; }
-        /// <summary>
-        /// 项五
-        /// </summary>
-        public virtual T5 Item5 { get; set; }
-        /// <summary>
         /// 项六
         /// </summary>
         public virtual T6 Item6 { get; set; }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        public new ITuble<T1, T2, T3, T4, T5, T6> Clone() => new Tuble<T1, T2, T3, T4, T5, T6>(Item1, Item2, Item3, Item4, Item5, Item6);
+        object ICloneable.Clone() => Clone();
     }
     /// <summary>
     /// 6元组检查对象
@@ -1095,7 +1089,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 七元组
     /// </summary>
-    public class Tuble<T1, T2, T3, T4, T5, T6, T7> : ITuble<T1, T2, T3, T4, T5, T6, T7>
+    public class Tuble<T1, T2, T3, T4, T5, T6, T7> : Tuble<T1, T2, T3, T4, T5, T6>, ITuble<T1, T2, T3, T4, T5, T6, T7>, ICloneable
     {
         /// <summary>
         /// 无参构造
@@ -1122,33 +1116,15 @@ namespace System.Data.Extter
             Item7 = m7;
         }
         /// <summary>
-        /// 项一
-        /// </summary>
-        public virtual T1 Item1 { get; set; }
-        /// <summary>
-        /// 项二
-        /// </summary>
-        public virtual T2 Item2 { get; set; }
-        /// <summary>
-        /// 项三
-        /// </summary>
-        public virtual T3 Item3 { get; set; }
-        /// <summary>
-        /// 项四
-        /// </summary>
-        public virtual T4 Item4 { get; set; }
-        /// <summary>
-        /// 项五
-        /// </summary>
-        public virtual T5 Item5 { get; set; }
-        /// <summary>
-        /// 项六
-        /// </summary>
-        public virtual T6 Item6 { get; set; }
-        /// <summary>
         /// 项七
         /// </summary>
         public virtual T7 Item7 { get; set; }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        public new ITuble<T1, T2, T3, T4, T5, T6, T7> Clone() => new Tuble<T1, T2, T3, T4, T5, T6, T7>(Item1, Item2, Item3, Item4, Item5, Item6, Item7);
+        object ICloneable.Clone() => Clone();
     }
     /// <summary>
     /// 7元组检查对象
@@ -1237,7 +1213,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 八元组
     /// </summary>
-    public class Tuble<T1, T2, T3, T4, T5, T6, T7, T8> : ITuble<T1, T2, T3, T4, T5, T6, T7, T8>
+    public class Tuble<T1, T2, T3, T4, T5, T6, T7, T8> : Tuble<T1, T2, T3, T4, T5, T6, T7>, ITuble<T1, T2, T3, T4, T5, T6, T7, T8>, ICloneable
     {
         /// <summary>
         /// 无参构造
@@ -1266,37 +1242,15 @@ namespace System.Data.Extter
             Item8 = m8;
         }
         /// <summary>
-        /// 项一
-        /// </summary>
-        public virtual T1 Item1 { get; set; }
-        /// <summary>
-        /// 项二
-        /// </summary>
-        public virtual T2 Item2 { get; set; }
-        /// <summary>
-        /// 项三
-        /// </summary>
-        public virtual T3 Item3 { get; set; }
-        /// <summary>
-        /// 项四
-        /// </summary>
-        public virtual T4 Item4 { get; set; }
-        /// <summary>
-        /// 项五
-        /// </summary>
-        public virtual T5 Item5 { get; set; }
-        /// <summary>
-        /// 项六
-        /// </summary>
-        public virtual T6 Item6 { get; set; }
-        /// <summary>
-        /// 项七
-        /// </summary>
-        public virtual T7 Item7 { get; set; }
-        /// <summary>
         /// 项八
         /// </summary>
         public virtual T8 Item8 { get; set; }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        public new ITuble<T1, T2, T3, T4, T5, T6, T7, T8> Clone() => new Tuble<T1, T2, T3, T4, T5, T6, T7, T8>(Item1, Item2, Item3, Item4, Item5, Item6, Item7, Item8);
+        object ICloneable.Clone() => Clone();
     }
     /// <summary>
     /// 8元组检查对象
@@ -1485,82 +1439,122 @@ namespace System.Data.Extter
     /// 1元组接口
     /// </summary>
     /// <typeparam name="T1"></typeparam>
-    public interface ITuble<out T1>
+    public interface ITuble<out T1> : ICloneable
     {
         /// <summary>
         /// 项1
         /// </summary>
         T1 Item1 { get; }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        new ITuble<T1> Clone();
     }
     /// <summary>
     /// 二元组接口
     /// </summary>
-    public interface ITuble<out T1, out T2> : ITuble<T1>
+    public interface ITuble<out T1, out T2> : ITuble<T1>, ICloneable
     {
         /// <summary>
         /// 项2
         /// </summary>
         T2 Item2 { get; }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        new ITuble<T1, T2> Clone();
     }
     /// <summary>
     /// 3元组接口
     /// </summary>
-    public interface ITuble<out T1, out T2, out T3> : ITuble<T1, T2>
+    public interface ITuble<out T1, out T2, out T3> : ITuble<T1, T2>, ICloneable
     {
         /// <summary>
         /// 项3
         /// </summary>
         T3 Item3 { get; }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        new ITuble<T1, T2, T3> Clone();
     }
     /// <summary>
     /// 4元组接口
     /// </summary>
-    public interface ITuble<out T1, out T2, out T3, out T4> : ITuble<T1, T2, T3>
+    public interface ITuble<out T1, out T2, out T3, out T4> : ITuble<T1, T2, T3>, ICloneable
     {
         /// <summary>
         /// 项4
         /// </summary>
         T4 Item4 { get; }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        new ITuble<T1, T2, T3, T4> Clone();
     }
     /// <summary>
     /// 5元组接口
     /// </summary>
-    public interface ITuble<out T1, out T2, out T3, out T4, out T5> : ITuble<T1, T2, T3, T4>
+    public interface ITuble<out T1, out T2, out T3, out T4, out T5> : ITuble<T1, T2, T3, T4>, ICloneable
     {
         /// <summary>
         /// 项5
         /// </summary>
         T5 Item5 { get; }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        new ITuble<T1, T2, T3, T4, T5> Clone();
     }
     /// <summary>
     /// 6元组接口
     /// </summary>
-    public interface ITuble<out T1, out T2, out T3, out T4, out T5, out T6> : ITuble<T1, T2, T3, T4, T5>
+    public interface ITuble<out T1, out T2, out T3, out T4, out T5, out T6> : ITuble<T1, T2, T3, T4, T5>, ICloneable
     {
         /// <summary>
         /// 项6
         /// </summary>
         T6 Item6 { get; }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        new ITuble<T1, T2, T3, T4, T5, T6> Clone();
     }
     /// <summary>
     /// 7元组接口
     /// </summary>
-    public interface ITuble<out T1, out T2, out T3, out T4, out T5, out T6, out T7> : ITuble<T1, T2, T3, T4, T5, T6>
+    public interface ITuble<out T1, out T2, out T3, out T4, out T5, out T6, out T7> : ITuble<T1, T2, T3, T4, T5, T6>, ICloneable
     {
         /// <summary>
         /// 项7
         /// </summary>
         T7 Item7 { get; }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        new ITuble<T1, T2, T3, T4, T5, T6, T7> Clone();
     }
     /// <summary>
     /// 8元组接口
     /// </summary>
-    public interface ITuble<out T1, out T2, out T3, out T4, out T5, out T6, out T7, out T8> : ITuble<T1, T2, T3, T4, T5, T6, T7>
+    public interface ITuble<out T1, out T2, out T3, out T4, out T5, out T6, out T7, out T8> : ITuble<T1, T2, T3, T4, T5, T6, T7>, ICloneable
     {
         /// <summary>
         /// 项8
         /// </summary>
         T8 Item8 { get; }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        new ITuble<T1, T2, T3, T4, T5, T6, T7, T8> Clone();
     }
     #endregion
     #region // 扩展触发类
@@ -1610,7 +1604,7 @@ namespace System.Data.Extter
     /// 触发一元组
     /// </summary>
     /// <typeparam name="T1"></typeparam>
-    public class TubleTrigger<T1> : TubleTriggerPropertyChanged, ITuble<T1>
+    public class TubleTrigger<T1> : TubleTriggerPropertyChanged, ITuble<T1>, ICloneable
     {
         /// <summary>
         /// 构造
@@ -1642,6 +1636,12 @@ namespace System.Data.Extter
                 Item1Changed?.Invoke(new Tuble4Changed<TubleTrigger<T1>, T1>(this, value, oldVal, nameof(Item1)));
             }
         }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        public virtual ITuble<T1> Clone() => new TubleTrigger<T1>(Item1);
+        object ICloneable.Clone() => Clone();
     }
     /// <summary>
     /// 触发一元组字符串
@@ -1661,7 +1661,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 触发二元组
     /// </summary>
-    public class TubleTrigger<T1, T2> : TubleTriggerPropertyChanged, ITuble<T1, T2>
+    public class TubleTrigger<T1, T2> : TubleTriggerPropertyChanged, ITuble<T1, T2>, ICloneable
     {
         /// <summary>
         /// 构造
@@ -1717,18 +1717,23 @@ namespace System.Data.Extter
         /// 隐式转换
         /// </summary>
         /// <param name="model"></param>
-        public static implicit operator Tuble<T1, T2>(TubleTrigger<T1, T2> model)
-        {
-            return new Tuble<T1, T2>(model.Item1, model.Item2);
-        }
+        public static implicit operator Tuble<T1, T2>(TubleTrigger<T1, T2> model) => new Tuble<T1, T2>(model.Item1, model.Item2);
         /// <summary>
         /// 隐式转换
         /// </summary>
         /// <param name="model"></param>
-        public static implicit operator TubleTrigger<T1, T2>(Tuble<T1, T2> model)
-        {
-            return new TubleTrigger<T1, T2>(model.Item1, model.Item2);
-        }
+        public static implicit operator TubleTrigger<T1, T2>(Tuble<T1, T2> model) => new TubleTrigger<T1, T2>(model.Item1, model.Item2);
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        public virtual ITuble<T1, T2> Clone() => new TubleTrigger<T1, T2>(Item1, Item2);
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        ITuble<T1> ITuble<T1>.Clone() => Clone();
+        object ICloneable.Clone() => Clone();
     }
     /// <summary>
     /// 触发2元组检查对象
@@ -1750,25 +1755,19 @@ namespace System.Data.Extter
         /// </summary>
         /// <param name="model"></param>
         public static implicit operator Tuble2CheckObject(TubleTrigger2CheckObject model)
-        {
-            return new Tuble2CheckObject(model.Item1, model.Item2);
-        }
+            => new Tuble2CheckObject(model.Item1, model.Item2);
         /// <summary>
         /// 隐式转换
         /// </summary>
         /// <param name="model"></param>
         public static implicit operator TubleTrigger2CheckObject(Tuble2CheckObject model)
-        {
-            return new TubleTrigger2CheckObject(model.Item1, model.Item2);
-        }
+            => new TubleTrigger2CheckObject(model.Item1, model.Item2);
         /// <summary>
         /// 隐式转换
         /// </summary>
         /// <param name="model"></param>
         public static implicit operator TubleTrigger2CheckObject(Tuble<bool, object> model)
-        {
-            return new TubleTrigger2CheckObject(model.Item1, model.Item2);
-        }
+            => new TubleTrigger2CheckObject(model.Item1, model.Item2);
     }
     /// <summary>
     /// 触发2元组检查对象
@@ -1790,25 +1789,19 @@ namespace System.Data.Extter
         /// </summary>
         /// <param name="model"></param>
         public static implicit operator Tuble2Object(TubleTrigger2Object model)
-        {
-            return new Tuble2Object(model.Item1, model.Item2);
-        }
+            => new Tuble2Object(model.Item1, model.Item2);
         /// <summary>
         /// 隐式转换
         /// </summary>
         /// <param name="model"></param>
         public static implicit operator TubleTrigger2Object(Tuble2Object model)
-        {
-            return new TubleTrigger2Object(model.Item1, model.Item2);
-        }
+            => new TubleTrigger2Object(model.Item1, model.Item2);
         /// <summary>
         /// 隐式转换
         /// </summary>
         /// <param name="model"></param>
         public static implicit operator TubleTrigger2Object(Tuble<object, object> model)
-        {
-            return new TubleTrigger2Object(model.Item1, model.Item2);
-        }
+            => new TubleTrigger2Object(model.Item1, model.Item2);
     }
     /// <summary>
     /// 触发2元组检查字符串
@@ -1830,25 +1823,19 @@ namespace System.Data.Extter
         /// </summary>
         /// <param name="model"></param>
         public static implicit operator Tuble2String(TubleTrigger2String model)
-        {
-            return new Tuble2String(model.Item1, model.Item2);
-        }
+            => new Tuble2String(model.Item1, model.Item2);
         /// <summary>
         /// 隐式转换
         /// </summary>
         /// <param name="model"></param>
         public static implicit operator TubleTrigger2String(Tuble2String model)
-        {
-            return new TubleTrigger2String(model.Item1, model.Item2);
-        }
+            => new TubleTrigger2String(model.Item1, model.Item2);
         /// <summary>
         /// 隐式转换
         /// </summary>
         /// <param name="model"></param>
         public static implicit operator TubleTrigger2String(Tuble<string, string> model)
-        {
-            return new TubleTrigger2String(model.Item1, model.Item2);
-        }
+            => new TubleTrigger2String(model.Item1, model.Item2);
     }
     /// <summary>
     /// 触发2元组检查字符串
@@ -1893,7 +1880,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 触发三元组
     /// </summary>
-    public class TubleTrigger<T1, T2, T3> : TubleTriggerPropertyChanged, ITuble<T1, T2, T3>
+    public class TubleTrigger<T1, T2, T3> : TubleTriggerPropertyChanged, ITuble<T1, T2, T3>, ICloneable
     {
         /// <summary>
         /// 构造
@@ -1981,6 +1968,14 @@ namespace System.Data.Extter
         {
             return new TubleTrigger<T1, T2, T3>(model.Item1, model.Item2, model.Item3);
         }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        public virtual ITuble<T1, T2, T3> Clone() => new TubleTrigger<T1, T2, T3>(Item1, Item2, Item3);
+        ITuble<T1> ITuble<T1>.Clone() => Clone();
+        ITuble<T1, T2> ITuble<T1, T2>.Clone() => Clone();
+        object ICloneable.Clone() => Clone();
     }
     /// <summary>
     /// 触发3元组检查对象
@@ -2149,7 +2144,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 触发四元组
     /// </summary>
-    public class TubleTrigger<T1, T2, T3, T4> : TubleTriggerPropertyChanged, ITuble<T1, T2, T3, T4>
+    public class TubleTrigger<T1, T2, T3, T4> : TubleTriggerPropertyChanged, ITuble<T1, T2, T3, T4>, ICloneable
     {
         /// <summary>
         /// 构造
@@ -2257,6 +2252,15 @@ namespace System.Data.Extter
         {
             return new TubleTrigger<T1, T2, T3, T4>(model.Item1, model.Item2, model.Item3, model.Item4);
         }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        public virtual ITuble<T1, T2, T3, T4> Clone() => new TubleTrigger<T1, T2, T3, T4>(Item1, Item2, Item3, Item4);
+        ITuble<T1> ITuble<T1>.Clone() => Clone();
+        ITuble<T1, T2> ITuble<T1, T2>.Clone() => Clone();
+        ITuble<T1, T2, T3> ITuble<T1, T2, T3>.Clone() => Clone();
+        object ICloneable.Clone() => Clone();
     }
     /// <summary>
     /// 触发4元组检查对象
@@ -2429,7 +2433,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 触发5元组
     /// </summary>
-    public class TubleTrigger<T1, T2, T3, T4, T5> : TubleTriggerPropertyChanged, ITuble<T1, T2, T3, T4, T5>
+    public class TubleTrigger<T1, T2, T3, T4, T5> : TubleTriggerPropertyChanged, ITuble<T1, T2, T3, T4, T5>, ICloneable
     {
         /// <summary>
         /// 构造
@@ -2557,6 +2561,16 @@ namespace System.Data.Extter
         {
             return new TubleTrigger<T1, T2, T3, T4, T5>(model.Item1, model.Item2, model.Item3, model.Item4, model.Item5);
         }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        public virtual ITuble<T1, T2, T3, T4, T5> Clone() => new TubleTrigger<T1, T2, T3, T4, T5>(Item1, Item2, Item3, Item4, Item5);
+        ITuble<T1> ITuble<T1>.Clone() => Clone();
+        ITuble<T1, T2> ITuble<T1, T2>.Clone() => Clone();
+        ITuble<T1, T2, T3> ITuble<T1, T2, T3>.Clone() => Clone();
+        ITuble<T1, T2, T3, T4> ITuble<T1, T2, T3, T4>.Clone() => Clone();
+        object ICloneable.Clone() => Clone();
     }
     /// <summary>
     /// 触发5元组检查对象
@@ -2733,7 +2747,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 触发6元组
     /// </summary>
-    public class TubleTrigger<T1, T2, T3, T4, T5, T6> : TubleTriggerPropertyChanged, ITuble<T1, T2, T3, T4, T5, T6>
+    public class TubleTrigger<T1, T2, T3, T4, T5, T6> : TubleTriggerPropertyChanged, ITuble<T1, T2, T3, T4, T5, T6>, ICloneable
     {
         /// <summary>
         /// 构造
@@ -2881,6 +2895,17 @@ namespace System.Data.Extter
         {
             return new TubleTrigger<T1, T2, T3, T4, T5, T6>(model.Item1, model.Item2, model.Item3, model.Item4, model.Item5, model.Item6);
         }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        public virtual ITuble<T1, T2, T3, T4, T5, T6> Clone() => new TubleTrigger<T1, T2, T3, T4, T5, T6>(Item1, Item2, Item3, Item4, Item5, Item6);
+        ITuble<T1> ITuble<T1>.Clone() => Clone();
+        ITuble<T1, T2> ITuble<T1, T2>.Clone() => Clone();
+        ITuble<T1, T2, T3> ITuble<T1, T2, T3>.Clone() => Clone();
+        ITuble<T1, T2, T3, T4> ITuble<T1, T2, T3, T4>.Clone() => Clone();
+        ITuble<T1, T2, T3, T4, T5> ITuble<T1, T2, T3, T4, T5>.Clone() => Clone();
+        object ICloneable.Clone() => Clone();
     }
     /// <summary>
     /// 触发6元组检查对象
@@ -3061,7 +3086,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 触发7元组
     /// </summary>
-    public class TubleTrigger<T1, T2, T3, T4, T5, T6, T7> : TubleTriggerPropertyChanged, ITuble<T1, T2, T3, T4, T5, T6, T7>
+    public class TubleTrigger<T1, T2, T3, T4, T5, T6, T7> : TubleTriggerPropertyChanged, ITuble<T1, T2, T3, T4, T5, T6, T7>, ICloneable
     {
         /// <summary>
         /// 构造
@@ -3229,6 +3254,18 @@ namespace System.Data.Extter
         {
             return new TubleTrigger<T1, T2, T3, T4, T5, T6, T7>(model.Item1, model.Item2, model.Item3, model.Item4, model.Item5, model.Item6, model.Item7);
         }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        public virtual ITuble<T1, T2, T3, T4, T5, T6, T7> Clone() => new TubleTrigger<T1, T2, T3, T4, T5, T6, T7>(Item1, Item2, Item3, Item4, Item5, Item6, Item7);
+        ITuble<T1> ITuble<T1>.Clone() => Clone();
+        ITuble<T1, T2> ITuble<T1, T2>.Clone() => Clone();
+        ITuble<T1, T2, T3> ITuble<T1, T2, T3>.Clone() => Clone();
+        ITuble<T1, T2, T3, T4> ITuble<T1, T2, T3, T4>.Clone() => Clone();
+        ITuble<T1, T2, T3, T4, T5> ITuble<T1, T2, T3, T4, T5>.Clone() => Clone();
+        ITuble<T1, T2, T3, T4, T5, T6> ITuble<T1, T2, T3, T4, T5, T6>.Clone() => Clone();
+        object ICloneable.Clone() => Clone();
     }
     /// <summary>
     /// 触发7元组检查对象
@@ -3413,7 +3450,7 @@ namespace System.Data.Extter
     /// <summary>
     /// 触发8元组
     /// </summary>
-    public class TubleTrigger<T1, T2, T3, T4, T5, T6, T7, T8> : TubleTriggerPropertyChanged, ITuble<T1, T2, T3, T4, T5, T6, T7, T8>
+    public class TubleTrigger<T1, T2, T3, T4, T5, T6, T7, T8> : TubleTriggerPropertyChanged, ITuble<T1, T2, T3, T4, T5, T6, T7, T8>, ICloneable
     {
         /// <summary>
         /// 构造
@@ -3601,6 +3638,20 @@ namespace System.Data.Extter
         {
             return new TubleTrigger<T1, T2, T3, T4, T5, T6, T7, T8>(model.Item1, model.Item2, model.Item3, model.Item4, model.Item5, model.Item6, model.Item7, model.Item8);
         }
+        /// <summary>
+        /// 复制
+        /// </summary>
+        /// <returns></returns>
+        public virtual ITuble<T1, T2, T3, T4, T5, T6, T7, T8> Clone()
+            => new TubleTrigger<T1, T2, T3, T4, T5, T6, T7, T8>(Item1, Item2, Item3, Item4, Item5, Item6, Item7, Item8);
+        ITuble<T1> ITuble<T1>.Clone() => Clone();
+        ITuble<T1, T2> ITuble<T1, T2>.Clone() => Clone();
+        ITuble<T1, T2, T3> ITuble<T1, T2, T3>.Clone() => Clone();
+        ITuble<T1, T2, T3, T4> ITuble<T1, T2, T3, T4>.Clone() => Clone();
+        ITuble<T1, T2, T3, T4, T5> ITuble<T1, T2, T3, T4, T5>.Clone() => Clone();
+        ITuble<T1, T2, T3, T4, T5, T6> ITuble<T1, T2, T3, T4, T5, T6>.Clone() => Clone();
+        ITuble<T1, T2, T3, T4, T5, T6, T7> ITuble<T1, T2, T3, T4, T5, T6, T7>.Clone() => Clone();
+        object ICloneable.Clone() => Clone();
     }
     /// <summary>
     /// 触发8元组检查对象
