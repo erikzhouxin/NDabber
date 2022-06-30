@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net45</TargetFramework>
+    <AssemblyName>System.Data.DabberUT</AssemblyName>
+    <RootNamespace>System.Data.DabberUT</RootNamespace>
+    <SignAssembly>false</SignAssembly>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|NET45'">
+    <DefineConstants>TRACE;DEBUG;NETFrame;NET45</DefineConstants>
+    <OutputPath>bin</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|NET45'">
+    <DefineConstants>TRACE;NETFx;NETFrame;NET45</DefineConstants>
+    <OutputPath>bin</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\ut\CyptoUT.cs" Link="CyptoUT.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.7" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.7" />
+    <PackageReference Include="NSystem.Data.SQLiteCipher" Version="2021.9.15" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\System.Data.Dabber.csproj" />
+  </ItemGroup>
+</Project>

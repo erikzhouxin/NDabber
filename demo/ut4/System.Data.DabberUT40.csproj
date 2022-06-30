@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>net4</TargetFrameworks>
+		<AssemblyName>System.Data.DabberUT</AssemblyName>
+		<RootNamespace>System.Data.DabberUT</RootNamespace>
+		<SignAssembly>false</SignAssembly>
+		<LangVersion>latest</LangVersion>
+		<IsPackable>false</IsPackable>
+		<AppConfig Condition="'$(TargetFramework)' == 'net4'">App.Net40.config</AppConfig>
+		<AutoUnifyAssemblyReferences Condition="'$(TargetFramework)' == 'net4'">false</AutoUnifyAssemblyReferences>
+		<PlatformTarget>x86</PlatformTarget>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|net4'">
+		<DefineConstants>TRACE;DEBUG;NETFrame;NET40</DefineConstants>
+		<OutputPath>bin</OutputPath>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net4'">
+		<DefineConstants>TRACE;NETFx;NETFrame;NET40</DefineConstants>
+		<OutputPath>bin</OutputPath>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="NSQLitePCL.Raw.Liber" Version="2022.6.6" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+		<PackageReference Include="NUnit" Version="3.13.3" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
+		<PackageReference Include="NUnit.Analyzers" Version="3.3.0" />
+		<PackageReference Include="coverlet.collector" Version="3.1.2" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\nsqlitecipher\src\SQLiteCipher\System.Data.SQLiteCipher.csproj" />
+		<ProjectReference Include="..\..\..\nsqlitecipher\src\SQLitePCL\Raw.Core\SQLitePCL.Raw.Core.csproj" />
+		<ProjectReference Include="..\..\src\System.Data.Dabber.csproj" />
+	</ItemGroup>
+</Project>
