@@ -69,7 +69,6 @@ namespace System.Data.Extter
                 Marshal.ReleaseComObject(shortcut);
                 Marshal.ReleaseComObject(wshShell);
             }
-
         }
         /// <summary>
         /// 创建桌面快捷方式

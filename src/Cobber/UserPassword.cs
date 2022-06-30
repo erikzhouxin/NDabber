@@ -9,7 +9,7 @@ namespace System.Data.Cobber
     /// <summary>
     /// 用户密码
     /// </summary>
-    public class UserPassword
+    public partial class UserPassword
     {
         /// <summary>
         /// 获取加密密码委托
@@ -298,53 +298,53 @@ namespace System.Data.Cobber
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <returns>加密字符</returns>
-        public static string GetSha384Hash(string pass) => GetSha384Hash(pass, DefaultCase, DefaultEncoding);
+        public static string GetSha384Hash(string pass) => UserCrypto.GetSha384HexString(pass, DefaultCase, DefaultEncoding);
         /// <summary>
         /// 获得散列密码(SHA-384)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="isLower">是小写</param>
         /// <returns>加密字符</returns>
-        public static string GetSha384Hash(string pass, bool isLower) => GetSha384Hash(pass, isLower, DefaultEncoding);
+        public static string GetSha384Hash(string pass, bool isLower) => UserCrypto.GetSha384HexString(pass, isLower, DefaultEncoding);
         /// <summary>
         /// 获得散列密码(SHA-384)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetSha384Hash(string pass, Encoding encoding) => GetSha384Hash(pass, DefaultCase, encoding);
+        public static string GetSha384Hash(string pass, Encoding encoding) => UserCrypto.GetSha384HexString(pass, DefaultCase, encoding);
         /// <summary>
         /// 获得散列密码(SHA-384)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="salt">盐值字符</param>
         /// <returns>加密字符</returns>
-        public static string GetSha384Hash(string pass, string salt) => GetSha384Hash($"{pass}{salt}", DefaultCase, DefaultEncoding);
-        /// <summary>
-        /// 获得散列密码(SHA-384)
-        /// </summary>
-        /// <param name="pass">原码字符</param>
-        /// <param name="salt">盐值字符</param>
-        /// <param name="isLower">是小写</param>
-        /// <returns>加密字符</returns>
-        public static string GetSha384Hash(string pass, string salt, bool isLower) => GetSha384Hash($"{pass}{salt}", isLower, DefaultEncoding);
-        /// <summary>
-        /// 获得散列密码(SHA-384)
-        /// </summary>
-        /// <param name="pass">原码字符</param>
-        /// <param name="salt">盐值字符</param>
-        /// <param name="encoding">编码</param>
-        /// <returns>加密字符</returns>
-        public static string GetSha384Hash(string pass, string salt, Encoding encoding) => GetSha384Hash($"{pass}{salt}", DefaultCase, encoding);
+        public static string GetSha384Hash(string pass, string salt) => UserCrypto.GetSha384HexString($"{pass}{salt}", DefaultCase, DefaultEncoding);
         /// <summary>
         /// 获得散列密码(SHA-384)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="salt">盐值字符</param>
         /// <param name="isLower">是小写</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha384Hash(string pass, string salt, bool isLower) => UserCrypto.GetSha384HexString($"{pass}{salt}", isLower, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-384)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetSha384Hash(string pass, string salt, bool isLower, Encoding encoding) => GetSha384Hash($"{pass}{salt}", isLower, encoding);
+        public static string GetSha384Hash(string pass, string salt, Encoding encoding) => UserCrypto.GetSha384HexString($"{pass}{salt}", DefaultCase, encoding);
+        /// <summary>
+        /// 获得散列密码(SHA-384)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha384Hash(string pass, string salt, bool isLower, Encoding encoding) => UserCrypto.GetSha384HexString($"{pass}{salt}", isLower, encoding);
         /// <summary>
         /// 获得散列密码(SHA-384)
         /// </summary>
@@ -352,12 +352,7 @@ namespace System.Data.Cobber
         /// <param name="isLower">是小写</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetSha384Hash(string pass, bool isLower, Encoding encoding)
-        {
-            var passSalt = encoding.GetBytes(pass);
-            var shaHash = SHA384.Create().ComputeHash(passSalt);
-            return GetHexString(shaHash, isLower);
-        }
+        public static string GetSha384Hash(string pass, bool isLower, Encoding encoding) => UserCrypto.GetSha384HexString(encoding.GetBytes(pass), isLower);
         #endregion
         #region // SHA512值
         /// <summary>
@@ -365,53 +360,53 @@ namespace System.Data.Cobber
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <returns>加密字符</returns>
-        public static string GetSha512Hash(string pass) => GetSha512Hash(pass, DefaultCase, DefaultEncoding);
+        public static string GetSha512Hash(string pass) => UserCrypto.GetSha512HexString(pass, DefaultCase, DefaultEncoding);
         /// <summary>
         /// 获得散列密码(SHA-512)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="isLower">是小写</param>
         /// <returns>加密字符</returns>
-        public static string GetSha512Hash(string pass, bool isLower) => GetSha512Hash(pass, isLower, DefaultEncoding);
+        public static string GetSha512Hash(string pass, bool isLower) => UserCrypto.GetSha512HexString(pass, isLower, DefaultEncoding);
         /// <summary>
         /// 获得散列密码(SHA-512)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetSha512Hash(string pass, Encoding encoding) => GetSha512Hash(pass, DefaultCase, encoding);
+        public static string GetSha512Hash(string pass, Encoding encoding) => UserCrypto.GetSha512HexString(pass, DefaultCase, encoding);
         /// <summary>
         /// 获得散列密码(SHA-512)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="salt">盐值字符</param>
         /// <returns>加密字符</returns>
-        public static string GetSha512Hash(string pass, string salt) => GetSha512Hash($"{pass}{salt}", DefaultCase, DefaultEncoding);
-        /// <summary>
-        /// 获得散列密码(SHA-512)
-        /// </summary>
-        /// <param name="pass">原码字符</param>
-        /// <param name="salt">盐值字符</param>
-        /// <param name="isLower">是小写</param>
-        /// <returns>加密字符</returns>
-        public static string GetSha512Hash(string pass, string salt, bool isLower) => GetSha512Hash($"{pass}{salt}", isLower, DefaultEncoding);
-        /// <summary>
-        /// 获得散列密码(SHA-512)
-        /// </summary>
-        /// <param name="pass">原码字符</param>
-        /// <param name="salt">盐值字符</param>
-        /// <param name="encoding">编码</param>
-        /// <returns>加密字符</returns>
-        public static string GetSha512Hash(string pass, string salt, Encoding encoding) => GetSha512Hash($"{pass}{salt}", DefaultCase, encoding);
+        public static string GetSha512Hash(string pass, string salt) => UserCrypto.GetSha512HexString($"{pass}{salt}", DefaultCase, DefaultEncoding);
         /// <summary>
         /// 获得散列密码(SHA-512)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="salt">盐值字符</param>
         /// <param name="isLower">是小写</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha512Hash(string pass, string salt, bool isLower) => UserCrypto.GetSha512HexString($"{pass}{salt}", isLower, DefaultEncoding);
+        /// <summary>
+        /// 获得散列密码(SHA-512)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetSha512Hash(string pass, string salt, bool isLower, Encoding encoding) => GetSha512Hash($"{pass}{salt}", isLower, encoding);
+        public static string GetSha512Hash(string pass, string salt, Encoding encoding) => UserCrypto.GetSha512HexString($"{pass}{salt}", DefaultCase, encoding);
+        /// <summary>
+        /// 获得散列密码(SHA-512)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="salt">盐值字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha512Hash(string pass, string salt, bool isLower, Encoding encoding) => UserCrypto.GetSha512HexString($"{pass}{salt}", isLower, encoding);
         /// <summary>
         /// 获得散列密码(SHA-512)
         /// </summary>
@@ -419,41 +414,36 @@ namespace System.Data.Cobber
         /// <param name="isLower">是小写</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetSha512Hash(string pass, bool isLower, Encoding encoding)
-        {
-            var passSalt = encoding.GetBytes(pass);
-            var shaHash = SHA512.Create().ComputeHash(passSalt);
-            return GetHexString(shaHash, isLower);
-        }
+        public static string GetSha512Hash(string pass, bool isLower, Encoding encoding) => UserCrypto.GetSha512HexString(pass, isLower, encoding);
         #endregion
-        #region // SHA-256值
+        #region // SHA256值
         /// <summary>
         /// 获得散列密码(SHA-256)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <returns>加密字符</returns>
-        public static string GetSha256Hash(string pass) => GetSha256Hash(pass, DefaultCase, DefaultEncoding);
+        public static string GetSha256Hash(string pass) => UserCrypto.GetSha256HexString(pass, DefaultCase, DefaultEncoding);
         /// <summary>
         /// 获得散列密码(SHA-256)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="isLower">是小写</param>
         /// <returns>加密字符</returns>
-        public static string GetSha256Hash(string pass, bool isLower) => GetSha256Hash(pass, isLower, DefaultEncoding);
+        public static string GetSha256Hash(string pass, bool isLower) => UserCrypto.GetSha256HexString(pass, isLower, DefaultEncoding);
         /// <summary>
         /// 获得散列密码(SHA-256)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetSha256Hash(string pass, Encoding encoding) => GetSha256Hash(pass, DefaultCase, encoding);
+        public static string GetSha256Hash(string pass, Encoding encoding) => UserCrypto.GetSha256HexString(pass, DefaultCase, encoding);
         /// <summary>
         /// 获得散列密码(SHA-256)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="salt">盐值字符</param>
         /// <returns>加密字符</returns>
-        public static string GetSha256Hash(string pass, string salt) => GetSha256Hash($"{pass}{salt}", DefaultCase, DefaultEncoding);
+        public static string GetSha256Hash(string pass, string salt) => UserCrypto.GetSha256HexString($"{pass}{salt}", DefaultCase, DefaultEncoding);
         /// <summary>
         /// 获得散列密码(SHA-256)
         /// </summary>
@@ -461,7 +451,7 @@ namespace System.Data.Cobber
         /// <param name="salt">盐值字符</param>
         /// <param name="isLower">是小写</param>
         /// <returns>加密字符</returns>
-        public static string GetSha256Hash(string pass, string salt, bool isLower) => GetSha256Hash($"{pass}{salt}", isLower, DefaultEncoding);
+        public static string GetSha256Hash(string pass, string salt, bool isLower) => UserCrypto.GetSha256HexString($"{pass}{salt}", isLower, DefaultEncoding);
         /// <summary>
         /// 获得散列密码(SHA-256)
         /// </summary>
@@ -469,7 +459,7 @@ namespace System.Data.Cobber
         /// <param name="salt">盐值字符</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetSha256Hash(string pass, string salt, Encoding encoding) => GetSha256Hash($"{pass}{salt}", DefaultCase, encoding);
+        public static string GetSha256Hash(string pass, string salt, Encoding encoding) => UserCrypto.GetSha256HexString($"{pass}{salt}", DefaultCase, encoding);
         /// <summary>
         /// 获得散列密码(SHA-256)
         /// </summary>
@@ -478,7 +468,7 @@ namespace System.Data.Cobber
         /// <param name="isLower">是小写</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetSha256Hash(string pass, string salt, bool isLower, Encoding encoding) => GetSha256Hash($"{pass}{salt}", isLower, encoding);
+        public static string GetSha256Hash(string pass, string salt, bool isLower, Encoding encoding) => UserCrypto.GetSha256HexString($"{pass}{salt}", isLower, encoding);
         /// <summary>
         /// 获得散列密码(SHA-256)
         /// </summary>
@@ -486,41 +476,36 @@ namespace System.Data.Cobber
         /// <param name="isLower">是小写</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetSha256Hash(string pass, bool isLower, Encoding encoding)
-        {
-            var passSalt = encoding.GetBytes(pass);
-            var shaHash = SHA256.Create().ComputeHash(passSalt);
-            return GetHexString(shaHash, isLower);
-        }
+        public static string GetSha256Hash(string pass, bool isLower, Encoding encoding) => UserCrypto.GetSha256HexString(pass, isLower, encoding);
         #endregion
-        #region // SHA-1值
+        #region // SHA1值
         /// <summary>
         /// 获得散列密码(SHA-1)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <returns>加密字符</returns>
-        public static string GetSha1Hash(string pass) => GetSha1Hash(pass, false, DefaultEncoding);
+        public static string GetSha1Hash(string pass) => UserCrypto.GetSha1HexString(pass, false, DefaultEncoding);
         /// <summary>
         /// 获得散列密码(SHA-1)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="isLower">是小写</param>
         /// <returns>加密字符</returns>
-        public static string GetSha1Hash(string pass, bool isLower) => GetSha1Hash(pass, isLower, DefaultEncoding);
+        public static string GetSha1Hash(string pass, bool isLower) => UserCrypto.GetSha1HexString(pass, isLower, DefaultEncoding);
         /// <summary>
         /// 获得散列密码(SHA-1)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetSha1Hash(string pass, Encoding encoding) => GetSha1Hash(pass, false, encoding);
+        public static string GetSha1Hash(string pass, Encoding encoding) => UserCrypto.GetSha1HexString(pass, false, encoding);
         /// <summary>
         /// 获得散列密码(SHA-1)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="salt">盐值字符</param>
         /// <returns>加密字符</returns>
-        public static string GetSha1Hash(string pass, string salt) => GetSha1Hash($"{pass}{salt}", false, DefaultEncoding);
+        public static string GetSha1Hash(string pass, string salt) => UserCrypto.GetSha1HexString($"{pass}{salt}", false, DefaultEncoding);
         /// <summary>
         /// 获得散列密码(SHA-1)
         /// </summary>
@@ -528,7 +513,7 @@ namespace System.Data.Cobber
         /// <param name="salt">盐值字符</param>
         /// <param name="isLower">是小写</param>
         /// <returns>加密字符</returns>
-        public static string GetSha1Hash(string pass, string salt, bool isLower) => GetSha1Hash($"{pass}{salt}", isLower, DefaultEncoding);
+        public static string GetSha1Hash(string pass, string salt, bool isLower) => UserCrypto.GetSha1HexString($"{pass}{salt}", isLower, DefaultEncoding);
         /// <summary>
         /// 获得散列密码(SHA-1)
         /// </summary>
@@ -536,7 +521,7 @@ namespace System.Data.Cobber
         /// <param name="salt">盐值字符</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetSha1Hash(string pass, string salt, Encoding encoding) => GetSha1Hash($"{pass}{salt}", false, encoding);
+        public static string GetSha1Hash(string pass, string salt, Encoding encoding) => UserCrypto.GetSha1HexString($"{pass}{salt}", false, encoding);
         /// <summary>
         /// 获得散列密码(SHA-1)
         /// </summary>
@@ -545,7 +530,7 @@ namespace System.Data.Cobber
         /// <param name="isLower">是小写</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetSha1Hash(string pass, string salt, bool isLower, Encoding encoding) => GetSha1Hash($"{pass}{salt}", isLower, encoding);
+        public static string GetSha1Hash(string pass, string salt, bool isLower, Encoding encoding) => UserCrypto.GetSha1HexString($"{pass}{salt}", isLower, encoding);
         /// <summary>
         /// 获得散列密码(SHA-1)
         /// </summary>
@@ -553,12 +538,7 @@ namespace System.Data.Cobber
         /// <param name="isLower">是小写</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetSha1Hash(string pass, bool isLower, Encoding encoding)
-        {
-            var passSalt = encoding.GetBytes(pass);
-            var hashData = SHA1.Create().ComputeHash(passSalt);
-            return GetHexString(hashData, isLower);
-        }
+        public static string GetSha1Hash(string pass, bool isLower, Encoding encoding) => UserCrypto.GetSha1HexString(pass, isLower, encoding);
         #endregion
         #region // MD5值
         /// <summary>
@@ -567,7 +547,7 @@ namespace System.Data.Cobber
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <returns>加密字符</returns>
-        public static string GetMd5Hash(string pass) => GetMd5Hash(pass, DefaultCase, DefaultEncoding);
+        public static string GetMd5Hash(string pass) => UserCrypto.GetMd5HexString(pass, DefaultCase, DefaultEncoding);
         /// <summary>
         /// 获取MD5加密(32位)
         /// 默认UTF-8转换
@@ -575,14 +555,14 @@ namespace System.Data.Cobber
         /// <param name="pass">原码字符</param>
         /// <param name="isLower">是小写</param>
         /// <returns>加密字符</returns>
-        public static string GetMd5Hash(string pass, bool isLower) => GetMd5Hash(pass, isLower, DefaultEncoding);
+        public static string GetMd5Hash(string pass, bool isLower) => UserCrypto.GetMd5HexString(pass, isLower, DefaultEncoding);
         /// <summary>
         /// 获取MD5加密(32位)
         /// </summary>
         /// <param name="pass">原码字符</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetMd5Hash(string pass, Encoding encoding) => GetMd5Hash(pass, DefaultCase, encoding);
+        public static string GetMd5Hash(string pass, Encoding encoding) => UserCrypto.GetMd5HexString(pass, DefaultCase, encoding);
         /// <summary>
         /// 获取MD5加密(32位)
         /// 默认UTF-8转换
@@ -590,7 +570,7 @@ namespace System.Data.Cobber
         /// <param name="pass">原码字符</param>
         /// <param name="salt">盐值字符</param>
         /// <returns>加密字符</returns>
-        public static string GetMd5Hash(string pass, string salt) => GetMd5Hash($"{pass}{salt}", DefaultCase, DefaultEncoding);
+        public static string GetMd5Hash(string pass, string salt) => UserCrypto.GetMd5HexString($"{pass}{salt}", DefaultCase, DefaultEncoding);
         /// <summary>
         /// 获取MD5加密(32位)
         /// 默认UTF-8转换
@@ -599,7 +579,7 @@ namespace System.Data.Cobber
         /// <param name="salt">盐值字符</param>
         /// <param name="isLower">是小写</param>
         /// <returns>加密字符</returns>
-        public static string GetMd5Hash(string pass, string salt, bool isLower) => GetMd5Hash($"{pass}{salt}", isLower, DefaultEncoding);
+        public static string GetMd5Hash(string pass, string salt, bool isLower) => UserCrypto.GetMd5HexString($"{pass}{salt}", isLower, DefaultEncoding);
         /// <summary>
         /// 获取MD5加密(32位)
         /// </summary>
@@ -607,7 +587,7 @@ namespace System.Data.Cobber
         /// <param name="salt">盐值字符</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetMd5Hash(string pass, string salt, Encoding encoding) => GetMd5Hash($"{pass}{salt}", DefaultCase, encoding);
+        public static string GetMd5Hash(string pass, string salt, Encoding encoding) => UserCrypto.GetMd5HexString($"{pass}{salt}", DefaultCase, encoding);
         /// <summary>
         /// 获取MD5加密(32位)
         /// </summary>
@@ -616,7 +596,7 @@ namespace System.Data.Cobber
         /// <param name="isLower">是小写</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetMd5Hash(string pass, string salt, bool isLower, Encoding encoding) => GetMd5Hash($"{pass}{salt}", isLower, encoding);
+        public static string GetMd5Hash(string pass, string salt, bool isLower, Encoding encoding) => UserCrypto.GetMd5HexString($"{pass}{salt}", isLower, encoding);
         /// <summary>
         /// 获取MD5加密(32位)
         /// </summary>
@@ -624,36 +604,7 @@ namespace System.Data.Cobber
         /// <param name="isLower">是小写</param>
         /// <param name="encoding">编码</param>
         /// <returns>加密字符</returns>
-        public static string GetMd5Hash(string pass, bool isLower, Encoding encoding)
-        {
-            var passSalt = encoding.GetBytes(pass);
-            var hashData = MD5.Create().ComputeHash(passSalt);
-            return GetHexString(hashData, isLower);
-        }
-        #endregion
-        #region // 16进制
-        /// <summary>
-        /// 将字节数组转换成16进制字符串
-        /// </summary>
-        /// <param name="hashData">字节数组</param>
-        /// <returns>16进制字符串(大写字母)</returns>
-        public static string GetHexString(byte[] hashData) => GetHexString(hashData, DefaultCase);
-        /// <summary>
-        /// 将字节数组转换成16进制字符串
-        /// </summary>
-        /// <param name="hashData">字节数组</param>
-        /// <param name="isLower">是小写</param>
-        /// <returns>16进制字符串(大写字母)</returns>
-        public static string GetHexString(byte[] hashData, bool isLower)
-        {
-            var sb = new StringBuilder();
-            var fmt = isLower ? "x2" : "X2";
-            for (int i = 0; i < hashData.Length; i++)
-            {
-                sb.Append(hashData[i].ToString(fmt));
-            }
-            return sb.ToString();
-        }
+        public static string GetMd5Hash(string pass, bool isLower, Encoding encoding) => UserCrypto.GetMd5HexString(pass, isLower, encoding);
         #endregion
         /// <summary>
         /// 加密类型
@@ -768,25 +719,6 @@ namespace System.Data.Cobber
                 default: return type;
             }
         }
-        #endregion
-        #region // 弃用内容
-        /// <summary>
-        /// 将字节数组转换成16进制字符串
-        /// </summary>
-        /// <param name="hashData">字节数组</param>
-        /// <returns>16进制字符串(大写字母)</returns>
-        [Obsolete("替代方案:GetHexString")]
-        public static string GetByte16String(byte[] hashData) => GetHexString(hashData, false);
-        /// <summary>
-        /// 原码字符
-        /// </summary>
-        [Obsolete("替代方案:Origin")]
-        public string OPass { get => Origin; }
-        /// <summary>
-        /// 加密字符
-        /// </summary>
-        [Obsolete("替代方案:Hash")]
-        public string HPass { get => Hash; }
         #endregion
     }
 }

@@ -15,6 +15,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading;
 
+#pragma warning disable CA1416 // 可在所有平台上访问此调用站点。"Pipe" 仅在 'windows' 上受支持。
 namespace System.Data.Piper
 {
     /// <summary>

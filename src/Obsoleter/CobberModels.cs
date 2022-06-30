@@ -36,4 +36,39 @@ namespace System.Data.Cobber
     {
         private EDisplayAttr() : base(default(TEnum)) { }
     }
+    public partial class UserPassword
+    {
+        /// <summary>
+        /// 将字节数组转换成16进制字符串
+        /// </summary>
+        /// <param name="hashData">字节数组</param>
+        /// <returns>16进制字符串(大写字母)</returns>
+        [Obsolete("替代方案:UserCrypto.GetHexString")]
+        public static string GetHexString(byte[] hashData) => UserCrypto.GetHexString(hashData, DefaultCase);
+        /// <summary>
+        /// 将字节数组转换成16进制字符串
+        /// </summary>
+        /// <param name="hashData">字节数组</param>
+        /// <param name="isLower">是小写</param>
+        /// <returns>16进制字符串(大写字母)</returns>
+        [Obsolete("替代方案:UserCrypto.GetHexString")]
+        public static string GetHexString(byte[] hashData, bool isLower) => UserCrypto.GetHexString(hashData, isLower);
+        /// <summary>
+        /// 将字节数组转换成16进制字符串
+        /// </summary>
+        /// <param name="hashData">字节数组</param>
+        /// <returns>16进制字符串(大写字母)</returns>
+        [Obsolete("替代方案:UserCrypto.GetHexString")]
+        public static string GetByte16String(byte[] hashData) => UserCrypto.GetHexString(hashData, false);
+        /// <summary>
+        /// 原码字符
+        /// </summary>
+        [Obsolete("替代方案:Origin")]
+        public string OPass { get => Origin; }
+        /// <summary>
+        /// 加密字符
+        /// </summary>
+        [Obsolete("替代方案:Hash")]
+        public string HPass { get => Hash; }
+    }
 }

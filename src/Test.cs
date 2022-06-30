@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -137,4 +138,20 @@ public static class TestTry
 #endif
         return model;
     }
+    /// <summary>
+    /// 兼容性的 Task.FromResult(0)之类的内容
+    /// </summary>
+    /// <typeparam name="TResult"></typeparam>
+    /// <param name="result"></param>
+    /// <returns></returns>
+#if !NET40 // 内联函数减少性能损耗
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    public static Task<TResult> TaskFromResult<TResult>(TResult result) =>
+#if NET40
+        new Task<TResult>(() => result);
+#else
+        Task.FromResult(result);
+#endif
+
 }

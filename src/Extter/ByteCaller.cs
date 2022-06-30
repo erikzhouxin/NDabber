@@ -31,6 +31,22 @@ namespace System.Data.Cobber
             return encoding.GetBytes(content);
         }
         /// <summary>
+        /// 转换成字符串
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        public static String GetString(this byte[] content) => GetString(content, Encoding.UTF8);
+        /// <summary>
+        /// 转换成字节数组
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        public static string GetString(this byte[] content, Encoding encoding)
+        {
+            return encoding.GetString(content);
+        }
+        /// <summary>
         /// 比较两个字节数组是否相同内容
         /// </summary>
         /// <param name="curr"></param>
@@ -51,6 +67,21 @@ namespace System.Data.Cobber
             }
             return true;
         }
+        /// <summary>
+        /// 将字节数组转换成16进制字符串
+        /// </summary>
+        /// <param name="hashData">字节数组</param>
+        /// <see cref="UserCrypto.GetHexString(byte[],bool)"/>
+        /// <returns>16进制字符串(大写字母)</returns>
+        public static string GetHexString(this byte[] hashData) => UserCrypto.GetHexString(hashData);
+        /// <summary>
+        /// 将字节数组转换成16进制字符串
+        /// </summary>
+        /// <param name="hashData">字节数组</param>
+        /// <param name="isLower">是小写</param>
+        /// <see cref="UserCrypto.GetHexString(byte[],bool)"/>
+        /// <returns>16进制字符串</returns>
+        public static string GetHexString(this byte[] hashData, bool isLower) => UserCrypto.GetHexString(hashData, isLower);
     }
 }
 namespace System.Data.Extter
@@ -64,42 +95,16 @@ namespace System.Data.Extter
         /// 获取MD5加密值
         /// </summary>
         /// <param name="bytes"></param>
+        /// <see cref="UserCrypto.GetMd5Bytes"/>
         /// <returns></returns>
-        public static byte[] GetMd5(this byte[] bytes)
-        {
-            return MD5.Create().ComputeHash(bytes);
-        }
+        public static byte[] GetMd5(this byte[] bytes) => UserCrypto.GetMd5Bytes(bytes);
         /// <summary>
         /// 获取MD5加密值
         /// </summary>
         /// <param name="bytes"></param>
+        /// <see cref="UserCrypto.GetMd5HexString(byte[],bool)"/>
         /// <returns></returns>
-        public static string GetMd5String(this byte[] bytes)
-        {
-            return GetHexString(GetMd5(bytes));
-        }
-        /// <summary>
-        /// 将字节数组转换成16进制字符串
-        /// </summary>
-        /// <param name="hashData">字节数组</param>
-        /// <returns>16进制字符串(大写字母)</returns>
-        public static string GetHexString(this byte[] hashData) => GetHexString(hashData, false);
-        /// <summary>
-        /// 将字节数组转换成16进制字符串
-        /// </summary>
-        /// <param name="hashData">字节数组</param>
-        /// <param name="isLower">是小写</param>
-        /// <returns>16进制字符串</returns>
-        public static string GetHexString(this byte[] hashData, bool isLower)
-        {
-            StringBuilder sBuilder = new StringBuilder();
-            var fmt = isLower ? "x2" : "X2";
-            foreach (var hash in hashData)
-            {
-                sBuilder.Append(hash.ToString(fmt));
-            }
-            return sBuilder.ToString();
-        }
+        public static string GetMd5String(this byte[] bytes) => UserCrypto.GetMd5HexString(bytes, false);
         /// <summary>
         /// 将16进制字符串转换成字节数组
         /// </summary>

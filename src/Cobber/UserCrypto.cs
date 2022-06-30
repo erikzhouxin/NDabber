@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -11,11 +12,262 @@ namespace System.Data.Cobber
     /// </summary>
     public static class UserCrypto
     {
+        #region // 16进制
+        /// <summary>
+        /// 将字节数组转换成16进制字符串
+        /// </summary>
+        /// <param name="hashData">字节数组</param>
+        /// <param name="isLower">是小写</param>
+        /// <returns>16进制字符串(大写字母)</returns>
+        public static string GetHexString(byte[] hashData, bool isLower = false)
+        {
+            var sb = new StringBuilder();
+            var fmt = isLower ? "x2" : "X2";
+            for (int i = 0; i < hashData.Length; i++)
+            {
+                sb.Append(hashData[i].ToString(fmt));
+            }
+            return sb.ToString();
+        }
+        #endregion
         #region // MD5
+        /// <summary>
+        /// 获取MD5加密(32位)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetMd5HexString(this string pass, bool isLower, Encoding encoding) => GetHexString(GetMd5Bytes(encoding.GetBytes(pass)), isLower);
+        /// <summary>
+        /// 获取MD5加密(32位)
+        /// </summary>
+        /// <param name="isLower"></param>
+        /// <param name="passSalt"></param>
+        /// <returns></returns>
+        public static string GetMd5HexString(this byte[] passSalt, bool isLower = false) => GetHexString(GetMd5Bytes(passSalt), isLower);
+        /// <summary>
+        /// 获取MD5加密(32位)
+        /// </summary>
+        /// <param name="passSalt"></param>
+        /// <returns></returns>
+        public static byte[] GetMd5Bytes(this byte[] passSalt) => MD5.Create().ComputeHash(passSalt);
         #endregion
         #region // SHA
+        /// <summary>
+        /// 获得散列密码(SHA-1)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha1HexString(this string pass, bool isLower, Encoding encoding) => GetSha1HexString(encoding.GetBytes(pass), isLower);
+        /// <summary>
+        /// 获得散列密码(SHA-1)
+        /// </summary>
+        /// <param name="passSalt"></param>
+        /// <param name="isLower">是小写</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha1HexString(this byte[] passSalt, bool isLower) => GetHexString(GetSha1Bytes(passSalt), isLower);
+        /// <summary>
+        /// 获得散列密码(SHA-1)
+        /// </summary>
+        /// <param name="passSalt"></param>
+        /// <returns></returns>
+        public static byte[] GetSha1Bytes(this byte[] passSalt) => SHA1.Create().ComputeHash(passSalt);
+        /// <summary>
+        /// 获得散列密码(SHA-256)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha256HexString(this string pass, bool isLower, Encoding encoding) => GetSha256HexString(encoding.GetBytes(pass), isLower);
+        /// <summary>
+        /// 获得散列密码(SHA-256)
+        /// </summary>
+        /// <param name="passSalt"></param>
+        /// <param name="isLower">是小写</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha256HexString(this byte[] passSalt, bool isLower) => GetHexString(GetSha256Bytes(passSalt), isLower);
+        /// <summary>
+        /// 获得散列密码(SHA-256)
+        /// </summary>
+        /// <param name="passSalt"></param>
+        /// <returns></returns>
+        public static byte[] GetSha256Bytes(this byte[] passSalt) => SHA256.Create().ComputeHash(passSalt);
+        /// <summary>
+        /// 获得散列密码(SHA-384)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha384HexString(this string pass, bool isLower, Encoding encoding) => GetSha384HexString(encoding.GetBytes(pass), isLower);
+        /// <summary>
+        /// 获得散列密码(SHA-384)
+        /// </summary>
+        /// <param name="passSalt"></param>
+        /// <param name="isLower">是小写</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha384HexString(this byte[] passSalt, bool isLower) => GetHexString(GetSha384Bytes(passSalt), isLower);
+        /// <summary>
+        /// 获得散列密码(SHA-384)
+        /// </summary>
+        /// <param name="passSalt"></param>
+        /// <returns></returns>
+        public static byte[] GetSha384Bytes(this byte[] passSalt) => SHA384.Create().ComputeHash(passSalt);
+        /// <summary>
+        /// 获得散列密码(SHA-512)
+        /// </summary>
+        /// <param name="pass">原码字符</param>
+        /// <param name="isLower">是小写</param>
+        /// <param name="encoding">编码</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha512HexString(this string pass, bool isLower, Encoding encoding) => GetSha512HexString(encoding.GetBytes(pass), isLower);
+        /// <summary>
+        /// 获得散列密码(SHA-512)
+        /// </summary>
+        /// <param name="passSalt"></param>
+        /// <param name="isLower">是小写</param>
+        /// <returns>加密字符</returns>
+        public static string GetSha512HexString(this byte[] passSalt, bool isLower) => GetHexString(GetSha512Bytes(passSalt), isLower);
+        /// <summary>
+        /// 获得散列密码(SHA-512)
+        /// </summary>
+        /// <param name="passSalt"></param>
+        /// <returns></returns>
+        public static byte[] GetSha512Bytes(this byte[] passSalt) => SHA512.Create().ComputeHash(passSalt);
         #endregion
-        #region // RAS
+        #region // RSA
+        /// <summary>
+        /// 获取Rsa密钥
+        /// </summary>
+        /// <returns></returns>
+        public static KeyValuePair<string, String> GetRsaKeys(int keySize = 1024)
+        {
+            var rsa = RSA.Create();
+            rsa.KeySize = keySize > 768 ? (int)(Math.Ceiling(keySize / 16.0) * 16) : 1024;
+            return new KeyValuePair<string, string>(rsa.ToXmlString(true), rsa.ToXmlString(false));
+        }
+        /// <summary>
+        /// 获得公钥加密算法密码(RSA)
+        /// </summary>
+        /// <param name="passSalt"></param>
+        /// <param name="pubKey"></param>
+        /// <returns></returns>
+        public static byte[] GetRsaEncryptBytes(this byte[] passSalt, string pubKey)
+        {
+#if NETFx
+            using var rsa = RSA.Create();
+#else
+            using var rsa = new RSACryptoServiceProvider();
+#endif
+            rsa.FromXmlString(pubKey);
+            int bufSize = rsa.KeySize / 16;
+            var buffer = new byte[bufSize];
+            using MemoryStream input = new MemoryStream(passSalt), output = new MemoryStream();
+            while (true)
+            {
+                int readSize = input.Read(buffer, 0, bufSize);
+                if (readSize == 0)
+                {
+                    break;
+                }
+                var temp = new byte[readSize];
+                Array.Copy(buffer, 0, temp, 0, readSize);
+#if NETFx
+                var enBytes = rsa.Encrypt(temp, RSAEncryptionPadding.OaepSHA1);
+#else
+                var enBytes = rsa.Encrypt(temp, true);
+#endif
+                output.Write(enBytes, 0, enBytes.Length);
+            }
+
+            return output.ToArray();
+        }
+        /// <summary>
+        /// 获得私钥解密算法密码(RSA)
+        /// </summary>
+        /// <param name="passData"></param>
+        /// <param name="priKey"></param>
+        /// <returns></returns>
+        public static byte[] GetRsaDecryptBytes(this byte[] passData, string priKey)
+        {
+#if NETFx
+            using var rsa = RSA.Create();
+#else
+            using var rsa = new RSACryptoServiceProvider();
+#endif
+            rsa.FromXmlString(priKey);
+            int bufSize = rsa.KeySize / 8;
+            var buffer = new byte[bufSize];
+            using MemoryStream input = new MemoryStream(passData), output = new MemoryStream();
+            while (true)
+            {
+                int readSize = input.Read(buffer, 0, bufSize);
+                if (readSize == 0)
+                {
+                    break;
+                }
+                var temp = new byte[readSize];
+                Array.Copy(buffer, 0, temp, 0, readSize);
+#if NETFx
+                var enBytes = rsa.Decrypt(temp, RSAEncryptionPadding.OaepSHA1);
+#else
+                var enBytes = rsa.Decrypt(temp, true);
+#endif
+                output.Write(enBytes, 0, enBytes.Length);
+            }
+            return output.ToArray();
+        }
+        /// <summary>
+        /// 签名
+        /// </summary>
+        /// <param name="passData">需签名的数据</param>
+        /// <param name="priKey"></param>
+        /// <returns>签名后的值</returns>
+        public static byte[] GetRsaSignBytes(byte[] passData, string priKey)
+        {
+            //根据需要加签时的哈希算法转化成对应的hash字符节
+            byte[] rgbHash = SHA1.Create().ComputeHash(passData);
+#if NETFx
+            using var rsa = RSA.Create();
+#else
+            using var rsa = new RSACryptoServiceProvider();
+#endif
+            rsa.FromXmlString(priKey);
+            var formatter = new RSAPKCS1SignatureFormatter(rsa);
+            formatter.SetHashAlgorithm(nameof(SHA1)); //此处是你需要加签的hash算法，需要和上边你计算的hash值的算法一致，不然会报错。
+            return formatter.CreateSignature(rgbHash);
+        }
+        /// <summary>
+        /// 签名验证
+        /// </summary>
+        /// <param name="passData">待验证的字符串</param>
+        /// <param name="sign">加签之后的字符串</param>
+        /// <param name="pubKey"></param>
+        /// <returns>签名是否符合</returns>
+        public static bool GetRsaSignCheck(byte[] passData, byte[] sign, string pubKey)
+        {
+            try
+            {
+                byte[] rgbHash = SHA1.Create().ComputeHash(passData);
+#if NETFx
+                using var rsa = RSA.Create();
+#else
+                using var rsa = new RSACryptoServiceProvider();
+#endif
+                rsa.FromXmlString(pubKey);
+                var deformatter = new RSAPKCS1SignatureDeformatter(rsa);
+                deformatter.SetHashAlgorithm(nameof(SHA1));
+                return deformatter.VerifySignature(rgbHash, sign);
+            }
+            catch
+            {
+                return false;
+            }
+        }
         #endregion
         #region // AES 比 DES 更快更安全
         /// <summary>
