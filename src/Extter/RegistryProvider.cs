@@ -53,13 +53,62 @@ namespace System.Data.Extter
         /// <param name="loader"></param>
         public static void SetService(TypeLoader loader) => Set(loader);
         /// <summary>
+        /// 设置服务[单一实现]
+        /// </summary>
+        /// <param name="assembly"></param>
+        public static void SetService(Assembly assembly) => SetService("Services", assembly);
+        /// <summary>
         /// 设置服务
         /// </summary>
-        /// <param name="domain"></param>
+        /// <param name="domain">缺省TagName,Service所在命名空间</param>
         /// <param name="assembly"></param>
         public static void SetService(string domain, Assembly assembly)
         {
             Set(new TypeLoader(domain) { Assembly = assembly });
+        }
+        /// <summary>
+        /// 设置服务(Services为域)[Services.{T}Impl]
+        /// </summary>
+        /// <param name="assembly"></param>
+        /// <param name="svrType"></param>
+        /// <param name="hasBase"></param>
+        public static void SetServiceImpl<T>(Assembly assembly, T svrType, bool hasBase = true)
+            where T : struct, Enum
+            => SetServiceImpl("Services", assembly, svrType, hasBase);
+        /// <summary>
+        /// 设置服务[{domain}.{T}Impl]
+        /// </summary>
+        /// <param name="domain">缺省TagName,Service所在命名空间</param>
+        /// <param name="assembly"></param>
+        /// <param name="svrType"></param>
+        /// <param name="hasBase"></param>
+        public static void SetServiceImpl<T>(string domain, Assembly assembly, T svrType, bool hasBase = true)
+            where T : struct, Enum
+        {
+            if (hasBase)
+            {
+                Set(new TypeLoader(domain) { TagName = $"{domain}.BaseImpl", Assembly = assembly });
+            }
+            var svrTypeAttr = NEnumerable<T>.GetFromEnum(svrType);
+            Set(new TypeLoader(domain) { TagName = $"{domain}.{svrTypeAttr.EnumName}Impl", Assembly = assembly });
+        }
+        /// <summary>
+        /// 设置服务
+        /// </summary>
+        /// <param name="domain">缺省TagName,Service所在命名空间</param>
+        /// <param name="assembly"></param>
+        /// <param name="tagNames">搜索命名空间</param>
+        public static void SetService(string domain, Assembly assembly, params string[] tagNames)
+        {
+            if (tagNames == null || tagNames.Length == 0)
+            {
+                Set(new TypeLoader(domain) { Assembly = assembly });
+                return;
+            }
+            foreach (var tagName in tagNames)
+            {
+                Set(new TypeLoader(domain) { TagName = tagName, Assembly = assembly });
+            }
         }
         /// <summary>
         /// 设置服务

@@ -1366,7 +1366,7 @@ namespace System.Data.Cobber
         /// <summary>
         /// HashTable字典(线程安全)
         /// </summary>
-        public static ICacheModel<T> HashTable { get; } = new CacheHashTableModel<T>(); 
+        public static ICacheModel<T> HashTable { get; } = new CacheHashTableModel<T>();
         /// <summary>
         /// Dictionary字典(非线程安全)
         /// </summary>

@@ -153,5 +153,102 @@ public static class TestTry
 #else
         Task.FromResult(result);
 #endif
-
+    /// <summary>
+    /// 兼容性的 Task.Delay 之类的内容
+    /// </summary>
+    /// <param name="milliseconds"></param>
+    /// <returns></returns>
+#if !NET40 // 内联函数减少性能损耗
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    public static Task TaskDelay(int milliseconds) =>
+#if NET40
+        Task.Factory.StartNew(() => Thread.Sleep(milliseconds));
+#else
+        Task.Delay(milliseconds);
+#endif
+    /// <summary>
+    /// 兼容性的 Task.Delay 之类的内容
+    /// </summary>
+    /// <param name="milliseconds"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+#if !NET40 // 内联函数减少性能损耗
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    public static Task TaskDelay(int milliseconds, CancellationToken cancellationToken) =>
+#if NET40
+        Task.Factory.StartNew(() => Thread.Sleep(milliseconds), cancellationToken);
+#else
+        Task.Delay(milliseconds, cancellationToken);
+#endif
+    /// <summary>
+    /// 兼容性的 Task.Delay 之类的内容
+    /// </summary>
+    /// <param name="milliseconds"></param>
+    /// <returns></returns>
+#if !NET40
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    public static Task TaskDelay(TimeSpan milliseconds)
+    {
+#if NET40
+        return Task.Factory.StartNew(() => Thread.Sleep(milliseconds));
+#else
+        return Task.Delay(milliseconds);
+#endif
+    }
+    /// <summary>
+    /// 兼容性的 Task.WhenAny 之类的内容
+    /// </summary>
+    /// <param name="tasks"></param>
+    /// <returns></returns>
+#if !NET40
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    public static Task TaskWhenAny(params Task[] tasks)
+    {
+#if NET40
+        return Task.Factory.ContinueWhenAny(tasks, TaskContinueDoNothing);
+#else
+        return Task.WhenAny(tasks);
+#endif
+    }
+    /// <summary>
+    /// 继续但什么都不做
+    /// </summary>
+    /// <param name="_"></param>
+    public static void TaskContinueDoNothing(Task _) { }
+    /// <summary>
+    /// 继续但什么都不做
+    /// </summary>
+    /// <param name="_"></param>
+    public static void TaskContinueDoNothing(Task[] _) { }
+    /// <summary>
+    /// 兼容性的 Task.WhenAll 之类的内容
+    /// </summary>
+    /// <param name="tasks"></param>
+    /// <returns></returns>
+#if !NET40
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+    public static Task TaskWhenAll(params Task[] tasks)
+    {
+#if NET40
+        return Task.Factory.ContinueWhenAll(tasks, TaskContinueDoNothing);
+#else
+        return Task.WhenAll(tasks);
+#endif
+    }
+#if NET40
+    /// <summary>
+    /// 轻量级的信号量异步等待
+    /// </summary>
+    /// <param name="slim"></param>
+    /// <returns></returns>
+    public static async Task WaitAsync(this SemaphoreSlim slim)
+    {
+        await Task.Factory.StartNew(() => slim.Wait());
+    }
+#endif
 }

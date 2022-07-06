@@ -77,5 +77,26 @@ namespace System.Data.DabberUT
             name = NEnumerable<LoggerType>.GetFromInt32((Int32)LoggerType.Access).Name;
             Console.WriteLine(name);
         }
+
+        [TestMethod]
+        public void GetEnumNamePerform()
+        {
+            var times = 1000;
+            DateTime now;
+            now = DateTime.Now;
+            _ = NEnumerable<LoggerType>.GetFromEnum(LoggerType.Access).Name;
+            for (int i = 0; i < times; i++)
+            {
+                _ = NEnumerable<LoggerType>.GetFromEnum(LoggerType.Access).Name;
+            }
+            Console.WriteLine(DateTime.Now - now);
+            now = DateTime.Now;
+            _ = Enum.GetName(typeof(LoggerType), LoggerType.Access);
+            for (int i = 0; i < times; i++)
+            {
+                _ = Enum.GetName(typeof(LoggerType), LoggerType.Access);
+            }
+            Console.WriteLine(DateTime.Now - now);
+        }
     }
 }
