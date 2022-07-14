@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Data.Cobber;
 using System.Text;
 
 namespace System.Data.DabberUT
@@ -44,6 +45,12 @@ namespace System.Data.DabberUT
 
             Console.WriteLine(string.Format("{0:f4}", 18.254550m));
             Console.WriteLine(string.Format("{0:f4}", 18.745450m));
+        }
+        [TestMethod]
+        public void CreateGuidString()
+        {
+            Console.WriteLine(Guid.NewGuid());
+            Console.WriteLine(Guid.NewGuid().GetString());
         }
     }
 }

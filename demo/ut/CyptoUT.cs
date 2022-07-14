@@ -16,6 +16,18 @@ namespace System.Data.DabberUT.CheckerUT
     public class CyptoUT
     {
         [TestMethod]
+        public void TestEncoding()
+        {
+            var len = 27;
+            var nor = 20;
+            Console.WriteLine("{0}   {1}   {2}   {3}", "EncodingName".PadRight(len, ' '), "WebName".PadRight(nor, ' '), "HeaderName".PadRight(nor, ' '), "BodyName".PadRight(nor, ' '));
+            foreach (EncodingInfo encodeInfo in Encoding.GetEncodings())
+            {
+                var encode = encodeInfo.GetEncoding();
+                Console.WriteLine("{0} | {1} | {2} | {3}", encode.EncodingName.PadRight(len, ' '), encode.WebName.PadRight(nor, ' '), encode.HeaderName.PadRight(nor, ' '), encode.BodyName.PadRight(nor, ' '));
+            }
+        }
+        [TestMethod]
         public void TestMD5()
         {
             var passSalt = Encoding.UTF8.GetBytes("Abc123!@#");
@@ -117,6 +129,19 @@ namespace System.Data.DabberUT.CheckerUT
             var sign = UserCrypto.GetRsaSignBytes(data, clientKey.Key);
             Assert.IsTrue(UserCrypto.GetRsaSignCheck(data, sign, clientKey.Value));
             Assert.IsFalse(UserCrypto.GetRsaSignCheck(data, sign, pubKey));
+        }
+        [TestMethod]
+        public void CreatePasswordCode()
+        {
+            Console.WriteLine("{0}", UserCrypto.GetAesEncrypt("Qms2020!@#", "Avs" + UserPassword.DefaultPasswordB));
+            Console.WriteLine("{0}", UserCrypto.GetAesEncrypt("Qms2020!@#", "Rvs" + UserPassword.DefaultPasswordB));
+            Console.WriteLine("{0}", UserCrypto.GetAesEncrypt("Qms2020!@#", "Ias" + UserPassword.DefaultPasswordB));
+            Console.WriteLine("{0}", UserCrypto.GetAesEncrypt("Qms2020!@#", "Sts" + UserPassword.DefaultPasswordB));
+
+            Console.WriteLine("{0}", UserCrypto.GetAesDecrypt("Tgn5SF+oG30qMhfKBm5+qA==", "Avs" + UserPassword.DefaultPasswordB));
+            Console.WriteLine("{0}", UserCrypto.GetAesDecrypt("xhemqL8PNl1H6X0f1ksXPg==", "Rvs" + UserPassword.DefaultPasswordB));
+            Console.WriteLine("{0}", UserCrypto.GetAesDecrypt("OaMTGfO+qwuNwYoBJ9v6yw==", "Ias" + UserPassword.DefaultPasswordB));
+            Console.WriteLine("{0}", UserCrypto.GetAesDecrypt("V/JKk26jtabK8CILGArh8w==", "Sts" + UserPassword.DefaultPasswordB));
         }
     }
 }

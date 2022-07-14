@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Cobber;
+using System.Data.Dobber;
 using System.Data.Extter;
+using System.IO;
 using System.Linq.Expressions;
 using System.Text;
 
@@ -25,6 +27,27 @@ namespace NEamsUT.CodeGener
             {
                 Console.WriteLine(Guid.NewGuid().GetString());
             }
+        }
+        [TestMethod]
+        public void CreateContextEntities()
+        {
+            var schema = "qms_prod";
+            var server = "192.168.1.119";
+            var userid = "root";
+            var password = "root";
+            var connString = $"DataSource={server};Port=3306;Database={schema};UserID={userid};Password={password};";
+            var ignoreTables = new List<String>
+            {
+                //"t_device_loggers",
+                //"t_device_dicts",
+                //"t_asset_epc_copy",
+                //"t_device_rfids.ant_num",
+            };
+            var sb = ContextEntitiesBuilder.Create(StoreType.MySQL)
+                .SetNamespace("CenIdea.Qualimetry.Entities.Remote")
+                .SetIgnoreTableOrColumn(ignoreTables)
+                .GetCodeSingle(new MySql.Data.MySqlClient.MySqlConnection(connString));
+            File.WriteAllText(Path.GetFullPath(@"QmsContextEntities.cs"), sb.ToString());
         }
     }
     /// <summary>
