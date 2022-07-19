@@ -91,5 +91,27 @@ namespace System.Data.Extter
         /// </summary>
         /// <param name="dir"></param>
         public static void StartExplorer(this DirectoryInfo dir) => ExecHidden("cmd", dir.FullName, $" /c start \"\" \"{dir.FullName}\"");
+        /// <summary>
+        /// 启动链接
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static IAlertMsg StartUrl(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url)) { return AlertMsg.OperSuccess; }
+            url = url.Trim().Replace("&", "^&");
+            Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
+            return AlertMsg.OperSuccess;
+        }
+        /// <summary>
+        /// 启动链接
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static IAlertMsg TryStartUrl(string url)
+        {
+            try { return StartUrl(url); }
+            catch { return AlertMsg.OperError; }
+        }
     }
 }

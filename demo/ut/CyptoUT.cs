@@ -133,15 +133,7 @@ namespace System.Data.DabberUT.CheckerUT
         [TestMethod]
         public void CreatePasswordCode()
         {
-            Console.WriteLine("{0}", UserCrypto.GetAesEncrypt("Qms2020!@#", "Avs" + UserPassword.DefaultPasswordB));
-            Console.WriteLine("{0}", UserCrypto.GetAesEncrypt("Qms2020!@#", "Rvs" + UserPassword.DefaultPasswordB));
-            Console.WriteLine("{0}", UserCrypto.GetAesEncrypt("Qms2020!@#", "Ias" + UserPassword.DefaultPasswordB));
-            Console.WriteLine("{0}", UserCrypto.GetAesEncrypt("Qms2020!@#", "Sts" + UserPassword.DefaultPasswordB));
-
-            Console.WriteLine("{0}", UserCrypto.GetAesDecrypt("Tgn5SF+oG30qMhfKBm5+qA==", "Avs" + UserPassword.DefaultPasswordB));
-            Console.WriteLine("{0}", UserCrypto.GetAesDecrypt("xhemqL8PNl1H6X0f1ksXPg==", "Rvs" + UserPassword.DefaultPasswordB));
-            Console.WriteLine("{0}", UserCrypto.GetAesDecrypt("OaMTGfO+qwuNwYoBJ9v6yw==", "Ias" + UserPassword.DefaultPasswordB));
-            Console.WriteLine("{0}", UserCrypto.GetAesDecrypt("V/JKk26jtabK8CILGArh8w==", "Sts" + UserPassword.DefaultPasswordB));
+            Console.WriteLine("{0}", UserCrypto.GetAesEncrypt("EZhouXin2020!@#", "Bugeter" + UserPassword.DefaultPasswordB));
         }
     }
 }
