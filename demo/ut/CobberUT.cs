@@ -14,17 +14,17 @@ namespace System.Data.DabberUT
         public void TestAccess()
         {
             var testObject = new TestMan("ErikZhouXin") { Name = "ErikZhouXin" };
-            MemberCaller.GetPropertyAccess(typeof(TestMan)).FuncSetValue(null, nameof(TestMan.Value), "姓名");
-            Console.WriteLine(MemberCaller.GetPropertyAccess(typeof(TestMan)).FuncGetValue(null, nameof(TestMan.Value)));
-            MemberCaller.SetPropertyValue(typeof(TestMan), nameof(TestMan.Value), "名字");
-            Console.WriteLine(MemberCaller.GetPropertyValue(typeof(TestMan), nameof(TestMan.Value)));
-            MemberCaller.SetPropertyValue<TestMan>(nameof(TestMan.Value), "名儿");
-            Console.WriteLine(MemberCaller.GetPropertyValue<TestMan>(nameof(TestMan.Value)));
+            ExtterCaller.GetPropertyAccess(typeof(TestMan)).FuncSetValue(null, nameof(TestMan.Value), "姓名");
+            Console.WriteLine(ExtterCaller.GetPropertyAccess(typeof(TestMan)).FuncGetValue(null, nameof(TestMan.Value)));
+            ExtterCaller.SetPropertyValue(typeof(TestMan), nameof(TestMan.Value), "名字");
+            Console.WriteLine(ExtterCaller.GetPropertyValue(typeof(TestMan), nameof(TestMan.Value)));
+            ExtterCaller.SetPropertyValue<TestMan>(nameof(TestMan.Value), "名儿");
+            Console.WriteLine(ExtterCaller.GetPropertyValue<TestMan>(nameof(TestMan.Value)));
 
-            MemberCaller.GetPropertyAccess(typeof(TestMan)).FuncSetValue(testObject, nameof(TestMan.Name), "姓名");
-            Console.WriteLine(MemberCaller.GetPropertyAccess(typeof(TestMan)).FuncGetValue(testObject, nameof(TestMan.Name)));
-            MemberCaller.SetPropertyValue<TestMan>(testObject, nameof(TestMan.Name), "名儿");
-            Console.WriteLine(MemberCaller.GetPropertyValue<TestMan>(testObject, nameof(TestMan.Value)));
+            ExtterCaller.GetPropertyAccess(typeof(TestMan)).FuncSetValue(testObject, nameof(TestMan.Name), "姓名");
+            Console.WriteLine(ExtterCaller.GetPropertyAccess(typeof(TestMan)).FuncGetValue(testObject, nameof(TestMan.Name)));
+            ExtterCaller.SetPropertyValue<TestMan>(testObject, nameof(TestMan.Name), "名儿");
+            Console.WriteLine(ExtterCaller.GetPropertyValue<TestMan>(testObject, nameof(TestMan.Value)));
 
             foreach (var item in PropertyAccess<TestMan>.InternalSetDic)
             {
@@ -35,6 +35,10 @@ namespace System.Data.DabberUT
             {
                 Console.WriteLine(item.Value.Invoke(testObject));
             }
+            PropertyAccess.SetInstance(testObject);
+            Assert.IsTrue(PropertyAccess<TestMan>.Instance == testObject);
+            PropertyAccess.SetSingleton(testObject);
+            Assert.IsTrue(PropertyAccess<TestMan>.Instance == testObject);
         }
 
         [TestMethod]
@@ -80,7 +84,7 @@ namespace System.Data.DabberUT
             var da = new MemberDelegatedReflectionAccessor();
             var ma = new MemberExpressionAccessor();
             var testMemberName = nameof(TestMan100.Name90);
-            var pa = MemberCaller.GetPropertyAccess(testObject.GetType());
+            var pa = ExtterCaller.GetPropertyAccess(testObject.GetType());
             var ga = new PropertyAccess<TestMan100>();
 
             new TimeProfiler(() => testObject.Name90 = testObject.Name90, "直接调用").Run(runTime);

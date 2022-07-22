@@ -151,6 +151,21 @@ namespace System.Data.Cobber
             return new KeyValuePair<string, string>(rsa.ToXmlString(true), rsa.ToXmlString(false));
         }
         /// <summary>
+        /// 通过私钥获取Rsa的公钥
+        /// </summary>
+        /// <param name="priKey"></param>
+        /// <returns></returns>
+        public static String GetRsaPublicKey(string priKey)
+        {
+#if NETFx
+            using var rsa = RSA.Create();
+#else
+            using var rsa = new RSACryptoServiceProvider();
+#endif
+            rsa.FromXmlString(priKey);
+            return rsa.ToXmlString(false);
+        }
+        /// <summary>
         /// 获得公钥加密算法密码(RSA)
         /// </summary>
         /// <param name="passSalt"></param>

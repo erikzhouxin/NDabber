@@ -530,33 +530,33 @@ namespace System.Data.Cobber
     public class PropertyAccess : IPropertyAccess
     {
         internal readonly static Dictionary<Type, IPropertyAccess> MemberDic = new Dictionary<Type, IPropertyAccess>();
-        internal IPropertyAccess Access { get; }
+        private IPropertyAccess _access;
         /// <summary>
         /// 获取值(instance,memberName,return)
         /// </summary>
-        public Func<object, string, object> FuncGetValue { get => Access.FuncGetValue; }
+        public Func<object, string, object> FuncGetValue { get => _access.FuncGetValue; }
         /// <summary>
         /// 获取值类型(memberName,return)
         /// </summary>
-        public Func<string, Type> FuncGetType { get => Access.FuncGetType; }
+        public Func<string, Type> FuncGetType { get => _access.FuncGetType; }
         /// <summary>
         /// 设置值(instance,memberName,newValue)
         /// </summary>
-        public Action<object, string, object> FuncSetValue { get => Access.FuncSetValue; }
+        public Action<object, string, object> FuncSetValue { get => _access.FuncSetValue; }
         /// <summary>
         /// 获取字典
         /// </summary>
-        public ReadOnlyDictionary<string, Func<object, object>> FuncGetDic { get => Access.FuncGetDic; }
+        public ReadOnlyDictionary<string, Func<object, object>> FuncGetDic { get => _access.FuncGetDic; }
         /// <summary>
         /// 设置字典
         /// </summary>
-        public ReadOnlyDictionary<string, Action<object, object>> FuncSetDic { get => Access.FuncSetDic; }
+        public ReadOnlyDictionary<string, Action<object, object>> FuncSetDic { get => _access.FuncSetDic; }
         /// <summary>
         /// 构造
         /// </summary>
         public PropertyAccess(Type type)
         {
-            Access = Get(type);
+            _access = Get(type);
         }
         /// <summary>
         /// 获取访问类接口实例
@@ -587,7 +587,7 @@ namespace System.Data.Cobber
         /// <returns>成员值</returns>
         public object GetValue(object instance, string memberName)
         {
-            return Access.FuncGetValue(instance, memberName);
+            return _access.FuncGetValue(instance, memberName);
         }
 
         /// <summary>
@@ -598,7 +598,7 @@ namespace System.Data.Cobber
         /// <param name="newValue">成员值</param>
         public void SetValue(object instance, string memberName, object newValue)
         {
-            Access.FuncSetValue(instance, memberName, newValue);
+            _access.FuncSetValue(instance, memberName, newValue);
         }
         /// <summary>
         /// 级联获取值
@@ -613,7 +613,7 @@ namespace System.Data.Cobber
             if (string.IsNullOrWhiteSpace(path)) { return true; }
             try
             {
-                IPropertyAccess access = Access;
+                IPropertyAccess access = _access;
                 var paths = path.Trim().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var item in paths)
                 {
@@ -641,7 +641,7 @@ namespace System.Data.Cobber
             if (string.IsNullOrWhiteSpace(path)) { return true; }
             try
             {
-                IPropertyAccess access = Access;
+                IPropertyAccess access = _access;
                 var paths = path.Trim().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
                 var inObject = instance;
                 for (int i = 0; i < paths.Length - 1; i++)
@@ -674,7 +674,7 @@ namespace System.Data.Cobber
             if (string.IsNullOrWhiteSpace(path)) { return true; }
             try
             {
-                IPropertyAccess access = Access;
+                IPropertyAccess access = _access;
                 var paths = path.Trim().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
                 var inObject = instance;
                 for (int i = 0; i < paths.Length - 1; i++)
@@ -703,6 +703,31 @@ namespace System.Data.Cobber
                 Console.WriteLine(ex);
                 return false;
             }
+        }
+        /// <summary>
+        /// 设置真实类型值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static T SetInstance<T>(T model)
+        {
+            try
+            {
+                GetAccess(GetAccess(model)).FuncSetValue(null, nameof(PropertyAccess<T>.Instance), model);
+            }
+            catch { }
+            return model;
+        }
+        /// <summary>
+        /// 设置指定类型值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static T SetSingleton<T>(T model)
+        {
+            return PropertyAccess<T>.Instance = model;
         }
     }
     /// <summary>
@@ -798,6 +823,7 @@ namespace System.Data.Cobber
             InternalGetDic = new(getDic);
             InternalSetDic = new(setDic);
             PropertyAccess.MemberDic[Type] = new PropertyAccess<T>();
+            Instance = default(T);
         }
         #endregion
         Func<object, string, object> IPropertyAccess.FuncGetValue => (instance, memberName) => InternalGetValue((T)instance, memberName);
@@ -827,5 +853,13 @@ namespace System.Data.Cobber
         public PropertyAccess()
         {
         }
+        /// <summary>
+        /// 静态单例
+        /// </summary>
+        public static T Instance { get; set; }
+        /// <summary>
+        /// 单例
+        /// </summary>
+        public T Singleton { get => Instance; set => Instance = value; }
     }
 }

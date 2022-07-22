@@ -74,7 +74,7 @@ namespace System.Data.Extter
         /// <summary>
         /// 默认值
         /// </summary>
-        public static object DefValue { get; }
+        public static T DefValue { get; }
         /// <summary>
         /// 类型
         /// </summary>
@@ -87,7 +87,11 @@ namespace System.Data.Extter
         /// <summary>
         /// 默认值
         /// </summary>
-        public object Value => DefValue;
+        public T Value => DefValue;
+        /// <summary>
+        /// 默认值
+        /// </summary>
+        object IDefaultValue.Value => DefValue;
         /// <summary>
         /// 类型
         /// </summary>

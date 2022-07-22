@@ -201,7 +201,15 @@ namespace System.Data.Dobber
             Func<String, string> GetTableName = (s) => s.SnakeToPascalCase();
             if (!String.IsNullOrEmpty(_preTable))
             {
-                GetTableName = (s) => _preTable + s.SnakeToPascalCase();
+                GetTableName = (s) =>
+                {
+                    var tableName = s.SnakeToPascalCase();
+                    if (tableName.StartsWith(_preTable, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return tableName;
+                    }
+                    return _preTable + tableName;
+                };
             }
             var tableModels = new List<TableModel>();
             var copyTableReg = new Regex(@"\w+(_copy)\d+$");

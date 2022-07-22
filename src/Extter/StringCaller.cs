@@ -62,6 +62,16 @@ namespace System.Data.Cobber
             return string.IsNullOrWhiteSpace(value) ? defVal : value;
         }
         /// <summary>
+        /// 获取空的默认值
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        public static String GetEmptyDefault(this string value, Func<string> defVal)
+        {
+            return string.IsNullOrWhiteSpace(value) ? defVal?.Invoke() : value;
+        }
+        /// <summary>
         /// 连接字符串
         /// </summary>
         /// <param name="list"></param>
