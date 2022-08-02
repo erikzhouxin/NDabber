@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.Extter;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -141,7 +142,7 @@ namespace System.Data.Cobber
         #endregion
         #region // RSA
         /// <summary>
-        /// 获取Rsa密钥
+        /// 获取Rsa密钥(Key:私钥,Value:公钥)
         /// </summary>
         /// <returns></returns>
         public static KeyValuePair<string, String> GetRsaKeys(int keySize = 1024)
@@ -149,6 +150,16 @@ namespace System.Data.Cobber
             var rsa = RSA.Create();
             rsa.KeySize = keySize > 768 ? (int)(Math.Ceiling(keySize / 16.0) * 16) : 1024;
             return new KeyValuePair<string, string>(rsa.ToXmlString(true), rsa.ToXmlString(false));
+        }
+        /// <summary>
+        /// 获取Rsa私钥
+        /// </summary>
+        /// <returns></returns>
+        public static string GetRsaKey(int keySize = 1024)
+        {
+            var rsa = RSA.Create();
+            rsa.KeySize = keySize > 768 ? (int)(Math.Ceiling(keySize / 16.0) * 16) : 1024;
+            return rsa.ToXmlString(true);
         }
         /// <summary>
         /// 通过私钥获取Rsa的公钥
@@ -299,6 +310,17 @@ namespace System.Data.Cobber
         /// <summary>
         ///  AES 加密
         /// </summary>
+        /// <param name="str">明文（待加密）</param>
+        /// <param name="key">密钥(32位)</param>
+        /// <returns></returns>
+        public static string GetAesEncryptHex(string str, string key)
+        {
+            if (string.IsNullOrEmpty(str)) { return string.Empty; }
+            return GetHexString(GetAesEncrypt(Encoding.UTF8.GetBytes(str), Encoding.UTF8.GetBytes(key)));
+        }
+        /// <summary>
+        ///  AES 加密
+        /// </summary>
         /// <param name="content">明文字节（待加密）</param>
         /// <param name="key">密钥(32位)</param>
         /// <returns></returns>
@@ -343,6 +365,17 @@ namespace System.Data.Cobber
         {
             if (string.IsNullOrEmpty(str)) { return string.Empty; }
             return Encoding.UTF8.GetString(GetAesDecrypt(Convert.FromBase64String(str), Encoding.UTF8.GetBytes(key)));
+        }
+        /// <summary>
+        ///  AES 解密
+        /// </summary>
+        /// <param name="str">明文（待解密）</param>
+        /// <param name="key">密文(32位)</param>
+        /// <returns></returns>
+        public static string GetAesDecryptHex(string str, string key)
+        {
+            if (string.IsNullOrEmpty(str)) { return string.Empty; }
+            return Encoding.UTF8.GetString(GetAesDecrypt(str.GetHexBytes(), Encoding.UTF8.GetBytes(key)));
         }
         /// <summary>
         ///  AES 解密

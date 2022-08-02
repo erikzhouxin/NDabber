@@ -502,6 +502,10 @@ namespace System.Data.Cobber
     public interface IPropertyAccess
     {
         /// <summary>
+        /// 泛型类型
+        /// </summary>
+        Type FuncGenericType { get; }
+        /// <summary>
         /// 获取值(instance,memberName,return)
         /// </summary>
         Func<object, string, object> FuncGetValue { get; }
@@ -521,6 +525,10 @@ namespace System.Data.Cobber
         /// 设置字典
         /// </summary>
         ReadOnlyDictionary<string, Action<object, object>> FuncSetDic { get; }
+        /// <summary>
+        /// 信息字典
+        /// </summary>
+        ReadOnlyDictionary<string, PropertyAccess.IInfoModel> FuncInfoDic { get; }
     }
     /// <summary>
     /// 表达式树生成case字段获取
@@ -531,6 +539,10 @@ namespace System.Data.Cobber
     {
         internal readonly static Dictionary<Type, IPropertyAccess> MemberDic = new Dictionary<Type, IPropertyAccess>();
         private IPropertyAccess _access;
+        /// <summary>
+        /// 泛型类型
+        /// </summary>
+        public Type FuncGenericType { get => _access.FuncGenericType; }
         /// <summary>
         /// 获取值(instance,memberName,return)
         /// </summary>
@@ -551,6 +563,10 @@ namespace System.Data.Cobber
         /// 设置字典
         /// </summary>
         public ReadOnlyDictionary<string, Action<object, object>> FuncSetDic { get => _access.FuncSetDic; }
+        /// <summary>
+        /// 信息字典
+        /// </summary>
+        public ReadOnlyDictionary<string, PropertyAccess.IInfoModel> FuncInfoDic { get => _access.FuncInfoDic; }
         /// <summary>
         /// 构造
         /// </summary>
@@ -729,6 +745,24 @@ namespace System.Data.Cobber
         {
             return PropertyAccess<T>.Instance = model;
         }
+        /// <summary>
+        /// 属性访问信息模型
+        /// </summary>
+        public interface IInfoModel
+        {
+            /// <summary>
+            /// 属性信息
+            /// </summary>
+            PropertyInfo PropertyInfo { get; }
+            /// <summary>
+            /// 获取值
+            /// </summary>
+            Func<object, object> GetValue { get; }
+            /// <summary>
+            /// 设置值
+            /// </summary>
+            Action<object, object> SetValue { get; }
+        }
     }
     /// <summary>
     /// 表达式树生成case字段泛型获取
@@ -738,6 +772,10 @@ namespace System.Data.Cobber
     public class PropertyAccess<T> : IPropertyAccess
     {
         #region // 静态内容
+        /// <summary>
+        /// 代理类
+        /// </summary>
+        public static PropertyAccess<T> Proxy { get; }
         /// <summary>
         /// 获取值(instance,memberName,return)
         /// </summary>
@@ -755,9 +793,13 @@ namespace System.Data.Cobber
         /// </summary>
         public static ReadOnlyDictionary<string, Func<T, object>> InternalGetDic { get; }
         /// <summary>
-        /// 
+        /// 内部设置字典
         /// </summary>
         public static ReadOnlyDictionary<string, Action<T, object>> InternalSetDic { get; }
+        /// <summary>
+        /// 内部属性信息字典
+        /// </summary>
+        public static ReadOnlyDictionary<string, InfoModel> InternalInfoDic { get; }
         /// <summary>
         /// 类型
         /// </summary>
@@ -776,6 +818,7 @@ namespace System.Data.Cobber
             var setCases = new List<SwitchCase>();
             var getDic = new Dictionary<string, Func<T, object>>();
             var setDic = new Dictionary<string, Action<T, object>>();
+            var infoDic = new Dictionary<string, InfoModel>();
             foreach (var propertyInfo in Type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
                 var property = Expression.Property(Expression.Convert(instance, Type), propertyInfo);
@@ -784,14 +827,20 @@ namespace System.Data.Cobber
                 getCases.Add(Expression.SwitchCase(Expression.Convert(property, typeof(object)), propertyHash));
 
                 getTypeCases.Add(Expression.SwitchCase(Expression.Constant(propertyInfo.PropertyType), propertyHash));
-
-                getDic.Add(propertyInfo.Name, (Func<T, object>)Expression.Lambda(typeof(Func<T, object>), Expression.Convert(property, typeof(object)), instance).Compile());
-
+                var getLambda = (Func<T, object>)Expression.Lambda(typeof(Func<T, object>), Expression.Convert(property, typeof(object)), instance).Compile();
+                getDic.Add(propertyInfo.Name, getLambda);
+                var propInfo = new InfoModel
+                {
+                    PropertyInfo = propertyInfo,
+                    GetValue = getLambda
+                };
+                infoDic.Add(propertyInfo.Name, propInfo);
                 if (!propertyInfo.CanWrite) { continue; }
                 var setValue = Expression.Assign(property, Expression.Convert(setNewValue, propertyInfo.PropertyType));
                 setCases.Add(Expression.SwitchCase(Expression.Convert(setValue, typeof(object)), propertyHash));
-
-                setDic.Add(propertyInfo.Name, (Action<T, object>)Expression.Lambda(typeof(Action<T, object>), setValue, instance, setNewValue).Compile());
+                var setLambda = (Action<T, object>)Expression.Lambda(typeof(Action<T, object>), setValue, instance, setNewValue).Compile();
+                setDic.Add(propertyInfo.Name, setLambda);
+                propInfo.SetValue = setLambda;
             }
             foreach (var propertyInfo in Type.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy))
             {
@@ -801,15 +850,21 @@ namespace System.Data.Cobber
                 getCases.Add(Expression.SwitchCase(Expression.Convert(property, typeof(object)), propertyHash));
 
                 getTypeCases.Add(Expression.SwitchCase(Expression.Constant(propertyInfo.PropertyType), propertyHash));
-
-                getDic.Add(propertyInfo.Name, (Func<T, object>)Expression.Lambda(typeof(Func<T, object>), Expression.Convert(property, typeof(object)), instance).Compile());
-
+                var getLambda = (Func<T, object>)Expression.Lambda(typeof(Func<T, object>), Expression.Convert(property, typeof(object)), instance).Compile();
+                getDic.Add(propertyInfo.Name, getLambda);
+                var propInfo = new InfoModel
+                {
+                    PropertyInfo = propertyInfo,
+                    GetValue = getLambda
+                };
+                infoDic.Add(propertyInfo.Name, propInfo);
                 if (!propertyInfo.CanWrite) { continue; }
                 var setValue = Expression.Assign(property, Expression.Convert(setNewValue, propertyInfo.PropertyType));
 
                 setCases.Add(Expression.SwitchCase(Expression.Convert(setValue, typeof(object)), propertyHash));
-
-                setDic.Add(propertyInfo.Name, (Action<T, object>)Expression.Lambda(typeof(Action<T, object>), setValue, instance, setNewValue).Compile());
+                var setLambda = (Action<T, object>)Expression.Lambda(typeof(Action<T, object>), setValue, instance, setNewValue).Compile();
+                setDic.Add(propertyInfo.Name, setLambda);
+                propInfo.SetValue = setLambda;
             }
             var getMethodBody = Expression.Block(typeof(object), new[] { nameHash }, calHash, Expression.Switch(nameHash, Expression.Constant(null), getCases.ToArray()));
             InternalGetValue = Expression.Lambda<Func<T, string, object>>(getMethodBody, instance, memberName).Compile();
@@ -822,7 +877,8 @@ namespace System.Data.Cobber
 
             InternalGetDic = new(getDic);
             InternalSetDic = new(setDic);
-            PropertyAccess.MemberDic[Type] = new PropertyAccess<T>();
+            InternalInfoDic = new(infoDic);
+            PropertyAccess.MemberDic[Type] = Proxy = new PropertyAccess<T>();
             Instance = default(T);
         }
         #endregion
@@ -834,6 +890,8 @@ namespace System.Data.Cobber
         ReadOnlyDictionary<string, Func<object, object>> IPropertyAccess.FuncGetDic => new(InternalGetDic.ToDictionary(s => s.Key, s => new Func<object, object>((m) => s.Value((T)m))));
 
         ReadOnlyDictionary<string, Action<object, object>> IPropertyAccess.FuncSetDic => new(InternalSetDic.ToDictionary(s => s.Key, s => new Action<object, object>((m, v) => s.Value((T)m, v))));
+
+        ReadOnlyDictionary<string, PropertyAccess.IInfoModel> IPropertyAccess.FuncInfoDic => new(InternalInfoDic.ToDictionary(s => s.Key, s => (PropertyAccess.IInfoModel)s.Value));
 
         /// <summary>
         /// 获取值(instance,memberName,return)
@@ -861,5 +919,30 @@ namespace System.Data.Cobber
         /// 单例
         /// </summary>
         public T Singleton { get => Instance; set => Instance = value; }
+        /// <summary>
+        /// 泛型类型
+        /// </summary>
+        public Type FuncGenericType { get => Type; }
+        /// <summary>
+        /// 属性访问信息模型
+        /// </summary>
+        public sealed class InfoModel : PropertyAccess.IInfoModel
+        {
+            /// <summary>
+            /// 属性信息
+            /// </summary>
+            public PropertyInfo PropertyInfo { get; internal set; }
+            /// <summary>
+            /// 获取值
+            /// </summary>
+            public Func<T, object> GetValue { get; internal set; }
+            /// <summary>
+            /// 设置值
+            /// </summary>
+            public Action<T, object> SetValue { get; internal set; }
+
+            Func<object, object> PropertyAccess.IInfoModel.GetValue { get => (obj) => GetValue((T)obj); }
+            Action<object, object> PropertyAccess.IInfoModel.SetValue { get => (obj, args) => SetValue((T)obj, args); }
+        }
     }
 }

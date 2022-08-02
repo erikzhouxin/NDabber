@@ -28,25 +28,35 @@ namespace System.Data.DabberUT.CheckerUT
             }
         }
         [TestMethod]
-        public void TestMD5()
+        public void TestCrypto()
         {
-            var passSalt = Encoding.UTF8.GetBytes("Abc123!@#");
-            var md5Hash1 = MD5.Create().ComputeHash(passSalt);
-            var md5Hash2 = new MD5CryptoServiceProvider().ComputeHash(passSalt);
-            var md5String1 = UserCrypto.GetHexString(md5Hash1);
-            var md5String2 = UserCrypto.GetHexString(md5Hash2);
-            Assert.AreEqual(md5String1, md5String2);
+            var jsonString = System.IO.File.ReadAllText(System.IO.Path.GetFullPath("CryptoValues.Json"));
+            var values = jsonString.GetJsonObject();
+            foreach (String item in values)
+            {
+                Console.WriteLine($"原密码  => {item}");
+                Console.WriteLine($"MD5     => {UserPassword.GetMd5Hash(item)}");
+                Console.WriteLine($"SHA1    => {UserPassword.GetSha1Hash(item)}");
+                Console.WriteLine($"SHA256  => {UserPassword.GetSha256Hash(item)}");
+                Console.WriteLine($"SHA384  => {UserPassword.GetSha384Hash(item)}");
+                Console.WriteLine($"SHA512  => {UserPassword.GetSha512Hash(item)}");
+                Console.WriteLine($"AES     => {UserCrypto.GetAesEncrypt(item, item)}");
+                Console.WriteLine($"AES Hex => {UserCrypto.GetAesEncryptHex(item, item)}");
+                Console.WriteLine($"===================================================================================================");
+            }
         }
         [TestMethod]
-        public void TestSha512()
+        public void TestCryptoProvider()
         {
             var passSalt = Encoding.UTF8.GetBytes("Abc123!@#");
-            var md5Hash1 = SHA512.Create().ComputeHash(passSalt);
-            var md5Hash2 = new SHA512CryptoServiceProvider().ComputeHash(passSalt);
-            var md5String1 = UserCrypto.GetHexString(md5Hash1);
-            var md5String2 = UserCrypto.GetHexString(md5Hash2);
-            Assert.AreEqual(md5String1, md5String2);
-            Console.WriteLine(UserCrypto.GetHexString(SHA1.Create().ComputeHash(Encoding.UTF8.GetBytes("EZhouXin")), false));
+
+            var md5Hash1 = MD5.Create().ComputeHash(passSalt);
+            var md5Hash2 = new MD5CryptoServiceProvider().ComputeHash(passSalt);
+            Assert.AreEqual(UserCrypto.GetHexString(md5Hash1), UserCrypto.GetHexString(md5Hash2));
+
+            var sha512Hash1 = SHA512.Create().ComputeHash(passSalt);
+            var sha512Hash2 = new SHA512CryptoServiceProvider().ComputeHash(passSalt);
+            Assert.AreEqual(UserCrypto.GetHexString(sha512Hash1), UserCrypto.GetHexString(sha512Hash2));
         }
         [TestMethod]
         public void TestRsa()
@@ -133,7 +143,40 @@ namespace System.Data.DabberUT.CheckerUT
         [TestMethod]
         public void CreatePasswordCode()
         {
-            Console.WriteLine("{0}", UserCrypto.GetAesEncrypt("EZhouXin2020!@#", "Bugeter" + UserPassword.DefaultPasswordB));
+            var jsonString = System.IO.File.ReadAllText(System.IO.Path.GetFullPath("CryptoClient.Json"));
+            var values = jsonString.GetJsonObject();
+            foreach (var item in values)
+            {
+                String key = (String)item.Key + UserPassword.DefaultPasswordB;
+                String password = item.Password;
+                String value = item.Value;
+                Console.WriteLine($"原密码  => 客户端:{(string)item.Key} {password}");
+                Console.WriteLine($"密文本  => {UserCrypto.GetAesEncrypt(password, key)}");
+                if (!string.IsNullOrEmpty(value))
+                {
+                    Console.WriteLine($"解密文  => {UserCrypto.GetAesDecrypt(value, key)}");
+                }
+                Console.WriteLine($"===================================================================================================");
+            }
+        }
+        /// <summary>
+        /// 得到加密配置
+        /// </summary>
+        [TestMethod]
+        public void GetEncryptConfig()
+        {
+            var jsonString = System.IO.File.ReadAllText(System.IO.Path.GetFullPath("QMSValues.Json"));
+            var values = jsonString.GetJsonObject();
+            foreach (var item in values)
+            {
+                string appCode = (string)item.AppCode;
+                Console.WriteLine($"AppCode: {appCode}");
+                Console.WriteLine("SecurityKey : {0}", UserCrypto.GetAesEncrypt(appCode, appCode));
+                string issuer = (string)item.Issuer;
+                string connString = (string)item.ConnString;
+                var storeApiKey = UserCrypto.GetAesEncrypt(new StoreModel(StoreType.MySQL, connString).GetJsonString(), issuer + appCode);
+                Console.WriteLine("Story : StoreApi : {0}", storeApiKey);
+            }
         }
     }
 }

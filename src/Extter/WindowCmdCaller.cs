@@ -69,7 +69,7 @@ namespace System.Data.Extter
         /// <summary>
         /// 执行命令行
         /// </summary>
-        public static IAlertMsg ExecHidden(string command) => ExecHidden("cmd.exe", WindowDir, command);
+        public static IAlertMsg ExecHidden(string command) => ExecHidden("cmd.exe", WindowDir, $" /c {command}");
         /// <summary>
         /// 执行命令行
         /// </summary>

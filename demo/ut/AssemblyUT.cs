@@ -18,7 +18,8 @@ namespace System.Data.DabberUT
         public void MyTestMethod()
         {
             var assDll = ExtterBuilder.CreateCDllModel("user32.dll").GetDelegate<MsgBox>("MessageBoxA");
-            
+            assDll.Invoke(0, "这是个动态弹框", "动态挑战", 0x30);
+            assDll = ExtterBuilder.CreateCDllModel("user32.dll").GetDelegate<MsgBox>("MessageBoxA");
             assDll.Invoke(0, "这是个动态弹框", "动态挑战", 0x30);
         }
     }

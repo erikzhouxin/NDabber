@@ -51,7 +51,7 @@ namespace System.Data.DabberUT
         [TestMethod]
         public void TestExpressionCode()
         {
-            var path = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "CodeGeners"));
+            var path = Path.GetFullPath(Directory.GetCurrentDirectory());
             var typeBuilder = ExtterBuilder.BuilderContent(typeof(TSysParams));
             File.WriteAllText(Path.Combine(path, "ExpressionLambda.cs"), typeBuilder.ToString());
         }
