@@ -383,7 +383,7 @@ namespace System.Data.Dobber
             {
                 sb.AppendLine($"namespace {_nameSpace}.{_dbName.PascalToSnakeCase()}");
             }
-            sb.AppendLine("{");
+            sb.AppendLine("{").AppendLine("#pragma warning disable CS1570 // XML 注释出现 XML 格式错误");
             var black4 = "    ";
             var black8 = "        ";
             foreach (var tabItem in tableModels)
@@ -444,7 +444,7 @@ namespace System.Data.Dobber
                 sb.AppendLine($"{black8}public {tabItem.Clazz} Clone() {{ return ({tabItem.Clazz})this.MemberwiseClone(); }}");
                 sb.AppendLine($"{black4}}}");
             }
-            sb.AppendLine("}");
+            sb.AppendLine("#pragma warning restore CS1570 // XML 注释出现 XML 格式错误").AppendLine("}");
             return sb;
         }
 

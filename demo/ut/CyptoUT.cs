@@ -154,7 +154,14 @@ namespace System.Data.DabberUT.CheckerUT
                 Console.WriteLine($"密文本  => {UserCrypto.GetAesEncrypt(password, key)}");
                 if (!string.IsNullOrEmpty(value))
                 {
-                    Console.WriteLine($"解密文  => {UserCrypto.GetAesDecrypt(value, key)}");
+                    try
+                    {
+                        Console.WriteLine($"解密文  => {UserCrypto.GetAesDecrypt(value, key)}");
+                    }
+                    catch
+                    {
+                        Console.WriteLine($"解密文  => ");
+                    }
                 }
                 Console.WriteLine($"===================================================================================================");
             }

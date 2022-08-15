@@ -21,60 +21,6 @@ namespace System.Data.Cobber
     public static partial class CobberCaller
     {
         /// <summary>
-        /// 获取对象的Json字符串
-        /// Newtonsoft.Json.JsonConvert
-        /// </summary>
-        public static string GetJsonString<T>(this T value)
-        {
-            return JsonConvert.SerializeObject(value, DefaultNewtonsoftSetting);
-        }
-        /// <summary>
-        /// 获取格式化的Json代码
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static String GetJsonFormatString<T>(this T value)
-        {
-            StringWriter textWriter = new StringWriter();
-            JsonTextWriter jsonWriter = new JsonTextWriter(textWriter)
-            {
-                Formatting = Formatting.Indented,
-                Indentation = 4,
-                IndentChar = ' '
-            };
-            //格式化json字符串
-            new JsonSerializer().Serialize(jsonWriter, value);
-            return textWriter.ToString();
-        }
-        /// <summary>
-        /// 转换成对象
-        /// </summary>
-        /// <param name="json"></param>
-        /// <returns></returns>
-        public static dynamic GetJsonObject(this string json)
-        {
-            return JsonConvert.DeserializeObject(json, DefaultNewtonsoftSetting);
-        }
-        /// <summary>
-        /// 转换成对象
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="json"></param>
-        /// <returns></returns>
-        public static T GetJsonObject<T>(this string json)
-        {
-            return JsonConvert.DeserializeObject<T>(json, DefaultNewtonsoftSetting);
-        }
-        /// <summary>
-        /// 转换成对象
-        /// </summary>
-        /// <returns></returns>
-        public static object GetJsonObject(this string json, Type type)
-        {
-            return JsonConvert.DeserializeObject(json, type, DefaultNewtonsoftSetting);
-        }
-        /// <summary>
         /// 默认设置
         /// </summary>
         public static JsonSerializerSettings DefaultNewtonsoftSetting { get; } = new JsonSerializerSettings
@@ -82,9 +28,16 @@ namespace System.Data.Cobber
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
         };
         /// <summary>
-        /// 默认设置
+        /// 当前默认设置
         /// </summary>
         public static JsonSerializerSettings CurrentNewtonsoftSetting { get; set; } = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        };
+        /// <summary>
+        /// Web默认设置
+        /// </summary>
+        public static JsonSerializerSettings WebNewtonsoftSetting { get; } = new JsonSerializerSettings
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             ContractResolver = new DefaultContractResolver(),
@@ -97,7 +50,7 @@ namespace System.Data.Cobber
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             ContractResolver = new DefaultContractResolver(),
-            DateFormatString = "yyyy-MM-dd HH:mm:ss.fff",
+            DateFormatString = "yyyy-MM-dd HH:mm:ss",
         };
         /// <summary>
         /// 小驼峰命名
@@ -106,7 +59,7 @@ namespace System.Data.Cobber
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            DateFormatString = "yyyy-MM-dd HH:mm:ss.fff",
+            DateFormatString = "yyyy-MM-dd HH:mm:ss",
         };
         /// <summary>
         /// 小写属性命名
@@ -115,26 +68,133 @@ namespace System.Data.Cobber
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             ContractResolver = new LowercaseContractResolver(),
-            DateFormatString = "yyyy-MM-dd HH:mm:ss.fff",
+            DateFormatString = "yyyy-MM-dd HH:mm:ss",
+        };
+        /// <summary>
+        /// 大写属性命名
+        /// </summary>
+        public static JsonSerializerSettings UpperNewtonsoftSetting { get; } = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            ContractResolver = new UppercaseContractResolver(),
+            DateFormatString = "yyyy-MM-dd HH:mm:ss",
+        };
+        /// <summary>
+        /// 蛇形属性命名
+        /// </summary>
+        public static JsonSerializerSettings SnakeNewtonsoftSetting { get; } = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            ContractResolver = new DefaultContractResolver() { NamingStrategy = new SnakeCaseNamingStrategy() },
+            DateFormatString = "yyyy-MM-dd HH:mm:ss",
         };
         /// <summary>
         /// 获取对象的Json字符串
         /// Newtonsoft.Json.JsonConvert
         /// </summary>
-        public static string GetWebJsonString<T>(this T value)
+        public static string GetJsonString<T>(this T value) => JsonConvert.SerializeObject(value, CurrentNewtonsoftSetting);
+        /// <summary>
+        /// 获取对象的Json字符串
+        /// Newtonsoft.Json.JsonConvert
+        /// </summary>
+        public static string GetJsonString<T>(this T value, JsonSerializerSettings settings) => JsonConvert.SerializeObject(value, settings);
+        /// <summary>
+        /// 获取格式化的Json代码
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static String GetJsonFormatString<T>(this T value) => GetJsonFormatString(value, CurrentNewtonsoftSetting);
+        /// <summary>
+        /// 获取格式化的Json代码
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        public static String GetJsonFormatString<T>(this T value, JsonSerializerSettings settings)
         {
-            return JsonConvert.SerializeObject(value, CurrentNewtonsoftSetting);
+            StringWriter textWriter = new StringWriter();
+            JsonTextWriter jsonWriter = new JsonTextWriter(textWriter)
+            {
+                Formatting = Formatting.Indented,
+                Indentation = 4,
+                IndentChar = ' '
+            };
+            //格式化json字符串
+            JsonSerializer.Create(settings).Serialize(jsonWriter, value);
+            return textWriter.ToString();
         }
+        /// <summary>
+        /// 转换成对象
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public static dynamic GetJsonObject(this string json) => JsonConvert.DeserializeObject(json, CurrentNewtonsoftSetting);
+        /// <summary>
+        /// 转换成对象
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public static T GetJsonObject<T>(this string json) => JsonConvert.DeserializeObject<T>(json, CurrentNewtonsoftSetting);
+        /// <summary>
+        /// 转换成对象
+        /// </summary>
+        /// <param name="json"></param>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        public static dynamic GetJsonObject(this string json, JsonSerializerSettings settings) => JsonConvert.DeserializeObject(json, settings);
+        /// <summary>
+        /// 转换成对象
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="json"></param>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        public static T GetJsonObject<T>(this string json, JsonSerializerSettings settings) => JsonConvert.DeserializeObject<T>(json, settings);
+        /// <summary>
+        /// 转换成对象
+        /// </summary>
+        /// <returns></returns>
+        public static object GetJsonObject(this string json, Type type) => JsonConvert.DeserializeObject(json, type, CurrentNewtonsoftSetting);
+        /// <summary>
+        /// 转换成对象
+        /// </summary>
+        /// <returns></returns>
+        public static object GetJsonObject(this string json, Type type, JsonSerializerSettings settings) => JsonConvert.DeserializeObject(json, type, settings);
+        /// <summary>
+        /// 获取对象的Json字符串
+        /// Newtonsoft.Json.JsonConvert
+        /// </summary>
+        public static string GetJsonWebString<T>(this T value) => JsonConvert.SerializeObject(value, WebNewtonsoftSetting);
         /// <summary>
         /// 获取对象的Json字符串(小写属性)
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static string GetLowerJsonString<T>(this T value)
-        {
-            return JsonConvert.SerializeObject(value, LowerNewtonsoftSetting);
-        }
+        public static string GetJsonLowerString<T>(this T value) => JsonConvert.SerializeObject(value, LowerNewtonsoftSetting);
+        /// <summary>
+        /// 获取对象的Json字符串(大写属性)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string GetJsonUpperString<T>(this T value) => JsonConvert.SerializeObject(value, UpperNewtonsoftSetting);
+        /// <summary>
+        /// 获取对象的Json字符串(蛇形属性)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string GetJsonSnakeString<T>(this T value) => JsonConvert.SerializeObject(value, SnakeNewtonsoftSetting);
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum NewtonsoftPropertyStyle
+    {
     }
     /// <summary>
     /// 小写转换

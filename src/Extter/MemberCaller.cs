@@ -513,6 +513,38 @@ namespace System.Data.Extter
             if (instance == null || instance.GetType() == typeof(T)) { PropertyAccess<T>.InternalSetValue(instance, memberName, newValue); return; }
             PropertyAccess.Get(instance.GetType()).FuncSetValue(instance, memberName, newValue);
         }
+        /// <summary>
+        /// 设置静态的成员属性值
+        /// 如果Type和对象能匹配请使用<see cref="PropertyAccess{T}.InternalInfoDic"/>
+        /// </summary>
+        /// <param name="instance">实例对象</param>
+        /// <param name="model">新值</param>
+        /// <returns>成员值</returns>
+        public static void SetPropertyValues<T>(this T instance, T model) where T : class
+        {
+            if (instance == null || model == null) { return; }
+            var type = instance.GetType();
+            // 按照父类进行数据处理
+            var otherType = model.GetType();
+            IPropertyAccess access;
+            if (type == otherType)
+            {
+                access = PropertyAccess.Get(type);
+            }
+            else
+            {
+                access = otherType.IsAssignableFrom(type) ? PropertyAccess.Get(otherType) : PropertyAccess.Get(type);
+            }
+            foreach (var item in access.FuncInfoDic)
+            {
+                var info = item.Value;
+                try
+                {
+                    info.SetValue(instance, info.GetValue.Invoke(model));
+                }
+                catch { }
+            }
+        }
         #region // 获取Action/Func表达式的方法全称或方法信息
         /// <summary>
         /// 获取方法信息

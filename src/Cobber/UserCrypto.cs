@@ -152,7 +152,7 @@ namespace System.Data.Cobber
             return new KeyValuePair<string, string>(rsa.ToXmlString(true), rsa.ToXmlString(false));
         }
         /// <summary>
-        /// 获取Rsa私钥
+        /// 获取Rsa私钥,后续可根据私钥获取公钥
         /// </summary>
         /// <returns></returns>
         public static string GetRsaKey(int keySize = 1024)

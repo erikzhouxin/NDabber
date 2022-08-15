@@ -14,6 +14,14 @@ using System.Threading.Tasks;
 public static class TestTry
 {
     /// <summary>
+    /// 用户账号
+    /// </summary>
+    public static string AuthorAccount { get; } = "ErikZhouXin";
+    /// <summary>
+    /// 用户名称
+    /// </summary>
+    public static string AuthorUserName { get; } = "周鑫";
+    /// <summary>
     /// 调用
     /// </summary>
     /// <param name="action"></param>

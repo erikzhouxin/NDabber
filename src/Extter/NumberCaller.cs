@@ -804,5 +804,25 @@ namespace System.Data.Extter
         {
             return Cobber.CobberCaller.GetDouble((Math.Ceiling(value * Math.Pow(10, digit - 1) * 2) / 2.0 * Math.Pow(10, -digit + 1)), digit);
         }
+        /// <summary>
+        /// 判断版本范围,不合适直接抛异常
+        /// </summary>
+        /// <param name="version">在【1949-10-01 00:00:00】至【9999-12-31 23:59:59】的数字之间</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static long GetThrowVersionRange(this long version) => GetVersionRange(version);
+        /// <summary>
+        /// 判断版本范围,不合适根据配置抛异常
+        /// </summary>
+        /// <param name="version">在【1949-10-01 00:00:00】至【9999-12-31 23:59:59】的数字之间</param>
+        /// <param name="isFixed">是否修正成当天版本【yyyy-MM-dd 00:00:00】</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static long GetVersionRange(this long version, bool isFixed = false)
+        {
+            if (version >= 19491001000000L && version <= 99991231235959L) { return version; }
+            return isFixed ? Int64.Parse(DateTime.Now.ToString("yyyyMMdd") + "000000")
+            : throw new ArgumentOutOfRangeException("迁移版本号【Version】必须在【1949-10-01 00:00:00】至【9999-12-31 23:59:59】的数字之间");
+        }
     }
 }

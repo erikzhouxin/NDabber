@@ -21,6 +21,8 @@
 	<ItemGroup>
 		<PackageReference Include="EntityFramework" Version="6.4.4" />
 		<PackageReference Include="NSQLitePCL.Raw.Liber" Version="2022.6.6" />
+		<PackageReference Include="NSystem.Data.SQLiteCipher" Version="2022.6.6" />
+		<PackageReference Include="NSQLitePCL.Raw.Core" Version="2022.6.6" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
 		<PackageReference Include="NUnit" Version="3.13.3" />
 		<PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
@@ -29,8 +31,6 @@
 		<Reference Include="System.ComponentModel.DataAnnotations" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\nsqlitecipher\src\SQLiteCipher\System.Data.SQLiteCipher.csproj" />
-		<ProjectReference Include="..\..\..\nsqlitecipher\src\SQLitePCL\Raw.Core\SQLitePCL.Raw.Core.csproj" />
 		<ProjectReference Include="..\..\src\System.Data.Dabber.csproj" />
 	</ItemGroup>
 </Project>

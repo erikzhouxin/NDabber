@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Data.Cobber;
@@ -6,28 +6,9 @@ using System.Text;
 
 namespace System.Data.DabberUT
 {
-    [TestClass]
     public class FunctionUT
     {
-        [TestMethod]
-        public void RenameFiles()
-        {
-            var path = System.IO.Path.GetFullPath(@"F:\works\zex\nsolutionui\src\MaterialDesignWpfToolkit\Themes");
-            var dir = new System.IO.DirectoryInfo(path);
-            foreach (var item in dir.GetFiles())
-            {
-                var fileName = item.Name;
-                if (fileName.StartsWith("MaterialDesignTheme"))
-                {
-                    item.MoveTo(System.IO.Path.Combine(path, fileName.Replace("MaterialDesignTheme", "Theme")));
-                }
-                if (fileName.EndsWith(" - 副本.xaml"))
-                {
-                    item.MoveTo(System.IO.Path.Combine(path, "NET40." + fileName.Replace(" - 副本", "")));
-                }
-            }
-        }
-        [TestMethod]
+        [Test]
         public void ToEvenCalc()
         {
             // 单精度浮点数(Float)
@@ -46,13 +27,13 @@ namespace System.Data.DabberUT
             Console.WriteLine(string.Format("{0:f4}", 18.254550m));
             Console.WriteLine(string.Format("{0:f4}", 18.745450m));
         }
-        [TestMethod]
+        [Test]
         public void CreateGuidString()
         {
             Console.WriteLine(Guid.NewGuid());
             Console.WriteLine(Guid.NewGuid().GetString());
         }
-        [TestMethod]
+        [Test]
         public void TestRandomNumber()
         {
             for (int i = 0; i < 100; i++)

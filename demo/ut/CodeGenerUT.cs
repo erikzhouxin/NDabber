@@ -31,23 +31,20 @@ namespace NEamsUT.CodeGener
         [TestMethod]
         public void CreateContextEntities()
         {
-            var schema = "qms_prod";
-            var server = "192.168.1.119";
-            var userid = "root";
-            var password = "root";
-            var connString = $"DataSource={server};Port=3306;Database={schema};UserID={userid};Password={password};";
-            var ignoreTables = new List<String>
+            var jsonString = System.IO.File.ReadAllText(System.IO.Path.GetFullPath("CodeContextEntities.Json"));
+            var values = jsonString.GetJsonObject();
+            foreach (dynamic item in values)
             {
-                //"t_device_loggers",
-                //"t_device_dicts",
-                //"t_asset_epc_copy",
-                //"t_device_rfids.ant_num",
-            };
-            var sb = ContextEntitiesBuilder.Create(StoreType.MySQL)
-                .SetNamespace("CenIdea.Qualimetry.Entities.Remote")
-                .SetIgnoreTableOrColumn(ignoreTables)
-                .GetCodeSingle(new MySql.Data.MySqlClient.MySqlConnection(connString));
-            File.WriteAllText(Path.GetFullPath(@"QmsContextEntities.cs"), sb.ToString());
+                var connString = (string)item.ConnString;
+                var fileName = (string)item.FileName; // 相对路径或绝对路径
+                var nameSpace = (string)item.NameSpace;
+                var ignoreTables = (string)item.IgnoreTables; // 使用逗号(,)隔开表名
+                var sb = ContextEntitiesBuilder.Create(StoreType.MySQL)
+                    .SetNamespace(nameSpace)
+                    .SetIgnoreTableOrColumn(ignoreTables.Split(","))
+                    .GetCodeSingle(new MySql.Data.MySqlClient.MySqlConnection(connString));
+                File.WriteAllText(Path.GetFullPath(fileName), sb.ToString());
+            }
         }
     }
     /// <summary>
