@@ -593,7 +593,7 @@ namespace System.Data.Cobber
         /// <returns></returns>
         public static IPropertyAccess GetAccess<T>(T model)
         {
-            return Get(model?.GetType() ?? typeof(T));
+            return model == null ? Get(typeof(T)) : Get(model.GetType());
         }
         /// <summary>
         /// 获取对象的成员属性值

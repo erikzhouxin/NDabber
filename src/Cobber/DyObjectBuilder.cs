@@ -138,14 +138,16 @@ namespace System.Data.Cobber
 
                 var newType = typeBuilder.CreateType();
 
+                IsValider = true;
                 CreateInstance = () => (T)Activator.CreateInstance(newType);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 IsValider = false;
-                CreateInstance = () => default(T);
+                CreateInstance = () => Extter.DefaultValue<T>.DefValue;
             }
+            CreateDefault = () => Extter.DefaultValue<T>.DefValue;
         }
     }
     /// <summary>

@@ -413,7 +413,7 @@ namespace System.Data.Extter
             foreach (var item in type.GetMethods(BindingFlags.Instance | BindingFlags.Public))
             {
                 if (item.GetParameters().Length > 0) { continue; }
-                if (item.ReturnType != null) { continue; }
+                if (item.ReturnType != typeof(void)) { continue; }
                 foreach (var attr in item.GetCustomAttributes(false))
                 {
                     if (attr is StartSettingAttribute attrObj)
@@ -452,6 +452,18 @@ namespace System.Data.Extter
         /// 启动设置目录
         /// </summary>
         public const String StartSettingFolder = "Resources";
+        /// <summary>
+        /// 启动屏幕
+        /// </summary>
+        public static string SplashScreen { get; set; }
+        /// <summary>
+        /// 默认域名称
+        /// </summary>
+        public static String DefaultDomainName { get; set; }
+        /// <summary>
+        /// 默认启动域
+        /// </summary>
+        public static Int64 DefaultStartDomain { get; set; }
         static AStartSettings()
         {
             try
@@ -514,7 +526,7 @@ namespace System.Data.Extter
             string content = text[0] == '{' ? text : UserCrypto.GetAesDecrypt(text, _secret);
             var model = content.GetJsonObject<T>();
             var res = SetData(model);
-            file.Delete();
+            if (res.IsSuccess) { file.Delete(); }
             return res;
         }
     }

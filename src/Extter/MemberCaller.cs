@@ -433,9 +433,16 @@ namespace System.Data.Extter
         /// 获取属性访问
         /// </summary>
         /// <see cref="PropertyAccess.Get"/>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static IPropertyAccess GetPropertyAccess<T>(this T model) => PropertyAccess.GetAccess(model);
+        /// <summary>
+        /// 获取属性访问
+        /// </summary>
+        /// <see cref="PropertyAccess.Get"/>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static IPropertyAccess GetPropertyAccess(Type type) => PropertyAccess.Get(type);
+        public static IPropertyAccess GetPropertyAccess(this Type type) => PropertyAccess.Get(type);
         /// <summary>
         /// 获取静态的成员属性值
         /// </summary>

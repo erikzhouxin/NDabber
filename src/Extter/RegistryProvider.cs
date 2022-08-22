@@ -76,6 +76,14 @@ namespace System.Data.Extter
             where T : struct, Enum
             => SetServiceImpl("Services", assembly, svrType, hasBase);
         /// <summary>
+        /// 设置服务(Services为域)[Services.{T}Impl]
+        /// </summary>
+        /// <param name="assembly"></param>
+        /// <param name="svrType"></param>
+        /// <param name="hasBase"></param>
+        public static void SetServiceImpl(Assembly assembly, string svrType, bool hasBase = true)
+            => SetServiceImpl("Services", assembly, svrType, hasBase);
+        /// <summary>
         /// 设置服务[{domain}.{T}Impl]
         /// </summary>
         /// <param name="domain">缺省TagName,Service所在命名空间</param>
@@ -84,13 +92,18 @@ namespace System.Data.Extter
         /// <param name="hasBase"></param>
         public static void SetServiceImpl<T>(string domain, Assembly assembly, T svrType, bool hasBase = true)
             where T : struct, Enum
+            => SetServiceImpl(domain, assembly, NEnumerable<T>.GetFromEnum(svrType).EnumName, hasBase);
+        /// <summary>
+        /// 设置服务[{domain}.{T}Impl]
+        /// </summary>
+        /// <param name="domain">缺省TagName,Service所在命名空间</param>
+        /// <param name="assembly"></param>
+        /// <param name="svrType"></param>
+        /// <param name="hasBase"></param>
+        public static void SetServiceImpl(string domain, Assembly assembly, string svrType, bool hasBase = true)
         {
-            if (hasBase)
-            {
-                Set(new TypeLoader(domain) { TagName = $"{domain}.BaseImpl", Assembly = assembly });
-            }
-            var svrTypeAttr = NEnumerable<T>.GetFromEnum(svrType);
-            Set(new TypeLoader(domain) { TagName = $"{domain}.{svrTypeAttr.EnumName}Impl", Assembly = assembly });
+            if (hasBase) { Set(new TypeLoader(domain) { TagName = $"{domain}.BaseImpl", Assembly = assembly }); }
+            Set(new TypeLoader(domain) { TagName = $"{domain}.{svrType}Impl", Assembly = assembly });
         }
         /// <summary>
         /// 设置服务
@@ -320,12 +333,14 @@ namespace System.Data.Extter
             InnerMapper GetMapper(Type type, params object[] args)
             {
                 var findType = type;
-                foreach (var item in Types)
+                var types = Types.ToArray();
+                for (int i = types.Length - 1; i >= 0; i--) // 倒着找实现类,因为后加入的才是对的
                 {
+                    var item = types[i];
                     if (!item.IsClass) { continue; }
                     if (!type.IsAssignableFrom(item))
                     {
-                        if (type.Name.Equals("I" + item.Name)) { findType = item; } // 名称类似
+                        if (type.Name.Equals("I" + item.Name)) { findType = item; } // 名称类似但不是继承
                         continue;
                     }
                     findType = item;

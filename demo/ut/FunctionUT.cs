@@ -50,7 +50,10 @@ namespace System.Data.DabberUT
         public void CreateGuidString()
         {
             Console.WriteLine(Guid.NewGuid());
-            Console.WriteLine(Guid.NewGuid().GetString());
+            for (int i = 0; i < 10; i++)
+            {
+                Console.WriteLine(Guid.NewGuid().GetString());
+            }
         }
         [TestMethod]
         public void TestRandomNumber()

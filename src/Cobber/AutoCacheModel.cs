@@ -275,13 +275,22 @@ namespace System.Data.Cobber
         /// </summary>
         public bool IsValid()
         {
-            if (Expire >= DateTime.Now.Ticks)
+            var nowTicks = DateTime.Now.Ticks;
+            if (Expire >= nowTicks)
             {
-                if (Sliding.HasValue) { Expire += Sliding.Value; }
+                if (Sliding.HasValue) { Expire = nowTicks + Sliding.Value; }
                 return true;
             }
             return false;
         }
+        ///// <summary>
+        ///// 隐式转换
+        ///// </summary>
+        ///// <param name="model"></param>
+        //public static implicit operator T(ECacheDicValue<T> model)
+        //{
+        //    return model.Value;
+        //}
     }
     /// <summary>
     /// HashTable的缓存表
@@ -368,11 +377,7 @@ namespace System.Data.Cobber
                 // 判断过期
                 if (item.IsValid())
                 {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
-                    return (T)item.Value;
+                    return item is ECacheDicValue<T> itemVal ? itemVal.Value : (T)item.Value;
                 }
                 else
                 {
@@ -392,14 +397,8 @@ namespace System.Data.Cobber
             {
                 var item = InternalDb[key] as ICacheDicValue;
                 // 判断过期
-                if (item.IsValid())
-                {
-                    return item.Value;
-                }
-                else
-                {
-                    InternalDb.Remove(key);
-                }
+                if (item.IsValid()) { return item.Value; }
+                else { InternalDb.Remove(key); }
             }
             return default;
         }
@@ -418,18 +417,12 @@ namespace System.Data.Cobber
                 // 判断过期
                 if (item.IsValid())
                 {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
-                    if (item.Value is T)
-                    {
-                        return (T)item.Value;
-                    }
+                    if (item is ECacheDicValue<T> itemVal) { return itemVal.Value; }
+                    if (item.Value is T val) { return val; }
                 }
             }
             T result = func();
-            Task.Factory.StartNew(() => { Set(key, result); });
+            Set(key, result);
             return result;
         }
         /// <summary>
@@ -449,32 +442,14 @@ namespace System.Data.Cobber
                 // 判断过期
                 if (item.IsValid())
                 {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
-                    if (item.Value is T)
-                    {
-                        return (T)item.Value;
-                    }
+                    if (item is ECacheDicValue<T> itemVal) { return itemVal.Value; }
+                    if (item.Value is T val) { return val; }
                 }
             }
             T result = func();
-            Task.Factory.StartNew(() =>
-            {
-                if (sliding.HasValue)
-                {
-                    Set(key, result, sliding.Value);
-                }
-                else if (expire.HasValue)
-                {
-                    Set(key, result, expire.Value);
-                }
-                else
-                {
-                    Set(key, result);
-                }
-            });
+            if (sliding.HasValue) { Set(key, result, sliding.Value); }
+            else if (expire.HasValue) { Set(key, result, expire.Value); }
+            else { Set(key, result); }
             return result;
         }
         /// <summary>
@@ -721,11 +696,7 @@ namespace System.Data.Cobber
                 // 判断过期
                 if (item.IsValid())
                 {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
-                    return (T)item.Value;
+                    return item is ECacheDicValue<T> itemVal ? itemVal.Value : (T)item.Value;
                 }
                 else
                 {
@@ -744,14 +715,8 @@ namespace System.Data.Cobber
             if (InternalDb.TryGetValue(key, out ICacheDicValue item))
             {
                 // 判断过期
-                if (item.IsValid())
-                {
-                    return item.Value;
-                }
-                else
-                {
-                    InternalDb.TryRemove(key, out _);
-                }
+                if (item.IsValid()) { return item.Value; }
+                else { InternalDb.TryRemove(key, out _); }
             }
             return null;
         }
@@ -769,18 +734,12 @@ namespace System.Data.Cobber
                 // 判断过期
                 if (item.IsValid())
                 {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
-                    if (item.Value is T)
-                    {
-                        return (T)item.Value;
-                    }
+                    if (item is ECacheDicValue<T> itemVal) { return itemVal.Value; }
+                    if (item.Value is T val) { return val; }
                 }
             }
             T result = func();
-            Task.Factory.StartNew(() => { Set(key, result); });
+            Set(key, result);
             return result;
         }
         /// <summary>
@@ -799,32 +758,14 @@ namespace System.Data.Cobber
                 // 判断过期
                 if (item.IsValid())
                 {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
-                    if (item.Value is T)
-                    {
-                        return (T)item.Value;
-                    }
+                    if (item is ECacheDicValue<T> itemVal) { return itemVal.Value; }
+                    if (item.Value is T val) { return val; }
                 }
             }
             T result = func();
-            Task.Factory.StartNew(() =>
-            {
-                if (sliding.HasValue)
-                {
-                    Set(key, result, sliding.Value);
-                }
-                else if (expire.HasValue)
-                {
-                    Set(key, result, expire.Value);
-                }
-                else
-                {
-                    Set(key, result);
-                }
-            });
+            if (sliding.HasValue) { Set(key, result, sliding.Value); }
+            else if (expire.HasValue) { Set(key, result, expire.Value); }
+            else { Set(key, result); }
             return result;
         }
         /// <summary>
@@ -834,11 +775,7 @@ namespace System.Data.Cobber
         /// <returns></returns>
         public object Remove(string key)
         {
-            if (InternalDb.TryRemove(key, out ICacheDicValue item))
-            {
-                return item.Value;
-            }
-            return null;
+            return InternalDb.TryRemove(key, out ICacheDicValue item) ? item.Value : null;
         }
         /// <summary>
         /// 删除
@@ -1070,11 +1007,7 @@ namespace System.Data.Cobber
                 // 判断过期
                 if (item.IsValid())
                 {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
-                    return (T)item.Value;
+                    return item is ECacheDicValue<T> itemVal ? itemVal.Value : (T)item.Value;
                 }
                 else
                 {
@@ -1097,10 +1030,7 @@ namespace System.Data.Cobber
             if (InternalDb.TryGetValue(key, out ICacheDicValue item))
             {
                 // 判断过期
-                if (item.IsValid())
-                {
-                    return item.Value;
-                }
+                if (item.IsValid()) { return item.Value; }
                 else
                 {
 #if NET40 || NET45
@@ -1126,18 +1056,12 @@ namespace System.Data.Cobber
                 // 判断过期
                 if (item.IsValid())
                 {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
-                    if (item.Value is T)
-                    {
-                        return (T)item.Value;
-                    }
+                    if (item is ECacheDicValue<T> itemVal) { return itemVal.Value; }
+                    if (item.Value is T val) { return val; }
                 }
             }
             T result = func();
-            Task.Factory.StartNew(() => { Set(key, result); });
+            Set(key, result);
             return result;
         }
         /// <summary>
@@ -1156,32 +1080,14 @@ namespace System.Data.Cobber
                 // 判断过期
                 if (item.IsValid())
                 {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
-                    if (item.Value is T)
-                    {
-                        return (T)item.Value;
-                    }
+                    if (item is ECacheDicValue<T> itemVal) { return itemVal.Value; }
+                    if (item.Value is T val) { return val; }
                 }
             }
             T result = func();
-            Task.Factory.StartNew(() =>
-            {
-                if (sliding.HasValue)
-                {
-                    Set(key, result, sliding.Value);
-                }
-                else if (expire.HasValue)
-                {
-                    Set(key, result, expire.Value);
-                }
-                else
-                {
-                    Set(key, result);
-                }
-            });
+            if (sliding.HasValue) { Set(key, result, sliding.Value); }
+            else if (expire.HasValue) { Set(key, result, expire.Value); }
+            else { Set(key, result); }
             return result;
         }
         /// <summary>
@@ -1443,16 +1349,10 @@ namespace System.Data.Cobber
                 // 判断过期
                 if (item.IsValid())
                 {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
+                    if (item is ECacheDicValue<T> itemVal) { return itemVal.Value; }
                     return (T)item.Value;
                 }
-                else
-                {
-                    InternalDb.Remove(key);
-                }
+                else { InternalDb.Remove(key); }
             }
             return default(T);
         }
@@ -1470,18 +1370,58 @@ namespace System.Data.Cobber
                 // 判断过期
                 if (item.IsValid())
                 {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
-                    if (item.Value is T)
-                    {
-                        return (T)item.Value;
-                    }
+                    if (item is ECacheDicValue<T> itemVal) { return itemVal.Value; }
+                    if (item.Value is T val) { return val; }
                 }
             }
             T result = func();
-            Task.Factory.StartNew(() => { Set(key, result); });
+            Set(key, result);
+            return result;
+        }
+        /// <summary>
+        /// 获取或添加
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="func"></param>
+        /// <param name="expire"></param>
+        /// <returns></returns>
+        public T GetOrAdd(string key, Func<T> func, DateTimeOffset expire)
+        {
+            if (InternalDb.ContainsKey(key))
+            {
+                ICacheDicValue item = InternalDb[key] as ICacheDicValue;
+                // 判断过期
+                if (item.IsValid())
+                {
+                    if (item is ECacheDicValue<T> itemVal) { return itemVal.Value; }
+                    if (item.Value is T val) { return val; }
+                }
+            }
+            T result = func();
+            Set(key, result, expire);
+            return result;
+        }
+        /// <summary>
+        /// 获取或添加
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="func"></param>
+        /// <param name="sliding"></param>
+        /// <returns></returns>
+        public T GetOrAdd(string key, Func<T> func, TimeSpan sliding)
+        {
+            if (InternalDb.ContainsKey(key))
+            {
+                ICacheDicValue item = InternalDb[key] as ICacheDicValue;
+                // 判断过期
+                if (item.IsValid())
+                {
+                    if (item is ECacheDicValue<T> itemVal) { return itemVal.Value; }
+                    if (item.Value is T val) { return val; }
+                }
+            }
+            T result = func();
+            Set(key, result, sliding);
             return result;
         }
         /// <summary>
@@ -1500,32 +1440,14 @@ namespace System.Data.Cobber
                 // 判断过期
                 if (item.IsValid())
                 {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
-                    if (item.Value is T)
-                    {
-                        return (T)item.Value;
-                    }
+                    if (item is ECacheDicValue<T> itemVal) { return itemVal.Value; }
+                    if (item.Value is T val) { return val; }
                 }
             }
             T result = func();
-            Task.Factory.StartNew(() =>
-            {
-                if (sliding.HasValue)
-                {
-                    Set(key, result, sliding.Value);
-                }
-                else if (expire.HasValue)
-                {
-                    Set(key, result, expire.Value);
-                }
-                else
-                {
-                    Set(key, result);
-                }
-            });
+            if (sliding.HasValue) { Set(key, result, sliding.Value); }
+            else if (expire.HasValue) { Set(key, result, expire.Value); }
+            else { Set(key, result); }
             return result;
         }
         /// <summary>
@@ -1715,14 +1637,8 @@ namespace System.Data.Cobber
             if (InternalDb.TryGetValue(key, out ICacheDicValue<T> item))
             {
                 // 判断过期
-                if (item.IsValid())
-                {
-                    return item.Value;
-                }
-                else
-                {
-                    InternalDb.TryRemove(key, out _);
-                }
+                if (item.IsValid()) { return item.Value; }
+                else { InternalDb.TryRemove(key, out _); }
             }
             return default(T);
         }
@@ -1743,7 +1659,43 @@ namespace System.Data.Cobber
                 }
             }
             T result = func();
-            Task.Factory.StartNew(() => { Set(key, result); });
+            Set(key, result);
+            return result;
+        }
+        /// <summary>
+        /// 获取或添加
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="func"></param>
+        /// <param name="sliding"></param>
+        /// <returns></returns>
+        public T GetOrAdd(string key, Func<T> func, TimeSpan sliding)
+        {
+            if (InternalDb.TryGetValue(key, out ICacheDicValue<T> item))
+            {
+                // 判断过期
+                if (item.IsValid()) { return (T)item.Value; }
+            }
+            T result = func();
+            Set(key, result, sliding);
+            return result;
+        }
+        /// <summary>
+        /// 获取或添加
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="func"></param>
+        /// <param name="expire"></param>
+        /// <returns></returns>
+        public T GetOrAdd(string key, Func<T> func, DateTimeOffset expire)
+        {
+            if (InternalDb.TryGetValue(key, out ICacheDicValue<T> item))
+            {
+                // 判断过期
+                if (item.IsValid()) { return (T)item.Value; }
+            }
+            T result = func();
+            Set(key, result, expire);
             return result;
         }
         /// <summary>
@@ -1759,27 +1711,12 @@ namespace System.Data.Cobber
             if (InternalDb.TryGetValue(key, out ICacheDicValue<T> item))
             {
                 // 判断过期
-                if (item.IsValid())
-                {
-                    return (T)item.Value;
-                }
+                if (item.IsValid()) { return (T)item.Value; }
             }
             T result = func();
-            Task.Factory.StartNew(() =>
-            {
-                if (sliding.HasValue)
-                {
-                    Set(key, result, sliding.Value);
-                }
-                else if (expire.HasValue)
-                {
-                    Set(key, result, expire.Value);
-                }
-                else
-                {
-                    Set(key, result);
-                }
-            });
+            if (sliding.HasValue) { Set(key, result, sliding.Value); }
+            else if (expire.HasValue) { Set(key, result, expire.Value); }
+            else { Set(key, result); }
             return result;
         }
         /// <summary>
@@ -1968,10 +1905,7 @@ namespace System.Data.Cobber
             if (InternalDb.TryGetValue(key, out ICacheDicValue<T> item))
             {
                 // 判断过期
-                if (item.IsValid())
-                {
-                    return item.Value;
-                }
+                if (item.IsValid()) { return item.Value; }
                 else
                 {
 #if NET40 || NET45
@@ -1994,13 +1928,46 @@ namespace System.Data.Cobber
             if (InternalDb.TryGetValue(key, out ICacheDicValue<T> item))
             {
                 // 判断过期
-                if (item.IsValid())
-                {
-                    return (T)item.Value;
-                }
+                if (item.IsValid()) { return (T)item.Value; }
             }
             T result = func();
-            Task.Factory.StartNew(() => { Set(key, result); });
+            Set(key, result);
+            return result;
+        }
+        /// <summary>
+        /// 获取或添加
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="func"></param>
+        /// <param name="sliding"></param>
+        /// <returns></returns>
+        public T GetOrAdd(string key, Func<T> func, TimeSpan sliding)
+        {
+            if (InternalDb.TryGetValue(key, out ICacheDicValue<T> item))
+            {
+                // 判断过期
+                if (item.IsValid()) { return (T)item.Value; }
+            }
+            T result = func();
+            Set(key, result, sliding);
+            return result;
+        }
+        /// <summary>
+        /// 获取或添加
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="func"></param>
+        /// <param name="expire"></param>
+        /// <returns></returns>
+        public T GetOrAdd(string key, Func<T> func, DateTimeOffset expire)
+        {
+            if (InternalDb.TryGetValue(key, out ICacheDicValue<T> item))
+            {
+                // 判断过期
+                if (item.IsValid()) { return (T)item.Value; }
+            }
+            T result = func();
+            Set(key, result, expire);
             return result;
         }
         /// <summary>
@@ -2016,27 +1983,12 @@ namespace System.Data.Cobber
             if (InternalDb.TryGetValue(key, out ICacheDicValue<T> item))
             {
                 // 判断过期
-                if (item.IsValid())
-                {
-                    return (T)item.Value;
-                }
+                if (item.IsValid()) { return (T)item.Value; }
             }
             T result = func();
-            Task.Factory.StartNew(() =>
-            {
-                if (sliding.HasValue)
-                {
-                    Set(key, result, sliding.Value);
-                }
-                else if (expire.HasValue)
-                {
-                    Set(key, result, expire.Value);
-                }
-                else
-                {
-                    Set(key, result);
-                }
-            });
+            if (sliding.HasValue) { Set(key, result, sliding.Value); }
+            else if (expire.HasValue) { Set(key, result, expire.Value); }
+            else { Set(key, result); }
             return result;
         }
         /// <summary>
@@ -2192,6 +2144,16 @@ namespace System.Data.Cobber
         /// 获取缓存,不存在时执行func存后返回
         /// </summary>
         /// <returns></returns>
+        T GetOrAdd(string key, Func<T> func, TimeSpan sliding);
+        /// <summary>
+        /// 获取缓存,不存在时执行func存后返回
+        /// </summary>
+        /// <returns></returns>
+        T GetOrAdd(string key, Func<T> func, DateTimeOffset expire);
+        /// <summary>
+        /// 获取缓存,不存在时执行func存后返回
+        /// </summary>
+        /// <returns></returns>
         T GetOrAdd(string key, Func<T> func, TimeSpan? sliding = null, DateTimeOffset? expire = null);
         /// <summary>
         /// 设置缓存
@@ -2311,18 +2273,8 @@ namespace System.Data.Cobber
             if (InternalDb.TryGetValue(key, out ICacheDicValue item))
             {
                 // 判断过期
-                if (item.IsValid())
-                {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
-                    return (T)item.Value;
-                }
-                else
-                {
-                    InternalDb.TryRemove(key, out _);
-                }
+                if (item.IsValid()) { return item is ECacheDicValue<T> itemVal ? itemVal.Value : (T)item.Value; }
+                else { InternalDb.TryRemove(key, out _); }
             }
             return default(T);
         }
@@ -2361,14 +2313,8 @@ namespace System.Data.Cobber
                 // 判断过期
                 if (item.IsValid())
                 {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
-                    if (item.Value is T)
-                    {
-                        return (T)item.Value;
-                    }
+                    if (item is ECacheDicValue<T> itemVal) { return itemVal.Value; }
+                    if (item.Value is T val) { return val; }
                 }
             }
             T result = func();
@@ -2391,32 +2337,14 @@ namespace System.Data.Cobber
                 // 判断过期
                 if (item.IsValid())
                 {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
-                    if (item.Value is T)
-                    {
-                        return (T)item.Value;
-                    }
+                    if (item is ECacheDicValue<T> itemVal) { return itemVal.Value; }
+                    if (item.Value is T val) { return val; }
                 }
             }
             T result = func();
-            Task.Factory.StartNew(() =>
-            {
-                if (sliding.HasValue)
-                {
-                    Set(key, result, sliding.Value);
-                }
-                else if (expire.HasValue)
-                {
-                    Set(key, result, expire.Value);
-                }
-                else
-                {
-                    Set(key, result);
-                }
-            });
+            if (sliding.HasValue) { Set(key, result, sliding.Value); }
+            else if (expire.HasValue) { Set(key, result, expire.Value); }
+            else { Set(key, result); }
             return result;
         }
         /// <summary>
@@ -2643,18 +2571,8 @@ namespace System.Data.Cobber
             if (InternalDb.TryGetValue(key, out ICacheDicValue item))
             {
                 // 判断过期
-                if (item.IsValid())
-                {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
-                    return (T)item.Value;
-                }
-                else
-                {
-                    InternalDb.TryRemove(key, out _);
-                }
+                if (item.IsValid()) { return item is ECacheDicValue<T> itemVal ? itemVal.Value : (T)item.Value; }
+                else { InternalDb.TryRemove(key, out _); }
             }
             return default(T);
         }
@@ -2668,14 +2586,8 @@ namespace System.Data.Cobber
             if (InternalDb.TryGetValue(key, out ICacheDicValue item))
             {
                 // 判断过期
-                if (item.IsValid())
-                {
-                    return item.Value;
-                }
-                else
-                {
-                    InternalDb.TryRemove(key, out _);
-                }
+                if (item.IsValid()) { return item.Value; }
+                else { InternalDb.TryRemove(key, out _); }
             }
             return null;
         }
@@ -2693,18 +2605,12 @@ namespace System.Data.Cobber
                 // 判断过期
                 if (item.IsValid())
                 {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
-                    if (item.Value is T)
-                    {
-                        return (T)item.Value;
-                    }
+                    if (item is ECacheDicValue<T> itemVal) { return itemVal.Value; }
+                    if (item.Value is T val) { return val; }
                 }
             }
             T result = func();
-            Task.Factory.StartNew(() => { Set(key, result); });
+            Set(key, result);
             return result;
         }
         /// <summary>
@@ -2723,14 +2629,8 @@ namespace System.Data.Cobber
                 // 判断过期
                 if (item.IsValid())
                 {
-                    if (item is ECacheDicValue<T>)
-                    {
-                        return (item as ECacheDicValue<T>).Value;
-                    }
-                    if (item.Value is T)
-                    {
-                        return (T)item.Value;
-                    }
+                    if (item is ECacheDicValue<T> itemVal) { return itemVal.Value; }
+                    if (item.Value is T val) { return val; }
                 }
             }
             T result = func();

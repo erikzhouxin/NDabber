@@ -707,14 +707,8 @@ namespace System.Data.Extter
         public static List<T> PadLeft<T>(this IEnumerable<T> list, int length, T defVal = default(T))
         {
             var result = new List<T>();
-            if (list != null)
-            {
-                result.AddRange(list);
-            }
-            if (result.Count >= length)
-            {
-                return result;
-            }
+            if (list != null) { result.AddRange(list); }
+            if (result.Count >= length) { return result; }
             var count = length - result.Count;
             for (int i = 0; i < count; i++)
             {

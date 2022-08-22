@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -824,5 +825,48 @@ namespace System.Data.Extter
             return isFixed ? Int64.Parse(DateTime.Now.ToString("yyyyMMdd") + "000000")
             : throw new ArgumentOutOfRangeException("迁移版本号【Version】必须在【1949-10-01 00:00:00】至【9999-12-31 23:59:59】的数字之间");
         }
+        private static Random _random = new Random();
+        /// <summary>
+        /// 获取1024随机数的之后的随机数类
+        /// </summary>
+        /// <returns></returns>
+        public static Random GetRandom() => GetRandom(1024);
+        /// <summary>
+        /// 获取一个种子随机数的之后的随机数类
+        /// </summary>
+        /// <returns></returns>
+        public static Random GetRandom(this int seed)
+        {
+            _ = _random.Next(seed);
+            return _random;
+        }
+        /// <summary>
+        /// 全局无指定随机对象
+        /// </summary>
+        public static Random GRandom { get; } = GetRandom();
+        /// <summary>
+        /// 获取一个指定种子的随机数
+        /// </summary>
+        /// <returns></returns>
+        public static int GetRandomInt32() => GRandom.Next(_random.Next());
+        /// <summary>
+        /// 获取一个指定种子的随机数
+        /// </summary>
+        /// <param name="seed"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public static int GetRandomInt32(this int seed, int min = 0, int max = 1024) => GetRandom(seed).Next(min, max);
+        /// <summary>
+        /// 获取一个指定种子的最大值随机数
+        /// </summary>
+        /// <returns></returns>
+        public static double GetRandomDouble() => GRandom.NextDouble();
+        /// <summary>
+        /// 获取一个指定种子的最大值随机数
+        /// </summary>
+        /// <param name="seed"></param>
+        /// <returns></returns>
+        public static double GetRandomDouble(this int seed) => GetRandom(seed).NextDouble();
     }
 }
