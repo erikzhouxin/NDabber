@@ -168,6 +168,16 @@ namespace System.Data.Cobber
             return int.TryParse(key, out value);
         }
         /// <summary>
+        /// 尝试转换成整型
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool TryToInt64(this string key, out Int64 value)
+        {
+            return Int64.TryParse(key, out value);
+        }
+        /// <summary>
         /// 尝试转换成浮点型
         /// </summary>
         /// <param name="key"></param>
@@ -199,9 +209,29 @@ namespace System.Data.Cobber
         /// 转换成整型
         /// </summary>
         /// <returns></returns>
+        public static Int64 ToCInt64(this string value, Int64 defVal = 0)
+        {
+            return string.IsNullOrEmpty(value) ? defVal : Convert.ToInt64(value);
+        }
+        /// <summary>
+        /// 转换成整型
+        /// </summary>
+        /// <returns></returns>
         public static int ToPInt32(this string value, int defVal = 0)
         {
             if (int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return defVal;
+        }
+        /// <summary>
+        /// 转换成整型
+        /// </summary>
+        /// <returns></returns>
+        public static Int64 ToPInt64(this string value, Int64 defVal = 0)
+        {
+            if (Int64.TryParse(value, out Int64 result))
             {
                 return result;
             }
@@ -852,11 +882,24 @@ namespace System.Data.Extter
         /// <summary>
         /// 获取一个指定种子的随机数
         /// </summary>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public static int GetRandomInt32(this int max) => GRandom.Next(max);
+        /// <summary>
+        /// 获取一个指定种子的随机数
+        /// </summary>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public static int GetRandomInt32(this int min, int max) => GRandom.Next(min, max);
+        /// <summary>
+        /// 获取一个指定种子的随机数
+        /// </summary>
         /// <param name="seed"></param>
         /// <param name="min"></param>
         /// <param name="max"></param>
         /// <returns></returns>
-        public static int GetRandomInt32(this int seed, int min = 0, int max = 1024) => GetRandom(seed).Next(min, max);
+        public static int GetRandomInt32(this int seed, int min, int max) => GetRandom(seed).Next(min, max);
         /// <summary>
         /// 获取一个指定种子的最大值随机数
         /// </summary>

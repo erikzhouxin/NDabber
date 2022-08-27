@@ -38,10 +38,10 @@ namespace NEamsUT.CodeGener
                 var connString = (string)item.ConnString;
                 var fileName = (string)item.FileName; // 相对路径或绝对路径
                 var nameSpace = (string)item.NameSpace;
-                var ignoreTables = (string)item.IgnoreTables; // 使用逗号(,)隔开表名
+                var ignoreTables = ((string)item.IgnoreTables).Split(","); // 使用逗号(,)隔开表名
                 var sb = ContextEntitiesBuilder.Create(StoreType.MySQL)
                     .SetNamespace(nameSpace)
-                    .SetIgnoreTableOrColumn(ignoreTables.Split(","))
+                    .SetIgnoreTableOrColumn(ignoreTables)
                     .GetCodeSingle(new MySql.Data.MySqlClient.MySqlConnection(connString));
                 File.WriteAllText(Path.GetFullPath(fileName), sb.ToString());
             }

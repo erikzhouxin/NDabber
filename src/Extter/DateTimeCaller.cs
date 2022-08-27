@@ -8,24 +8,6 @@ namespace System.Data.Cobber
     public static partial class CobberCaller
     {
         /// <summary>
-        /// 转换成秒时间字符串
-        /// </summary>
-        /// <param name="time"></param>
-        /// <returns></returns>
-        public static String ToSecondString(this DateTime time)
-        {
-            return time.ToString("yyyy-MM-dd HH:mm:ss");
-        }
-        /// <summary>
-        /// 转换成日期字符串
-        /// </summary>
-        /// <param name="time"></param>
-        /// <returns></returns>
-        public static String ToDateString(this DateTime time)
-        {
-            return time.ToString("yyyy-MM-dd");
-        }
-        /// <summary>
         /// 获取当前天是星期几
         /// </summary>
         /// <param name="time"></param>
@@ -44,6 +26,24 @@ namespace System.Data.Cobber
                 default: return "周鑫";
             }
         }
+        /// <summary>
+        /// 日期格式
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public static String GetDateString(this DateTime date) => date.ToString(Extter.ExtterCaller.DateFormatter);
+        /// <summary>
+        /// 时间格式
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public static String GetTimeString(this DateTime time) => time.ToString(Extter.ExtterCaller.TimeFormatter);
+        /// <summary>
+        /// 日期时间格式
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
+        public static String GetDateTimeString(this DateTime dateTime) => dateTime.ToString(Extter.ExtterCaller.DateTimeFormatter);
     }
 }
 namespace System.Data.Extter
@@ -70,27 +70,18 @@ namespace System.Data.Extter
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public static String ToDateString(this DateTime date)
-        {
-            return date.ToString(DateFormatter);
-        }
+        public static String ToDateString(this DateTime date) => date.ToString(DateFormatter);
         /// <summary>
         /// 时间格式
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        public static String ToTimeString(this DateTime time)
-        {
-            return time.ToString(TimeFormatter);
-        }
+        public static String ToTimeString(this DateTime time) => time.ToString(TimeFormatter);
         /// <summary>
         /// 日期时间格式
         /// </summary>
         /// <param name="dateTime"></param>
         /// <returns></returns>
-        public static String ToDateTimeString(this DateTime dateTime)
-        {
-            return dateTime.ToString(DateTimeFormatter);
-        }
+        public static String ToDateTimeString(this DateTime dateTime) => dateTime.ToString(DateTimeFormatter);
     }
 }

@@ -20,7 +20,6 @@ namespace System.Data.Dobber
         /// </summary>
         /// <param name="storeType"></param>
         /// <returns></returns>
-        /// <exception cref="NotSupportedException"></exception>
         public static IContextEntitiesBuilder Create(StoreType storeType)
         {
             return storeType switch
@@ -240,6 +239,11 @@ namespace System.Data.Dobber
                         cType = DbColType.Int64;
                         pType = colIsNull ? "Int64?" : "Int64";
                     }
+                    else if (colType == "bigint unsigned")
+                    {
+                        cType = DbColType.UInt64;
+                        pType = colIsNull ? "UInt64?" : "UInt64";
+                    }
                     else if (Regex.IsMatch(colType, "bit(\\(\\d+\\))?"))
                     {
                         cType = DbColType.Boolean;
@@ -409,10 +413,7 @@ namespace System.Data.Dobber
                     sb.AppendLine($"{black8}[Display(Name = \"{colItem.Display}\")]");
                     sb.AppendLine($"{black8}[Column(\"{colItem.Name}\")]");
                     var colBuilder = new StringBuilder($"[DbCol(\"{colItem.Display}\"");
-                    if (!colItem.Property.Equals(colItem.Name, StringComparison.OrdinalIgnoreCase))
-                    {
-                        colBuilder.Append($", Name = \"{colItem.Name}\"");
-                    }
+                    colBuilder.Append($", Name = \"{colItem.Name}\"");
                     if (colItem.Key == DbIxType.APK)
                     {
                         colBuilder.Append($", Key = DbIxType.APK");

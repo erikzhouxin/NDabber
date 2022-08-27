@@ -22,5 +22,19 @@ namespace System.Data.Cobber
         /// </summary>
         [Obsolete("替代方案:GetJsonWebString")]
         public static string GetWebJsonString<T>(this T value) => JsonConvert.SerializeObject(value, WebNewtonsoftSetting);
+        /// <summary>
+        /// 转换成秒时间字符串
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        [Obsolete("替代方案:GetDateTimeString")]
+        public static String ToSecondString(this DateTime time) => time.ToString("yyyy-MM-dd HH:mm:ss");
+        /// <summary>
+        /// 转换成日期字符串
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        [Obsolete("替代方案:GetDateString")]
+        public static String ToDateString(this DateTime time) => time.ToString("yyyy-MM-dd");
     }
 }

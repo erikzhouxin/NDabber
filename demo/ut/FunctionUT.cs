@@ -2,6 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Cobber;
+using System.Data.Extter;
+using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace System.Data.DabberUT
@@ -61,6 +64,28 @@ namespace System.Data.DabberUT
             for (int i = 0; i < 100; i++)
             {
                 Console.WriteLine(new Random().Next(1, 100));
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod]
+        public void TestHashSet()
+        {
+            var hashSet = new HashSet<Tuble<int, String>>();
+            for (int i = 0; i < 100; i++)
+            {
+                hashSet.Add(new Tuble<int, String>(i, UserPassword.GetMd5Hash(Path.GetRandomFileName())));
+                hashSet.Add(new Tuble<int, String>(i, ExtterCaller.GetRandomInt32().ToString("0000") + Path.GetRandomFileName()));
+            }
+            for (int i = 10; i < 20; i++)
+            {
+                var item = hashSet.First(s => i == s.Item1);
+                hashSet.Add(item);
+            }
+            foreach (var item in hashSet)
+            {
+                Console.WriteLine($"{item.Item1:0000} => {item.Item2}");
             }
         }
     }

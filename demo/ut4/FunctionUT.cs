@@ -2,6 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Cobber;
+using System.Data.Extter;
+using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace System.Data.DabberUT
@@ -39,6 +42,74 @@ namespace System.Data.DabberUT
             for (int i = 0; i < 100; i++)
             {
                 Console.WriteLine(new Random().Next(1, 100));
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Test]
+        public void TestHashSet()
+        {
+            var times = 1000;
+            var hashSet = new HashSet<Tuble<int, String>>();
+            var hashSet2 = new HashSet<object>()
+            {
+                1,2,17,33
+            }; 
+            var hashSet3 = new HashSet<int>();
+            var hashSet4 = new HashSet<int>();
+            HashSet<int> hashSet5 = new HashSet<int>();
+            hashSet5.Add(1);
+            hashSet5.Add(2);
+            hashSet5.Add(3);
+            hashSet5.Add(4);
+            hashSet5.Add(5);
+            for (int i = 0; i < times; i++)
+            {
+                hashSet.Add(new Tuble<int, String>(i, UserPassword.GetMd5Hash(Path.GetRandomFileName())));
+                hashSet.Add(new Tuble<int, String>(i, ExtterCaller.GetRandomInt32().ToString("0000") + Path.GetRandomFileName()));
+                hashSet3.Add(ExtterCaller.GetRandomInt32(10000) + i * 1000000);
+                hashSet4.Add(ExtterCaller.GetRandomInt32(10000, 90000) * 1000 + i);
+            }
+            hashSet.Clear();
+            //hashSet2.Clear();
+            hashSet3.Clear();
+            hashSet4.Clear();
+            for (int i = times-1; i >= 0; i--)
+            {
+                hashSet.Add(new Tuble<int, String>(i, UserPassword.GetMd5Hash(Path.GetRandomFileName())));
+                hashSet.Add(new Tuble<int, String>(i, ExtterCaller.GetRandomInt32().ToString("0000") + Path.GetRandomFileName()));
+                hashSet3.Add(ExtterCaller.GetRandomInt32(1000) + i * 10000);
+                hashSet4.Add(ExtterCaller.GetRandomInt32(1000, 9900) * 1000 + i);
+            }
+            for (int i = 10; i < 15; i++)
+            {
+                var item = hashSet.First(s => i == s.Item1);
+                hashSet.Add(item);
+            }
+            foreach (var item in hashSet.ToArray())
+            {
+                Console.WriteLine($"{item.Item1:0000} => {item.Item2}");
+            }
+            Console.WriteLine("====================================================================");
+            foreach (var item in hashSet2)
+            {
+                Console.WriteLine(item);
+            }
+            Console.WriteLine("====================================================================");
+            foreach (var item in hashSet3)
+            {
+                Console.WriteLine(item);
+            }
+            Console.WriteLine("====================================================================");
+            foreach (var item in hashSet4)
+            {
+                Console.WriteLine(item);
+            }
+            Console.WriteLine("====================================================================");
+            foreach (var item in hashSet5)
+            {
+                Console.WriteLine(item);
             }
         }
     }
