@@ -85,6 +85,19 @@ namespace System.Data.Cobber
         /// 连接字符串
         /// </summary>
         /// <param name="list"></param>
+        /// <param name="GetValue"></param>
+        /// <param name="split"></param>
+        /// <returns></returns>
+        public static String JoinString<T>(this IEnumerable<T> list, Func<T, string> GetValue, string split = ",")
+        {
+            var vals = new List<string>();
+            list.ForEach((m) => vals.Add(GetValue(m)));
+            return string.Join(split, vals);
+        }
+        /// <summary>
+        /// 连接字符串
+        /// </summary>
+        /// <param name="list"></param>
         /// <returns></returns>
         public static String JoinLine<T>(this IEnumerable<T> list)
         {

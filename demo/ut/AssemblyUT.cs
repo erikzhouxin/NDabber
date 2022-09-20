@@ -1,7 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Data.Cobber;
 using System.Data.Extter;
+using System.Data.SolutionCore;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -28,10 +30,12 @@ namespace System.Data.DabberUT
         [TestMethod]
         public void GetAssemblyExportTypes()
         {
-            var libPath = Path.GetFullPath(@"F:\works\res\lngms\zmpc\Hardware\康美室外音柱\IPGBSDK_MUser\V2.4\C#\SdkServerV2.4\x64\debug\IPGBNET.dll");
-            ConsoleExportedTypes(libPath);
-            libPath = Path.GetFullPath(@"F:\works\res\lngms\zmpc\Hardware\康美室外音柱\IPGBSDK_MUser\V2.4\C#\SdkPushStreamClientV2.2\x64\debug\IPGBNETPush.dll");
-            ConsoleExportedTypes(libPath);
+            var jsonString = File.ReadAllText("CodeAssemblyFiles.Json");
+            var jsonValues = jsonString.GetJsonObject<List<String>>();
+            foreach (string item in jsonValues)
+            {
+                ConsoleExportedTypes(item);
+            }
         }
 
         private static void ConsoleExportedTypes(string libPath)
@@ -41,6 +45,19 @@ namespace System.Data.DabberUT
             {
                 Console.WriteLine(item.FullName);
             }
+        }
+        [TestMethod]
+        public void TestAssembly()
+        {
+           var infoModel = new  AssemblyInfoModel(typeof(AssemblyUT));
+            Console.WriteLine(infoModel.Assembly.FullName);
+            Console.WriteLine(Assembly.GetExecutingAssembly().FullName);
+            Console.WriteLine(Assembly.GetEntryAssembly().FullName);
+            Console.WriteLine(Assembly.GetCallingAssembly().FullName);
+            Console.WriteLine("================================================");
+            Console.WriteLine(infoModel.ExecutingAssembly.FullName);
+            Console.WriteLine(infoModel.EntryAssembly.FullName);
+            Console.WriteLine(infoModel.CallingAssembly.FullName);
         }
     }
 }

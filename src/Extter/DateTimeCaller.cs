@@ -54,6 +54,42 @@ namespace System.Data.Extter
     public static partial class ExtterCaller
     {
         /// <summary>
+        /// Unix时间起始 1970-1-1
+        /// </summary>
+        public static DateTime UnixTimeStart { get; } = new DateTime(1970, 1, 1);
+        /// <summary>
+        /// 国庆节
+        /// </summary>
+        public static DateTime PRCNationalDay { get; } = new DateTime(1949, 10, 1);
+        /// <summary>
+        /// Unix时间起始 1970-1-1
+        /// </summary>
+        public static Int64 UnixTimestamp { get; } = UnixTimeStart.Ticks;
+        /// <summary>
+        /// 1970-1-1 00:00:00
+        /// </summary>
+        public static DateTime DateTime1970 { get => UnixTimeStart; }
+        /// <summary>
+        /// 从1970-1-1的秒数
+        /// </summary>
+        public static Int64 SecondsFrom1970 => 62135596800L;
+        /// <summary>
+        /// 从1970-1-1的秒数
+        /// </summary>
+        public static Int64 TicksFrom1970 => 621355968000000000L;
+        /// <summary>
+        /// 距离1970年的秒数
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
+        public static Int64 DistanceFrom1970Seconds(this DateTime dateTime) => (Int64)(dateTime - DateTime1970).TotalSeconds;
+        /// <summary>
+        /// 从距离1970的秒数还原时间
+        /// </summary>
+        /// <param name="seconds"></param>
+        /// <returns></returns>
+        public static DateTime FromDistance1970Seconds(this Int64 seconds) => new DateTime((seconds + SecondsFrom1970) * TimeSpan.TicksPerSecond);
+        /// <summary>
         /// 通用日期格式
         /// </summary>
         public static String DateFormatter { get; set; } = "yyyy-MM-dd";

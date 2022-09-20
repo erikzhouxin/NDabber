@@ -454,6 +454,11 @@ public class AlertMsgs<T> : AlertMsg<IEnumerable<T>>, IAlertMsgs<T>
     public AlertMsgs(bool isSuccess, string fmt, params object[] param) : this(isSuccess, string.Format(fmt, param))
     {
     }
+    /// <summary>
+    /// 操作未实现
+    /// </summary>
+    /// <returns></returns>
+    public new static AlertMsgs<T> NotImplement => new AlertMsgs<T>(false, "操作未实现");
 }
 /// <summary>
 /// 提示信息泛型接口

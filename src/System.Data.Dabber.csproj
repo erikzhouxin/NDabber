@@ -23,6 +23,7 @@
 		<PackageDescription>兼容低版本.NET数据库ORM的Dapper为Dabber，常用帮助Cobber，扩展Extter，日志Logger等工具库内容</PackageDescription>
 		<AppConfig Condition="'$(TargetFramework)' == 'net40'">app.net40.config</AppConfig>
 		<AutoUnifyAssemblyReferences Condition="'$(TargetFramework)' == 'net40'">false</AutoUnifyAssemblyReferences>
+		<NoWarn>1701;1702;IDE0057;IDE0066;IDE0079;IDE0063</NoWarn>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|net40'">
 		<DefineConstants>TRACE;DEBUG;NETFrame;NET40</DefineConstants>

@@ -743,6 +743,106 @@ namespace System.Data.Extter
             return result;
         }
         /// <summary>
+        /// 集合左边添加
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="length"></param>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        public static T[] PadLeft<T>(this T[] list, int length, T defVal = default(T))
+        {
+            if (list.Length >= length)
+            {
+                var toarr = new T[list.Length];
+                Array.Copy(list, toarr, toarr.Length);
+                return toarr;
+            }
+            var count = length - list.Length;
+            var tarr = new T[length];
+            Array.Copy(list, 0, tarr, count - 1, list.Length);
+            for (int i = 0; i < count; i++)
+            {
+                tarr[i] = defVal;
+            }
+            return tarr;
+        }
+        /// <summary>
+        /// 集合右边添加
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="length"></param>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        public static T[] PadRight<T>(this T[] list, int length, T defVal = default(T))
+        {
+            if (list.Length >= length)
+            {
+                var toarr = new T[list.Length];
+                Array.Copy(list, toarr, toarr.Length);
+                return toarr;
+            }
+            var count = length - list.Length;
+            var tarr = new T[length];
+            Array.Copy(list, tarr, list.Length);
+            for (int i = 0; i < count; i++)
+            {
+                tarr[list.Length + i] = defVal;
+            }
+            return tarr;
+        }
+        /// <summary>
+        /// 集合填充截断左边添加
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="length"></param>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        public static T[] PadInterceptLeft<T>(this T[] list, int length, T defVal = default(T))
+        {
+            if (list.Length >= length)
+            {
+                var toarr = new T[length];
+                Array.Copy(list, toarr, toarr.Length);
+                return toarr;
+            }
+            var count = length - list.Length;
+            var tarr = new T[length];
+            Array.Copy(list, 0, tarr, count, list.Length);
+            for (int i = 0; i < count; i++)
+            {
+                tarr[i] = defVal;
+            }
+            return tarr;
+        }
+        /// <summary>
+        /// 集合填充截断右边添加
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="length"></param>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        public static T[] PadInterceptRight<T>(this T[] list, int length, T defVal = default(T))
+        {
+            if (list.Length >= length)
+            {
+                var toarr = new T[length];
+                Array.Copy(list, list.Length - length, toarr, 0, toarr.Length);
+                return toarr;
+            }
+            var count = length - list.Length;
+            var tarr = new T[length];
+            Array.Copy(list, tarr, list.Length);
+            for (int i = 0; i < count; i++)
+            {
+                tarr[list.Length + i] = defVal;
+            }
+            return tarr;
+        }
+        /// <summary>
         /// 设置ASCII码开头的内容
         /// </summary>
         /// <param name="tag"></param>
@@ -880,7 +980,7 @@ namespace System.Data.Extter
         public static Int32 GetCount(this IEnumerable ie)
         {
             var index = 0;
-            foreach (var item in ie)
+            foreach (var _ in ie)
             {
                 index++;
             }

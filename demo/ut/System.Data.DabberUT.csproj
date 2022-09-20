@@ -26,6 +26,7 @@
 		<PackageReference Include="NSystem.Data.SQLiteCipher" Version="2022.6.6" />
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\..\..\nsolutionui\src\Core\System.Data.SolutionCore.csproj" />
 		<ProjectReference Include="..\..\src\System.Data.Dabber.csproj" />
 	</ItemGroup>
 </Project>

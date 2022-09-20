@@ -100,6 +100,13 @@ namespace System.Data.DabberUT
             new TimeProfiler(() => pa.FuncSetValue(testObject, testMemberName, pa.FuncGetValue(testObject, testMemberName)), "动态生成函数优化").Run(runTime);
             new TimeProfiler(() => ga.SetValue(testObject, testMemberName, ga.GetValue(testObject, testMemberName)), "动态生成函数泛型优化").Run(runTime);
         }
+        [TestMethod]
+        public void TestDateTime()
+        {
+            var DateTime1970 = new DateTime(1970, 1, 1);
+            Console.WriteLine((DateTime1970 - DateTime.MinValue).TotalSeconds);
+            Console.WriteLine((DateTime1970 - new DateTime()).Ticks);
+        }
         #region // 测试类
         /// <summary>
         /// 测试类

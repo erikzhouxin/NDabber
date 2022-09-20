@@ -437,6 +437,15 @@ namespace System.Data.Extter
             }
             return AlertMsg.OperSuccess;
         }
+        /// <summary>
+        /// 启动参数
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public virtual IAlertMsg StartArgs(string args)
+        {
+            return AlertMsg.OperSuccess;
+        }
     }
     /// <summary>
     /// 启动设置

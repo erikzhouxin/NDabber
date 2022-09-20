@@ -88,5 +88,26 @@ namespace System.Data.DabberUT
                 Console.WriteLine($"{item.Item1:0000} => {item.Item2}");
             }
         }
+        [TestMethod]
+        public void TestGuidNanoID()
+        {
+            var times = 100;
+            var now = DateTime.Now;
+            Console.WriteLine(Guid.NewGuid().GetString());
+            Console.WriteLine(Nanoid.Generate());
+            now = DateTime.Now;
+            for (int i = 0; i < times; i++)
+            {
+                _ = Guid.NewGuid().ToString("N");
+            }
+            Console.WriteLine($"Guid    =>   {DateTime.Now - now}");
+            now = DateTime.Now;
+            for (int i = 0; i < times; i++)
+            {
+                _ = Nanoid.Generate();
+            }
+            Console.WriteLine($"Nanoid  =>   {DateTime.Now - now}");
+        }
+
     }
 }

@@ -169,12 +169,14 @@ namespace System.Data.Cobber
         public static String GetRsaPublicKey(string priKey)
         {
 #if NETFx
-            using var rsa = RSA.Create();
+            using (var rsa = RSA.Create())
 #else
-            using var rsa = new RSACryptoServiceProvider();
+            using (var rsa = new RSACryptoServiceProvider())
 #endif
-            rsa.FromXmlString(priKey);
-            return rsa.ToXmlString(false);
+            {
+                rsa.FromXmlString(priKey);
+                return rsa.ToXmlString(false);
+            }
         }
         /// <summary>
         /// 获得公钥加密算法密码(RSA)
@@ -185,32 +187,36 @@ namespace System.Data.Cobber
         public static byte[] GetRsaEncryptBytes(this byte[] passSalt, string pubKey)
         {
 #if NETFx
-            using var rsa = RSA.Create();
+            using (var rsa = RSA.Create())
 #else
-            using var rsa = new RSACryptoServiceProvider();
+            using (var rsa = new RSACryptoServiceProvider())
 #endif
-            rsa.FromXmlString(pubKey);
-            int bufSize = rsa.KeySize / 16;
-            var buffer = new byte[bufSize];
-            using MemoryStream input = new MemoryStream(passSalt), output = new MemoryStream();
-            while (true)
             {
-                int readSize = input.Read(buffer, 0, bufSize);
-                if (readSize == 0)
+                rsa.FromXmlString(pubKey);
+                int bufSize = rsa.KeySize / 16;
+                var buffer = new byte[bufSize];
+                using (MemoryStream input = new MemoryStream(passSalt), output = new MemoryStream())
                 {
-                    break;
-                }
-                var temp = new byte[readSize];
-                Array.Copy(buffer, 0, temp, 0, readSize);
+                    while (true)
+                    {
+                        int readSize = input.Read(buffer, 0, bufSize);
+                        if (readSize == 0)
+                        {
+                            break;
+                        }
+                        var temp = new byte[readSize];
+                        Array.Copy(buffer, 0, temp, 0, readSize);
 #if NETFx
-                var enBytes = rsa.Encrypt(temp, RSAEncryptionPadding.OaepSHA1);
+                        var enBytes = rsa.Encrypt(temp, RSAEncryptionPadding.OaepSHA1);
 #else
-                var enBytes = rsa.Encrypt(temp, true);
+                        var enBytes = rsa.Encrypt(temp, true);
 #endif
-                output.Write(enBytes, 0, enBytes.Length);
-            }
+                        output.Write(enBytes, 0, enBytes.Length);
+                    }
 
-            return output.ToArray();
+                    return output.ToArray();
+                }
+            }
         }
         /// <summary>
         /// 获得私钥解密算法密码(RSA)
@@ -221,31 +227,35 @@ namespace System.Data.Cobber
         public static byte[] GetRsaDecryptBytes(this byte[] passData, string priKey)
         {
 #if NETFx
-            using var rsa = RSA.Create();
+            using (var rsa = RSA.Create())
 #else
-            using var rsa = new RSACryptoServiceProvider();
+            using( var rsa = new RSACryptoServiceProvider())
 #endif
-            rsa.FromXmlString(priKey);
-            int bufSize = rsa.KeySize / 8;
-            var buffer = new byte[bufSize];
-            using MemoryStream input = new MemoryStream(passData), output = new MemoryStream();
-            while (true)
             {
-                int readSize = input.Read(buffer, 0, bufSize);
-                if (readSize == 0)
+                rsa.FromXmlString(priKey);
+                int bufSize = rsa.KeySize / 8;
+                var buffer = new byte[bufSize];
+                using (MemoryStream input = new MemoryStream(passData), output = new MemoryStream())
                 {
-                    break;
-                }
-                var temp = new byte[readSize];
-                Array.Copy(buffer, 0, temp, 0, readSize);
+                    while (true)
+                    {
+                        int readSize = input.Read(buffer, 0, bufSize);
+                        if (readSize == 0)
+                        {
+                            break;
+                        }
+                        var temp = new byte[readSize];
+                        Array.Copy(buffer, 0, temp, 0, readSize);
 #if NETFx
-                var enBytes = rsa.Decrypt(temp, RSAEncryptionPadding.OaepSHA1);
+                        var enBytes = rsa.Decrypt(temp, RSAEncryptionPadding.OaepSHA1);
 #else
                 var enBytes = rsa.Decrypt(temp, true);
 #endif
-                output.Write(enBytes, 0, enBytes.Length);
+                        output.Write(enBytes, 0, enBytes.Length);
+                    }
+                    return output.ToArray();
+                }
             }
-            return output.ToArray();
         }
         /// <summary>
         /// 签名
@@ -258,14 +268,16 @@ namespace System.Data.Cobber
             //根据需要加签时的哈希算法转化成对应的hash字符节
             byte[] rgbHash = SHA1.Create().ComputeHash(passData);
 #if NETFx
-            using var rsa = RSA.Create();
+            using (var rsa = RSA.Create())
 #else
-            using var rsa = new RSACryptoServiceProvider();
+            using (var rsa = new RSACryptoServiceProvider())
 #endif
-            rsa.FromXmlString(priKey);
-            var formatter = new RSAPKCS1SignatureFormatter(rsa);
-            formatter.SetHashAlgorithm(nameof(SHA1)); //此处是你需要加签的hash算法，需要和上边你计算的hash值的算法一致，不然会报错。
-            return formatter.CreateSignature(rgbHash);
+            {
+                rsa.FromXmlString(priKey);
+                var formatter = new RSAPKCS1SignatureFormatter(rsa);
+                formatter.SetHashAlgorithm(nameof(SHA1)); //此处是你需要加签的hash算法，需要和上边你计算的hash值的算法一致，不然会报错。
+                return formatter.CreateSignature(rgbHash);
+            }
         }
         /// <summary>
         /// 签名验证
@@ -280,14 +292,16 @@ namespace System.Data.Cobber
             {
                 byte[] rgbHash = SHA1.Create().ComputeHash(passData);
 #if NETFx
-                using var rsa = RSA.Create();
+                using (var rsa = RSA.Create())
 #else
-                using var rsa = new RSACryptoServiceProvider();
+                using (var rsa = new RSACryptoServiceProvider())
 #endif
-                rsa.FromXmlString(pubKey);
-                var deformatter = new RSAPKCS1SignatureDeformatter(rsa);
-                deformatter.SetHashAlgorithm(nameof(SHA1));
-                return deformatter.VerifySignature(rgbHash, sign);
+                {
+                    rsa.FromXmlString(pubKey);
+                    var deformatter = new RSAPKCS1SignatureDeformatter(rsa);
+                    deformatter.SetHashAlgorithm(nameof(SHA1));
+                    return deformatter.VerifySignature(rgbHash, sign);
+                }
             }
             catch
             {
@@ -325,15 +339,29 @@ namespace System.Data.Cobber
         /// <param name="key">密钥(32位)</param>
         /// <returns></returns>
         public static byte[] GetAesEncrypt(byte[] content, byte[] key)
+            => GetAesEncrypt(content, GetFillBytes(key, 32), CipherMode.ECB, PaddingMode.PKCS7);
+        /// <summary>
+        /// 获取Aes加密
+        /// </summary>
+        /// <param name="content">原文内容</param>
+        /// <param name="key">密钥,必须是32位/16位/8位</param>
+        /// <param name="mode">加密模式</param>
+        /// <param name="padding">填充类型</param>
+        /// <returns></returns>
+        public static byte[] GetAesEncrypt(byte[] content, byte[] key, CipherMode mode, PaddingMode padding)
         {
-            key = GetFillBytes(key, 32);
             var rm = Aes.Create();
             rm.Key = key;
-            rm.Mode = CipherMode.ECB;
-            rm.Padding = PaddingMode.PKCS7;
+            rm.Mode = mode;
+            rm.Padding = padding;
             return rm.CreateEncryptor().TransformFinalBlock(content, 0, content.Length);
         }
-
+        /// <summary>
+        /// 获取填充字节
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="len"></param>
+        /// <returns></returns>
         private static byte[] GetFillBytes(byte[] key, int len)
         {
             if (key == null || key.Length == 0)
@@ -354,7 +382,6 @@ namespace System.Data.Cobber
                 return key.Take(len).ToArray();
             }
         }
-
         /// <summary>
         ///  AES 解密
         /// </summary>
@@ -384,13 +411,46 @@ namespace System.Data.Cobber
         /// <param name="key">密钥(32位)</param>
         /// <returns></returns>
         public static byte[] GetAesDecrypt(byte[] content, byte[] key)
+            => GetAesDecrypt(content, GetFillBytes(key, 32), CipherMode.ECB, PaddingMode.PKCS7);
+        /// <summary>
+        /// 获取Aes解密
+        /// </summary>
+        /// <param name="content">原文内容</param>
+        /// <param name="key">密钥,必须是32位/16位/8位</param>
+        /// <param name="mode">加密模式</param>
+        /// <param name="padding">填充类型</param>
+        /// <returns></returns>
+        public static byte[] GetAesDecrypt(byte[] content, byte[] key, CipherMode mode, PaddingMode padding)
         {
-            key = GetFillBytes(key, 32);
             var rm = Aes.Create();
             rm.Key = key;
-            rm.Mode = CipherMode.ECB;
-            rm.Padding = PaddingMode.PKCS7;
+            rm.Mode = mode;
+            rm.Padding = padding;
             return rm.CreateDecryptor().TransformFinalBlock(content, 0, content.Length);
+        }
+        /// <summary>
+        /// 获取右边填充/截断字节
+        /// <see cref="ExtterCaller.PadInterceptRight"/>
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static byte[] GetRightBytes(this string content, int length = 32)
+        {
+            if (string.IsNullOrEmpty(content)) { return new byte[length]; }
+            return content.GetBytes().PadInterceptRight(length); ;
+        }
+        /// <summary>
+        /// 获取左边填充/截断字节
+        /// <see cref="ExtterCaller.PadInterceptLeft"/>
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static byte[] GetLeftBytes(this string content, int length = 32)
+        {
+            if (string.IsNullOrEmpty(content)) { return new byte[length]; }
+            return content.GetBytes().PadInterceptLeft(length); ;
         }
         #endregion
         #region // DES
