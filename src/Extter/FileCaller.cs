@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Cobber;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -14,6 +15,10 @@ namespace System.Data.Extter
     /// </summary>
     public static partial class ExtterCaller
     {
+        #region // 静态定义
+        private static readonly object _pathLocker = new object();
+        private static readonly Dictionary<string, string> _pathDic = new Dictionary<string, string>();
+        #endregion 静态定义
         #region // 文件空间及大小
         /// <summary>
         /// 用于获取盘信息的api
@@ -113,7 +118,7 @@ namespace System.Data.Extter
         /// <summary>
         /// 最后一个盘符
         /// </summary>
-        public static String LastLocalDisk => GetLastLocalDisk();
+        public static String LastLocalDisk { get; } = GetLastLocalDisk();
         /// <summary>
         /// 最后一个盘符
         /// 如:F:\
@@ -125,6 +130,10 @@ namespace System.Data.Extter
         }
         /// <summary>
         /// 获取已存在的保存目录
+        /// 反人类方法规则:
+        /// 1.如果saveDir不为空,返回saveDir
+        /// 2.如果saveDir不为空,将拼接parent和subDir为saveDir返回
+        /// 3.如果出现异常将返回Directory.GetCurrentDirectory()下的Temp文件夹
         /// </summary>
         /// <param name="saveDir"></param>
         /// <param name="parent"></param>
@@ -153,6 +162,25 @@ namespace System.Data.Extter
             }
         }
         /// <summary>
+        /// 获取已存在的保存目录
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="subDir"></param>
+        /// <returns></returns>
+        public static string GetExistSaveDir(string parent, string subDir)
+        {
+            try
+            {
+                var saveDir = Path.GetFullPath(Path.Combine(parent, subDir));
+                CreateDir(new DirectoryInfo(saveDir), true);
+                return saveDir;
+            }
+            catch
+            {
+                return Path.Combine(Directory.GetCurrentDirectory(), "Temp");
+            }
+        }
+        /// <summary>
         /// 创建目录
         /// </summary>
         /// <param name="dir"></param>
@@ -160,10 +188,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static DirectoryInfo CreateDir(this DirectoryInfo dir, bool isRecursive = false)
         {
-            if (isRecursive)
-            {
-                return CreateRecursiveDir(dir);
-            }
+            if (isRecursive) { return CreateRecursiveDir(dir); }
             if (!dir.Exists) { dir.Create(); }
             return dir;
         }
@@ -198,8 +223,92 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static bool HasContent(this DirectoryInfo dir)
         {
-            if(dir == null) { return false; }
+            if (dir == null) { return false; }
             return dir.Exists && (dir.GetFiles().Length > 0 || dir.GetDirectories().Length > 0);
+        }
+        /// <summary>
+        /// 注册路径
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static void RegistPath(string key, string value)
+        {
+            lock (_pathLocker)
+            {
+                _pathDic[key] = value;
+            }
+        }
+        /// <summary>
+        /// 注册路径
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string GetOrRegistPath(string key, string value)
+        {
+            if (_pathDic.TryGetValue(key, out var path))
+            {
+                return path;
+            }
+            lock (_pathLocker)
+            {
+                if (_pathDic.TryGetValue(key, out path))
+                {
+                    return path;
+                }
+                return _pathDic[key] = value;
+            }
+        }
+        /// <summary>
+        /// 注册路径
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="GetPath"></param>
+        /// <returns></returns>
+        public static string GetOrRegistPath(string key, Func<string> GetPath)
+        {
+            if (_pathDic.TryGetValue(key, out var path)) { return path; }
+            lock (_pathLocker)
+            {
+                if (_pathDic.TryGetValue(key, out path)) { return path; }
+                return _pathDic[key] = GetPath();
+            }
+        }
+        /// <summary>
+        /// 注册路径
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static string GetPath(string key)
+        {
+            if (_pathDic.TryGetValue(key, out var path)) { return path; }
+            return Path.GetFullPath(string.Empty);
+        }
+        /// <summary>
+        /// 获取一个目录信息
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="subDir"></param>
+        /// <param name="defSubDir"></param>
+        /// <returns></returns>
+        public static DirectoryInfo GetDirectory(string parent, string subDir, string defSubDir)
+        {
+            if (string.IsNullOrWhiteSpace(subDir)) { subDir = string.IsNullOrWhiteSpace(defSubDir) ? "Temp" : defSubDir; }
+            var path = new DirectoryInfo(Path.GetFullPath(Path.Combine(parent, subDir)));
+            if (!path.Exists) { path.Create(); }
+            return path;
+        }
+        /// <summary>
+        /// 获取一个目录信息
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="subDir"></param>
+        /// <param name="defSubDir"></param>
+        /// <returns></returns>
+        public static LazyBone<DirectoryInfo> GetLazyDirectory(string parent, string subDir, string defSubDir = null)
+        {
+            return new LazyBone<DirectoryInfo>(() => GetDirectory(parent, subDir, defSubDir), true);
         }
     }
     ///<summary>

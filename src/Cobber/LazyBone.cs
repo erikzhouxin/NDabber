@@ -23,7 +23,11 @@ namespace System.Data.Cobber
         /// <summary>
         /// 构造
         /// </summary>
-        public LazyBone(T value) : this(() => value)
+        public LazyBone(T value) : this(value, false) { }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public LazyBone(T value, bool isThreadSafe) : this(() => value, isThreadSafe)
         {
             _value = value;
             _isCreated = true;

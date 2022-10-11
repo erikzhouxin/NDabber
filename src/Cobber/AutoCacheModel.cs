@@ -2207,7 +2207,6 @@ namespace System.Data.Cobber
         #endregion
     }
     #endregion
-
     #region // 特定模型内容
     /// <summary>
     /// Exception的ConcurrentDictionary的缓存表

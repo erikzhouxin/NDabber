@@ -66,8 +66,8 @@ namespace System.Data.Extter
             }
             finally
             {
-                Marshal.ReleaseComObject(shortcut);
-                Marshal.ReleaseComObject(wshShell);
+                if (shortcut != null) { Marshal.ReleaseComObject(shortcut); }
+                if (wshShell != null) { Marshal.ReleaseComObject(wshShell); }
             }
         }
         /// <summary>
