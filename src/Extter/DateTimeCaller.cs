@@ -119,5 +119,31 @@ namespace System.Data.Extter
         /// <param name="dateTime"></param>
         /// <returns></returns>
         public static String ToDateTimeString(this DateTime dateTime) => dateTime.ToString(DateTimeFormatter);
+        /// <summary>
+        /// 返回距离当前时间的区间
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
+        public static TimeSpan GetNowTimeSpan(this DateTime dateTime) => GetTimeSpan(DateTime.Now, dateTime);
+        /// <summary>
+        /// 获取一个时间区间
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <param name="dist"></param>
+        /// <returns></returns>
+        public static TimeSpan GetTimeSpan(this DateTime dateTime, DateTime dist) => dateTime - dist;
+        /// <summary>
+        /// 返回距离当前时间的区间
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
+        public static TimeSpan GetNowDuration(this DateTime dateTime) => GetDuration(DateTime.Now, dateTime);
+        /// <summary>
+        /// 获取一个时间区间
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <param name="dist"></param>
+        /// <returns></returns>
+        public static TimeSpan GetDuration(this DateTime dateTime, DateTime dist) => (dateTime - dist).Duration();
     }
 }
