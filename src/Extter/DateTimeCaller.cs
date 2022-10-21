@@ -44,6 +44,24 @@ namespace System.Data.Cobber
         /// <param name="dateTime"></param>
         /// <returns></returns>
         public static String GetDateTimeString(this DateTime dateTime) => dateTime.ToString(Extter.ExtterCaller.DateTimeFormatter);
+        /// <summary>
+        /// 日期格式
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public static String GetDateString(this DateTimeOffset date) => date.ToString(Extter.ExtterCaller.DateFormatter);
+        /// <summary>
+        /// 时间格式
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public static String GetTimeString(this DateTimeOffset time) => time.ToString(Extter.ExtterCaller.TimeFormatter);
+        /// <summary>
+        /// 日期时间格式
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
+        public static String GetDateTimeString(this DateTimeOffset dateTime) => dateTime.ToString(Extter.ExtterCaller.DateTimeFormatter);
     }
 }
 namespace System.Data.Extter
@@ -145,5 +163,12 @@ namespace System.Data.Extter
         /// <param name="dist"></param>
         /// <returns></returns>
         public static TimeSpan GetDuration(this DateTime dateTime, DateTime dist) => (dateTime - dist).Duration();
+        /// <summary>
+        /// 获取时间偏移量
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <param name="timeSpan"></param>
+        /// <returns></returns>
+        public static DateTimeOffset GetDateTimeOffset(this DateTime dateTime, TimeSpan timeSpan) => new DateTimeOffset(dateTime, timeSpan);
     }
 }

@@ -170,7 +170,7 @@ namespace System.Data.Cobber
         public string Server
         {
             get => _server;
-            set => _extra[nameof(Server)] = _server = value;
+            set => _origin[nameof(Server)] = _server = value;
         }
         private string _dataSource;
         /// <summary>
@@ -179,7 +179,7 @@ namespace System.Data.Cobber
         public string DataSource
         {
             get => _dataSource;
-            set => _extra[nameof(DataSource)] = _dataSource = value;
+            set => _origin[nameof(DataSource)] = _dataSource = value;
         }
         private string _userID;
         /// <summary>
@@ -188,7 +188,7 @@ namespace System.Data.Cobber
         public string UserID
         {
             get => _userID;
-            set => _extra[nameof(UserID)] = _userID = value;
+            set => _origin[nameof(UserID)] = _userID = value;
         }
         /// <summary>
         /// 用户名
@@ -196,7 +196,7 @@ namespace System.Data.Cobber
         public string UID
         {
             get => _userID;
-            set => _extra[nameof(UID)] = _userID = value;
+            set => _origin[nameof(UID)] = _userID = value;
         }
         private string _password;
         /// <summary>
@@ -205,12 +205,12 @@ namespace System.Data.Cobber
         public string Password
         {
             get => _password;
-            set => _extra[nameof(Password)] = _password = value;
+            set => _origin[nameof(Password)] = _password = value;
         }
         /// <summary>
         /// 用户名
         /// </summary>
-        public string Pwd { get => Password; set => _extra[nameof(Pwd)] = _password = value; }
+        public string Pwd { get => Password; set => _origin[nameof(Pwd)] = _password = value; }
         private string _provider;
         /// <summary>
         /// 提供者
@@ -317,7 +317,19 @@ namespace System.Data.Cobber
             _origin[key] = _extra[key] = value;
             return this;
         }
-
+        /// <summary>
+        /// 获取附加字符串
+        /// </summary>
+        /// <returns></returns>
+        public virtual String GetExtraString()
+        {
+            var builder = new StringBuilder();
+            foreach (var item in _extra)
+            {
+                builder.Append($"{item.Key}={item.Value};");
+            }
+            return builder.ToString();
+        }
         /// <summary>
         /// 从存储类模型中提取(使用其连接字符串)
         /// </summary>

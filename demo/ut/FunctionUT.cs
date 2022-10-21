@@ -88,6 +88,9 @@ namespace System.Data.DabberUT
                 Console.WriteLine($"{item.Item1:0000} => {item.Item2}");
             }
         }
+        /// <summary>
+        /// 测试Nano及Guid效率
+        /// </summary>
         [TestMethod]
         public void TestGuidNanoID()
         {
@@ -107,6 +110,19 @@ namespace System.Data.DabberUT
                 _ = Nanoid.Generate();
             }
             Console.WriteLine($"Nanoid  =>   {DateTime.Now - now}");
+        }
+        /// <summary>
+        /// 测试时间区间
+        /// </summary>
+        [TestMethod]
+        public void TestDateTimeOffset()
+        {
+            Console.WriteLine(DateTime.Now.GetDateTimeString());
+            Console.WriteLine(DateTime.UtcNow.GetDateTimeString());
+            Console.WriteLine(DateTimeOffset.Now.GetDateTimeString());
+            Console.WriteLine(DateTimeOffset.UtcNow.GetDateTimeString());
+            Console.WriteLine(new DateTimeOffset(DateTime.Now).GetDateTimeString());
+            Console.WriteLine(new DateTimeOffset(DateTime.UtcNow).GetDateTimeString());
         }
 
     }

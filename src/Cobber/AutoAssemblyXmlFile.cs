@@ -10,5 +10,12 @@ namespace System.Data.Cobber
     /// </summary>
     public class AssemblyXmlReader
     {
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public AssemblyXmlReader()
+        {
+
+        }
     }
 }
