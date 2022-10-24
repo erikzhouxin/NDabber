@@ -854,7 +854,9 @@ namespace System.Data.Dibber
         /// </summary>
         UpdateMachineAndSid = 0x1000
     }
-
+    /// <summary>
+    /// 快捷方式
+    /// </summary>
     public class ShellLink : IDisposable
     {
         #region Fields
@@ -867,7 +869,15 @@ namespace System.Data.Dibber
         private const int MAX_PATH = 260;
 
         #endregion
-
+        /// <summary>
+        /// 创建快捷方式
+        /// </summary>
+        /// <param name="shortcutPath"></param>
+        /// <param name="actualFilePath"></param>
+        /// <param name="description"></param>
+        /// <param name="workingDirectory"></param>
+        /// <param name="arguments"></param>
+        /// <returns></returns>
         public static ShellLink CreateShortcut(string shortcutPath, string actualFilePath, string description = null, string workingDirectory = null, string arguments = null)
         {
             shortcutPath = shortcutPath.GetFullPath();
@@ -889,7 +899,11 @@ namespace System.Data.Dibber
             link.Save(shortcutPath);
             return link;
         }
-
+        /// <summary>
+        /// 是快捷方式路径
+        /// </summary>
+        /// <param name="shortcutPath"></param>
+        /// <returns></returns>
         public static bool IsShellLink(string shortcutPath)
         {
             shortcutPath = shortcutPath.GetFullPath();
@@ -908,7 +922,12 @@ namespace System.Data.Dibber
             }
             return false;
         }
-
+        /// <summary>
+        /// 指向路径
+        /// </summary>
+        /// <param name="shortcutPath"></param>
+        /// <param name="targetPath"></param>
+        /// <returns></returns>
         public static bool PointsTo(string shortcutPath, string targetPath)
         {
             shortcutPath = shortcutPath.GetFullPath();
@@ -953,12 +972,16 @@ namespace System.Data.Dibber
                 ReadConsoleProperties();
             }
         }
-
+        /// <summary>
+        /// 析构函数
+        /// </summary>
         ~ShellLink()
         {
             Dispose();
         }
-
+        /// <summary>
+        /// 释放资源
+        /// </summary>
         public void Dispose()
         {
             GC.SuppressFinalize(this);

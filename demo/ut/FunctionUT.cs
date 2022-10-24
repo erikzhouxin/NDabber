@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Cobber;
+using System.Data.Dibber;
 using System.Data.Extter;
 using System.Data.Impeller;
 using System.IO;
@@ -140,6 +141,16 @@ namespace System.Data.DabberUT
             }
             var mili = TimeSpan.FromMilliseconds((long)Environment.TickCount - (long)inputInfo.DwTime);
             Console.WriteLine($"距离上次输入已经过去{mili}毫秒");
+        }
+        /// <summary>
+        /// 测试超链接
+        /// </summary>
+        [TestMethod]
+        public void TestShortCutLink()
+        {
+            var shortPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "test.lnk");
+            var targetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "CenIdea", "QualimetryLngzms", $"CenIdea.Qualimetry.NLngzmsUI.exe");
+            ShellLink.CreateShortcut(shortPath, targetPath);
         }
     }
 }
