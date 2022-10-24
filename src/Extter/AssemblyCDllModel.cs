@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Impeller;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -31,12 +32,6 @@ namespace System.Data.Extter
     /// </summary>
     internal class AssemblyCDllModel : IAssemblyCDllModel
     {
-        [DllImport("kernel32.dll", CallingConvention = CallingConvention.StdCall)]
-        private static extern IntPtr LoadLibrary(string lpFileName, int h, int flags);
-        [DllImport("kernel32.dll", CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
-        private static extern IntPtr GetProcAddress(IntPtr hModule, string lProcName);
-        [DllImport("kernel32.dll", CallingConvention = CallingConvention.StdCall)]
-        private static extern bool FreeLibrary(IntPtr hModule);
         IntPtr hModule;
         /// <summary>
         /// dll 路径
@@ -44,23 +39,23 @@ namespace System.Data.Extter
         /// <param name="path"></param>
         public AssemblyCDllModel(string path)
         {
-            hModule = LoadLibrary(path, 0, (int)LoaderOptimization.MultiDomain);
+            hModule = KERNEL32.LoadLibrary(path, 0, (int)LoaderOptimization.MultiDomain);
         }
         /// <summary>
         /// 释放
         /// </summary>
         public void Dispose()
         {
-            FreeLibrary(hModule);
+            KERNEL32.FreeLibrary(hModule);
         }
-        public Delegate GetMethod(string procName,Type type)
+        public Delegate GetMethod(string procName, Type type)
         {
-            IntPtr func = GetProcAddress(hModule, procName);
+            IntPtr func = KERNEL32.GetProcAddress(hModule, procName);
             return (Delegate)Marshal.GetDelegateForFunctionPointer(func, type);
         }
         public T GetDelegate<T>(string procName) where T : Delegate
         {
-            IntPtr func = GetProcAddress(hModule, procName);
+            IntPtr func = KERNEL32.GetProcAddress(hModule, procName);
             return (T)Marshal.GetDelegateForFunctionPointer(func, typeof(T));
         }
     }

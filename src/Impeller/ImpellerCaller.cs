@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace System.Data.Dibber
+namespace System.Data.Impeller
 {
     /// <summary>
-    /// 调用器
+    /// 导入类调用者
     /// </summary>
-    public static partial class DibberCaller
+    public static partial class ImpellerCaller
     {
     }
 }

@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Data.Cobber;
 using System.Data.Extter;
+using System.Data.Impeller;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace System.Data.DabberUT
@@ -124,6 +126,20 @@ namespace System.Data.DabberUT
             Console.WriteLine(new DateTimeOffset(DateTime.Now).GetDateTimeString());
             Console.WriteLine(new DateTimeOffset(DateTime.UtcNow).GetDateTimeString());
         }
-
+        /// <summary>
+        /// 获取空闲时间
+        /// </summary>
+        [TestMethod]
+        public void TestGetIdleTime()
+        {
+            var inputInfo = new USER32.PLASTINPUTINFO();
+            inputInfo.CbSize = Marshal.SizeOf(inputInfo);
+            if (!USER32.GetLastInputInfo(ref inputInfo))
+            {
+                Console.WriteLine("获取失败");
+            }
+            var mili = TimeSpan.FromMilliseconds((long)Environment.TickCount - (long)inputInfo.DwTime);
+            Console.WriteLine($"距离上次输入已经过去{mili}毫秒");
+        }
     }
 }

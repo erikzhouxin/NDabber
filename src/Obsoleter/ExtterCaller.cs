@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Cobber;
 using System.Data.Dabber;
+using System.Data.Impeller;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -1959,8 +1960,8 @@ namespace System.Data.Extter
         /// <param name="numberOfFreeClusters"></param>
         /// <param name="totalNumbeOfClusters"></param>
         /// <returns></returns>
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-        public static extern bool GetDiskFreeSpace([MarshalAs(UnmanagedType.LPTStr)] string rootPathName, ref uint sectorsPerCluster, ref uint bytesPerSector, ref uint numberOfFreeClusters, ref uint totalNumbeOfClusters);
+        public static bool GetDiskFreeSpace([MarshalAs(UnmanagedType.LPTStr)] string rootPathName, ref uint sectorsPerCluster, ref uint bytesPerSector, ref uint numberOfFreeClusters, ref uint totalNumbeOfClusters)
+            => KERNEL32.GetDiskFreeSpace(rootPathName, ref sectorsPerCluster, ref bytesPerSector, ref numberOfFreeClusters, ref totalNumbeOfClusters);
         /// <summary>
         /// 获取文件目录
         /// </summary>
@@ -3760,5 +3761,17 @@ namespace System.Data.Extter
         {
             return CopyClone.DeepMemoryCopy(obj);
         }
+        /// <summary>
+        /// 用于获取盘信息的api
+        /// </summary>
+        /// <param name="rootPathName"></param>
+        /// <param name="sectorsPerCluster"></param>
+        /// <param name="bytesPerSector"></param>
+        /// <param name="numberOfFreeClusters"></param>
+        /// <param name="totalNumbeOfClusters"></param>
+        /// <returns></returns>
+        [Obsolete("替代方案:【Impeller.KERNEL32.GetDiskFreeSpace】")]
+        public static bool GetDiskFreeSpace([MarshalAs(UnmanagedType.LPTStr)] string rootPathName, ref uint sectorsPerCluster, ref uint bytesPerSector, ref uint numberOfFreeClusters, ref uint totalNumbeOfClusters)
+            => Impeller.KERNEL32.GetDiskFreeSpace(rootPathName, ref sectorsPerCluster, ref bytesPerSector, ref numberOfFreeClusters, ref totalNumbeOfClusters);
     }
 }

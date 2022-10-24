@@ -429,7 +429,7 @@ namespace System.Data.Extter
         /// 启动内容修正
         /// </summary>
         /// <returns></returns>
-        public virtual IAlertMsg Fixing()
+        public virtual IAlertMsg StartFixing()
         {
             foreach (var starter in GetFixes())
             {
@@ -443,6 +443,15 @@ namespace System.Data.Extter
         /// <param name="args"></param>
         /// <returns></returns>
         public virtual IAlertMsg StartArgs(string args)
+        {
+            return AlertMsg.OperSuccess;
+        }
+        /// <summary>
+        /// 启动参数
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public virtual IAlertMsg StartArgs(string[] args)
         {
             return AlertMsg.OperSuccess;
         }
