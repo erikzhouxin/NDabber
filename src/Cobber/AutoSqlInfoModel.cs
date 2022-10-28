@@ -65,7 +65,7 @@ namespace System.Data.Cobber
                 {
                     item = conn.QueryFirstOrDefault(sql, args);
                 }
-                return new AlertMsg(true, "")
+                return new AlertMsg(true, "查询成功")
                 {
                     Data = item,
                 };
@@ -104,7 +104,7 @@ namespace System.Data.Cobber
                 {
                     item = conn.QueryFirstOrDefault<T>(sql, args);
                 }
-                return new AlertMsg<T>(item.IsNotDefault(), "")
+                return new AlertMsg<T>(item.IsNotDefault(), "查询成功")
                 {
                     Data = item,
                 };
@@ -192,7 +192,7 @@ namespace System.Data.Cobber
                 {
                     items = conn.Query<T>(sql, args);
                 }
-                return new AlertMsgs<T>(true, "")
+                return new AlertMsgs<T>(true, "查询成功")
                 {
                     Data = items,
                 };
@@ -231,7 +231,7 @@ namespace System.Data.Cobber
                 {
                     items = conn.Query(sql, args);
                 }
-                return new AlertMessage(true, "")
+                return new AlertMessage(true, "查询成功")
                 {
                     Data = items,
                 };
@@ -298,7 +298,7 @@ namespace System.Data.Cobber
                 {
                     effLine = conn.Execute(sql, args);
                 }
-                return new AlertMsg(true, "")
+                return new AlertMsg(true, "执行成功")
                 {
                     Data = new
                     {
@@ -329,7 +329,7 @@ namespace System.Data.Cobber
                 {
                     effLine = conn.Execute(sql, args);
                 }
-                return new AlertMsg(true, "")
+                return new AlertMsg(true, "执行成功")
                 {
                     Data = new
                     {
@@ -360,7 +360,7 @@ namespace System.Data.Cobber
                 {
                     effLine = conn.Execute(sql, args);
                 }
-                return new AlertMsg(true, "")
+                return new AlertMsg(true, "执行成功")
                 {
                     Data = new
                     {
@@ -391,7 +391,7 @@ namespace System.Data.Cobber
                 {
                     effLine = conn.Execute(sql, args);
                 }
-                return new AlertMsg(true, "")
+                return new AlertMsg(true, "执行成功")
                 {
                     Data = new
                     {
@@ -604,7 +604,7 @@ namespace System.Data.Cobber
             var sqlModel = GetSqlModel(type);
             if (CheckedDic.TryGetValue(type, out bool isChecked))
             {
-                return new AlertMsg<AutoSqlModel>(isChecked, "") { Data = sqlModel };
+                return new AlertMsg<AutoSqlModel>(isChecked, "已检查") { Data = sqlModel };
             }
             try
             {
@@ -614,7 +614,7 @@ namespace System.Data.Cobber
                     effLine = conn.Execute(sqlModel.Create);
                 }
                 CheckedDic.TryAdd(type, true);
-                return new AlertMsg<AutoSqlModel>(true, "") { Data = sqlModel };
+                return new AlertMsg<AutoSqlModel>(true, "已检查") { Data = sqlModel };
             }
             catch (Exception ex)
             {

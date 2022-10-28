@@ -101,7 +101,7 @@ namespace System.Data.Cobber
 #if NETFrame
                 var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
 #else
-            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+                var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
 #endif
                 var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name);
                 var typeBuilder = moduleBuilder.DefineType($"{baseType.FullName}SampleCIModel", TypeAttributes.Public | TypeAttributes.Class, null, new Type[] { baseType });
@@ -221,7 +221,7 @@ namespace System.Data.Cobber
 #if NETFrame
                 var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
 #else
-            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+                var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
 #endif
                 var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name);
                 var typeBuilder = moduleBuilder.DefineType($"{baseType.FullName}SampleDIModel", TypeAttributes.Public | TypeAttributes.Class, null, new Type[] { baseType });

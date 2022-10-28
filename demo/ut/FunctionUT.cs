@@ -148,9 +148,13 @@ namespace System.Data.DabberUT
         [TestMethod]
         public void TestShortCutLink()
         {
-            var shortPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "test.lnk");
-            var targetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "CenIdea", "QualimetryLngzms", $"CenIdea.Qualimetry.NLngzmsUI.exe");
-            ShellLink.CreateShortcut(shortPath, targetPath);
+            var shortPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "命令提示符.lnk");
+            var targetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows),"System32", "Cmd.exe");
+            var shellLink = ExtterCaller.CreateShortcut2(shortPath, targetPath);
+            shellLink.Flags = ShellLink.DATA_FLAGS.RunAsUser; // 以管理员身份运行
+            shellLink.Save(shortPath);
+            Console.WriteLine(shellLink.Path);
+            Console.WriteLine(shellLink.FileInfo.GetJsonFormatString());
         }
     }
 }

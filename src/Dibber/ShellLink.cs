@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Extter;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -9,967 +10,249 @@ using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 
 namespace System.Data.Dibber
 {
-
-    #region // 公开类
-
-    public class ColorTable : IList<long>, ICommiter
-    {
-        private ConsoleProperties owner;
-
-        internal ColorTable(ConsoleProperties owner)
-        {
-            this.owner = owner;
-        }
-
-        #region IList<long> Members
-
-        public int IndexOf(long item)
-        {
-            UInt32 value;
-            checked
-            {
-                value = (UInt32)item;
-            }
-            for (int i = 0; i < owner.nt_console_props.ColorTable.Length; i++)
-            {
-                if (owner.nt_console_props.ColorTable[i] == value)
-                {
-                    return i;
-                }
-            }
-
-            return -1;
-        }
-
-        public void Insert(int index, long item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RemoveAt(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public long this[int index]
-        {
-            get { return owner.nt_console_props.ColorTable[index]; }
-            set
-            {
-                checked
-                {
-                    owner.nt_console_props.ColorTable[index] = (UInt32)value;
-                }
-                ;
-                this.Commit();
-            }
-        }
-
-        #endregion
-
-        #region ICollection<long> Members
-
-        public void Add(long item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Clear()
-        {
-            for (int i = 0; i < owner.nt_console_props.ColorTable.Length; i++)
-            {
-                owner.nt_console_props.ColorTable[i] = 0;
-            }
-            this.Commit();
-        }
-
-        public bool Contains(long item)
-        {
-            return this.IndexOf(item) >= 0;
-        }
-
-        public void CopyTo(long[] array, int arrayIndex)
-        {
-            for (int i = 0; i < owner.nt_console_props.ColorTable.Length; i++)
-            {
-                array[i + arrayIndex] = owner.nt_console_props.ColorTable[i];
-            }
-        }
-
-        public int Count
-        {
-            get { return owner.nt_console_props.ColorTable.Length; }
-        }
-
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
-
-        public bool Remove(long item)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-        #region IEnumerable<long> Members
-
-        public IEnumerator<long> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-        #region IEnumerable Members
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-        #region ICommiter Members
-
-        public void Commit()
-        {
-            if (owner != null)
-            {
-                owner.Commit();
-            }
-        }
-
-        #endregion
-    }
-
-    public class ConsoleProperties : ICommiter, ICloneable
-    {
-        private const int LF_FACESIZE = 32;
-        internal NT_CONSOLE_PROPS nt_console_props;
-        private ColorTable colorTable;
-        private ShellLink owner;
-
-        public ConsoleProperties()
-        {
-            nt_console_props = NT_CONSOLE_PROPS.AnEmptyOne();
-            colorTable = new ColorTable(this);
-        }
-
-        ///<summary>
-        ///  Makes a copy of another ConsoleProperty
-        ///</summary>
-        ///<remarks>
-        ///  Note that the 'owner' field is not copied here.
-        ///</remarks>
-        public ConsoleProperties(ConsoleProperties another)
-        {
-            nt_console_props = another.nt_console_props;
-            colorTable = new ColorTable(this);
-        }
-
-        /// <summary>
-        ///   This should be only called by a ShellLink constructor
-        /// </summary>
-        /// <param name = "owner"></param>
-        internal ConsoleProperties(ShellLink owner)
-            : this()
-        {
-            this.owner = owner;
-        }
-
-        /// <summary>
-        ///   Gets or sets the Fill attribute for the console.
-        /// </summary>
-        public int FillAttribute
-        {
-            get { return nt_console_props.wFillAttribute; }
-            set
-            {
-                checked
-                {
-                    nt_console_props.wFillAttribute = (UInt16)value;
-                }
-                ;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   Gets or sets Fill attribute for console popups.
-        /// </summary>
-        public int PopupFillAttribute
-        {
-            get { return nt_console_props.wPopupFillAttribute; }
-            set
-            {
-                checked
-                {
-                    nt_console_props.wPopupFillAttribute = (UInt16)value;
-                }
-                ;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   gets or sets the console's screen buffer size.  X is width, Y is height.
-        /// </summary>
-        public Coordinate ScreenBufferSize
-        {
-            get { return new Coordinate(nt_console_props.dwScreenBufferSize); }
-            set
-            {
-                checked
-                {
-                    nt_console_props.dwScreenBufferSize = value.AsCOORD();
-                }
-                ;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   gets or sets the console's window size.  X is width, Y is height.
-        /// </summary>
-        public Coordinate WindowSize
-        {
-            get { return new Coordinate(nt_console_props.dwWindowSize); }
-            set
-            {
-                checked
-                {
-                    nt_console_props.dwWindowSize = value.AsCOORD();
-                }
-                ;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   gets or sets the console's window origin.  X is left, Y is top.
-        /// </summary>
-        public Coordinate WindowOrigin
-        {
-            get { return new Coordinate(nt_console_props.dwWindowOrigin); }
-            set
-            {
-                checked
-                {
-                    nt_console_props.dwWindowOrigin = value.AsCOORD();
-                }
-                ;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   Gets or sets the font.
-        /// </summary>
-        public long Font
-        {
-            get
-            {
-                checked
-                {
-                    return (int)nt_console_props.nFont;
-                }
-            }
-            set
-            {
-                checked
-                {
-                    nt_console_props.nFont = (UInt32)value;
-                }
-                ;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   Gets or sets the console's input buffer size.
-        /// </summary>
-        public long InputBufferSize
-        {
-            get
-            {
-                checked
-                {
-                    return nt_console_props.nInputBufferSize;
-                }
-            }
-            set
-            {
-                checked
-                {
-                    nt_console_props.nInputBufferSize = (UInt32)value;
-                }
-                ;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   gets or sets the console's font size.
-        /// </summary>
-        public Coordinate FontSize
-        {
-            get { return new Coordinate(nt_console_props.dwFontSize); }
-            set
-            {
-                checked
-                {
-                    nt_console_props.dwFontSize = value.AsCOORD();
-                }
-                ;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   Gets or sets the console's font family.
-        /// </summary>
-        public long FontFamily
-        {
-            get
-            {
-                checked
-                {
-                    return nt_console_props.uFontFamily;
-                }
-            }
-            set
-            {
-                checked
-                {
-                    nt_console_props.uFontFamily = (UInt32)value;
-                }
-                ;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   Gets or sets the console's font weight.
-        /// </summary>
-        public long FontWeight
-        {
-            get
-            {
-                checked
-                {
-                    return nt_console_props.uFontWeight;
-                }
-            }
-            set
-            {
-                checked
-                {
-                    nt_console_props.uFontWeight = (UInt32)value;
-                }
-                ;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   Gets or sets the console's font face name.
-        /// </summary>
-        public string FaceName
-        {
-            get
-            {
-                if (nt_console_props.FaceName[0] == '\0')
-                {
-                    return string.Empty;
-                }
-                int lastChar;
-                for (lastChar = 1; lastChar < LF_FACESIZE; ++lastChar)
-                {
-                    if (nt_console_props.FaceName[lastChar] == '\0')
-                    {
-                        break;
-                    }
-                }
-
-                var facename = new string(nt_console_props.FaceName, 0, lastChar);
-                return facename;
-            }
-            set
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    for (int i = 0; i < LF_FACESIZE; ++i)
-                    {
-                        nt_console_props.FaceName[i] = '\0';
-                    }
-                    this.Commit();
-                    return;
-                }
-                if (value.Length > LF_FACESIZE)
-                {
-                    string msg = string.Format("The value is too long for the FaceName.  It must be {0} or less in length.", LF_FACESIZE);
-                    throw new ArgumentException(msg);
-                }
-
-                {
-                    int i;
-                    for (i = 0; i < value.Length; ++i)
-                    {
-                        nt_console_props.FaceName[i] = value[i];
-                    }
-                    if (i < LF_FACESIZE)
-                    {
-                        nt_console_props.FaceName[i] = '\0';
-                    }
-                    this.Commit();
-                }
-            }
-        }
-
-        /// <summary>
-        ///   Gets or sets the console's cursor size.
-        /// </summary>
-        public long CursorSize
-        {
-            get
-            {
-                checked
-                {
-                    return nt_console_props.uCursorSize;
-                }
-            }
-            set
-            {
-                checked
-                {
-                    nt_console_props.uCursorSize = (UInt32)value;
-                }
-                ;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   Gets or sets the console's full screen flag.
-        /// </summary>
-        public bool FullScreen
-        {
-            get { return nt_console_props.bFullScreen; }
-            set
-            {
-                nt_console_props.bFullScreen = value;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   Gets or sets the console's quick edit flag.
-        /// </summary>
-        public bool QuickEdit
-        {
-            get { return nt_console_props.bQuickEdit; }
-            set
-            {
-                nt_console_props.bQuickEdit = value;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   Gets or sets the console's insert mode flag. True for insert mode, false for overrite
-        /// </summary>
-        public bool InsertMode
-        {
-            get { return nt_console_props.bInsertMode; }
-            set
-            {
-                nt_console_props.bInsertMode = value;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   Gets or sets the console's auto position flag. True to auto position the window.
-        /// </summary>
-        public bool AutoPosition
-        {
-            get { return nt_console_props.bAutoPosition; }
-            set
-            {
-                nt_console_props.bAutoPosition = value;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   Gets or sets the size of each console history buffer.
-        /// </summary>
-        public long HistoryBufferSize
-        {
-            get
-            {
-                checked
-                {
-                    return nt_console_props.uHistoryBufferSize;
-                }
-            }
-            set
-            {
-                checked
-                {
-                    nt_console_props.uHistoryBufferSize = (UInt32)value;
-                }
-                ;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   Gets or sets the number of history buffers for the console.
-        /// </summary>
-        public long NumberOfHistoryBuffers
-        {
-            get
-            {
-                checked
-                {
-                    return nt_console_props.uNumberOfHistoryBuffers;
-                }
-            }
-            set
-            {
-                checked
-                {
-                    nt_console_props.uNumberOfHistoryBuffers = (UInt32)value;
-                }
-                ;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   Gets or sets the console's histry no dupe flag. True if old duplicate history lists should be discarded, or false otherwise.
-        public bool HistoryNoDup
-        {
-            get { return nt_console_props.bHistoryNoDup; }
-            set
-            {
-                nt_console_props.bHistoryNoDup = value;
-                this.Commit();
-            }
-        }
-
-        /// <summary>
-        ///   An array of color reference values for the console. Colors are specified as an index into this array.
-        /// </summary>
-        public ColorTable ColorTable
-        {
-            get { return this.colorTable; }
-        }
-
-        #region ICommiter Members
-
-        public void Commit()
-        {
-            if (owner != null)
-            {
-                owner.WriteConsoleProperties();
-            }
-        }
-
-        #endregion
-
-        #region ICloneable Members
-
-        public object Clone()
-        {
-            var clone = new ConsoleProperties(this);
-            return clone;
-        }
-
-        #endregion
-    }
-
     /// <summary>
-    ///   A coordinate.  Values are limited to UInt16.MinValue and UInt16.MaxValue
+    /// 快捷方式(推荐使用ShellLink)
     /// </summary>
-    /// <remarks>
-    ///   This structure maps to the native COORD data strcture.  The values used here are ints so
-    ///   this class is CLS compliant.
-    /// </remarks>
-    public struct Coordinate : IEquatable<Coordinate>
+    public sealed class Shortcut : ShellLink, IShortcutCore
     {
-        private int x;
-        private int y;
-
         /// <summary>
-        ///   Create a coordinate with specified X and Y values.
+        /// 构造
         /// </summary>
-        public Coordinate(int x, int y)
+        public Shortcut() : base() { }
+        /// <summary>
+        /// 从一个文件加载
+        /// </summary>
+        /// <param name = "linkFilePath">快捷方式文件</param>
+        public Shortcut(string linkFilePath) : base(linkFilePath, ShellLink.STGM_FLAGS.STGM_READ) { }
+        /// <summary>
+        /// 从一个文件及加载方式
+        /// </summary>
+        /// <param name="linkFilePath"></param>
+        /// <param name="flags"></param>
+        public Shortcut(string linkFilePath, ShellLink.STGM_FLAGS flags) : base(linkFilePath, flags) { }
+
+        #region // IPersistFile
+        /// <summary>
+        /// 获取类标记
+        /// </summary>
+        /// <param name="pClassID"></param>
+        public void GetClassID(out Guid pClassID) => PersistFile.GetClassID(out pClassID);
+        /// <summary>
+        /// 是脏快捷方式
+        /// </summary>
+        /// <returns></returns>
+        public int IsDirty() => PersistFile.IsDirty();
+        /// <summary>
+        /// 加载快捷方式
+        /// </summary>
+        /// <param name="pszFileName"></param>
+        /// <param name="dwMode"></param>
+        public void Load(string pszFileName, ShellLink.STGM_FLAGS dwMode) => PersistFile.Load(pszFileName, (int)dwMode);
+        /// <summary>
+        /// 保存快捷方式
+        /// </summary>
+        /// <param name="pszFileName"></param>
+        /// <param name="fRemember"></param>
+        public void Save(string pszFileName, bool fRemember) => PersistFile.Save(pszFileName, fRemember);
+        /// <summary>
+        /// 保存完整
+        /// </summary>
+        /// <param name="pszFileName"></param>
+        public void SaveCompleted(string pszFileName) => PersistFile.SaveCompleted(pszFileName);
+        /// <summary>
+        /// 获取当前指向文件
+        /// </summary>
+        /// <param name="ppszFileName"></param>
+        public void GetCurFile(out IntPtr ppszFileName) => PersistFile.GetCurFile(out ppszFileName);
+        #endregion IPersistFile
+        #region // IShellLink
+        /// <summary>
+        /// 获取路径
+        /// </summary>
+        /// <param name="pszFile"></param>
+        /// <param name="cchMaxPath"></param>
+        /// <param name="pfd"></param>
+        /// <param name="fFlags"></param>
+        public void GetPath(StringBuilder pszFile, int cchMaxPath, out ShellLink.WIN32_FIND_DATAW pfd, ShellLink.SLGP_FLAGS fFlags)
+            => Shortcut.GetPath(pszFile, cchMaxPath, out pfd, fFlags);
+        /// <summary>
+        /// 获取标识列表
+        /// </summary>
+        /// <param name="ppidl"></param>
+        public void GetIDList(out IntPtr ppidl) => Shortcut.GetIDList(out ppidl);
+        /// <summary>
+        /// 设置标识列表
+        /// </summary>
+        /// <param name="pidl"></param>
+        public void SetIDList(IntPtr pidl) => Shortcut.SetIDList(pidl);
+        /// <summary>
+        /// 获取描述
+        /// </summary>
+        /// <param name="pszName"></param>
+        /// <param name="cchMaxName"></param>
+        public void GetDescription(StringBuilder pszName, int cchMaxName) => Shortcut.GetDescription(pszName, cchMaxName);
+        /// <summary>
+        /// 设置描述
+        /// </summary>
+        /// <param name="pszName"></param>
+        public void SetDescription(string pszName) => Shortcut.SetDescription(pszName);
+        /// <summary>
+        /// 获取工作目录
+        /// </summary>
+        /// <param name="pszDir"></param>
+        /// <param name="cchMaxPath"></param>
+        public void GetWorkingDirectory(StringBuilder pszDir, int cchMaxPath) => Shortcut.GetWorkingDirectory(pszDir, cchMaxPath);
+        /// <summary>
+        /// 设置工作目录
+        /// </summary>
+        /// <param name="pszDir"></param>
+        public void SetWorkingDirectory(string pszDir) => Shortcut.SetWorkingDirectory(pszDir);
+        /// <summary>
+        /// 获取参数
+        /// </summary>
+        /// <param name="pszArgs"></param>
+        /// <param name="cchMaxPath"></param>
+        public void GetArguments(StringBuilder pszArgs, int cchMaxPath) => Shortcut.GetArguments(pszArgs, cchMaxPath);
+        /// <summary>
+        /// 设置参数
+        /// </summary>
+        /// <param name="pszArgs"></param>
+        public void SetArguments(string pszArgs) => Shortcut.SetArguments(pszArgs);
+        /// <summary>
+        /// 获取热键
+        /// </summary>
+        /// <param name="pwHotkey"></param>
+        public void GetHotkey(out short pwHotkey) => Shortcut.GetHotkey(out pwHotkey);
+        /// <summary>
+        /// 设置热键
+        /// </summary>
+        /// <param name="wHotkey"></param>
+        public void SetHotkey(short wHotkey) => Shortcut.SetHotkey(wHotkey);
+        /// <summary>
+        /// 获取显示命令
+        /// </summary>
+        /// <param name="piShowCmd"></param>
+        /// <returns></returns>
+        public Int32 GetShowCmd(out ShellLink.ShowWindowCommand piShowCmd)
         {
-            if (x > UInt16.MaxValue)
-            {
-                string msg = string.Format("must be <= {0}", UInt16.MaxValue);
-                throw new ArgumentException(msg, "x");
-            }
-            if (x < UInt16.MinValue)
-            {
-                string msg = string.Format("must be >= {0}", UInt16.MinValue);
-                throw new ArgumentException(msg, "x");
-            }
-            if (y > UInt16.MaxValue)
-            {
-                string msg = string.Format("must be <= {0}", UInt16.MaxValue);
-                throw new ArgumentException(msg, "y");
-            }
-            if (y < UInt16.MinValue)
-            {
-                string msg = string.Format("must be >= {0}", UInt16.MinValue);
-                throw new ArgumentException(msg, "y");
-            }
-
-            this.x = x;
-            this.y = y;
+            var res = Shortcut.GetShowCmd(out int cmd);
+            piShowCmd = (ShellLink.ShowWindowCommand)cmd;
+            return res;
         }
-
         /// <summary>
-        ///   Make a copy of another Coordiante
+        /// 设置显示命令
         /// </summary>
-        public Coordinate(Coordinate another)
+        /// <param name="iShowCmd"></param>
+        public void SetShowCmd(ShellLink.ShowWindowCommand iShowCmd) => Shortcut.SetShowCmd((int)iShowCmd);
+        /// <summary>
+        /// 获取图标位置
+        /// </summary>
+        /// <param name="pszIconPath"></param>
+        /// <param name="cchIconPath"></param>
+        /// <param name="piIcon"></param>
+        /// <returns></returns>
+        public Int32 GetIconLocation(StringBuilder pszIconPath, int cchIconPath, out int piIcon) => Shortcut.GetIconLocation(pszIconPath, cchIconPath, out piIcon);
+        /// <summary>
+        /// 设置图标
+        /// </summary>
+        /// <param name="pszIconPath"></param>
+        /// <param name="iIcon"></param>
+        public void SetIconLocation(string pszIconPath, int iIcon) => Shortcut.SetIconLocation(pszIconPath, iIcon);
+        /// <summary>
+        /// 设置相对路径
+        /// </summary>
+        /// <param name="pszPathRel"></param>
+        /// <param name="dwReserved"></param>
+        public void SetRelativePath(string pszPathRel, int dwReserved) => Shortcut.SetRelativePath(pszPathRel, dwReserved);
+        /// <summary>
+        /// 尝试找到快捷方式的目标，即使它已经被移动或重命名
+        /// </summary>
+        /// <param name = "hwnd">窗口的句柄，使用它作为对话框的父级。如果需要在解析快捷方式时提示用户提供更多信息，则会显示对话框。</param>
+        /// <param name = "fFlags">控制解析过程的标志</param>
+        public override void Resolve(IntPtr hwnd, ShellLink.SLR_FLAGS fFlags) => base.Resolve(hwnd, fFlags);
+        /// <summary>
+        /// 设置目标路径
+        /// </summary>
+        /// <param name="pszFile"></param>
+        public void SetPath(string pszFile) => Shortcut.SetPath(pszFile);
+        #endregion IShellLinkf
+        #region // IShellLinkDataList
+        /// <summary>
+        /// 添加数据块
+        /// </summary>
+        /// <param name="pDataBlock"></param>
+        /// <returns></returns>
+        public Int32 AddDataBlock(IntPtr pDataBlock) => DataList.AddDataBlock(pDataBlock);
+        /// <summary>
+        /// 复制数据块
+        /// </summary>
+        /// <param name="dwSig"></param>
+        /// <param name="ppDataBlock"></param>
+        /// <returns></returns>
+        public Int32 CopyDataBlock(UInt32 dwSig, out IntPtr ppDataBlock) => DataList.CopyDataBlock(dwSig, out ppDataBlock);
+        /// <summary>
+        /// 移除数据块
+        /// </summary>
+        /// <param name="dwSig"></param>
+        /// <returns></returns>
+        public Int32 RemoveDataBlock(UInt32 dwSig) => DataList.RemoveDataBlock(dwSig);
+        /// <summary>
+        /// 获取数据标记
+        /// </summary>
+        /// <param name="pdwFlags"></param>
+        public void GetFlags(out ShellLink.DATA_FLAGS pdwFlags)
         {
-            x = another.X;
-            y = another.Y;
+            DataList.GetFlags(out uint flags);
+            pdwFlags = (ShellLink.DATA_FLAGS)flags;
         }
-
-        internal Coordinate(COORD coord)
-        {
-            x = coord.X;
-            y = coord.Y;
-        }
-
-        internal COORD AsCOORD()
-        {
-            unchecked
-            {
-                COORD coord;
-                coord.X = (Int16)this.X;
-                coord.Y = (Int16)this.Y;
-                return coord;
-            }
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is Coordinate)
-            {
-                var other = (Coordinate)obj;
-                return this.Equals(other);
-            }
-            return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return this.X.GetHashCode() + this.X.GetHashCode();
-        }
-
-        public override string ToString()
-        {
-            string xs = x.ToString();
-            string ys = y.ToString();
-            var sb = new StringBuilder(xs.Length + ys.Length + 1);
-            sb.Append(xs);
-            sb.Append(',');
-            sb.Append(ys);
-            return sb.ToString();
-        }
-
         /// <summary>
-        ///   Gets and sets the coordinates X value
+        /// 设置数据标记
         /// </summary>
-        public int X
-        {
-            get { return x; }
-            set
-            {
-                if (value > UInt16.MaxValue)
-                {
-                    string msg = string.Format("value for X must be <= {0}", UInt16.MaxValue);
-                    throw new ArgumentException(msg);
-                }
-                if (value < UInt16.MinValue)
-                {
-                    string msg = string.Format("value for X must be >= {0}", UInt16.MinValue);
-                    throw new ArgumentException(msg);
-                }
-                x = value;
-            }
-        }
-
-        /// <summary>
-        ///   Gets and sets the coordinates Y value
-        /// </summary>
-        public int Y
-        {
-            get { return y; }
-            set
-            {
-                if (value > UInt16.MaxValue)
-                {
-                    string msg = string.Format("value for Y must be <= {0}", UInt16.MaxValue);
-                    throw new ArgumentException(msg);
-                }
-                if (value < UInt16.MinValue)
-                {
-                    string msg = string.Format("value for Y must be >= {0}", UInt16.MinValue);
-                    throw new ArgumentException(msg);
-                }
-                y = value;
-            }
-        }
-
-        #region IEquatable<Coordinate> Members
-
-        public bool Equals(Coordinate other)
-        {
-            if (this.X == other.X && this.Y == other.Y)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        #endregion
-    }
-    /// <summary>
-    ///   Holds a reference to an icon in a file.  An icon locatoin object is 'empty' if its path is zero length.
-    /// </summary>
-    public class IconLocation
-    {
-        private string path = string.Empty;
-        private int index;
-
-        /// <summary>
-        ///   Creates an empty icon location
-        /// </summary>
-        public IconLocation()
-        {
-            this.path = string.Empty;
-            this.index = 0;
-        }
-
-        /// <summary>
-        ///   Create a icon locatoin object
-        /// </summary>
-        /// <param name = "path">The path to the file containing the icon</param>
-        /// <param name = "index">The index of the icon.</param>
-        public IconLocation(string path, int index)
-        {
-            this.path = path;
-            this.index = index;
-        }
-
-        /// <summary>
-        ///   Gets the path to the file contaning the icon.
-        /// </summary>
-        public string Path
-        {
-            get { return path; }
-        }
-
-        /// <summary>
-        ///   Gets the index of the icon in the file.
-        /// </summary>
-        public int Index
-        {
-            get { return index; }
-        }
-
-        /// <summary>
-        ///   True of the icon location is empty.
-        /// </summary>
-        public bool IsEmpty
-        {
-            get { return string.IsNullOrWhiteSpace(path); }
-        }
-    }
-    /// <summary>
-    ///   These values map directly to the native SLR_* values for the IShellLink::Resolve() method
-    /// </summary>
-    public enum ResolveFlags
-    {
-        None = 0,
-        /// <summary>
-        ///   Do not display a dialog box if the link cannot be resolved.
-        /// </summary>
-        NoUi = 0x1,
-        /// <summary>
-        ///   Not used - ignored
-        /// </summary>
-        AnyMatch = 0x2,
-        /// <summary>
-        ///   If the link object has changed, update its path and list of identifiers. If SLR_UPDATE is set, you do not need to call IPersistFile::IsDirty to determine whether or not the link object has changed.
-        /// </summary>
-        Update = 0x4,
-        /// <summary>
-        ///   Do not update the link information.
-        /// </summary>
-        NoUpdate = 0x8,
-        /// <summary>
-        ///   Do not execute the search heuristics.
-        /// </summary>
-        NoSearch = 0x10,
-        /// <summary>
-        ///   Do not use distributed link tracking.
-        /// </summary>
-        NoTrack = 0x20,
-        /// <summary>
-        ///   Disable distributed link tracking. By default, distributed link tracking tracks removable media across multiple devices based on the volume name. It also uses the UNC path to track remote file systems whose drive letter has changed. Setting NoLinkInfo disables both types of tracking
-        /// </summary>
-        NoLinkInfo = 0x40,
-        /// <summary>
-        ///   Call the Windows Installer
-        /// </summary>
-        InvokeMSI = 0x80,
-        /// <summary>
-        ///   Windows XP and later.
-        /// </summary>
-        NoUIWithMessagePump = 0x101,
-        /// <summary>
-        ///   Windows 7 and later. Offer the option to delete the shortcut when this method is unable to resolve it, even if the shortcut is not a shortcut to a file.
-        /// </summary>
-        OfferDeleteWithoutFile = 0x201,
-        /// <summary>
-        ///   Windows 7 and later. Report as dirty if the target is a known folder and the known folder was redirected. This only works if the original target path was a file system path or ID list and not an aliased known folder ID list.
-        /// </summary>
-        KnownFolder = 0x400,
-        /// <summary>
-        ///   Windows 7 and later. Resolve the computer name in UNC targets that point to a local computer. This value is used with SLDF_KEEP_LOCAL_IDLIST_FOR_UNC_TARGET.
-        /// </summary>
-        MachineInLocaltarget = 0x800,
-        /// <summary>
-        ///   Windows 7 and later. Update the computer GUID and user SID if necessary.
-        /// </summary>
-        UpdateMachineAndSid = 0x1000
+        /// <param name="dwFlags"></param>
+        public void SetFlags(ShellLink.DATA_FLAGS dwFlags) => DataList.SetFlags((uint)dwFlags);
+        #endregion IShellLinkDataList
     }
     /// <summary>
     /// 快捷方式
     /// </summary>
     public class ShellLink : IDisposable
     {
-        #region Fields
-
-        private ShellLinkCoClass theShellLinkObject;
-        private IShellLink shellLink;
-        private IShellLinkDataList dataList;
-        private ConsoleProperties consoleProperties;
-
-        private const int MAX_PATH = 260;
-
-        #endregion
         /// <summary>
-        /// 创建快捷方式
+        /// 最大路径长度
         /// </summary>
-        /// <param name="shortcutPath"></param>
-        /// <param name="actualFilePath"></param>
-        /// <param name="description"></param>
-        /// <param name="workingDirectory"></param>
-        /// <param name="arguments"></param>
-        /// <returns></returns>
-        public static ShellLink CreateShortcut(string shortcutPath, string actualFilePath, string description = null, string workingDirectory = null, string arguments = null)
-        {
-            shortcutPath = shortcutPath.GetFullPath();
-            actualFilePath = actualFilePath.GetFullPath();
-            if (!System.IO.Path.HasExtension(shortcutPath))
-                shortcutPath += ".LNK";
-
-            var link = new ShellLink(shortcutPath);
-            link.Path = actualFilePath;
-
-            link.WorkingDirectory = workingDirectory ?? System.IO.Path.GetDirectoryName(actualFilePath);
-
-            if (description != null)
-                link.Description = description;
-
-            if (arguments != null)
-                link.Arguments = arguments;
-
-            link.Save(shortcutPath);
-            return link;
-        }
+        public const int MAX_PATH = 260;
         /// <summary>
-        /// 是快捷方式路径
+        /// 扩展名
         /// </summary>
-        /// <param name="shortcutPath"></param>
-        /// <returns></returns>
-        public static bool IsShellLink(string shortcutPath)
-        {
-            shortcutPath = shortcutPath.GetFullPath();
-
-            if (File.Exists(shortcutPath))
-            {
-                try
-                {
-                    var shortcut = Load(shortcutPath);
-                    return true;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-            return false;
-        }
+        public const string Extension = ".LNK";
+        internal ShellLinkCore shellLinkObject;
+        internal IShellLink Shortcut => (IShellLink)shellLinkObject;
+        internal IShellLinkDataList DataList => (IShellLinkDataList)shellLinkObject;
+        internal IPersistFile PersistFile => (IPersistFile)shellLinkObject;
+        #region // 构造和释放
         /// <summary>
-        /// 指向路径
-        /// </summary>
-        /// <param name="shortcutPath"></param>
-        /// <param name="targetPath"></param>
-        /// <returns></returns>
-        public static bool PointsTo(string shortcutPath, string targetPath)
-        {
-            shortcutPath = shortcutPath.GetFullPath();
-            targetPath = targetPath.GetFullPath();
-
-            if (File.Exists(shortcutPath))
-            {
-                try
-                {
-                    return Load(shortcutPath).Path.GetFullPath().Equals(targetPath, StringComparison.CurrentCultureIgnoreCase);
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-            return false;
-        }
-
-        #region Construction and Disposal
-
-        /// <summary>
-        ///   Create an empty shell link object
+        /// 构造
         /// </summary>
         public ShellLink()
         {
-            theShellLinkObject = new ShellLinkCoClass();
-            shellLink = (IShellLink)theShellLinkObject;
-            dataList = (IShellLinkDataList)theShellLinkObject;
-            consoleProperties = new ConsoleProperties(this);
+            shellLinkObject = new ShellLinkCore();
         }
-
         /// <summary>
-        ///   Load a shell link from a file.
+        /// 从一个文件加载
         /// </summary>
-        /// <param name = "linkFilePath">the path to the file</param>
-        public ShellLink(string linkFilePath) : this()
+        /// <param name = "linkFilePath">快捷方式文件</param>
+        public ShellLink(string linkFilePath) : this(linkFilePath, STGM_FLAGS.STGM_READ) { }
+        /// <summary>
+        /// 从一个文件及加载方式
+        /// </summary>
+        /// <param name="linkFilePath"></param>
+        /// <param name="flags"></param>
+        public ShellLink(string linkFilePath, STGM_FLAGS flags) : this()
         {
-            if (File.Exists(linkFilePath))
+            var linkPath = GetFullPath(linkFilePath);
+            if (File.Exists(linkPath))
             {
-                ((IPersistFile)shellLink).Load(linkFilePath, (int)STGM_FLAGS.STGM_READ);
-                ReadConsoleProperties();
+                PersistFile.Load(linkPath, (int)flags);
             }
         }
         /// <summary>
@@ -985,1358 +268,1152 @@ namespace System.Data.Dibber
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-
-            if (dataList != null)
+            if (shellLinkObject != null)
             {
-                Marshal.ReleaseComObject(dataList);
-                dataList = null;
-            }
-
-            if (shellLink != null)
-            {
-                Marshal.ReleaseComObject(shellLink);
-                shellLink = null;
-            }
-
-            if (theShellLinkObject != null)
-            {
-                Marshal.ReleaseComObject(theShellLinkObject);
-                theShellLinkObject = null;
+#pragma warning disable CA1416 // 验证平台兼容性
+                Marshal.ReleaseComObject(shellLinkObject);
+#pragma warning restore CA1416 // 验证平台兼容性
+                shellLinkObject = null;
             }
         }
-
         #endregion
-
         /// <summary>
-        ///   Save a shortcut to a file.  The shell requires a '.lnk' file extension.
+        /// 保存文件的快捷方式。shell需要一个` .lnk `文件扩展名。
         /// </summary>
-        /// <remarks>
-        ///   If the file exists it is silently overwritten.
-        /// </remarks>
+        /// <remarks>如果文件存在，它会静默地被覆盖。</remarks>
+        public virtual void Save()
+        {
+            PersistFile.Save(ShortPath, true);
+        }
+        /// <summary>
+        /// 保存文件的快捷方式。shell需要一个` .lnk `文件扩展名。
+        /// </summary>
+        /// <remarks>如果文件存在，它会静默地被覆盖。</remarks>
         /// <param name = "lnkPath">The path to the saved file. </param>
-        public void Save(string lnkPath)
+        public virtual void Save(string lnkPath)
         {
-            ((IPersistFile)shellLink).Save(lnkPath, true);
+            PersistFile.Save(lnkPath, true);
         }
-
         /// <summary>
-        ///   Load a shortcut from a file.
+        /// 保存文件的快捷方式。shell需要一个` .lnk `文件扩展名。
         /// </summary>
-        /// <param name = "linkPath">A path to the file.</param>
-        public static ShellLink Load(string linkPath)
+        /// <remarks>如果文件存在，它会静默地被覆盖。</remarks>
+        /// <param name = "lnkPath">The path to the saved file. </param>
+        public virtual void SaveAs(string lnkPath)
         {
-            var result = new ShellLink();
-            ((IPersistFile)result.shellLink).Load(linkPath, (int)STGM_FLAGS.STGM_READ);
-            result.ReadConsoleProperties();
-            return result;
+            PersistFile.Save(lnkPath, true);
         }
-
         /// <summary>
-        ///   Get or sets the target of the shell link. The getter for this property uses the SLGP_RAWPATH flags.
+        /// 获取或设置快捷方式的目标。
+        /// 这个属性的读取方法使用SLGP_RAWPATH标志。
         /// </summary>
-        public String Path
-        {
-            get
-            {
-                var sb = new StringBuilder(WIN32_FIND_DATAW.MAX_PATH);
-                WIN32_FIND_DATAW findData;
-                shellLink.GetPath(sb, sb.Capacity, out findData, SLGP_FLAGS.SLGP_RAWPATH);
-                return sb.ToString();
-            }
-
-            set { shellLink.SetPath(value); }
-        }
-
-        /// <summary>
-        ///   Gets the the path to the shortcut (.lnk) file using the SLGP_SHORTPATH flag
-        /// </summary>
-        public string ShortPath
-        {
-            get
-            {
-                var sb = new StringBuilder(WIN32_FIND_DATAW.MAX_PATH);
-                WIN32_FIND_DATAW findData;
-                shellLink.GetPath(sb, sb.Capacity, out findData, SLGP_FLAGS.SLGP_SHORTPATH);
-                return sb.ToString();
-            }
-        }
-
-        /// <summary>
-        ///   Gets the the path to the shortcut (.lnk) file using the SLGP_UNCPRIORITY flag
-        /// </summary>
-        public string UncPriorityPath
-        {
-            get
-            {
-                var sb = new StringBuilder(WIN32_FIND_DATAW.MAX_PATH);
-                WIN32_FIND_DATAW findData;
-                shellLink.GetPath(sb, sb.Capacity, out findData, SLGP_FLAGS.SLGP_UNCPRIORITY);
-                return sb.ToString();
-            }
-        }
-
-        /// <summary>
-        ///   The command line arguments to the shortcut.
-        /// </summary>
-        public String Arguments
-        {
-            get
-            {
-                var sb = new StringBuilder(260);
-                shellLink.GetArguments(sb, sb.Capacity);
-                return sb.ToString();
-            }
-
-            set { shellLink.SetArguments(value); }
-        }
-
-        /// <summary>
-        ///   Attempts to find the target of a Shell link, even if it has been moved or renamed.
-        /// </summary>
-        /// <param name = "flags">Flags that control the resolution process</param>
-        public void Resolve(ResolveFlags flags)
-        {
-            shellLink.Resolve(IntPtr.Zero, (SLR_FLAGS)flags);
-        }
-
-        /// <summary>
-        ///   Attempts to find the target of a Shell link, even if it has been moved or renamed.
-        /// </summary>
-        /// <param name = "hwnd">A handle to the window that the Shell will use as the parent for a dialog box. The Shell displays the dialog box if it needs to prompt the user for more information while resolving a Shell link.</param>
-        /// <param name = "flags">Flags that control the resolution process</param>
-        public void Resolve(IntPtr hwnd, ResolveFlags flags)
-        {
-            shellLink.Resolve(hwnd, (SLR_FLAGS)flags);
-        }
-
-        /// <summary>
-        ///   Attempts to find the target of a Shell link, even if it has been moved or renamed.
-        /// </summary>
-        /// <param name = "flags">Flags that control the resolution process</param>
-        /// <param name = "noUxTimeoutMs">The timeout, in ms, to wait for resolution when there is no UX</param>
-        public void Resolve(ResolveFlags flags, int noUxTimeoutMs)
-        {
-            if ((flags & ResolveFlags.NoUi) == 0)
-            {
-                throw new ArgumentException("This methiod requires that the ResolveFlags.NoUi flag is set in the flags parameter.");
-            }
-
-            if (noUxTimeoutMs > short.MaxValue)
-            {
-                throw new ArgumentException(string.Format("the nouxTimeoutMs value must be <= {0}", short.MaxValue));
-            }
-
-            unchecked
-            {
-                flags = flags & (ResolveFlags)0x0000FFFF;
-                flags |= (ResolveFlags)(noUxTimeoutMs << 16);
-            }
-
-            shellLink.Resolve(IntPtr.Zero, (SLR_FLAGS)flags);
-        }
-
-        /// <summary>
-        ///   Gets or sets the shortcut's working directory.
-        /// </summary>
-        public String WorkingDirectory
-        {
-            get
-            {
-                var sb = new StringBuilder(260);
-                shellLink.GetWorkingDirectory(sb, sb.Capacity);
-                return sb.ToString();
-            }
-
-            set { shellLink.SetWorkingDirectory(value); }
-        }
-
-        /// <summary>
-        ///   Gets or sets the shortcut's description
-        /// </summary>
-        public String Description
-        {
-            get
-            {
-                var sb = new StringBuilder(260);
-                shellLink.GetDescription(sb, sb.Capacity);
-                return sb.ToString();
-            }
-            set { shellLink.SetDescription(value); }
-        }
-
-        /// <summary>
-        ///   Gets and sets the location of the shortcut's ICON.  This may return an empty IconLocatoin object, one where the path property is empty.
-        /// </summary>
-        public IconLocation IconLocation
+        public virtual String Path
         {
             get
             {
                 var sb = new StringBuilder(MAX_PATH);
-                int iIcon;
-                if (shellLink.GetIconLocation(sb, sb.Capacity, out iIcon) < 0)
-                {
-                    return new IconLocation();
-                }
-                return new IconLocation(sb.ToString(), iIcon);
+                Shortcut.GetPath(sb, sb.Capacity, out _, SLGP_FLAGS.SLGP_RAWPATH);
+                return sb.ToString();
             }
-
-            set { shellLink.SetIconLocation(value.Path, value.Index); }
+            set { Shortcut.SetPath(value); }
         }
-
         /// <summary>
-        ///   Gets and sets the show command for shell link's object.
+        /// 使用SLGP_SHORTPATH标志获取快捷方式(.lnk)文件的路径
         /// </summary>
-        public ShowWindowCommand ShowCommand
+        public virtual string ShortPath
         {
             get
             {
-                int showCmd;
-                if (shellLink.GetShowCmd(out showCmd) < 0)
-                {
-                    return ShowWindowCommand.Hide;
-                }
-                return (ShowWindowCommand)showCmd;
+                var sb = new StringBuilder(MAX_PATH);
+                Shortcut.GetPath(sb, sb.Capacity, out _, SLGP_FLAGS.SLGP_SHORTPATH);
+                return sb.ToString();
             }
-            set { shellLink.SetShowCmd((int)value); }
         }
-
         /// <summary>
-        ///   Gets or sets the Shell Link Data Flags for a shell link
+        /// 使用SLGP_UNCPRIORITY标志获取快捷方式(.lnk)文件的路径
         /// </summary>
-        public ShellLinkFlags Flags
+        public virtual string UncPriorityPath
         {
             get
             {
-                UInt32 flags;
-                dataList.GetFlags(out flags);
-                return (ShellLinkFlags)flags;
+                var sb = new StringBuilder(MAX_PATH);
+                Shortcut.GetPath(sb, sb.Capacity, out _, SLGP_FLAGS.SLGP_UNCPRIORITY);
+                return sb.ToString();
             }
-            set { dataList.SetFlags((UInt32)value); }
         }
-
         /// <summary>
-        ///   True if the Shell Link has an NT_CONSOLE_PROPS data block.
+        /// 将命令行参数添加到快捷方式
         /// </summary>
-        public bool HasConsoleProperties
+        public virtual String Arguments
         {
             get
             {
-                IntPtr ppDataBlock;
-                Int32 hr = dataList.CopyDataBlock(NT_CONSOLE_PROPS.NT_CONSOLE_PROPS_SIG, out ppDataBlock);
-
-                if (hr < 0)
-                {
-                    return false;
-                }
-                else
-                {
-                    Marshal.FreeHGlobal(ppDataBlock);
-                    return true;
-                }
+                var sb = new StringBuilder(260);
+                Shortcut.GetArguments(sb, sb.Capacity);
+                return sb.ToString();
             }
+            set { Shortcut.SetArguments(value); }
         }
-
         /// <summary>
-        ///   Gets the console properties for a shell link.  If HasConsoleProperties is false, then this 
-        ///   property returns a ConsoleProperties that contains sensible default values.
+        /// 尝试找到快捷方式的目标，即使它已经被移动或重命名
         /// </summary>
-        public ConsoleProperties ConsoleProperties
+        /// <param name = "flags">控制解析过程的标志</param>
+        public virtual void Resolve(SLR_FLAGS flags)
         {
-            get { return this.consoleProperties; }
+            Shortcut.Resolve(IntPtr.Zero, (SLR_FLAGS)flags);
         }
-
         /// <summary>
-        ///   Is true if the shell link as an NT_FE_CONSOLE_PROPS data block.
+        /// 尝试找到快捷方式的目标，即使它已经被移动或重命名
         /// </summary>
-        public bool HasCodePage
+        /// <param name = "hwnd">窗口的句柄，使用它作为对话框的父级。如果需要在解析快捷方式时提示用户提供更多信息，则会显示对话框。</param>
+        /// <param name = "flags">控制解析过程的标志</param>
+        public virtual void Resolve(IntPtr hwnd, SLR_FLAGS flags) => Shortcut.Resolve(hwnd, flags);
+        /// <summary>
+        /// 尝试找到快捷方式的目标，即使它已经被移动或重命名
+        /// </summary>
+        /// <param name = "flags">控制解析过程的标志</param>
+        /// <param name = "noUxTimeoutMs">当没有用户体验时等待解析的超时时间，单位为ms</param>
+        public virtual void Resolve(SLR_FLAGS flags, int noUxTimeoutMs)
         {
-            get
+            if ((flags & SLR_FLAGS.SLR_NO_UI) == 0)
             {
-                IntPtr ppDataBlock;
-                Int32 hr = dataList.CopyDataBlock(NT_FE_CONSOLE_PROPS.NT_FE_CONSOLE_PROPS_SIG, out ppDataBlock);
-
-                if (hr < 0)
-                {
-                    return false;
-                }
-                else
-                {
-                    Marshal.FreeHGlobal(ppDataBlock);
-                    return true;
-                }
+                throw new ArgumentException("这个方法需要ResolveFlags。在flags参数中设置了NoUi标志位。");
             }
+            if (noUxTimeoutMs > short.MaxValue)
+            {
+                throw new ArgumentException(string.Format("nouxTimeoutMs值必须 <= {0}", short.MaxValue));
+            }
+            unchecked
+            {
+                flags = flags & (SLR_FLAGS)0x0000FFFF;
+                flags |= (SLR_FLAGS)(noUxTimeoutMs << 16);
+            }
+            Shortcut.Resolve(IntPtr.Zero, (SLR_FLAGS)flags);
         }
-
         /// <summary>
-        ///   Gets or sets the code page for the console.  if there is no code page then the value for this property is zero.
-        ///   Setting this propety to zero removes the assocated NT_FE_CONSOLE_PROPS data block from the shell link.  
-        ///   When in doubt, use the Windows 1252 code page.
+        /// 工作目录
         /// </summary>
-        /// <exception cref = "OverflowExeption">Thrown if the set value cannot be converted to a UInt32 wihtout overflow.</exception>
-        public long CodePage
+        public virtual String WorkingDirectory
         {
             get
             {
-                IntPtr ppDataBlock;
-                Int32 hr = dataList.CopyDataBlock(NT_FE_CONSOLE_PROPS.NT_FE_CONSOLE_PROPS_SIG, out ppDataBlock);
-
-                if (hr < 0)
-                {
-                    return 0;
-                }
-
-                var nt_fe_console_props = (NT_FE_CONSOLE_PROPS)Marshal.PtrToStructure(ppDataBlock, typeof(NT_FE_CONSOLE_PROPS));
-                Marshal.FreeHGlobal(ppDataBlock);
-                return (nt_fe_console_props.uCodePage);
+                var sb = new StringBuilder(MAX_PATH);
+                Shortcut.GetWorkingDirectory(sb, sb.Capacity);
+                return sb.ToString();
             }
-
-            set
-            {
-                dataList.RemoveDataBlock(NT_FE_CONSOLE_PROPS.NT_FE_CONSOLE_PROPS_SIG);
-
-                if (value == 0)
-                {
-                    return;
-                }
-
-                UInt32 uCodePage;
-                checked
-                {
-                    uCodePage = (UInt32)value;
-                }
-
-                NT_FE_CONSOLE_PROPS nt_fe_console_props = NT_FE_CONSOLE_PROPS.AnEmptyOne();
-                nt_fe_console_props.uCodePage = uCodePage;
-
-                // pin the structure, add it to the shell link, then un-pin it.
-                GCHandle handle = GCHandle.Alloc(nt_fe_console_props, GCHandleType.Pinned); // pin the value
-                dataList.AddDataBlock(GCHandle.ToIntPtr(handle));
-                handle.Free(); // un-pin the value
-            }
+            set { Shortcut.SetWorkingDirectory(value); }
         }
-
         /// <summary>
-        ///   Is true if the shell link has an EXP_SZ_LINK datablock with the EXP_SZ_LINK_SIG signature.
+        /// 快捷方式描述
         /// </summary>
-        public bool HasExpSzLink
+        public virtual String Description
         {
             get
             {
-                IntPtr ppDataBlock;
-                Int32 hr = dataList.CopyDataBlock(EXP_SZ_LINK.EXP_SZ_LINK_SIG, out ppDataBlock);
-
-                if (hr < 0)
-                {
-                    return false;
-                }
-                else
-                {
-                    Marshal.FreeHGlobal(ppDataBlock);
-                    return true;
-                }
+                var sb = new StringBuilder(MAX_PATH);
+                Shortcut.GetDescription(sb, sb.Capacity);
+                return sb.ToString();
             }
+            set { Shortcut.SetDescription(value); }
         }
-
         /// <summary>
-        ///   Get and sets the EXP_SZ_LINK property for a shell link. If there is no link then the property 
-        ///   value is an empty string. Setting this to null, an empty string, or a string that is all white space 
-        ///   removes the EXP_SZ_LINK data block with the EXP_SZ_LINK_SIG signature from the assocated shell link.
+        /// 获取或设置
         /// </summary>
-        public string ExpSzLink
+        public virtual Tuble2StringInt IconLocation
         {
             get
             {
-                IntPtr ppDataBlock;
-                Int32 hr = dataList.CopyDataBlock(EXP_SZ_LINK.EXP_SZ_LINK_SIG, out ppDataBlock);
-
-                if (hr < 0)
+                var sb = new StringBuilder(MAX_PATH);
+                if (Shortcut.GetIconLocation(sb, sb.Capacity, out int iIcon) < 0)
                 {
-                    return string.Empty;
+                    return new Tuble2StringInt();
                 }
-
-                var exp_sz_link = (EXP_SZ_LINK)Marshal.PtrToStructure(ppDataBlock, typeof(EXP_SZ_LINK));
-                Marshal.FreeHGlobal(ppDataBlock);
-                var value = new string(exp_sz_link.swzTarget);
-                return value;
+                return new Tuble2StringInt(sb.ToString(), iIcon);
             }
             set
             {
-                dataList.RemoveDataBlock(EXP_SZ_LINK.EXP_SZ_LINK_SIG);
-
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    return;
-                }
-
-                if (value.Length >= EXP_SZ_LINK.MAX_PATH)
-                {
-                    throw new ArgumentException(string.Format("The value must be less than {0} characters in lenght.", EXP_SZ_LINK.MAX_PATH));
-                }
-
-                EXP_SZ_LINK exp_sz_link = EXP_SZ_LINK.AnEmptyOne();
-
-                value.CopyTo(0, exp_sz_link.swzTarget, 0, exp_sz_link.swzTarget.Length - 1);
-                exp_sz_link.swzTarget[value.Length] = '\0';
-
-                exp_sz_link.szTarget.Initialize(); // make this all zeros.
-
-                GCHandle handle = GCHandle.Alloc(value, GCHandleType.Pinned); // pin the value
-
-                dataList.AddDataBlock(GCHandle.ToIntPtr(handle));
-
-                handle.Free(); // un-pin the value
+                if (value == null) { return; }
+                Shortcut.SetIconLocation(value.Key, value.Value);
             }
         }
-
         /// <summary>
-        ///   Is true if the shell link has an EXP_SZ_LINK datablock with the EXP_SZ_ICON_SIG signature.
+        /// 快捷方式对象的显示命令。
         /// </summary>
-        public bool HasExpSzIcon
+        public virtual ShowWindowCommand ShowCommand
+        {
+            get => Shortcut.GetShowCmd(out int showCmd) < 0 ? ShowWindowCommand.Hide : (ShowWindowCommand)showCmd;
+            set => Shortcut.SetShowCmd((int)value);
+        }
+        /// <summary>
+        /// 快捷方式的链接数据标志
+        /// </summary>
+        public virtual DATA_FLAGS Flags
         {
             get
             {
-                IntPtr ppDataBlock;
-                Int32 hr = dataList.CopyDataBlock(EXP_SZ_ICON.EXP_SZ_ICON_SIG, out ppDataBlock);
-
-                if (hr < 0)
-                {
-                    return false;
-                }
-                else
-                {
-                    Marshal.FreeHGlobal(ppDataBlock);
-                    return true;
-                }
+                DataList.GetFlags(out UInt32 flags);
+                return (DATA_FLAGS)flags;
             }
+            set { DataList.SetFlags((UInt32)value); }
         }
-
         /// <summary>
-        ///   Get and sets the EXP_SZ_ICON property for a shell link. If there is no link then the property 
-        ///   value is an empty string. Setting this to null, an empty string, or a string that is all white space 
-        ///   removes the EXP_SZ_LINK data block with the EXP_SZ_ICON_SIG signature from the assocated shell link.
+        /// 文件信息
         /// </summary>
-        public string ExpSzIcon
+        public virtual WIN32_FIND_DATAW FileInfo
         {
             get
             {
-                IntPtr ppDataBlock;
-                Int32 hr = dataList.CopyDataBlock(EXP_SZ_ICON.EXP_SZ_ICON_SIG, out ppDataBlock);
-
-                if (hr < 0)
-                {
-                    return string.Empty;
-                }
-
-                var exp_sz_icon = (EXP_SZ_ICON)Marshal.PtrToStructure(ppDataBlock, typeof(EXP_SZ_ICON));
-                Marshal.FreeHGlobal(ppDataBlock);
-                var value = new string(exp_sz_icon.swzTarget);
-                return value;
-            }
-            set
-            {
-                dataList.RemoveDataBlock(EXP_SZ_ICON.EXP_SZ_ICON_SIG);
-
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    return;
-                }
-
-                if (value.Length >= EXP_SZ_ICON.MAX_PATH)
-                {
-                    throw new ArgumentException(string.Format("The value must be less than {0} characters in length.", EXP_SZ_ICON.MAX_PATH));
-                }
-
-                EXP_SZ_ICON exp_sz_link = EXP_SZ_ICON.AnEmptyOne();
-
-                value.CopyTo(0, exp_sz_link.swzTarget, 0, exp_sz_link.swzTarget.Length - 1);
-                exp_sz_link.swzTarget[value.Length] = '\0';
-
-                exp_sz_link.szTarget.Initialize(); // make this all zeros.
-
-                GCHandle handle = GCHandle.Alloc(value, GCHandleType.Pinned); // pin the value
-
-                dataList.AddDataBlock(GCHandle.ToIntPtr(handle));
-
-                handle.Free(); // un-pin the value
+                var sb = new StringBuilder(MAX_PATH);
+                Shortcut.GetPath(sb, sb.Capacity, out WIN32_FIND_DATAW info, SLGP_FLAGS.SLGP_RAWPATH);
+                return info;
             }
         }
-
         /// <summary>
-        ///   True if the shell link ha a EXP_DARWIN_LINK data block.
+        /// 是指向路径
         /// </summary>
-        public bool HasDarwinLink
+        /// <param name="tagPath"></param>
+        /// <returns></returns>
+        public bool IsPointTo(string tagPath)
         {
-            get
-            {
-                IntPtr ppDataBlock;
-                Int32 hr = dataList.CopyDataBlock(EXP_DARWIN_LINK.EXP_DARWIN_ID_SIG, out ppDataBlock);
-
-                if (hr < 0)
-                {
-                    return false;
-                }
-                else
-                {
-                    Marshal.FreeHGlobal(ppDataBlock);
-                    return true;
-                }
-            }
+            if (tagPath == null) { return false; }
+            var refPath = Path;
+            if (string.IsNullOrWhiteSpace(refPath)) { return false; }
+            return GetFullPath(refPath).EqualIgnoreCase2(GetFullPath(tagPath));
         }
-
+        internal static string GetFullPath(string path)
+        {
+            try
+            {
+                return System.IO.Path.GetFullPath(path.Trim('"'));
+            }
+            catch { }
+            return path;
+        }
+        #region // 内部类
         /// <summary>
-        ///   Get and sets the EXP_DARWIN_LINK property for a shell link. If there is no link then the property 
-        ///   value is an empty string. Setting this to null, an empty string, or a string that is all white space 
-        ///   removes the EXP_DARWIN_LINK data block from the assocated shell link.
+        /// 这些值直接映射到IShellLink::Resolve()方法的原生SLR_*值
         /// </summary>
-        public string DarwinLink
+        [Flags]
+        public enum SLR_FLAGS
         {
-            get
-            {
-                IntPtr ppDataBlock;
-                Int32 hr = dataList.CopyDataBlock(EXP_DARWIN_LINK.EXP_DARWIN_ID_SIG, out ppDataBlock);
-
-                if (hr < 0)
-                {
-                    return string.Empty;
-                }
-
-                var exp_darwin_link = (EXP_DARWIN_LINK)Marshal.PtrToStructure(ppDataBlock, typeof(EXP_DARWIN_LINK));
-                Marshal.FreeHGlobal(ppDataBlock);
-                var value = new string(exp_darwin_link.szwDarwinID);
-                return value;
-            }
-            set
-            {
-                dataList.RemoveDataBlock(EXP_DARWIN_LINK.EXP_DARWIN_ID_SIG);
-
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    return;
-                }
-
-                if (value.Length >= EXP_DARWIN_LINK.MAX_PATH)
-                {
-                    throw new ArgumentException(string.Format("The value must be less than {0} characters in lenght.", EXP_SZ_ICON.MAX_PATH));
-                }
-
-                EXP_DARWIN_LINK exp_darwin_link = EXP_DARWIN_LINK.AnEmptyOne();
-
-                value.CopyTo(0, exp_darwin_link.szwDarwinID, 0, exp_darwin_link.szwDarwinID.Length - 1);
-                exp_darwin_link.szwDarwinID[value.Length] = '\0';
-
-                exp_darwin_link.szDarwinID.Initialize(); // make this all zeros.
-
-                GCHandle handle = GCHandle.Alloc(value, GCHandleType.Pinned); // pin the value
-
-                dataList.AddDataBlock(GCHandle.ToIntPtr(handle));
-
-                handle.Free(); // un-pin the value
-            }
+            /// <summary>
+            /// 无
+            /// </summary>
+            None = 0,
+            /// <summary>
+            /// 如果快捷方式无效，则不显示对话框。
+            /// </summary>
+            SLR_NO_UI = 0x1,
+            /// <summary>
+            /// 未使用-忽略
+            /// </summary>
+            SLR_ANY_MATCH = 0x2,
+            /// <summary>
+            /// 如果链接对象已更改，则更新其路径和标识符列表。
+            /// 如果设置了SLR_UPDATE，则不需要调用IPersistFile::IsDirty来确定链接对象是否发生了变化。
+            /// </summary>
+            SLR_UPDATE = 0x4,
+            /// <summary>
+            /// 不要更新链接信息
+            /// </summary>
+            SLR_NOUPDATE = 0x8,
+            /// <summary>
+            /// 不要执行搜索启发式。
+            /// </summary>
+            SLR_NOSEARCH = 0x10,
+            /// <summary>
+            /// 不要使用分布式链接跟踪。
+            /// </summary>
+            SLR_NOTRACK = 0x20,
+            /// <summary>
+            /// 关闭分布式链路跟踪功能。
+            /// 默认情况下，分布式链接跟踪根据卷名跨多个设备跟踪可移动媒体。
+            /// 它还使用UNC路径跟踪驱动器号已更改的远程文件系统。
+            /// 设置NoLinkInfo可以禁用这两种跟踪
+            /// </summary>
+            SLR_NOLINKINFO = 0x40,
+            /// <summary>
+            /// 调用Windows安装程序
+            /// </summary>
+            SLR_INVOKE_MSI = 0x80,
+            /// <summary>
+            /// Windows XP及以上版本。
+            /// </summary>
+            SLR_NO_UI_WITH_MSG_PUMP = 0x101,
+            /// <summary>
+            /// Windows 7及更高版本。
+            /// 当此方法无法解决时，提供删除快捷方式的选项，即使该快捷方式不是文件的快捷方式。
+            /// </summary>
+            SLR_OFFER_DELETE_WITHOUT_FILE = 0x201,
+            /// <summary>
+            /// Windows 7及更高版本。
+            /// 如果目标是一个已知文件夹并且已知文件夹被重定向，则报告为脏。
+            /// 仅当原始目标路径是文件系统路径或ID列表，而不是别名已知的文件夹ID列表时，才有效。
+            /// </summary>
+            SLR_KNOWNFOLDER = 0x400,
+            /// <summary>
+            /// Windows 7及更高版本。
+            /// 解析UNC目标中指向本地计算机的计算机名。
+            /// 该值与SLDF_KEEP_LOCAL_IDLIST_FOR_UNC_TARGET一起使用。
+            /// </summary>
+            SLR_MACHINE_IN_LOCAL_TARGET = 0x800,
+            /// <summary>
+            /// Windows 7及更高版本。
+            /// 如有必要，更新计算机GUID和用户SID。
+            /// </summary>
+            SLR_UPDATE_MACHINE_AND_SID = 0x1000
         }
-
-        #region Internal Shell Support
-
         /// <summary>
-        ///   Removes a data block
+        /// 这些标志值映射到原生的SHELL_LINK_DATA_FLAGS枚举。看到MSDN
         /// </summary>
-        /// <param name = "signature">The signature of the data block</param>
-        /// <exception cref = "ArgumentException">Thrown if the signature is not supported.</exception>
-        internal void RemoveData(UInt32 signature)
+        [Flags]
+        public enum DATA_FLAGS
         {
-            switch (signature)
-            {
-                case NT_CONSOLE_PROPS.NT_CONSOLE_PROPS_SIG:
-                case NT_FE_CONSOLE_PROPS.NT_FE_CONSOLE_PROPS_SIG:
-                case EXP_SZ_LINK.EXP_SZ_LINK_SIG:
-                case EXP_SZ_ICON.EXP_SZ_ICON_SIG:
-                case EXP_SPECIAL_FOLDER.EXP_SPECIAL_FOLDER_SIG:
-                case EXP_DARWIN_LINK.EXP_DARWIN_ID_SIG:
-                    dataList.RemoveDataBlock(signature);
-                    return;
-
-                default:
-                    throw new ArgumentException("signature is invalid.");
-            }
+            /// <summary>
+            /// 在没有显式设置其他标志时使用的默认值。
+            /// </summary>
+            None = 0x00000000,
+            /// <summary>
+            /// 在没有显式设置其他标志时使用的默认值。
+            /// </summary>
+            Default = 0x00000000,
+            /// <summary>
+            /// 快捷方式保存为一个ID列表
+            /// </summary>
+            HasIdList = 0x00000001,
+            /// <summary>
+            /// 快捷方式与链接信息一起保存，以支持分布式跟踪。
+            /// 如果目标的路径发生了变化，.lnk文件会使用这些信息来定位目标。
+            /// 它包括诸如卷标签和序列号之类的信息，尽管特定的存储信息可能在不同版本之间发生变化。
+            /// </summary>
+            HasLinkInfo = 0x00000002,
+            /// <summary>
+            /// 链接具有名称
+            /// </summary>
+            HasName = 0x00000004,
+            /// <summary>
+            /// 链接具有相对路径。
+            /// </summary>
+            HasRelativePath = 0x00000008,
+            /// <summary>
+            /// 这个链接有一个工作目录。
+            /// </summary>
+            HasWorkingDirectory = 0x00000010,
+            /// <summary>
+            /// 这个链接有参数。
+            /// </summary>
+            HasArguments = 0x00000020,
+            /// <summary>
+            /// 链接有一个图标位置。
+            /// </summary>
+            HasIconLocation = 0x00000040,
+            /// <summary>
+            /// 存储的字符串是Unicode。
+            /// </summary>
+            Unicode = 0x00000080,
+            /// <summary>
+            /// 防止链路跟踪信息的存储。
+            /// 如果设置了该标志，那么在目标移动的情况下，链接找到目标的可能性较小，但也不是不可能。
+            /// </summary>
+            ForceNoLinkInfo = 0x00000100,
+            /// <summary>
+            /// 该链接包含可扩展的环境字符串，如%windir%。
+            /// </summary>
+            HasExpSz = 0x00000200,
+            /// <summary>
+            /// 导致16位目标应用程序运行在单独的虚拟DOS机器(VDM)/Windows上的Windows (WOW)。
+            /// </summary>
+            RunInSeparate = 0x00000400,
+            /// <summary>
+            /// 不受支持的。注意，从Windows Vista开始，这个值不再定义。
+            /// </summary>
+            HasLogo3Id = 0x00000800,
+            /// <summary>
+            /// 这个链接是一个特殊的Windows安装程序链接。
+            /// </summary>
+            HasDarwinId = 0x00001000,
+            /// <summary>
+            /// 使目标应用程序以不同的用户身份运行。
+            /// </summary>
+            RunAsUser = 0x00002000,
+            /// <summary>
+            /// 链接中的图标路径包含一个可扩展的环境字符串，例如%windir%。
+            /// </summary>
+            HasExpIconSz = 0x00004000,
+            /// <summary>
+            /// 当从路径解析ID列表时，防止使用ID列表别名映射。
+            /// </summary>
+            NoPidlAlias = 0x00008000,
+            /// <summary>
+            /// 强制使用UNC名称(完整的网络资源名称)，而不是本地名称
+            /// </summary>
+            ForceUncName = 0x00010000,
+            /// <summary>
+            /// 使此链路的目标启动与垫片层活动。
+            /// shim是一个中间的DLL，它促进了不兼容的软件服务之间的兼容性。
+            /// 垫片通常用于提供版本兼容性。
+            /// </summary>
+            RunWithShimLayer = 0x00020000,
+            /// <summary>
+            /// Windows Vista及更高版本。
+            /// 禁用对象ID分布式跟踪信息。
+            /// </summary>
+            ForceNoLinkTrack = 0x00040000,
+            /// <summary>
+            /// Windows Vista及更高版本。
+            /// 将目标元数据缓存到链接文件中。
+            /// </summary>
+            EnableTargetMetadata = 0x000800000,
+            /// <summary>
+            /// Windows 7及更高版本。
+            /// 禁用快捷方式跟踪。
+            /// </summary>
+            DisableLinkpathTracking = 0x00100000,
+            /// <summary>
+            /// Windows Vista及更高版本。
+            /// 禁用已知的文件夹跟踪信息。
+            /// </summary>
+            DisableKnownFolderRelativeTracking = 0x00200000,
+            /// <summary>
+            /// Windows 7及更高版本。
+            /// 在反序列化过程中加载IDList时禁用已知文件夹别名映射。
+            /// </summary>
+            NoKfAlias = 0x00400000,
+            /// <summary>
+            /// Windows 7及更高版本。
+            /// 允许link指向另一个快捷方式，只要不创建周期。
+            /// </summary>
+            AllowLinkToLInk = 0x00800000,
+            /// <summary>
+            /// Windows 7及更高版本。
+            /// 在保存IDList时移除别名
+            /// </summary>
+            UnaliasOnSave = 0x01000000,
+            /// <summary>
+            /// Windows 7及更高版本。
+            /// 在加载时使用环境变量重新计算路径中的IDList，而不是持久化IDList。
+            /// </summary>
+            PreferEnvironmentPath = 0x02000000,
+            /// <summary>
+            /// Windows 7及更高版本。
+            /// 如果目标是本地机器上的UNC位置，除了保持远程目标外，还要保持本地IDList目标。
+            /// </summary>
+            KeepLocalIDListForUncTarget = 0x04000000,
+            /// <summary>
+            /// W7的有效值
+            /// </summary>
+            W7Valid = 0x07FFF7FF,
+            /// <summary>
+            /// W8的有效值
+            /// </summary>
+            VistaValid = 0x003FF7FF,
+            /// <summary>
+            /// 保留，请勿使用
+            /// </summary>
+            Reserved = -2147483648
         }
-
         /// <summary>
-        ///   Read the console properties from the shell link
+        /// 显示窗口命令-查看Win32 ShowWindow() API了解更多信息
         /// </summary>
-        /// <returns>True if they exists and were read.  False if they did not exist.</returns>
-        internal bool ReadConsoleProperties()
+        public enum ShowWindowCommand
         {
-            IntPtr ppDataBlock;
-            Int32 hr = dataList.CopyDataBlock(NT_CONSOLE_PROPS.NT_CONSOLE_PROPS_SIG, out ppDataBlock);
-
-            if (hr < 0)
-            {
-                return false;
-            }
-
-            var nt_console_props = (NT_CONSOLE_PROPS)Marshal.PtrToStructure(ppDataBlock, typeof(NT_CONSOLE_PROPS));
-            Marshal.FreeHGlobal(ppDataBlock);
-
-            this.consoleProperties.nt_console_props = nt_console_props;
-
-            return true;
+            /// <summary>
+            /// SW_FORCEMINIMIZE
+            /// 最小化窗口，即使拥有窗口的线程没有响应。
+            /// 这个标志只应该在最小化来自不同线程的窗口时使用。
+            /// </summary>
+            ForceMinimize = 11,
+            /// <summary>
+            /// SW_HIDE
+            /// 隐藏窗口并激活另一个窗口。
+            /// </summary>
+            Hide = 0,
+            /// <summary>
+            /// SW_MAXIMIZE
+            /// 最大化指定的窗口。
+            /// </summary>
+            Maximize = 3,
+            /// <summary>
+            /// SW_MINIMIZE
+            /// 最小化指定的窗口，并按Z顺序激活下一个顶级窗口。
+            /// </summary>
+            Minimize = 6,
+            /// <summary>
+            /// SW_RESTORE
+            /// 激活并显示窗口。
+            /// 如果窗口被最小化或最大化，系统会将其恢复到原始大小和位置。
+            /// 应用程序在恢复最小化窗口时应该指定此标志。
+            /// </summary>
+            Restore = 9,
+            /// <summary>
+            /// SW_SHOW
+            /// 激活窗口并以当前大小和位置显示它。
+            /// </summary>
+            Show = 5,
+            /// <summary>
+            /// SW_SHOWDEFAULT
+            /// 根据启动应用程序的程序传递给CreateProcess函数的STARTUPINFO结构中指定的SW_值设置显示状态。
+            /// </summary>
+            ShowDeafult = 10,
+            /// <summary>
+            /// SW_SHOWMAXIMIZED
+            /// 激活窗口并显示为最大化窗口。
+            /// </summary>
+            ShowMaximized = 3,
+            /// <summary>
+            /// SW_SHOWMINIMIZED
+            /// 激活窗口并显示为最小化窗口。
+            /// </summary>
+            ShowMinimized = 2,
+            /// <summary>
+            /// SW_SHOWMINNOACTIVE
+            /// 将窗口显示为最小化窗口。
+            /// 这个值类似于sw_show，只是窗口没有激活。
+            /// </summary>
+            ShowMinNoActive = 7,
+            /// <summary>
+            /// SW_SHOWNORMAL
+            /// 激活并显示一个窗口。
+            /// 如果窗口被最小化或最大化，系统会将其恢复到原始大小和位置。
+            /// 应用程序应该在第一次显示窗口时指定此标志。
+            /// </summary>
+            ShowNormal = 1
         }
-
         /// <summary>
-        ///   Write the current NT_CONSOLE_PROPS properties to the link.
+        /// STGM 常量表示在创建或删除对象以及对象访问模式的条件
+        /// STGM 常量用于 IStorage, IStream, and IPropertySetStorage 接口
+        /// 和 StgCreateDocfile, StgCreateStorageEx, StgCreateDocfileOnILockBytes, StgOpenStorage 
+        /// 以及 StgOpenStorageEx 方法
+        /// Group                           Flag Value
+        /// Access                          STGM_READ 0x00000000L
+        ///                                 STGM_WRITE 0x00000001L
+        ///                                 STGM_READWRITE 0x00000002L
+        /// Sharing                         STGM_SHARE_DENY_NONE 0x00000040L
+        ///                                 STGM_SHARE_DENY_READ 0x00000030L
+        ///                                 STGM_SHARE_DENY_WRITE 0x00000020L
+        ///                                 STGM_SHARE_EXCLUSIVE 0x00000010L
+        ///                                 STGM_PRIORITY 0x00040000L
+        /// Creation                        STGM_CREATE 0x00001000L
+        ///                                 STGM_CONVERT 0x00020000L
+        ///                                 STGM_FAILIFTHERE 0x00000000L
+        /// Transactioning                  STGM_DIRECT 0x00000000L
+        ///                                 STGM_TRANSACTED 0x00010000L
+        /// Transactioning Performance      STGM_NOSCRATCH 0x00100000L
+        ///                                 STGM_NOSNAPSHOT 0x00200000L
+        /// Direct SWMR and Simple          STGM_SIMPLE 0x08000000L
+        ///                                 STGM_DIRECT_SWMR 0x00400000L
+        /// Delete On Release               STGM_DELETEONRELEASE 0x04000000L
+        /// 说明：
+        /// 你可以组合这些标志，但只能从每一个组里面选择一个标志。
+        /// 延时模式 (Transacted Mode)
+        /// 当 STGM_DIRECT 被指定的时候，只有下面访问和共享组中的一种组合可以使用。
+        /// STGM_READ | STGM_SHARE_DENY_WRITE
+        /// STGM_READWRITE | STGM_SHARE_EXCLUSIVE
+        /// STGM_READ | STGM_PRIORITY
+        /// 注意：在没有 STGM_TRANSACTED 的时候就是默认使用直接模式。
+        /// 在 STGM_TRANSACTED 使用时，对象的修改直到进行提交操作前是不固定的。比如：延时模式的 storage 对象在 IStroage::Commit 调用之前不是不变的。对这样的 storage 作的修改在提交或者撤销方法之前调用 release 就丢失了。
+        /// 当一个对象在这个模式创建或打开，对象的实现要记录原始数据和更新过的数据，让在必要时可以撤销修改。这就是为什么要把修改写入到 scratch 区域，或者创建副本，调用快照。
+        /// 当用延时模式打开根 storage 对象， scratch 数据和快照的位置和行为可以通过设置 STGM_NOSCRATCH 和 STGM_NOSNAPSHOT 来控制优化性能。（如：可以通过 StgOpenStorageEx 来获得一个根 storage 对象， IStorage::OpenStorage 方法获得子 storage 对象）其实 scratch 数据和快照是存贮在临时文件，与 storage 分开。
+        /// 这些标志的效果依赖于对访问根 storage 读者和 / 或写者的数量。
+        /// 在单写者的情况下，一个延时模式的 storage 对象用写权限打开，没有其他人可以访问这个文件。亦即文件用 STGM_TRANSACTED ，权限组的 STGM_WRITE 或 STGM_READWRITE ，和共享组的 STGM_SHARE_EXCLUSIVE 等标志打开。对 storage 的修改被写入 scratch 区域。当修改被提交的时候，修改的部分被复制到原始 storage 。然而，如果没有修改，就没有必要做数据的传递。
+        /// 在多写者情况下，一个延时模式下用于写操作的 storage ，和其他的写者一起工作。亦即使用 STGM_TRANSACTED, STGM_WRITE 或者 STGM_READWRITE, 和 STGM_SHARE_DENY_READ 标志的组合打开 storage 对象。如果使用 STGM_SHARE_DENY_NONE ，那么就成了“多写者，多读者”的情况。这时，在文件打开时会对原始数据进行快照。即使没有对 storage 修改或没有被其他写者同时打开，在打开过程中数据传递仍然有必要。使用 STGM_SHARE_DENY_WRITE 或 STGM_SHARE_EXCLUSIVE 可以提高打开文件的速度。关于在多写者时修改的提交更多信息请参考 IStorage::Commit 。
+        /// 在“单写者，多读者”情况下，延时写的 storage 对象被多个读者共享。写者用 STGM_TRANSACTED, STGM_READWRITE 或者 STGM_WRITE, 和 STGM_SHARE_DENY_WRITE 标志打开。读者用 STGM_TRANSACTED, STGM_READ, 和 STGM_SHARE_DENY_NONE. 标志打开。写者用 scratch 区域存贮没有提交的修改。在上面的情况中，读者受到创建快照的影响打开速度增加。
+        /// 一般， scratch 区域是一个临时文件，与原始数据分割开。当没有提交的修改提交回原始数据是，数据从临时文件转出。为了避免数据传递，可以使用 STGM_NOSCRATCH 标志。当这个标志被指定以后， storage 对象文件的部分区域用于 scratch 区域，不是用临时文件。因为只需要少量的数据传递所以提交修改的速度大幅度提高。这个做的缺点是存贮文件的大小会比其他方式要大的多。因为要足够大才能存下原始数据和 scratch 区域。为了混合数据和移除不必要的书，用延时模式重新打开根 storage ，不设置 STGM_NOSCRATCH 标志，接着调用带 STGC_CONSOLIDATE 参数的 IStorage::Commit 方法。
+        /// 快照区域和 scratch 区域一样一般是临时文件，也会受 STMG 标志的影响。设置 STGM_NOSNAPSHOT ，独立的快照文件不会被创建，即使每个对象有一个写者或多个写者都不会修改原始数据。当提交修改的时候，他们被追加到文件中，但是原始数据保持不变。这种模式可以提高效率，因为通过放弃在打开时创建快照的要求而减少了运行时间。然而这个模式也许会导致非常大的 storage 文件，因为文件中的数据重来没有被覆盖过。在没有快照模式对文件的大小是没有限制的。
+        /// 直接的单写者、多读者模式（ Direct Single-Writer, Multiple-Reader Mode ）
+        /// 如前面描述，一个 storage 对象有一个单独的写者、多个读者是可能的，如果那个对象是工作在延时模式。也可以通过设置 STGM_DIRECT_SWMR 标志来得到单写者、多读者模式。
+        /// 设置 STGM_DIRECT_SWMR 之后，调用者可以在其他调用者以只读的权限打开文件的同时，用读 / 写权限打开同一个文件。用本标志和 STGM_TRANSACTED 标志是无效的。在本模式下，写者用下面的组合打开对象：
+        /// STGM_DIRECT_SWMR | STGM_READWRITE | STGM_SHARE_DENYWRITE
+        /// 每个读者用下面的标志打开对象：
+        /// STGM_DIRECT_SWMR | STGM_READ | STGM_SHARE_DENY_NONE
+        /// 在本模式下，修改 storage 对象，写者必须获得对象独占的权限。只有当所有读者关闭文件之后才有可能。读者通过 IDirectWriterLock 接口去获得独占权限。
+        /// 简单模式（ Simple Mode ）
+        /// 简单模式在完成保存操作时非常有用，虽然可以获得效率但也有下面的限制：
+        /// 不支持子 storage
+        /// 从该模式下的对象获得的 storage 对象和 stream 对象不能被封装
+        /// 每个 stream 都有一个最小大小。如果在 stream 释放的时候写入比最小值还少的字节数，这个 stream 被扩展到最小值。例如：对某一个 IStream 实现来说最小值是 4KB ，一个 stream 只有 1KB ，在 stream 释放的时候，就被自动扩展到 4KB 。接下来打开或者调用 IStream::Stat 都会显示 4KB 的大小。
+        /// 不是 IStorage 和 IStream 的所有方法都被实现。获得更多，请看 IStorage – 复合文件的实现， IStream- 复合文件的实现。
+        /// 封送处理（ Marshaling ） 是打包，解包，使用 RPC 穿透线程或者进程边界进行接口方法参数传递的过程。获得更多信息，请看封送详解和接口封送。
+        /// 当一个 storage 对象是通过简单模式创建：
+        /// stream 元素可以被创建，但不能被打开。
+        /// 当一个 stream 元素通过 IStorage::CreateStream 创建，只有当这个 stream 对象被释放之后才能创建另一个对象。
+        /// 当所有的 stream 被写入之后，调用 IStorage::Commit 完成修改。
+        /// 如果一个 storage 对象是用简单模式打开而获得：
+        /// 一次只能打开一个 stream.
+        /// 不能调用 IStream::SetSize 或者在 stream 结束之外搜索和写入来设置 stream 的大小。然而，如果所有的 stream 都小于大小的最小值，可以用 stream 去扩展到最小值，即使没有数据。设置 stream 的大小使用 IStream::Stat 方法。
+        /// 注意：如果一个 storage 元素被一个不是简单模式的 storage 对象修改，那么无法再以简单模式打开这个 storage 元素。
         /// </summary>
-        internal void WriteConsoleProperties()
+        [Flags]
+        public enum STGM_FLAGS
         {
-            RemoveData(NT_CONSOLE_PROPS.NT_CONSOLE_PROPS_SIG);
-
-            IntPtr dataBlock = Marshal.AllocCoTaskMem(Marshal.SizeOf(this.consoleProperties.nt_console_props));
-
-            Marshal.StructureToPtr(this.consoleProperties.nt_console_props, dataBlock, false);
-
-            dataList.AddDataBlock(dataBlock);
-
-            Marshal.FreeCoTaskMem(dataBlock);
+            /// <summary>
+            /// 表示对象只能读不能修改
+            /// 例如：如果一个 stream 用 STGM_READ 打开， ISequentialStream::Read 方法可以调用，
+            /// 但是 ISequentialStream::Write 方法不可以，
+            /// 同样，如果一个 stream 用 STGM_READ 打开， IStorage::OpenStream 、 IStorage::OpenStrorage 方法可以调用，
+            /// 但是 IStorage::CreateStream 、 IStorage::CreateStorage 方法不可以用
+            /// </summary>
+            STGM_READ = 0x00000000,
+            /// <summary>
+            /// 允许你保存对对象的修改，但是不允许访问它的数据。
+            /// 建议在实现 IPropertyStorage 和 IPropertySetStorage 接口的时候不要支持只写模式。
+            /// </summary>
+            STGM_WRITE = 0x00000001,
+            /// <summary>
+            /// 允许对对象数据的访问和修改。
+            /// 例如：如果一个 stream 是以这种模式打开，就可以同时使用 IStream::Read 和 IStream::Write 方法。
+            /// 要注意这个常量不是 STGM_WRITE 和 STGM_READ 常量的简单和运算。
+            /// </summary>
+            STGM_READWRITE = 0x00000002,
+            /// <summary>
+            /// 表示接下来打开的对象不拒绝读写方法。
+            /// 如果这个组中没有其他的常量被使用时，这是默认的设置。
+            /// </summary>
+            STGM_SHARE_DENY_NONE = 0x00000040,
+            /// <summary>
+            /// 阻止其他方法用 STGM_READ 模式打开对象。
+            /// 它典型的使用是在根 storage 对象。
+            /// </summary>
+            STGM_SHARE_DENY_READ = 0x00000030,
+            /// <summary>
+            /// 阻止其他方法用 STGM_WRITE 模式和 STGM_READWRITE 打开对象。
+            /// 在延时模式， STGM_SHARE_DENY_WRITE 或则 STGM_SHARE_EXCLUSIVE 能够提升效率，因为他们不要求快照。
+            /// 获得更多延时（ transactioning ）的信息，请参考提示部分。
+            /// </summary>
+            STGM_SHARE_DENY_WRITE = 0x00000020,
+            /// <summary>
+            /// 阻止其他方法用任何模式打开对象。
+            /// 注意这个值不是 STGM_SHARE_DENY_READ 和 STGM_SHARE_DENY_WRITE 简单的位与运算。
+            /// 在延时模式， STGM_SHARE_DENY_WRITE 或则 STGM_SHARE_EXCLUSIVE 能够提升效率，因为他们不要求快照。
+            /// 获得更多延时（ transactioning ）的信息，请参考提示部分。
+            /// </summary>
+            STGM_SHARE_EXCLUSIVE = 0x00000010,
+            /// <summary>
+            /// 使用排斥模式去打开 storage 对象，获取最近提交的版本。
+            /// 因此，当用特权模式（ priority mode ）其他用户不能提交对象的任何修改。
+            /// 在复制操作的时候可以获得较好的效率，但是你阻止了其他用户修改对象。
+            /// 要限制使用特权模式，必须把 STGM_DIRECT 、 STGM_READ 和 STGM_PRIORITY 一起使用，
+            /// 并且不能使用 STGM_DELETEONRELEASE ，因为它只在创建根对象时使用，如 StgCreateStorageEx 使用。
+            /// 当打开一个已经存在的根对象时无效，如 StgOpenStorageEx 使用。
+            /// 当创建一个子元素的时候也是无效的，如 IStorage::OpenStorage 。
+            /// </summary>
+            STGM_PRIORITY = 0x00040000,
+            /// <summary>
+            /// 表示在新的对象替换已经存在的对象之前，之前的对象应该被移除。
+            /// 仅在一个已经存在的对象已经成功删除时才能用这个标志创建新对象。
+            /// 使用情况如下 :
+            /// 创建一个磁盘上的对象，但已有同名的文件。
+            /// 创建一个 storage 中的对象，但已有同名的子对象存在。
+            /// 创建一个字节数组对象，但以后同名存在。
+            /// </summary>
+            STGM_CREATE = 0x00001000,
+            /// <summary>
+            /// 为了保护在名字为 ”Contents” 的 stream 中已有的数据而创建一个新的对象。
+            /// 有的时候，一个 storage 或者字节数组中的久数据被格式化到一个 stream ，
+            /// 不管已经存在的文件或者字节数组当前是否包含一个 storage 对象。
+            /// 这个标志只能在创建一个根 storage 对象时使用。
+            /// 它不能使用在 storage 对象，如 IStorage::CreateStream 。
+            /// 在同时使用 STGM_DELETEONRELEASE 和本标志时，本标志变无效。
+            /// </summary>
+            STGM_CONVERT = 0x00020000,
+            /// <summary>
+            /// 如果已经有同名对象存在时创建操作失败。
+            /// 此时 STG_E_FILEALREADYEXISTS 会被返回。
+            /// 这个是创建模式（ creation mode ）的默认模式。
+            /// </summary>
+            STGM_FAILIFTHERE = 0x00000000,
+            /// <summary>
+            /// 表示对 storage 和 stream 元素的每一次修改都被立即写入。
+            /// 这是 Transactioning 组的默认设置。
+            /// </summary>
+            STGM_DIRECT = 0x00000000,
+            /// <summary>
+            /// 在延时模式（ transacted mode ）下，修改被推迟，仅当显示的执行提交操作。
+            /// 为了忽略作的修改，可以调用 IStream, IStorage, 和 IPropertyStorage 接口的 Revert 方法。 
+            /// IStorage 的 COM 复合文件的实现不支持延时式的 stream ，亦即 stream 只能用直接模式打开，并不能撤销修改，但是延时模式的 storage 是支持的。 
+            /// IPropertySetStorage 接口在复合文件、普通文件亦即 NTFS 文件系统的实现中同样不支持延时处理，简单属性设置是因为这些属性保存在 stream 对象中。
+            /// 非简单属性设置的处理，能通过设置 IPropertySetStorage::Create 方法的 grfFlags 参数为 PROPSETFLAG_NONSIMPLE 常量来创建。
+            /// </summary>
+            STGM_TRANSACTED = 0x00010000,
+            /// <summary>
+            /// 在本模式下，通常使用一个临时 scratch 文件来保存修改，直到提交方法被调用。
+            /// 使用本标志，可以允许使用原始文件不经常使用的部分作为工作区来代替创建新的文件。
+            /// 这样不会影响原始文件的数据，有时候还可以提升效率。
+            /// 本标志必须和 STGM_TRANSACTED 一起使用，并只能用于根 storage 。更多信息请参考说明部分。
+            /// </summary>
+            STGM_NOSCRATCH = 0x00100000,
+            /// <summary>
+            /// 在打开一个用标志 STGM_TRANSACTED 而没有 STGM_SHARE_EXCLUSIVE 和 STGM_SHARE_DENY_WRITE 的时候使用本标志。
+            /// 这时，指定本标志阻止系统提供的实现创建文件的快照。反而，对文件的修改被写入文件的尾部。
+            /// 除非在提交时执行合并操作，否则未使用的空间不会被收回，只有一个对文件的写者。
+            /// 当文件在本模式打开，另一个打开操作在没有被指定 STGM_NOSNAPSHOT 标志时无法完成。
+            /// 这个标志可能只用于根 storage 。更多信息请参考说明部分。
+            /// </summary>
+            STGM_NOSNAPSHOT = 0x00200000,
+            /// <summary>
+            /// 提供一种有限制的复合文件的快速实现，但经常使用。更多信息请参考说明部分。
+            /// </summary>
+            STGM_SIMPLE = 0x08000000,
+            /// <summary>
+            /// 支持单写者多读者的直接模式文件操作。更多信息请参考说明部分。
+            /// </summary>
+            STGM_DIRECT_SWMR = 0x00400000,
+            /// <summary>
+            /// 表示底层文件在根 storage 被释放的时候被自动删除。
+            /// 这个方法对于创建临时文件非常有用。这个文件只用于创建根对象，如 StgCreateStorageEx 。
+            /// 当打开一个根对象或者创建和打开一个子元素的时候，这个标志无效，如 StgOpenStorageEx ，当然同时使用 STGM_CONVERT 的时候也是无效的。
+            /// </summary>
+            STGM_DELETEONRELEASE = 0x04000000
         }
-
         /// <summary>
-        ///   Get and sets the Special Folder property for a shell link.
+        /// 指示IShellLinkW::GetPath将返回一个路径字符串
         /// </summary>
-        internal EXP_SPECIAL_FOLDER ExpSpecialFolder
+        [Flags]
+        public enum SLGP_FLAGS
         {
-            get
-            {
-                EXP_SPECIAL_FOLDER value;
-                IntPtr ppDataBlock;
-                Int32 hr = dataList.CopyDataBlock(EXP_SPECIAL_FOLDER.EXP_SPECIAL_FOLDER_SIG, out ppDataBlock);
-
-                if (hr < 0)
-                {
-                    return new EXP_SPECIAL_FOLDER();
-                }
-
-                value = (EXP_SPECIAL_FOLDER)Marshal.PtrToStructure(ppDataBlock, typeof(EXP_SPECIAL_FOLDER));
-                Marshal.FreeHGlobal(ppDataBlock);
-                return value;
-            }
-
-            set
-            {
-                dataList.RemoveDataBlock(EXP_SPECIAL_FOLDER.EXP_SPECIAL_FOLDER_SIG);
-
-                value.dbh.cbSize = unchecked((UInt32)Marshal.SizeOf(typeof(EXP_SPECIAL_FOLDER)));
-                value.dbh.dwSignature = EXP_SPECIAL_FOLDER.EXP_SPECIAL_FOLDER_SIG;
-
-                GCHandle handle = GCHandle.Alloc(value, GCHandleType.Pinned); // pin the value
-
-                dataList.AddDataBlock(GCHandle.ToIntPtr(handle));
-
-                handle.Free(); // un-pin the value
-            }
+            /// <summary>
+            /// 快捷方式路径
+            /// </summary>
+            SLGP_SHORTPATH = 0x1,
+            /// <summary>
+            /// 通用命名快捷方式名称
+            /// </summary>
+            SLGP_UNCPRIORITY = 0x2,
+            /// <summary>
+            /// 快捷方式指向路径名称
+            /// </summary>
+            SLGP_RAWPATH = 0x4
         }
-
+        /// <summary>
+        /// 在用findfirst()和findnext()函数去查找磁盘文件时经常使用的一个数据结构WIN32_FIND_DATA的成员变量里包含了以上所有的文件属性，因此可以通过这个结构作为获取和更改文件属性的手段
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+        public struct WIN32_FIND_DATAW
+        {
+            /// <summary>
+            /// 属性
+            /// </summary>
+            public int DwFileAttributes;
+            /// <summary>
+            /// 创建时间
+            /// </summary>
+            public FILETIME FtCreationTime;
+            /// <summary>
+            /// 最后访问时间
+            /// </summary>
+            public FILETIME FtLastAccessTime;
+            /// <summary>
+            /// 最后写入时间
+            /// </summary>
+            public FILETIME FtLastWriteTime;
+            /// <summary>
+            /// 占用空间
+            /// </summary>
+            public int NFileSizeHigh;
+            /// <summary>
+            /// 文件大小
+            /// </summary>
+            public int NFileSizeLow;
+            /// <summary>
+            /// 保留0
+            /// </summary>
+            public int DwReserved0;
+            /// <summary>
+            /// 保留1
+            /// </summary>
+            public int DwReserved1;
+            /// <summary>
+            /// 文件名称
+            /// </summary>
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MAX_PATH)]
+            public string CFileName;
+            /// <summary>
+            /// 扩展文件名
+            /// </summary>
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 14)]
+            public string CAlternateFileName;
+        }
+        /// <summary>
+        /// 快捷方式文件
+        /// </summary>
+        [ComImport]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        [Guid("0000010B-0000-0000-C000-000000000046")]
+        public interface IPersistFile
+        {
+            /// <summary>
+            /// 文件标记
+            /// </summary>
+            /// <param name="pClassID"></param>
+            void GetClassID(out Guid pClassID);
+            /// <summary>
+            /// 是脏
+            /// </summary>
+            /// <returns></returns>
+            [PreserveSig]
+            int IsDirty();
+            /// <summary>
+            /// 加载
+            /// </summary>
+            /// <param name="pszFileName"></param>
+            /// <param name="dwMode"></param>
+            void Load([MarshalAs(UnmanagedType.LPWStr)] string pszFileName, int dwMode);
+            /// <summary>
+            /// 保存
+            /// </summary>
+            /// <param name="pszFileName"></param>
+            /// <param name="fRemember"></param>
+            void Save([MarshalAs(UnmanagedType.LPWStr)] string pszFileName, [MarshalAs(UnmanagedType.Bool)] bool fRemember);
+            /// <summary>
+            /// 保存完整
+            /// </summary>
+            /// <param name="pszFileName"></param>
+            void SaveCompleted([MarshalAs(UnmanagedType.LPWStr)] string pszFileName);
+            /// <summary>
+            /// 获取当前快捷方式文件
+            /// </summary>
+            /// <param name="ppszFileName"></param>
+            void GetCurFile(out IntPtr ppszFileName);
+        }
+        /// <summary>
+        /// 快捷方式接口定义
+        /// </summary>
+        [ComImport]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        [Guid("000214EE-0000-0000-C000-000000000046")]
+        public interface IShellLink
+        {
+            /// <summary>
+            /// 获取路径
+            /// </summary>
+            /// <param name="pszFile"></param>
+            /// <param name="cchMaxPath"></param>
+            /// <param name="pfd"></param>
+            /// <param name="fFlags"></param>
+            void GetPath([Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder pszFile, int cchMaxPath, out WIN32_FIND_DATAW pfd, SLGP_FLAGS fFlags);
+            /// <summary>
+            /// 获取标识列表
+            /// </summary>
+            /// <param name="ppidl"></param>
+            void GetIDList(out IntPtr ppidl);
+            /// <summary>
+            /// 设置标记列表
+            /// </summary>
+            /// <param name="pidl"></param>
+            void SetIDList(IntPtr pidl);
+            /// <summary>
+            /// 获取描述
+            /// </summary>
+            /// <param name="pszName"></param>
+            /// <param name="cchMaxName"></param>
+            void GetDescription([Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder pszName, int cchMaxName);
+            /// <summary>
+            /// 设置描述
+            /// </summary>
+            /// <param name="pszName"></param>
+            void SetDescription([MarshalAs(UnmanagedType.LPStr)] string pszName);
+            /// <summary>
+            /// 获取工作目录
+            /// </summary>
+            /// <param name="pszDir"></param>
+            /// <param name="cchMaxPath"></param>
+            void GetWorkingDirectory([Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder pszDir, int cchMaxPath);
+            /// <summary>
+            /// 设置工作目录
+            /// </summary>
+            /// <param name="pszDir"></param>
+            void SetWorkingDirectory([MarshalAs(UnmanagedType.LPStr)] string pszDir);
+            /// <summary>
+            /// 获取参数
+            /// </summary>
+            /// <param name="pszArgs"></param>
+            /// <param name="cchMaxPath"></param>
+            void GetArguments([Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder pszArgs, int cchMaxPath);
+            /// <summary>
+            /// 设置参数
+            /// </summary>
+            /// <param name="pszArgs"></param>
+            void SetArguments([MarshalAs(UnmanagedType.LPStr)] string pszArgs);
+            /// <summary>
+            /// 获取热键
+            /// </summary>
+            /// <param name="pwHotkey"></param>
+            void GetHotkey(out short pwHotkey);
+            /// <summary>
+            /// 设置热键
+            /// </summary>
+            /// <param name="wHotkey"></param>
+            void SetHotkey(short wHotkey);
+            /// <summary>
+            /// 或显示命令
+            /// </summary>
+            /// <param name="piShowCmd"></param>
+            /// <returns></returns>
+            [PreserveSig]
+            Int32 GetShowCmd(out int piShowCmd);
+            /// <summary>
+            /// 设置显示命令
+            /// </summary>
+            /// <param name="iShowCmd"></param>
+            void SetShowCmd(int iShowCmd);
+            /// <summary>
+            /// 获取图标位置
+            /// </summary>
+            /// <param name="pszIconPath"></param>
+            /// <param name="cchIconPath"></param>
+            /// <param name="piIcon"></param>
+            /// <returns></returns>
+            [PreserveSig]
+            Int32 GetIconLocation([Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder pszIconPath, int cchIconPath, out int piIcon);
+            /// <summary>
+            /// 设置图标位置
+            /// </summary>
+            /// <param name="pszIconPath"></param>
+            /// <param name="iIcon"></param>
+            void SetIconLocation([MarshalAs(UnmanagedType.LPStr)] string pszIconPath, int iIcon);
+            /// <summary>
+            /// 设置相对路径
+            /// </summary>
+            /// <param name="pszPathRel"></param>
+            /// <param name="dwReserved"></param>
+            void SetRelativePath([MarshalAs(UnmanagedType.LPStr)] string pszPathRel, int dwReserved);
+            /// <summary>
+            /// 尝试找到快捷方式的目标，即使它已经被移动或重命名
+            /// </summary>
+            /// <param name = "hwnd">窗口的句柄，使用它作为对话框的父级。如果需要在解析快捷方式时提示用户提供更多信息，则会显示对话框。</param>
+            /// <param name = "fFlags">控制解析过程的标志</param>
+            void Resolve(IntPtr hwnd, SLR_FLAGS fFlags);
+            /// <summary>
+            /// 设置目标路径
+            /// </summary>
+            /// <param name="pszFile"></param>
+            void SetPath([MarshalAs(UnmanagedType.LPStr)] string pszFile);
+        }
+        /// <summary>
+        /// 快捷方式数据列表
+        /// </summary>
+        [ComImport]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        [Guid("45e2b4ae-b1c3-11d0-b92f-00a0c90312e1")]
+        public interface IShellLinkDataList
+        {
+            /// <summary>
+            /// 添加数据库
+            /// </summary>
+            /// <param name="pDataBlock"></param>
+            /// <returns></returns>
+            [PreserveSig]
+            Int32 AddDataBlock(IntPtr pDataBlock);
+            /// <summary>
+            /// 复制数据库
+            /// </summary>
+            /// <param name="dwSig"></param>
+            /// <param name="ppDataBlock"></param>
+            /// <returns></returns>
+            [PreserveSig]
+            Int32 CopyDataBlock(UInt32 dwSig, out IntPtr ppDataBlock);
+            /// <summary>
+            /// 移除数据块
+            /// </summary>
+            /// <param name="dwSig"></param>
+            /// <returns></returns>
+            [PreserveSig]
+            Int32 RemoveDataBlock(UInt32 dwSig);
+            /// <summary>
+            /// 获取标记
+            /// <see cref="DATA_FLAGS"/>
+            /// </summary>
+            /// <param name="pdwFlags"></param>
+            void GetFlags(out UInt32 pdwFlags);
+            /// <summary>
+            /// 设置标记
+            /// <see cref="DATA_FLAGS"/>
+            /// </summary>
+            /// <param name="dwFlags"></param>
+            void SetFlags(UInt32 dwFlags);
+        }
+        /// <summary>
+        /// 实现了快捷方式接口
+        /// </summary>
+        [ComImport]
+        [Guid("00021401-0000-0000-C000-000000000046")]
+        public class ShellLinkCore { }
         #endregion
     }
-
     /// <summary>
-    ///   These flag values mapp to the native SHELL_LINK_DATA_FLAGS Enumeration.  See MSDN
+    /// 快捷方式完整接口
     /// </summary>
-    [Flags]
-    public enum ShellLinkFlags
+    public interface IShortcutCore
     {
+        #region // IPersistFile
         /// <summary>
-        ///   Default value used when no other flag is explicitly set.
+        /// 获取类标记
         /// </summary>
-        None = 0x00000000,
-        /// <summary>
-        ///   Default value used when no other flag is explicitly set.
-        /// </summary>
-        Default = 0x00000000,
-        /// <summary>
-        ///   The Shell link was saved with an ID list
-        /// </summary>
-        HasIdList = 0x00000001,
-        /// <summary>
-        ///   The Shell link was saved with link information to enable distributed tracking. This information is used by .lnk files to locate the target if the targets's path has changed. It includes information such as volume label and serial number, although the specific stored information can change from release to release.
-        /// </summary>
-        HasLinkInfo = 0x00000002,
-        /// <summary>
-        ///   The link has a name.
-        /// </summary>
-        HasName = 0x00000004,
-        /// <summary>
-        ///   The link has a relative path.
-        /// </summary>
-        HasRelativePath = 0x00000008,
-        /// <summary>
-        ///   The link has a working directory.
-        /// </summary>
-        HasWorkingDirectory = 0x00000010,
-        /// <summary>
-        ///   The link has arguments.
-        /// </summary>
-        HasArguments = 0x00000020,
-        /// <summary>
-        ///   The link has an icon location.
-        /// </summary>
-        HasIconLocation = 0x00000040,
-        /// <summary>
-        ///   Stored strings are Unicode.
-        /// </summary>
-        Unicode = 0x00000080,
-        /// <summary>
-        ///   Prevents the storage of link tracking information. If this flag is set, it is less likely, though not impossible, that a target can be found by the link if that target is moved.
-        /// </summary>
-        ForceNoLinkInfo = 0x00000100,
-        /// <summary>
-        ///   The link contains expandable environment strings such as %windir%.
-        /// </summary>
-        HasExpSz = 0x00000200,
-        /// <summary>
-        ///   Causes a 16-bit target application to run in a separate Virtual DOS Machine (VDM)/Windows on Windows (WOW).
-        /// </summary>
-        RunInSeparate = 0x00000400,
-        /// <summary>
-        ///   Not supported. Note that as of Windows Vista, this value is no longer defined.
-        /// </summary>
-        HasLogo3Id = 0x00000800,
-        /// <summary>
-        ///   The link is a special Windows Installer link.
-        /// </summary>
-        HasDarwinId = 0x00001000,
-        /// <summary>
-        ///   Causes the target application to run as a different user.
-        /// </summary>
-        RunAsUser = 0x00002000,
-        /// <summary>
-        ///   The icon path in the link contains an expandable environment string such as such as %windir%.
-        /// </summary>
-        HasExpIconSz = 0x00004000,
-        /// <summary>
-        ///   Prevents the use of ID list alias mapping when parsing the ID list from the path.
-        /// </summary>
-        NoPidlAlias = 0x00008000,
-        /// <summary>
-        ///   Forces the use of the UNC name (a full network resource name), rather than the local name
-        /// </summary>
-        ForceUncName = 0x00010000,
-        /// <summary>
-        ///   Causes the target of this link to launch with a shim layer active. A shim is an intermediate DLL that facilitates compatibility between otherwise incompatible software services. Shims are typically used to provide version compatibility.
-        /// </summary>
-        RunWithShimLayer = 0x00020000,
-        /// <summary>
-        ///   Windows Vista and later. Disable object ID distributed tracking information.
-        /// </summary>
-        ForceNoLinkTrack = 0x00040000,
-        /// <summary>
-        ///   Windows Vista and later. Enable the caching of target metadata into the link file.
-        /// </summary>
-        EnableTargetMetadata = 0x000800000,
-        /// <summary>
-        ///   Windows 7 and later. Disable shell link tracking.
-        /// </summary>
-        DisableLinkpathTracking = 0x00100000,
-        /// <summary>
-        ///   Windows Vista and later. Disable known folder tracking information.
-        /// </summary>
-        DisableKnownFolderRelativeTracking = 0x00200000,
-        /// <summary>
-        ///   Windows 7 and later. Disable known folder alias mapping when loading the IDList during deserialization.
-        /// </summary>
-        NoKfAlias = 0x00400000,
-        /// <summary>
-        ///   Windows 7 and later. Allow link to point to another shell link as long as this does not create cycles.
-        /// </summary>
-        AllowLinkToLInk = 0x00800000,
-        /// <summary>
-        ///   Windows 7 and later. Remove alias when saving the IDList
-        /// </summary>
-        UnaliasOnSave = 0x01000000,
-        /// <summary>
-        ///   Windows 7 and later. Recalculate the IDList from the path with the environmental variables at load time, rather than persisting the IDList.
-        /// </summary>
-        PreferEnvironmentPath = 0x02000000,
-        /// <summary>
-        ///   Windows 7 and later. If the target is a UNC location on a local machine, keep the local IDList target in addition to the remote target.
-        /// </summary>
-        KeepLocalIDListForUncTarget = 0x04000000,
-        /// <summary>
-        ///   Valid values for W7
-        /// </summary>
-        W7Valid = 0x07FFF7FF,
-        /// <summary>
-        ///   Valid Values For W8
-        /// </summary>
-        VistaValid = 0x003FF7FF,
-        /// <summary>
-        ///   Reserved, do not use
-        /// </summary>
-        Reserved = -2147483648
-    }
-    /// <summary>
-    ///   Window 'show' commands - seee the Win32 ShowWindow() API for more info.
-    /// </summary>
-    public enum ShowWindowCommand
-    {
-        /// <summary>
-        ///   SW_FORCEMINIMIZE - minimizes a window, even if the thread that owns the window is not responding. This flag should only be used when minimizing windows from a different thread.
-        /// </summary>
-        ForceMinimize = 11,
-
-        /// <summary>
-        ///   SW_HIDE - Hides the window and activates another window.
-        /// </summary>
-        Hide = 0,
-
-        /// <summary>
-        ///   SW_MAXIMIZE - Maximizes the specified window.
-        /// </summary>
-        Maximize = 3,
-
-        /// <summary>
-        ///   SW_MINIMIZE - Minimizes the specified window and activates the next top-level window in the Z order.
-        /// </summary>
-        Minimize = 6,
-
-        /// <summary>
-        ///   SW_RESTORE - Activates and displays the window. If the window is minimized or maximized, the system restores it to its original size and position. An application should specify this flag when restoring a minimized window.
-        /// </summary>
-        Restore = 9,
-
-        /// <summary>
-        ///   SW_SHOW - Activates the window and displays it in its current size and position.
-        /// </summary>
-        Show = 5,
-
-        /// <summary>
-        ///   SW_SHOWDEFAULT - Sets the show state based on the SW_ value specified in the STARTUPINFO structure passed to the CreateProcess function by the program that started the application.
-        /// </summary>
-        ShowDeafult = 10,
-
-        /// <summary>
-        ///   SW_SHOWMAXIMIZED - Activates the window and displays it as a maximized window.
-        /// </summary>
-        ShowMaximized = 3,
-
-        /// <summary>
-        ///   SW_SHOWMINIMIZED - Activates the window and displays it as a minimized window.
-        /// </summary>
-        ShowMinimized = 2,
-
-        /// <summary>
-        ///   SW_SHOWMINNOACTIVE - Displays the window as a minimized window. This value is similar to SW_SHOWMINIMIZED, except the window is not activated.
-        /// </summary>
-        ShowMinNoActive = 7,
-
-        /// <summary>
-        ///   SW_SHOWNORMAL - Activates and displays a window. If the window is minimized or maximized, the system restores it to its original size and position. An application should specify this flag when displaying the window for the first time.
-        /// </summary>
-        ShowNormal = 1
-    }
-    #endregion
-    #region // 内部类    
-    internal interface ICommiter
-    {
-        void Commit();
-    }
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    internal struct COORD //C#ify
-    {
-        public COORD(Int16 X, Int16 Y)
-        {
-            this.X = X;
-            this.Y = Y;
-        }
-
-        public Int16 X;
-        public Int16 Y;
-    }
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    internal struct DATABLOCK_HEADER
-    {
-        public UInt32 cbSize;
-        public UInt32 dwSignature;
-    }
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    internal struct EXP_DARWIN_LINK
-    {
-        public const UInt32 EXP_DARWIN_ID_SIG = 0xA0000006;
-        public const int MAX_PATH = 260;
-
-        /// <summary>
-        ///   Gets an empty structure with a valid data block header and sensible defaults.
-        /// </summary>
-        public static EXP_DARWIN_LINK AnEmptyOne()
-        {
-            var value = new EXP_DARWIN_LINK();
-
-            value.SetDataBlockHeader();
-
-            value.szDarwinID = new sbyte[MAX_PATH];
-            value.szwDarwinID = new char[MAX_PATH];
-
-            return value;
-        }
-
-        /// <summary>
-        ///   Sets the datablock header values for this sturcture.
-        /// </summary>
-        public void SetDataBlockHeader()
-        {
-            this.dbh.cbSize = unchecked((UInt32)Marshal.SizeOf(typeof(EXP_DARWIN_LINK)));
-            this.dbh.dwSignature = EXP_DARWIN_ID_SIG;
-        }
-
-        public DATABLOCK_HEADER dbh;
-
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)] public sbyte[] szDarwinID; // ANSI darwin ID associated with link
-
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)] public char[] szwDarwinID; // UNICODE darwin ID associated with link
-    }
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    internal struct EXP_SPECIAL_FOLDER
-    {
-        public const UInt32 EXP_SPECIAL_FOLDER_SIG = 0xA0000005;
-
-        public DATABLOCK_HEADER dbh;
-
-        private UInt32 cbSize; // Size of this extra data block
-        private UInt32 dwSignature; // signature of this extra data block
-        private UInt32 idSpecialFolder; // special folder id this link points into
-        private UInt32 cbOffset; // ofset into pidl from SLDF_HAS_ID_LIST for child
-    }
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    internal struct EXP_SZ_ICON
-    {
-        public const UInt32 EXP_SZ_ICON_SIG = 0xA0000007; // LPEXP_SZ_LINK (icon)
-        public const int MAX_PATH = 260;
-
-        /// <summary>
-        ///   Gets an empty structure with a valid data block header and sensible defaults.
-        /// </summary>
-        public static EXP_SZ_ICON AnEmptyOne()
-        {
-            var value = new EXP_SZ_ICON();
-
-            value.SetDataBlockHeader();
-
-            value.szTarget = new sbyte[MAX_PATH];
-            value.swzTarget = new char[MAX_PATH];
-
-            return value;
-        }
-
-        /// <summary>
-        ///   Sets the datablock header values for this sturcture.
-        /// </summary>
-        public void SetDataBlockHeader()
-        {
-            this.dbh.cbSize = unchecked((UInt32)Marshal.SizeOf(typeof(EXP_SZ_ICON)));
-            this.dbh.dwSignature = EXP_SZ_ICON_SIG;
-        }
-
-        public DATABLOCK_HEADER dbh;
-
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MAX_PATH)] public sbyte[] szTarget; // ANSI target name w/EXP_SZ in it
-
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MAX_PATH)] public char[] swzTarget; // UNICODE target name w/EXP_SZ in it
-    }
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    internal struct EXP_SZ_LINK
-    {
-        public const UInt32 EXP_SZ_LINK_SIG = 0xA0000001; // LPEXP_SZ_LINK (target)
-        public const int MAX_PATH = 260;
-
-        /// <summary>
-        ///   Gets an empty structure with a valid data block header and sensible defaults.
-        /// </summary>
-        public static EXP_SZ_LINK AnEmptyOne()
-        {
-            var value = new EXP_SZ_LINK();
-
-            value.SetDataBlockHeader();
-
-            value.szTarget = new sbyte[MAX_PATH];
-            value.swzTarget = new char[MAX_PATH];
-
-            return value;
-        }
-
-        /// <summary>
-        ///   Sets the datablock header values for this sturcture.
-        /// </summary>
-        public void SetDataBlockHeader()
-        {
-            this.dbh.cbSize = unchecked((UInt32)Marshal.SizeOf(typeof(EXP_SZ_LINK)));
-            this.dbh.dwSignature = EXP_SZ_LINK_SIG;
-        }
-
-        public DATABLOCK_HEADER dbh;
-
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MAX_PATH)] public sbyte[] szTarget; // ANSI target name w/EXP_SZ in it
-
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MAX_PATH)] public char[] swzTarget; // UNICODE target name w/EXP_SZ in it
-    }
-    [
-        ComImport,
-        InterfaceType(ComInterfaceType.InterfaceIsIUnknown),
-        Guid("0000010B-0000-0000-C000-000000000046")
-    ]
-    internal interface IPersistFile
-    {
-        #region Methods inherited from IPersist
-
+        /// <param name="pClassID"></param>
         void GetClassID(out Guid pClassID);
-
-        #endregion
-
-        [PreserveSig]
-        int IsDirty();
-
-        void Load(
-            [MarshalAs(UnmanagedType.LPWStr)] string pszFileName,
-            int dwMode);
-
-        void Save(
-            [MarshalAs(UnmanagedType.LPWStr)] string pszFileName,
-            [MarshalAs(UnmanagedType.Bool)] bool fRemember);
-
-        void SaveCompleted(
-            [MarshalAs(UnmanagedType.LPWStr)] string pszFileName);
-
-        void GetCurFile(
-            out IntPtr ppszFileName);
-    }
-    [
-        ComImport,
-        InterfaceType(ComInterfaceType.InterfaceIsIUnknown),
-        Guid("000214EE-0000-0000-C000-000000000046")
-    ]
-    internal interface IShellLink
-    {
-        void GetPath(
-            [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder pszFile,
-            int cchMaxPath,
-            out WIN32_FIND_DATAW pfd,
-            SLGP_FLAGS fFlags);
-
-        void GetIDList(
-            out IntPtr ppidl);
-
-        void SetIDList(
-            IntPtr pidl);
-
-        void GetDescription(
-            [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder pszName,
-            int cchMaxName);
-
-        void SetDescription(
-            [MarshalAs(UnmanagedType.LPStr)] string pszName);
-
-        void GetWorkingDirectory(
-            [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder pszDir,
-            int cchMaxPath);
-
-        void SetWorkingDirectory(
-            [MarshalAs(UnmanagedType.LPStr)] string pszDir);
-
-        void GetArguments(
-            [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder pszArgs,
-            int cchMaxPath);
-
-        void SetArguments(
-            [MarshalAs(UnmanagedType.LPStr)] string pszArgs);
-
-        void GetHotkey(
-            out short pwHotkey);
-
-        void SetHotkey(
-            short wHotkey);
-
-        [PreserveSig]
-        Int32 GetShowCmd(
-            out int piShowCmd);
-
-        void SetShowCmd(
-            int iShowCmd);
-
-        [PreserveSig]
-        Int32 GetIconLocation(
-            [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder pszIconPath,
-            int cchIconPath,
-            out int piIcon);
-
-        void SetIconLocation(
-            [MarshalAs(UnmanagedType.LPStr)] string pszIconPath,
-            int iIcon);
-
-        void SetRelativePath(
-            [MarshalAs(UnmanagedType.LPStr)] string pszPathRel,
-            int dwReserved);
-
-        void Resolve(
-            IntPtr hwnd,
-            SLR_FLAGS fFlags);
-
-        void SetPath(
-            [MarshalAs(UnmanagedType.LPStr)] string pszFile);
-    }
-    [
-        ComImport,
-        InterfaceType(ComInterfaceType.InterfaceIsIUnknown),
-        Guid("45e2b4ae-b1c3-11d0-b92f-00a0c90312e1")
-    ]
-    internal interface IShellLinkDataList
-    {
-        [PreserveSig]
-        Int32 AddDataBlock(IntPtr pDataBlock);
-
-        [PreserveSig]
-        Int32 CopyDataBlock(UInt32 dwSig, out IntPtr ppDataBlock);
-
-        [PreserveSig]
-        Int32 RemoveDataBlock(UInt32 dwSig);
-
-        // The flags paramter values are defined in shlobj.h - see the SHELL_LINK_DATA_FLAGS enumeration
-        void GetFlags(out UInt32 pdwFlags);
-        void SetFlags(UInt32 dwFlags);
-    }
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    internal struct NT_CONSOLE_PROPS
-    {
-        public const UInt32 NT_CONSOLE_PROPS_SIG = 0xA0000002;
-
         /// <summary>
-        ///   Gets an empty structure with a valid data block header and sensible defaults.
-        /// </summary>
-        public static NT_CONSOLE_PROPS AnEmptyOne()
-        {
-            var value = new NT_CONSOLE_PROPS();
-
-            value.SetDataBlockHeader();
-
-            value.wFillAttribute = 15;
-            value.wPopupFillAttribute = 245;
-            value.dwScreenBufferSize.X = 80;
-            value.dwScreenBufferSize.Y = 300;
-            value.dwWindowSize.X = 80;
-            value.dwWindowSize.Y = 25;
-            value.dwWindowOrigin.X = 0;
-            value.dwWindowOrigin.Y = 0;
-            value.nFont = 12;
-            value.nInputBufferSize = 0;
-            value.dwFontSize = new COORD(0, 12);
-            value.uFontFamily = 54;
-            value.uFontWeight = 400;
-            value.FaceName = new char[32] {
-                'C', 'o', 'n', 's', 'o', 'l', 'a', 's', '\0', '\0',
-                '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
-                '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
-                '\0', '\0'
-            };
-            value.uCursorSize = 25;
-            value.bFullScreen = false;
-            value.bQuickEdit = false;
-            value.bInsertMode = true;
-            value.bAutoPosition = true;
-            value.uHistoryBufferSize = 50;
-            value.uNumberOfHistoryBuffers = 4;
-            value.bHistoryNoDup = false;
-
-            value.ColorTable = new UInt32[16] {
-                0x0, // Black - 0
-                0x800000, // Dark Blue - 8388608
-                0x8000, // Dark Green - 32768
-                0x808000, // Teal - 8421376
-                0x80, // Dark Red - 128
-                0x800080, // Dark Purple - 8388736
-                0x8080, // Olive- 32896
-                0xC0C0C0, // Light Grey - 12632256
-                0x808080, // Dark Grey - 8421504
-                0xFF0000, // Blue - 16711680
-                0xFF00, // Light Green - 65280
-                0xFFFF00, // Cyan -16776960
-                0xFF, // Red - 255
-                0xFF00FF, // Chartruse - 16711935
-                0xFFFF, // Yellow - 65535
-                0xFFFFFF // White - 16777215
-            };
-
-            return value;
-        }
-
-        /// <summary>
-        ///   Sets the datablock header values for this sturcture.
-        /// </summary>
-        public void SetDataBlockHeader()
-        {
-            this.dbh.cbSize = unchecked((UInt32)Marshal.SizeOf(typeof(NT_CONSOLE_PROPS)));
-            this.dbh.dwSignature = NT_CONSOLE_PROPS_SIG;
-        }
-
-        public DATABLOCK_HEADER dbh;
-
-        public UInt16 wFillAttribute;
-        public UInt16 wPopupFillAttribute;
-        public COORD dwScreenBufferSize;
-        public COORD dwWindowSize;
-        public COORD dwWindowOrigin;
-        public UInt32 nFont;
-        public UInt32 nInputBufferSize;
-        public COORD dwFontSize;
-        public UInt32 uFontFamily;
-        public UInt32 uFontWeight;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)] public char[] FaceName;
-        public UInt32 uCursorSize;
-        [MarshalAs(UnmanagedType.Bool)] public bool bFullScreen;
-        [MarshalAs(UnmanagedType.Bool)] public bool bQuickEdit;
-        [MarshalAs(UnmanagedType.Bool)] public bool bInsertMode;
-        [MarshalAs(UnmanagedType.Bool)] public bool bAutoPosition;
-        public UInt32 uHistoryBufferSize;
-        public UInt32 uNumberOfHistoryBuffers;
-        [MarshalAs(UnmanagedType.Bool)] public bool bHistoryNoDup;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)] public UInt32[] ColorTable;
-    }
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    internal struct NT_FE_CONSOLE_PROPS
-    {
-        public const UInt32 NT_FE_CONSOLE_PROPS_SIG = 0xA0000004;
-
-        /// <summary>
-        ///   Gets an empty structure with a valid data block header and sensible defaults.
+        /// 是脏快捷方式
         /// </summary>
         /// <returns></returns>
-        public static NT_FE_CONSOLE_PROPS AnEmptyOne()
-        {
-            var value = new NT_FE_CONSOLE_PROPS();
-
-            value.SetDataBlockHeader();
-
-            value.uCodePage = 0;
-
-            return value;
-        }
-
+        int IsDirty();
         /// <summary>
-        ///   Sets the datablock header values for this sturcture.
+        /// 加载快捷方式
         /// </summary>
-        public void SetDataBlockHeader()
-        {
-            this.dbh.cbSize = unchecked((UInt32)Marshal.SizeOf(typeof(NT_FE_CONSOLE_PROPS)));
-            this.dbh.dwSignature = NT_FE_CONSOLE_PROPS_SIG;
-        }
-
-        public DATABLOCK_HEADER dbh;
-
-        public UInt32 uCodePage;
+        /// <param name="pszFileName"></param>
+        /// <param name="dwMode"></param>
+        void Load(string pszFileName, ShellLink.STGM_FLAGS dwMode);
+        /// <summary>
+        /// 保存快捷方式
+        /// </summary>
+        /// <param name="pszFileName"></param>
+        /// <param name="fRemember"></param>
+        void Save(string pszFileName, bool fRemember);
+        /// <summary>
+        /// 保存完整
+        /// </summary>
+        /// <param name="pszFileName"></param>
+        void SaveCompleted(string pszFileName);
+        /// <summary>
+        /// 获取当前指向文件
+        /// </summary>
+        /// <param name="ppszFileName"></param>
+        void GetCurFile(out IntPtr ppszFileName);
+        #endregion IPersistFile
+        #region // IShellLink
+        /// <summary>
+        /// 获取路径
+        /// </summary>
+        /// <param name="pszFile"></param>
+        /// <param name="cchMaxPath"></param>
+        /// <param name="pfd"></param>
+        /// <param name="fFlags"></param>
+        void GetPath(StringBuilder pszFile, int cchMaxPath, out ShellLink.WIN32_FIND_DATAW pfd, ShellLink.SLGP_FLAGS fFlags);
+        /// <summary>
+        /// 获取标识列表
+        /// </summary>
+        /// <param name="ppidl"></param>
+        void GetIDList(out IntPtr ppidl);
+        /// <summary>
+        /// 设置标识列表
+        /// </summary>
+        /// <param name="pidl"></param>
+        void SetIDList(IntPtr pidl);
+        /// <summary>
+        /// 获取描述
+        /// </summary>
+        /// <param name="pszName"></param>
+        /// <param name="cchMaxName"></param>
+        void GetDescription(StringBuilder pszName, int cchMaxName);
+        /// <summary>
+        /// 设置描述
+        /// </summary>
+        /// <param name="pszName"></param>
+        void SetDescription(string pszName);
+        /// <summary>
+        /// 获取工作目录
+        /// </summary>
+        /// <param name="pszDir"></param>
+        /// <param name="cchMaxPath"></param>
+        void GetWorkingDirectory(StringBuilder pszDir, int cchMaxPath);
+        /// <summary>
+        /// 设置工作目录
+        /// </summary>
+        /// <param name="pszDir"></param>
+        void SetWorkingDirectory(string pszDir);
+        /// <summary>
+        /// 获取参数
+        /// </summary>
+        /// <param name="pszArgs"></param>
+        /// <param name="cchMaxPath"></param>
+        void GetArguments(StringBuilder pszArgs, int cchMaxPath);
+        /// <summary>
+        /// 设置参数
+        /// </summary>
+        /// <param name="pszArgs"></param>
+        void SetArguments(string pszArgs);
+        /// <summary>
+        /// 获取热键
+        /// </summary>
+        /// <param name="pwHotkey"></param>
+        void GetHotkey(out short pwHotkey);
+        /// <summary>
+        /// 设置热键
+        /// </summary>
+        /// <param name="wHotkey"></param>
+        void SetHotkey(short wHotkey);
+        /// <summary>
+        /// 获取显示命令
+        /// </summary>
+        /// <param name="piShowCmd"></param>
+        /// <returns></returns>
+        Int32 GetShowCmd(out ShellLink.ShowWindowCommand piShowCmd);
+        /// <summary>
+        /// 设置显示命令
+        /// </summary>
+        /// <param name="iShowCmd"></param>
+        void SetShowCmd(ShellLink.ShowWindowCommand iShowCmd);
+        /// <summary>
+        /// 获取图标位置
+        /// </summary>
+        /// <param name="pszIconPath"></param>
+        /// <param name="cchIconPath"></param>
+        /// <param name="piIcon"></param>
+        /// <returns></returns>
+        Int32 GetIconLocation(StringBuilder pszIconPath, int cchIconPath, out int piIcon);
+        /// <summary>
+        /// 设置图标
+        /// </summary>
+        /// <param name="pszIconPath"></param>
+        /// <param name="iIcon"></param>
+        void SetIconLocation(string pszIconPath, int iIcon);
+        /// <summary>
+        /// 设置相对路径
+        /// </summary>
+        /// <param name="pszPathRel"></param>
+        /// <param name="dwReserved"></param>
+        void SetRelativePath(string pszPathRel, int dwReserved);
+        /// <summary>
+        /// 尝试找到快捷方式的目标，即使它已经被移动或重命名
+        /// </summary>
+        /// <param name="hwnd"></param>
+        /// <param name="fFlags"></param>
+        void Resolve(IntPtr hwnd, ShellLink.SLR_FLAGS fFlags);
+        /// <summary>
+        /// 设置目标路径
+        /// </summary>
+        /// <param name="pszFile"></param>
+        void SetPath(string pszFile);
+        #endregion IShellLinkf
+        #region // IShellLinkDataList
+        /// <summary>
+        /// 添加数据块
+        /// </summary>
+        /// <param name="pDataBlock"></param>
+        /// <returns></returns>
+        Int32 AddDataBlock(IntPtr pDataBlock);
+        /// <summary>
+        /// 复制数据块
+        /// </summary>
+        /// <param name="dwSig"></param>
+        /// <param name="ppDataBlock"></param>
+        /// <returns></returns>
+        Int32 CopyDataBlock(UInt32 dwSig, out IntPtr ppDataBlock);
+        /// <summary>
+        /// 移除数据块
+        /// </summary>
+        /// <param name="dwSig"></param>
+        /// <returns></returns>
+        Int32 RemoveDataBlock(UInt32 dwSig);
+        /// <summary>
+        /// 获取数据标记
+        /// </summary>
+        /// <param name="pdwFlags"></param>
+        void GetFlags(out ShellLink.DATA_FLAGS pdwFlags);
+        /// <summary>
+        /// 设置数据标记
+        /// </summary>
+        /// <param name="dwFlags"></param>
+        void SetFlags(ShellLink.DATA_FLAGS dwFlags);
+        #endregion IShellLinkDataList
     }
-    /// <summary>
-    ///   This is the CoClass that impliments the shell link interfaces.
-    /// </summary>
-    [
-        ComImport,
-        Guid("00021401-0000-0000-C000-000000000046")
-    ]
-    internal class ShellLinkCoClass // : IPersistFile, IShellLink, IShellLinkDataList
-    {
-    }
-    [Flags]
-    internal enum SLGP_FLAGS
-    {
-        SLGP_SHORTPATH = 0x1,
-        SLGP_UNCPRIORITY = 0x2,
-        SLGP_RAWPATH = 0x4
-    }
-    [Flags]
-    internal enum SLR_FLAGS
-    {
-        /// <summary>
-        ///   Do not display a dialog box if the link cannot be resolved.
-        /// </summary>
-        SLR_NO_UI = 0x1,
-        /// <summary>
-        ///   Not used - ignored
-        /// </summary>
-        SLR_ANY_MATCH = 0x2,
-        /// <summary>
-        ///   If the link object has changed, update its path and list of identifiers. If SLR_UPDATE is set, you do not need to call IPersistFile::IsDirty to determine whether or not the link object has changed.
-        /// </summary>
-        SLR_UPDATE = 0x4,
-        /// <summary>
-        ///   Do not update the link information.
-        /// </summary>
-        SLR_NOUPDATE = 0x8,
-        /// <summary>
-        ///   Do not execute the search heuristics.
-        /// </summary>
-        SLR_NOSEARCH = 0x10,
-        /// <summary>
-        ///   Do not use distributed link tracking.
-        /// </summary>
-        SLR_NOTRACK = 0x20,
-        /// <summary>
-        ///   Disable distributed link tracking. By default, distributed link tracking tracks removable media across multiple devices based on the volume name. It also uses the UNC path to track remote file systems whose drive letter has changed. Setting NoLinkInfo disables both types of tracking
-        /// </summary>
-        SLR_NOLINKINFO = 0x40,
-        /// <summary>
-        ///   Call the Windows Installer
-        /// </summary>
-        SLR_INVOKE_MSI = 0x80,
-        /// <summary>
-        ///   Windows XP and later.
-        /// </summary>
-        SLR_NO_UI_WITH_MSG_PUMP = 0x101,
-        /// <summary>
-        ///   Windows 7 and later. Offer the option to delete the shortcut when this method is unable to resolve it, even if the shortcut is not a shortcut to a file.
-        /// </summary>
-        SLR_OFFER_DELETE_WITHOUT_FILE = 0x201,
-        /// <summary>
-        ///   Windows 7 and later. Report as dirty if the target is a known folder and the known folder was redirected. This only works if the original target path was a file system path or ID list and not an aliased known folder ID list.
-        /// </summary>
-        SLR_KNOWNFOLDER = 0x400,
-        /// <summary>
-        ///   Windows 7 and later. Resolve the computer name in UNC targets that point to a local computer. This value is used with SLDF_KEEP_LOCAL_IDLIST_FOR_UNC_TARGET.
-        /// </summary>
-        SLR_MACHINE_IN_LOCAL_TARGET = 0x800,
-        /// <summary>
-        ///   Windows 7 and later. Update the computer GUID and user SID if necessary.
-        /// </summary>
-        SLR_UPDATE_MACHINE_AND_SID = 0x1000
-    }
-    [Flags]
-    internal enum STGM_FLAGS
-    {
-        STGM_READ = 0x00000000,
-        STGM_WRITE = 0x00000001,
-        STGM_READWRITE = 0x00000002,
-        STGM_SHARE_DENY_NONE = 0x00000040,
-        STGM_SHARE_DENY_READ = 0x00000030,
-        STGM_SHARE_DENY_WRITE = 0x00000020,
-        STGM_SHARE_EXCLUSIVE = 0x00000010,
-        STGM_PRIORITY = 0x00040000,
-        STGM_CREATE = 0x00001000,
-        STGM_CONVERT = 0x00020000,
-        STGM_FAILIFTHERE = 0x00000000,
-        STGM_DIRECT = 0x00000000,
-        STGM_TRANSACTED = 0x00010000,
-        STGM_NOSCRATCH = 0x00100000,
-        STGM_NOSNAPSHOT = 0x00200000,
-        STGM_SIMPLE = 0x08000000,
-        STGM_DIRECT_SWMR = 0x00400000,
-        STGM_DELETEONRELEASE = 0x04000000
-    }
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    internal struct WIN32_FIND_DATAW
-    {
-        public int dwFileAttributes;
-        public FILETIME ftCreationTime;
-        public FILETIME ftLastAccessTime;
-        public FILETIME ftLastWriteTime;
-        public int nFileSizeHigh;
-        public int nFileSizeLow;
-        public int dwReserved0;
-        public int dwReserved1;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MAX_PATH)] public string cFileName;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 14)] public string cAlternateFileName;
-        public const int MAX_PATH = 260;
-    }
-    #endregion
 }

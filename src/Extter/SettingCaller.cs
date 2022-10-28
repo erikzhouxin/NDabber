@@ -447,11 +447,11 @@ namespace System.Data.Extter
             return AlertMsg.OperSuccess;
         }
         /// <summary>
-        /// 启动参数
+        /// 启动信息
         /// </summary>
-        /// <param name="args"></param>
+        /// <param name="startInfo"></param>
         /// <returns></returns>
-        public virtual IAlertMsg StartArgs(string[] args)
+        public virtual IAlertMsg StartInfo(ProcessStartInfoModel startInfo)
         {
             return AlertMsg.OperSuccess;
         }

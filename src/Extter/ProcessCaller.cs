@@ -187,4 +187,63 @@ namespace System.Data.Extter
             public T Args { get; set; }
         }
     }
+    /// <summary>
+    /// 进程启动信息模型
+    /// </summary>
+    public class ProcessStartInfoModel
+    {
+        /// <summary>
+        /// 文件名称
+        /// </summary>
+        public string FileName { get; set; }
+        /// <summary>
+        /// 启动参数
+        /// </summary>
+        public String Arguments { get; set; }
+        /// <summary>
+        /// 工作目录
+        /// </summary>
+        public string WorkingDirectory { get; set; }
+        /// <summary>
+        /// 启动参数
+        /// </summary>
+        public String[] CmdArgs { get; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public ProcessStartInfoModel()
+        {
+            CmdArgs = GetCmdLineArgs();
+        }
+        /// <summary>
+        /// 获取命令行参数
+        /// </summary>
+        /// <returns></returns>
+        public static string[] GetCmdLineArgs()
+        {
+            string[] commandLineArgs = Environment.GetCommandLineArgs();
+            int num = commandLineArgs.Length - 1;
+            num = (num >= 0) ? num : 0;
+            var array = new string[num];
+            for (int i = 1; i < commandLineArgs.Length; i++)
+            {
+                array[i - 1] = commandLineArgs[i];
+            }
+            return array;
+        }
+        /// <summary>
+        /// 获取启动信息中的参数
+        /// </summary>
+        /// <returns></returns>
+        public string GetStartInfoArguments()
+        {
+            if (CmdArgs.Length <= 0) { return Arguments; }
+            var sb = new StringBuilder();
+            for (int i = 0; i < CmdArgs.Length; i++)
+            {
+                sb.Append($" {CmdArgs[i].Replace("\"", "\\\"")}");
+            }
+            return sb.ToString();
+        }
+    }
 }

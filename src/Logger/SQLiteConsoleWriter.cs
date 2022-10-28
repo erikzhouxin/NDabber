@@ -267,7 +267,7 @@ namespace System.Data.Logger
                 {
                     try
                     {
-                        var fileName = Path.Combine(GetLogPath(), $"{consoleModel.Item1:yyyy-MM}.log");
+                        var fileName = Path.Combine(GetLogPath(), $"{consoleModel.Item1:yyyy-MM}.sqlite");
                         bool hasTable = File.Exists(fileName);
                         if (GetConnection != null)
                         {

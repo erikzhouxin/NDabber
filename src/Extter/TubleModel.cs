@@ -3792,6 +3792,54 @@ namespace System.Data.Extter
         }
     }
     /// <summary>
+    /// 枚举8元组对象
+    /// </summary>
+    /// <typeparam name="TEnum"></typeparam>
+    public class Tuble8EnumObject<TEnum> : TubleTrigger<TEnum, object, object, object, object, object, object, object>
+        where TEnum : struct, Enum
+    {
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public Tuble8EnumObject() { }
+        /// <summary>
+        /// 有参构造
+        /// </summary>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <param name="m3"></param>
+        /// <param name="m4"></param>
+        /// <param name="m5"></param>
+        /// <param name="m6"></param>
+        /// <param name="m7"></param>
+        /// <param name="m8"></param>
+        public Tuble8EnumObject(TEnum m1, object m2, object m3, object m4, object m5, object m6, object m7, object m8) : base(m1, m2, m3, m4, m5, m6, m7, m8) { }
+        /// <summary>
+        /// 隐式转换
+        /// </summary>
+        /// <param name="model"></param>
+        public static implicit operator Tuble8Object(Tuble8EnumObject<TEnum> model)
+        {
+            return new Tuble8Object(model.Item1, model.Item2, model.Item3, model.Item4, model.Item5, model.Item6, model.Item7, model.Item8);
+        }
+        /// <summary>
+        /// 隐式转换
+        /// </summary>
+        /// <param name="model"></param>
+        public static implicit operator Tuble8EnumObject<TEnum>(Tuble8Object model)
+        {
+            return new Tuble8EnumObject<TEnum>((TEnum)model.Item1, model.Item2, model.Item3, model.Item4, model.Item5, model.Item6, model.Item7, model.Item8);
+        }
+        /// <summary>
+        /// 隐式转换
+        /// </summary>
+        /// <param name="model"></param>
+        public static implicit operator Tuble8EnumObject<TEnum>(Tuble<TEnum, object, object, object, object, object, object, object> model)
+        {
+            return new Tuble8EnumObject<TEnum>((TEnum)model.Item1, model.Item2, model.Item3, model.Item4, model.Item5, model.Item6, model.Item7, model.Item8);
+        }
+    }
+    /// <summary>
     /// 触发8元组检查字符串
     /// </summary>
     public class TubleTrigger8String : TubleTrigger<string, string, string, string, string, string, string, string>

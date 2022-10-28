@@ -11,45 +11,102 @@ namespace System.Data.Impeller
     /// </summary>
     public class MPR
     {
+        /// <summary>
+        /// WNetGetConnection函数可用于获取有关网络资源的信息，例如打印机。
+        /// </summary>
+        /// <param name="localName"></param>
+        /// <param name="remoteName"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
         [DllImport("mpr.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern int WNetGetConnection([MarshalAs(UnmanagedType.LPTStr)] string localName, [MarshalAs(UnmanagedType.LPTStr)] StringBuilder remoteName, ref int length);
+        /// <summary>
+        /// 创建同一个网络资源的连接
+        /// </summary>
+        /// <param name="lpNetResource"></param>
+        /// <param name="lpPassword"></param>
+        /// <param name="lpUsername"></param>
+        /// <param name="dwFlags"></param>
+        /// <returns></returns>
         [DllImport("mpr.dll", EntryPoint = "WNetAddConnection2")]
         private static extern uint WNetAddConnection2(NetResource lpNetResource, string lpPassword, string lpUsername, uint dwFlags);
-
+        /// <summary>
+        /// 取消与网络资源的连接
+        /// </summary>
+        /// <param name="lpName"></param>
+        /// <param name="dwFlags"></param>
+        /// <param name="fForce"></param>
+        /// <returns></returns>
         [DllImport("Mpr.dll", EntryPoint = "WNetCancelConnection2")]
         private static extern uint WNetCancelConnection2(string lpName, uint dwFlags, bool fForce);
-
+        /// <summary>
+        /// 范围类型
+        /// </summary>
         public enum ScopeType
         {
+            /// <summary>
+            /// 资源已连接
+            /// </summary>
             ResourceConnected = 1,
+            /// <summary>
+            /// 全局网络资源
+            /// </summary>
             ResourceGlobalnet = 2,
+            /// <summary>
+            /// 资源已缓存
+            /// </summary>
             ResourceRemembered = 3,
+            /// <summary>
+            /// 最近资源
+            /// </summary>
             ResourceRecent = 4,
+            /// <summary>
+            /// 环境资源
+            /// </summary>
             ResourceContext = 5
         }
-
+        /// <summary>
+        /// 网络资源结构
+        /// </summary>
         [StructLayout(LayoutKind.Sequential)]
-        public class NetResource
+        public struct NetResource
         {
-            public ScopeType dwScope;
-
-            public int dwType;
-
-            public int dwDisplayType;
-
-            public int dwUsage;
-
+            /// <summary>
+            /// 资源类型
+            /// </summary>
+            public ScopeType DwScope;
+            /// <summary>
+            /// 资源类型
+            /// </summary>
+            public int DwType;
+            /// <summary>
+            /// 资源显示类型
+            /// </summary>
+            public int DwDisplayType;
+            /// <summary>
+            /// 资源使用
+            /// </summary>
+            public int DwUsage;
+            /// <summary>
+            /// 本地名称
+            /// </summary>
             [MarshalAs(UnmanagedType.LPStr)]
-            public string lpLocalName;
-
+            public string LpLocalName;
+            /// <summary>
+            /// 远程名称
+            /// </summary>
             [MarshalAs(UnmanagedType.LPStr)]
-            public string lpRemoteName;
-
+            public string LpRemoteName;
+            /// <summary>
+            /// 注释
+            /// </summary>
             [MarshalAs(UnmanagedType.LPStr)]
-            public string lpComment;
-
+            public string LpComment;
+            /// <summary>
+            /// 提供
+            /// </summary>
             [MarshalAs(UnmanagedType.LPStr)]
-            public string lpProvider;
+            public string LpProvider;
         }
 
         /// <summary>
@@ -64,12 +121,12 @@ namespace System.Data.Impeller
         private static uint WNetAddConnection(string username, string password, string remoteName, string localName)
         {
             NetResource netResource = new NetResource();
-            netResource.dwScope = ScopeType.ResourceGlobalnet;
-            netResource.dwType = 1;
-            netResource.dwDisplayType = 3;
-            netResource.dwUsage = 1;
-            netResource.lpLocalName = localName;
-            netResource.lpRemoteName = remoteName.TrimEnd('\\');
+            netResource.DwScope = ScopeType.ResourceGlobalnet;
+            netResource.DwType = 1;
+            netResource.DwDisplayType = 3;
+            netResource.DwUsage = 1;
+            netResource.LpLocalName = localName;
+            netResource.LpRemoteName = remoteName.TrimEnd('\\');
             uint result = WNetAddConnection2(netResource, password, username, 0);
 
             return result;
@@ -92,25 +149,28 @@ namespace System.Data.Impeller
                 username = (string.IsNullOrEmpty(userInfo.Domain) ? "" : userInfo.Domain + "\\") + userInfo.UserName;
                 password = userInfo.Password;
             }
-            netResource.dwScope = ScopeType.ResourceGlobalnet;
-            netResource.dwType = 1;
-            netResource.dwDisplayType = 3;
-            netResource.dwUsage = 1;
-            netResource.lpLocalName = localName;
-            netResource.lpRemoteName = remoteName.TrimEnd('\\');
+            netResource.DwScope = ScopeType.ResourceGlobalnet;
+            netResource.DwType = 1;
+            netResource.DwDisplayType = 3;
+            netResource.DwUsage = 1;
+            netResource.LpLocalName = localName;
+            netResource.LpRemoteName = remoteName.TrimEnd('\\');
             uint result = WNetAddConnection2(netResource, password, username, 0);
 
             return result;
         }
-
-
+        /// <summary>
+        /// 取消连接
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="flags"></param>
+        /// <param name="force"></param>
+        /// <returns></returns>
         public static uint WNetCancelConnection(string name, uint flags, bool force)
         {
             uint nret = WNetCancelConnection2(name, flags, force);
             return nret;
         }
-
-
         // SW_HIDE             0 //隐藏窗口，活动状态给令一个窗口
         // SW_SHOWNORMAL       1 //用原来的大小和位置显示一个窗口，同时令其进入活动状态
         // SW_NORMAL           1
@@ -143,9 +203,21 @@ namespace System.Data.Impeller
             /// 用原来的大小和位置显示一个窗口，同时令其进入活动状态
             /// </summary>
             sw_shownormal = 1,
+            /// <summary>
+            /// 通用
+            /// </summary>
             sw_normal = 1,
+            /// <summary>
+            /// 最小化
+            /// </summary>
             sw_showminimized = 2,
+            /// <summary>
+            /// 最大化
+            /// </summary>
             sw_showmaximized = 3,
+            /// <summary>
+            /// 最大化
+            /// </summary>
             sw_maximize = 3,
 
             /// <summary>
@@ -177,12 +249,19 @@ namespace System.Data.Impeller
             /// 与 sw_shownormal  1 相同
             /// </summary>
             sw_restore = 9,
+            /// <summary>
+            /// 默认
+            /// </summary>
             sw_showdefault = 10,
+            /// <summary>
+            /// 强制最小化
+            /// </summary>
             sw_forceminimize = 11,
+            /// <summary>
+            /// 最大化
+            /// </summary>
             sw_max = 11,
         }
-
-
         /// <summary>
         /// 执行命令行代码的
         /// </summary>
