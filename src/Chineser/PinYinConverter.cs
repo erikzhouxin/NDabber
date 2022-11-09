@@ -9,9 +9,9 @@ namespace System.Data.Chineser
 {
     internal partial class PinYinConverter
     {
-        public static String CHARACTER_NOT_SUPPORTED { get => "The character is not in extended character set of Simplified Chinese."; }
-        public static String EXCEED_BORDER_EXCEPTION { get => "The number of strokes cannot be a negative value or greater than the maximum number of strokes  in the Chinese character."; }
-        public static String INDEX_OUT_OF_RANGE { get => "The index is out of range."; }
+        public static String CHARACTER_NOT_SUPPORTED { get => "该字符不在简体中文扩展字符集中。"; }
+        public static String EXCEED_BORDER_EXCEPTION { get => "笔画数不能为负数或大于汉字的最大笔画数。"; }
+        public static String INDEX_OUT_OF_RANGE { get => "索引超出数组范围。"; }
 
 		internal class CharDictionary
 		{

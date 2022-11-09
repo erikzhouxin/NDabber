@@ -1,8 +1,7 @@
-﻿// using IWshRuntimeLibrary;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Cobber;
-using System.Data.Dibber;
+using System.Data.Impeller;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -14,7 +13,6 @@ namespace System.Data.Extter
 {
     /// <summary>
     /// 快捷方式调用者
-    /// 注:需要引入Com组件IWshRuntimeLibrary，Windows Script Host Object Model
     /// </summary>
     public static partial class ExtterCaller
     {
@@ -75,12 +73,13 @@ namespace System.Data.Extter
             shortcutPath = ShellLink.GetFullPath(shortcutPath);
             targetPath = ShellLink.GetFullPath(targetPath);
             if (!System.IO.Path.HasExtension(shortcutPath)) { shortcutPath += ShellLink.Extension; }
+            // if (File.Exists(shortcutPath)) { File.Delete(shortcutPath); }
             var link = new ShellLink(shortcutPath);
             link.Path = targetPath;
-            link.WorkingDirectory = workDir ?? System.IO.Path.GetDirectoryName(targetPath);
+            link.WorkingDirectory = workDir == null ? System.IO.Path.GetDirectoryName(targetPath) : Path.GetFullPath(workDir);
             link.IconLocation = GetIconLocation(icon);
-            if (description != null) { link.Description = description; }
-            if (args != null) { link.Arguments = args; }
+            link.Description = description ?? Path.GetFileNameWithoutExtension(shortcutPath);
+            link.Arguments = args ?? String.Empty;
             link.Save(shortcutPath);
             return link;
             static Tuble2StringInt GetIconLocation(string iconLocation)

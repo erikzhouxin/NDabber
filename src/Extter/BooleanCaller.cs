@@ -336,7 +336,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static T IfFalse<T>(this T model, Func<T, bool> FuncIf, T trueValue)
         {
-            return FuncIf(model) ? model : trueValue;
+            return FuncIf(model) ? trueValue : model;
         }
         /// <summary>
         /// IF语句
@@ -348,7 +348,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static T IfFalse<T>(this T model, Func<T, bool> FuncIf, Func<T, T> GetTrue)
         {
-            return FuncIf(model) ? model : GetTrue(model);
+            return FuncIf(model) ? GetTrue(model) : model;
         }
         /// <summary>
         /// 当为空时继续查找后续内容

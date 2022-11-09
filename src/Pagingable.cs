@@ -21,6 +21,11 @@ public interface IPageResult<out T> : IPageResult
     /// </summary>
     /// <returns></returns>
     new IPageResult<T> Reset<TRes>(IEnumerable<TRes> items);
+    /// <summary>
+    /// 复制
+    /// </summary>
+    /// <returns></returns>
+    new IPageResult<T> Clone();
 }
 /// <summary>
 /// 分页结果接口
@@ -62,7 +67,7 @@ public interface IPageResult
     /// <summary>
     /// 是客户端分页
     /// </summary>
-    bool IsClient { get; }
+    bool IsClient { get; set; }
     /// <summary>
     /// 重置结果项
     /// </summary>
@@ -73,6 +78,11 @@ public interface IPageResult
     /// </summary>
     /// <returns></returns>
     IPageResult Reset<TRes>(IEnumerable<TRes> items);
+    /// <summary>
+    /// 复制结果
+    /// </summary>
+    /// <returns></returns>
+    IPageResult Clone();
 }
 /// <summary>
 /// 查询结果
@@ -236,4 +246,20 @@ public class PagingResult<T> : IPageResult<T>
             TotalCount = items.Count()
         };
     }
+    /// <summary>
+    /// 克隆内容
+    /// </summary>
+    /// <returns></returns>
+    public virtual PagingResult<T> Clone()
+    {
+        return new PagingResult<T>(Page, Size)
+        {
+            Items = Items,
+            IsClient = IsClient,
+            TotalCount = TotalCount,
+            Search = Search,
+        };
+    }
+    IPageResult IPageResult.Clone() => this.Clone();
+    IPageResult<T> IPageResult<T>.Clone() => this.Clone();
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Data.Extter;
 using System.IO;
@@ -8,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 
-namespace System.Data.Dibber
+namespace System.Data.Impeller
 {
     /// <summary>
     /// 快捷方式(推荐使用ShellLink)
@@ -23,13 +22,13 @@ namespace System.Data.Dibber
         /// 从一个文件加载
         /// </summary>
         /// <param name = "linkFilePath">快捷方式文件</param>
-        public Shortcut(string linkFilePath) : base(linkFilePath, ShellLink.STGM_FLAGS.STGM_READ) { }
+        public Shortcut(string linkFilePath) : base(linkFilePath, STGM_FLAGS.STGM_READ) { }
         /// <summary>
         /// 从一个文件及加载方式
         /// </summary>
         /// <param name="linkFilePath"></param>
         /// <param name="flags"></param>
-        public Shortcut(string linkFilePath, ShellLink.STGM_FLAGS flags) : base(linkFilePath, flags) { }
+        public Shortcut(string linkFilePath, STGM_FLAGS flags) : base(linkFilePath, flags) { }
 
         #region // IPersistFile
         /// <summary>
@@ -47,7 +46,7 @@ namespace System.Data.Dibber
         /// </summary>
         /// <param name="pszFileName"></param>
         /// <param name="dwMode"></param>
-        public void Load(string pszFileName, ShellLink.STGM_FLAGS dwMode) => PersistFile.Load(pszFileName, (int)dwMode);
+        public void Load(string pszFileName, STGM_FLAGS dwMode) => PersistFile.Load(pszFileName, (int)dwMode);
         /// <summary>
         /// 保存快捷方式
         /// </summary>
@@ -73,7 +72,7 @@ namespace System.Data.Dibber
         /// <param name="cchMaxPath"></param>
         /// <param name="pfd"></param>
         /// <param name="fFlags"></param>
-        public void GetPath(StringBuilder pszFile, int cchMaxPath, out ShellLink.WIN32_FIND_DATAW pfd, ShellLink.SLGP_FLAGS fFlags)
+        public void GetPath(StringBuilder pszFile, int cchMaxPath, out WIN32_FIND_DATAW pfd, SLGP_FLAGS fFlags)
             => Shortcut.GetPath(pszFile, cchMaxPath, out pfd, fFlags);
         /// <summary>
         /// 获取标识列表
@@ -133,17 +132,17 @@ namespace System.Data.Dibber
         /// </summary>
         /// <param name="piShowCmd"></param>
         /// <returns></returns>
-        public Int32 GetShowCmd(out ShellLink.ShowWindowCommand piShowCmd)
+        public int GetShowCmd(out ShowWindowCommand piShowCmd)
         {
             var res = Shortcut.GetShowCmd(out int cmd);
-            piShowCmd = (ShellLink.ShowWindowCommand)cmd;
+            piShowCmd = (ShowWindowCommand)cmd;
             return res;
         }
         /// <summary>
         /// 设置显示命令
         /// </summary>
         /// <param name="iShowCmd"></param>
-        public void SetShowCmd(ShellLink.ShowWindowCommand iShowCmd) => Shortcut.SetShowCmd((int)iShowCmd);
+        public void SetShowCmd(ShowWindowCommand iShowCmd) => Shortcut.SetShowCmd((int)iShowCmd);
         /// <summary>
         /// 获取图标位置
         /// </summary>
@@ -151,7 +150,7 @@ namespace System.Data.Dibber
         /// <param name="cchIconPath"></param>
         /// <param name="piIcon"></param>
         /// <returns></returns>
-        public Int32 GetIconLocation(StringBuilder pszIconPath, int cchIconPath, out int piIcon) => Shortcut.GetIconLocation(pszIconPath, cchIconPath, out piIcon);
+        public int GetIconLocation(StringBuilder pszIconPath, int cchIconPath, out int piIcon) => Shortcut.GetIconLocation(pszIconPath, cchIconPath, out piIcon);
         /// <summary>
         /// 设置图标
         /// </summary>
@@ -169,7 +168,7 @@ namespace System.Data.Dibber
         /// </summary>
         /// <param name = "hwnd">窗口的句柄，使用它作为对话框的父级。如果需要在解析快捷方式时提示用户提供更多信息，则会显示对话框。</param>
         /// <param name = "fFlags">控制解析过程的标志</param>
-        public override void Resolve(IntPtr hwnd, ShellLink.SLR_FLAGS fFlags) => base.Resolve(hwnd, fFlags);
+        public override void Resolve(IntPtr hwnd, SLR_FLAGS fFlags) => base.Resolve(hwnd, fFlags);
         /// <summary>
         /// 设置目标路径
         /// </summary>
@@ -182,34 +181,34 @@ namespace System.Data.Dibber
         /// </summary>
         /// <param name="pDataBlock"></param>
         /// <returns></returns>
-        public Int32 AddDataBlock(IntPtr pDataBlock) => DataList.AddDataBlock(pDataBlock);
+        public int AddDataBlock(IntPtr pDataBlock) => DataList.AddDataBlock(pDataBlock);
         /// <summary>
         /// 复制数据块
         /// </summary>
         /// <param name="dwSig"></param>
         /// <param name="ppDataBlock"></param>
         /// <returns></returns>
-        public Int32 CopyDataBlock(UInt32 dwSig, out IntPtr ppDataBlock) => DataList.CopyDataBlock(dwSig, out ppDataBlock);
+        public int CopyDataBlock(uint dwSig, out IntPtr ppDataBlock) => DataList.CopyDataBlock(dwSig, out ppDataBlock);
         /// <summary>
         /// 移除数据块
         /// </summary>
         /// <param name="dwSig"></param>
         /// <returns></returns>
-        public Int32 RemoveDataBlock(UInt32 dwSig) => DataList.RemoveDataBlock(dwSig);
+        public int RemoveDataBlock(uint dwSig) => DataList.RemoveDataBlock(dwSig);
         /// <summary>
         /// 获取数据标记
         /// </summary>
         /// <param name="pdwFlags"></param>
-        public void GetFlags(out ShellLink.DATA_FLAGS pdwFlags)
+        public void GetFlags(out DATA_FLAGS pdwFlags)
         {
             DataList.GetFlags(out uint flags);
-            pdwFlags = (ShellLink.DATA_FLAGS)flags;
+            pdwFlags = (DATA_FLAGS)flags;
         }
         /// <summary>
         /// 设置数据标记
         /// </summary>
         /// <param name="dwFlags"></param>
-        public void SetFlags(ShellLink.DATA_FLAGS dwFlags) => DataList.SetFlags((uint)dwFlags);
+        public void SetFlags(DATA_FLAGS dwFlags) => DataList.SetFlags((uint)dwFlags);
         #endregion IShellLinkDataList
     }
     /// <summary>
@@ -307,7 +306,7 @@ namespace System.Data.Dibber
         /// 获取或设置快捷方式的目标。
         /// 这个属性的读取方法使用SLGP_RAWPATH标志。
         /// </summary>
-        public virtual String Path
+        public virtual string Path
         {
             get
             {
@@ -344,7 +343,7 @@ namespace System.Data.Dibber
         /// <summary>
         /// 将命令行参数添加到快捷方式
         /// </summary>
-        public virtual String Arguments
+        public virtual string Arguments
         {
             get
             {
@@ -360,7 +359,7 @@ namespace System.Data.Dibber
         /// <param name = "flags">控制解析过程的标志</param>
         public virtual void Resolve(SLR_FLAGS flags)
         {
-            Shortcut.Resolve(IntPtr.Zero, (SLR_FLAGS)flags);
+            Shortcut.Resolve(IntPtr.Zero, flags);
         }
         /// <summary>
         /// 尝试找到快捷方式的目标，即使它已经被移动或重命名
@@ -388,12 +387,12 @@ namespace System.Data.Dibber
                 flags = flags & (SLR_FLAGS)0x0000FFFF;
                 flags |= (SLR_FLAGS)(noUxTimeoutMs << 16);
             }
-            Shortcut.Resolve(IntPtr.Zero, (SLR_FLAGS)flags);
+            Shortcut.Resolve(IntPtr.Zero, flags);
         }
         /// <summary>
         /// 工作目录
         /// </summary>
-        public virtual String WorkingDirectory
+        public virtual string WorkingDirectory
         {
             get
             {
@@ -406,7 +405,7 @@ namespace System.Data.Dibber
         /// <summary>
         /// 快捷方式描述
         /// </summary>
-        public virtual String Description
+        public virtual string Description
         {
             get
             {
@@ -451,10 +450,10 @@ namespace System.Data.Dibber
         {
             get
             {
-                DataList.GetFlags(out UInt32 flags);
+                DataList.GetFlags(out uint flags);
                 return (DATA_FLAGS)flags;
             }
-            set { DataList.SetFlags((UInt32)value); }
+            set { DataList.SetFlags((uint)value); }
         }
         /// <summary>
         /// 文件信息
@@ -484,7 +483,7 @@ namespace System.Data.Dibber
         {
             try
             {
-                return System.IO.Path.GetFullPath(path.Trim('"'));
+                return IO.Path.GetFullPath(path.Trim('"'));
             }
             catch { }
             return path;
@@ -1150,7 +1149,7 @@ namespace System.Data.Dibber
             /// <param name="piShowCmd"></param>
             /// <returns></returns>
             [PreserveSig]
-            Int32 GetShowCmd(out int piShowCmd);
+            int GetShowCmd(out int piShowCmd);
             /// <summary>
             /// 设置显示命令
             /// </summary>
@@ -1164,7 +1163,7 @@ namespace System.Data.Dibber
             /// <param name="piIcon"></param>
             /// <returns></returns>
             [PreserveSig]
-            Int32 GetIconLocation([Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder pszIconPath, int cchIconPath, out int piIcon);
+            int GetIconLocation([Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder pszIconPath, int cchIconPath, out int piIcon);
             /// <summary>
             /// 设置图标位置
             /// </summary>
@@ -1203,7 +1202,7 @@ namespace System.Data.Dibber
             /// <param name="pDataBlock"></param>
             /// <returns></returns>
             [PreserveSig]
-            Int32 AddDataBlock(IntPtr pDataBlock);
+            int AddDataBlock(IntPtr pDataBlock);
             /// <summary>
             /// 复制数据库
             /// </summary>
@@ -1211,26 +1210,26 @@ namespace System.Data.Dibber
             /// <param name="ppDataBlock"></param>
             /// <returns></returns>
             [PreserveSig]
-            Int32 CopyDataBlock(UInt32 dwSig, out IntPtr ppDataBlock);
+            int CopyDataBlock(uint dwSig, out IntPtr ppDataBlock);
             /// <summary>
             /// 移除数据块
             /// </summary>
             /// <param name="dwSig"></param>
             /// <returns></returns>
             [PreserveSig]
-            Int32 RemoveDataBlock(UInt32 dwSig);
+            int RemoveDataBlock(uint dwSig);
             /// <summary>
             /// 获取标记
             /// <see cref="DATA_FLAGS"/>
             /// </summary>
             /// <param name="pdwFlags"></param>
-            void GetFlags(out UInt32 pdwFlags);
+            void GetFlags(out uint pdwFlags);
             /// <summary>
             /// 设置标记
             /// <see cref="DATA_FLAGS"/>
             /// </summary>
             /// <param name="dwFlags"></param>
-            void SetFlags(UInt32 dwFlags);
+            void SetFlags(uint dwFlags);
         }
         /// <summary>
         /// 实现了快捷方式接口
@@ -1346,7 +1345,7 @@ namespace System.Data.Dibber
         /// </summary>
         /// <param name="piShowCmd"></param>
         /// <returns></returns>
-        Int32 GetShowCmd(out ShellLink.ShowWindowCommand piShowCmd);
+        int GetShowCmd(out ShellLink.ShowWindowCommand piShowCmd);
         /// <summary>
         /// 设置显示命令
         /// </summary>
@@ -1359,7 +1358,7 @@ namespace System.Data.Dibber
         /// <param name="cchIconPath"></param>
         /// <param name="piIcon"></param>
         /// <returns></returns>
-        Int32 GetIconLocation(StringBuilder pszIconPath, int cchIconPath, out int piIcon);
+        int GetIconLocation(StringBuilder pszIconPath, int cchIconPath, out int piIcon);
         /// <summary>
         /// 设置图标
         /// </summary>
@@ -1390,20 +1389,20 @@ namespace System.Data.Dibber
         /// </summary>
         /// <param name="pDataBlock"></param>
         /// <returns></returns>
-        Int32 AddDataBlock(IntPtr pDataBlock);
+        int AddDataBlock(IntPtr pDataBlock);
         /// <summary>
         /// 复制数据块
         /// </summary>
         /// <param name="dwSig"></param>
         /// <param name="ppDataBlock"></param>
         /// <returns></returns>
-        Int32 CopyDataBlock(UInt32 dwSig, out IntPtr ppDataBlock);
+        int CopyDataBlock(uint dwSig, out IntPtr ppDataBlock);
         /// <summary>
         /// 移除数据块
         /// </summary>
         /// <param name="dwSig"></param>
         /// <returns></returns>
-        Int32 RemoveDataBlock(UInt32 dwSig);
+        int RemoveDataBlock(uint dwSig);
         /// <summary>
         /// 获取数据标记
         /// </summary>

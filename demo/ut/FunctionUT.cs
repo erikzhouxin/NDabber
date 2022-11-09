@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Cobber;
-using System.Data.Dibber;
 using System.Data.Extter;
 using System.Data.Impeller;
 using System.IO;

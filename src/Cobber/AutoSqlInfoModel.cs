@@ -199,7 +199,7 @@ namespace System.Data.Cobber
             }
             catch (Exception ex)
             {
-                Console.Write(ex);
+                Console.WriteLine(new { sql, args, ex });
                 return new AlertMsgs<T>(false, "执行错误:{0}", ex.Message);
             }
         }
@@ -238,7 +238,7 @@ namespace System.Data.Cobber
             }
             catch (Exception ex)
             {
-                Console.Write(ex);
+                Console.WriteLine(new { sql, args, ex });
                 return new AlertMessage(false, "查询错误:{0}", ex.Message);
             }
         }
@@ -276,7 +276,7 @@ namespace System.Data.Cobber
                 catch (Exception ex)
                 {
                     trans?.Rollback();
-                    Console.WriteLine(ex);
+                    Console.WriteLine(new { sql, args, ex });
                     return -1;
                 }
             }
@@ -308,7 +308,7 @@ namespace System.Data.Cobber
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(new { sql, args, ex });
                 return new AlertMsg(false, "执行错误:{0}", ex.Message);
             }
         }
@@ -339,7 +339,7 @@ namespace System.Data.Cobber
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(new { sql, args, ex });
                 return new AlertMsg(false, "执行错误:{0}", ex.Message);
             }
         }
@@ -370,7 +370,7 @@ namespace System.Data.Cobber
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(new { sql, args, ex });
                 return new AlertMsg(false, "执行错误:{0}", ex.Message);
             }
         }
@@ -401,7 +401,7 @@ namespace System.Data.Cobber
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(new { sql, args, ex });
                 return new AlertMsg(false, "执行错误:{0}", ex.Message);
             }
         }
@@ -432,7 +432,7 @@ namespace System.Data.Cobber
             }
             catch (Exception ex)
             {
-                Console.Write(ex);
+                Console.WriteLine(new { sql, args, ex });
                 return new AlertMsg(false, "执行错误:{0}", ex.Message);
             }
         }
@@ -461,7 +461,7 @@ namespace System.Data.Cobber
                     catch (Exception ex)
                     {
                         trans?.Rollback();
-                        Console.WriteLine(ex);
+                        Console.WriteLine(new { sql, args, ex });
                     }
                 }
                 return new AlertMsg(effLine > 0, $"执行成功，影响行数{effLine}")
@@ -474,7 +474,7 @@ namespace System.Data.Cobber
             }
             catch (Exception ex)
             {
-                Console.Write(ex);
+                Console.WriteLine(new { sql, args, ex });
                 return new AlertMsg(false, "执行错误:{0}", ex.Message);
             }
         }
@@ -511,7 +511,7 @@ namespace System.Data.Cobber
                 catch (Exception ex)
                 {
                     trans?.Rollback();
-                    Console.Write(ex);
+                    Console.WriteLine(new { sql, args, ex });
                     return new AlertMsg(false, "执行错误:{0}", ex.Message);
                 }
             }
@@ -549,7 +549,7 @@ namespace System.Data.Cobber
                 }
                 catch (Exception ex)
                 {
-                    Console.Write(ex);
+                    Console.WriteLine(new { sql, args, ex });
                     return new DataTable("Empty");
                 }
             }
@@ -590,7 +590,7 @@ namespace System.Data.Cobber
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(new { type, sqlModel, ex });
             }
             return sqlModel;
         }
@@ -618,7 +618,7 @@ namespace System.Data.Cobber
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(new { type, sqlModel, ex });
                 return new AlertMsg<AutoSqlModel>(false, ex.Message) { Data = sqlModel };
             }
         }
@@ -648,7 +648,7 @@ namespace System.Data.Cobber
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(new { type, sqlModel, ex });
                 return false;
             }
         }

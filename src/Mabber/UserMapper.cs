@@ -77,6 +77,14 @@ namespace System.Data.Mabber
         {
             UserMapper<TIn, TOut>.DoNoting();
         }
+        /// <summary>
+        /// 注册(推荐使用泛型注册方法)
+        /// </summary>
+        public static void Regist(Type typeIn, Type typeOut)
+        {
+            var type = typeof(UserMapper<,>).MakeGenericType(typeIn, typeOut);
+            type.GetMethod("DoNoting", Reflection.BindingFlags.Public | Reflection.BindingFlags.Static).Invoke(null, null);
+        }
     }
     /// <summary>
     /// 用户映射
@@ -223,9 +231,6 @@ namespace System.Data.Mabber
         /// <summary>
         /// 什么也不做
         /// </summary>
-        public static void DoNoting()
-        {
-
-        }
+        public static void DoNoting() { }
     }
 }

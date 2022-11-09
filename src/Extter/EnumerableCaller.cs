@@ -275,12 +275,33 @@ namespace System.Data.Cobber
         {
             foreach (var item in list)
             {
-                if (condition(item))
-                {
-                    return item;
-                }
+                if (condition(item)) { return item; }
             }
             return defVal;
+        }
+        /// <summary>
+        /// 获取或默认值
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static object GetOrDefault(this IEnumerable list)
+        {
+            foreach (var item in list) { return item; }
+            return null;
+        }
+        /// <summary>
+        /// 获取或默认值
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="condition"></param>
+        /// <returns></returns>
+        public static object GetOrDefault(this IEnumerable list, Func<object, bool> condition)
+        {
+            foreach (var item in list)
+            {
+                if (condition(item)) { return item; }
+            }
+            return null;
         }
         /// <summary>
         /// 获取或默认值
@@ -293,12 +314,34 @@ namespace System.Data.Cobber
         {
             foreach (var item in list)
             {
-                if (condition(item))
-                {
-                    return item;
-                }
+                if (condition(item)) { return item; }
             }
-            return list.FirstOrDefault();
+            return (T)list.FirstOrDefault();
+        }
+        /// <summary>
+        /// 获取或默认值
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="condition"></param>
+        /// <returns></returns>
+        public static object GetDefault(this IEnumerable list, Func<object, bool> condition)
+        {
+            foreach (var item in list)
+            {
+                if (condition(item)) { return item; }
+            }
+            foreach (var item in list) { return item; }
+            return null;
+        }
+        /// <summary>
+        /// 获取或默认值
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static object GetDefault(this IEnumerable list)
+        {
+            foreach (var item in list) { return item; }
+            return null;
         }
         /// <summary>
         /// 转换成整型数组

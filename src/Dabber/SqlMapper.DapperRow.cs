@@ -7,25 +7,20 @@ namespace System.Data.Dabber
 {
     public static partial class SqlMapper
     {
-        private sealed partial class DapperRow
-            : IDictionary<string, object>
-            , IReadOnlyDictionary<string, object>
+        private sealed partial class DapperRow : IDictionary<string, object>, IReadOnlyDictionary<string, object>
         {
             private readonly DapperTable table;
             private object[] values;
-
             public DapperRow(DapperTable table, object[] values)
             {
                 this.table = table ?? throw new ArgumentNullException(nameof(table));
                 this.values = values ?? throw new ArgumentNullException(nameof(values));
             }
-
             private sealed class DeadValue
             {
                 public static readonly DeadValue Default = new DeadValue();
                 private DeadValue() { /* hiding constructor */ }
             }
-
             int ICollection<KeyValuePair<string, object>>.Count
             {
                 get
@@ -38,10 +33,8 @@ namespace System.Data.Dabber
                     return count;
                 }
             }
-
             public bool TryGetValue(string key, out object value)
                 => TryGetValue(table.IndexOfName(key), out value);
-
             internal bool TryGetValue(int index, out object value)
             {
                 if (index < 0)
@@ -58,7 +51,6 @@ namespace System.Data.Dabber
                 }
                 return true;
             }
-
             public override string ToString()
             {
                 var sb = GetStringBuilder().Append("{DapperRow");
@@ -78,7 +70,6 @@ namespace System.Data.Dabber
 
                 return sb.Append('}').ToStringRecycle();
             }
-
             public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
             {
                 var names = table.FieldNames;
@@ -91,31 +82,25 @@ namespace System.Data.Dabber
                     }
                 }
             }
-
             IEnumerator IEnumerable.GetEnumerator()
             {
                 return GetEnumerator();
             }
-
             #region Implementation of ICollection<KeyValuePair<string,object>>
-
             void ICollection<KeyValuePair<string, object>>.Add(KeyValuePair<string, object> item)
             {
                 IDictionary<string, object> dic = this;
                 dic.Add(item.Key, item.Value);
             }
-
             void ICollection<KeyValuePair<string, object>>.Clear()
             { // removes values for **this row**, but doesn't change the fundamental table
                 for (int i = 0; i < values.Length; i++)
                     values[i] = DeadValue.Default;
             }
-
             bool ICollection<KeyValuePair<string, object>>.Contains(KeyValuePair<string, object> item)
             {
                 return TryGetValue(item.Key, out object value) && Equals(value, item.Value);
             }
-
             void ICollection<KeyValuePair<string, object>>.CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
             {
                 foreach (var kv in this)
@@ -123,51 +108,41 @@ namespace System.Data.Dabber
                     array[arrayIndex++] = kv; // if they didn't leave enough space; not our fault
                 }
             }
-
             bool ICollection<KeyValuePair<string, object>>.Remove(KeyValuePair<string, object> item)
             {
                 IDictionary<string, object> dic = this;
                 return dic.Remove(item.Key);
             }
-
             bool ICollection<KeyValuePair<string, object>>.IsReadOnly => false;
             #endregion
-
             #region Implementation of IDictionary<string,object>
-
             bool IDictionary<string, object>.ContainsKey(string key)
             {
                 int index = table.IndexOfName(key);
                 if (index < 0 || index >= values.Length || values[index] is DeadValue) return false;
                 return true;
             }
-
             void IDictionary<string, object>.Add(string key, object value)
             {
                 SetValue(key, value, true);
             }
-
             bool IDictionary<string, object>.Remove(string key)
                 => Remove(table.IndexOfName(key));
-
             internal bool Remove(int index)
             {
                 if (index < 0 || index >= values.Length || values[index] is DeadValue) return false;
                 values[index] = DeadValue.Default;
                 return true;
             }
-
             object IDictionary<string, object>.this[string key]
             {
                 get { TryGetValue(key, out object val); return val; }
                 set { SetValue(key, value, false); }
             }
-
             public object SetValue(string key, object value)
             {
                 return SetValue(key, value, false);
             }
-
             private object SetValue(string key, object value, bool isAdd)
             {
                 if (key == null) throw new ArgumentNullException(nameof(key));
@@ -198,52 +173,37 @@ namespace System.Data.Dabber
                 }
                 return values[index] = value;
             }
-
             ICollection<string> IDictionary<string, object>.Keys
             {
                 get { return this.Select(kv => kv.Key).ToArray(); }
             }
-
             ICollection<object> IDictionary<string, object>.Values
             {
                 get { return this.Select(kv => kv.Value).ToArray(); }
             }
-
             #endregion
-
-
             #region Implementation of IReadOnlyDictionary<string,object>
-
-
             int IReadOnlyCollection<KeyValuePair<string, object>>.Count
             {
-                get
-                {
-                    return values.Count(t => !(t is DeadValue));
-                }
+                get { return values.Count(t => !(t is DeadValue)); }
             }
-
             bool IReadOnlyDictionary<string, object>.ContainsKey(string key)
             {
                 int index = table.IndexOfName(key);
                 return index >= 0 && index < values.Length && !(values[index] is DeadValue);
             }
-
             object IReadOnlyDictionary<string, object>.this[string key]
             {
                 get { TryGetValue(key, out object val); return val; }
             }
-
             IEnumerable<string> IReadOnlyDictionary<string, object>.Keys
             {
                 get { return this.Select(kv => kv.Key); }
             }
-
             IEnumerable<object> IReadOnlyDictionary<string, object>.Values
             {
                 get { return this.Select(kv => kv.Value); }
             }
-
             #endregion
         }
     }
