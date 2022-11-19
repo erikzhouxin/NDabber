@@ -262,16 +262,17 @@ namespace System.Data.Logger
         /// <returns></returns>
         public virtual void TryWrite(Func<String> GetContent)
         {
-            Task.Factory.StartNew(() =>
+            new Task(() =>
             {
-                var consoleModel = new Tuble<DateTime, String>(DateTime.Now, GetContent());
-                var consoleString = $"{consoleModel.Item1:yyyy-MM-dd HH:mm:ss.fffff}    {consoleModel.Item2.Replace("\n", "\n                             ")}";
+                var dt = DateTime.Now;
+                var content = GetContent();
+                var consoleString = $"{dt:yyyy-MM-dd HH:mm:ss.fffff}    {content.Replace("\n", "\n                             ")}";
                 OldWriter?.WriteLine(consoleString);
                 if (Monitor.TryEnter(_logLocker, TimeSpan.FromSeconds(10)))
                 {
                     try
                     {
-                        var fileName = $"{GetLogPath()}{consoleModel.Item1:yyyy-MM}.log";
+                        var fileName = Path.Combine(GetLogPath(), $"{dt:yyyy-MM}.log");
                         using (var file = new FileStream(fileName, FileMode.Append, FileAccess.Write))
                         {
                             var contByte = Encoding.UTF8.GetBytes(consoleString + "\r\n");
@@ -284,7 +285,7 @@ namespace System.Data.Logger
                         Monitor.Exit(_logLocker);
                     }
                 }
-            });
+            }).Start();
         }
         /// <summary>
         /// 获取日志目录
@@ -294,9 +295,7 @@ namespace System.Data.Logger
         {
             var path = Path.GetFullPath("Logs/");
             if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
+            { Directory.CreateDirectory(path); }
             return path;
         }
     }

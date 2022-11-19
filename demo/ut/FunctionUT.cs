@@ -1,9 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Cobber;
 using System.Data.Extter;
 using System.Data.Impeller;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -148,12 +151,248 @@ namespace System.Data.DabberUT
         public void TestShortCutLink()
         {
             var shortPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "命令提示符.lnk");
-            var targetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows),"System32", "Cmd.exe");
+            var targetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "Cmd.exe");
             var shellLink = ExtterCaller.CreateShortcut2(shortPath, targetPath);
             shellLink.Flags = ShellLink.DATA_FLAGS.RunAsUser; // 以管理员身份运行
             shellLink.Save(shortPath);
             Console.WriteLine(shellLink.Path);
             Console.WriteLine(shellLink.FileInfo.GetJsonFormatString());
         }
+        /// <summary>
+        /// 测试字典加锁
+        /// </summary>
+        [TestMethod]
+        public void DictionaryLocker()
+        {
+            var _CctDic = new ConcurrentDictionary<int, string>();
+            var _CctDicClass = new ConcurrentDictionary<int, Tuble<string, int>>();
+            var _Dic = new Dictionary<int, string>();
+            var _DicClass = new Dictionary<int, Tuble<string, int>>();
+            var _Ht = new Hashtable();
+            var _HtClass = new Hashtable();
+            var _CurrentItem = "";
+            var _Item = "字符串";
+            var _NUM = 10000000;//执行次数 
+            Tuble<string, int> _CurrentStudent = null;
+            Tuble<string, int> student = new Tuble<string, int>(_Item, _NUM);
+            Stopwatch _SW = new Stopwatch();
+
+            //字符串写入字典（无锁）
+            _SW.Start();
+
+            for (int i = 0; i < _NUM; i++)
+            {
+                _Dic[i] = _Item;
+            }
+            _SW.Stop();
+            Console.WriteLine("向字典写入【字符串】不添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //字符串写入字典（有锁）
+            _Dic = new Dictionary<int, string>();
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                lock (_Dic)
+                {
+                    _Dic[i] = _Item;
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("向字典写入【字符串】添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //类写入字典（无锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _DicClass[i] = student;
+            }
+            _SW.Stop();
+            Console.WriteLine("向子典写入【学生类】不添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //类写入字典（有锁）
+            _DicClass = new Dictionary<int, Tuble<string, int>>();
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                lock (_DicClass)
+                {
+                    _DicClass[i] = student;
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("向子典写入【学生类】添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+            Console.WriteLine("----------------------------------------------------");
+
+            //字符串写入HashTable（无锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _Ht[i] = _Item;
+            }
+            _SW.Stop();
+            Console.WriteLine("向HashTable写入【字符串】不添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //字符串写入HashTable（有锁）
+            _Ht = new Hashtable();
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                lock (_Ht)
+                {
+                    _Ht[i] = _Item;
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("向HashTable写入【字符串】添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //类写入HashTable（无锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _HtClass[i] = student;
+            }
+            _SW.Stop();
+            Console.WriteLine("向HashTable写入【学生类】不添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //类写入HashTable（有锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                lock (_HtClass)
+                {
+                    _HtClass[i] = student;
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("向HashTable写入【学生类】添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+            Console.WriteLine("----------------------------------------------------------");
+
+            //字符串写入ConcurrentDictionary
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _CctDic[i] = _Item;
+            }
+            _SW.Stop();
+            Console.WriteLine("向ConcurrentDictionary写入【字符串】 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //类写入ConcurrentDictionary
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _CctDicClass[i] = student;
+            }
+            _SW.Stop();
+            Console.WriteLine("向ConcurrentDictionary写入【学生类】 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+            Console.WriteLine("--------------------------------------------------------");
+
+            //遍历普通字典（无锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _CurrentItem = _Dic[i];
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【普通】字典（无锁） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //遍历普通字典（有锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                lock (_Dic)
+                {
+                    _CurrentItem = _Dic[i];
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【普通】字典（有锁） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //遍历类字典（无锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _CurrentStudent = _DicClass[i];
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【学生类】字典（无锁） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //遍历类字典（有锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                lock (_Dic)
+                {
+                    _CurrentStudent = _DicClass[i];
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【学生类】字典（有锁） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+            Console.WriteLine("--------------------------------------------------------");
+
+            //遍历HashTable（无锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _CurrentItem = _Ht[i].ToString();
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【HashTable】字典（无锁） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //遍历HashTable（有锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                lock (_Dic)
+                {
+                    _CurrentItem = _Ht[i].ToString();
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【HashTable】字典（有锁） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //遍历HashTable类（无锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _CurrentStudent = (Tuble<string, int>)_HtClass[i];
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【HashTable学生类】字典（无锁） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //遍历HashTable类（有锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                lock (_Dic)
+                {
+                    _CurrentStudent = (Tuble<string, int>)_HtClass[i];
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【HashTable学生类】字典（有锁） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+            Console.WriteLine("--------------------------------------------------------");
+
+            //遍历ConCurrent字典
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _CurrentItem = _CctDic[i];
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【ConCurrent字典】（字符串） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //遍历ConCurrent字典（类）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _CurrentStudent = _CctDicClass[i];
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【ConCurrent字典】（学生类） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+            Console.WriteLine("--------------------------------------------------------");
+            _SW.Restart();
+            Console.WriteLine("-------------------结束---------------------------");
+        }
+
     }
 }

@@ -4,6 +4,7 @@ using System.Data.Dabber;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace System.Data.Extter
 {
@@ -78,22 +79,49 @@ namespace System.Data.Extter
         public virtual IAlertMsg Create()
         {
             var cmd = new StringBuilder();
-            if (!string.IsNullOrWhiteSpace(ServerName))
-            {
-                cmd.Append($" {ServerName}");
-            }
+            if (!string.IsNullOrWhiteSpace(ServerName)) { cmd.Append($" {ServerName}"); }
             cmd.Append($" create \"{Name}\"")
                .Append($" binpath= \"{BinPath}{Args}\"")
                .Append($" displayname= \"{Name}\"")
                .Append($" start= {GetStart(Start)}")
                .Append($" error= {GetError(Error)}");
-            if (!string.IsNullOrWhiteSpace(Obj))
-            {
-                cmd.Append($" obj= \"{Obj}\"").Append($" password= \"{Password}\"");
-            }
+            GetType(cmd, Type);
+            if (!string.IsNullOrWhiteSpace(Obj)) { cmd.Append($" obj= \"{Obj}\""); }
+            if (!string.IsNullOrWhiteSpace(Password)) { cmd.Append($" password= \"{Password}\""); }
             return ExtterCaller.ExecHidden("SC", Path.GetDirectoryName(Path.GetFullPath(Source)), cmd.ToString());
         }
+        private static StringBuilder GetType(StringBuilder sb, ServerType type)
+        {
+            switch (type)
+            {
+                case ServerType.Own:
+                    sb.Append(" type= own");
+                    break;
+                case ServerType.Share:
+                    sb.Append(" type= share");
+                    break;
+                case ServerType.Kernel:
+                    sb.Append(" type= kernal");
+                    break;
+                case ServerType.FileSys:
+                    sb.Append(" type= filesys");
+                    break;
+                case ServerType.Rec:
+                    sb.Append(" type= rec");
+                    break;
+                case ServerType.Interact:
+                    sb.Append(" type= share type= interact");
+                    break;
+                case ServerType.InteractOwn:
+                    sb.Append(" type= own type= interact");
+                    break;
+                case ServerType.Unknown:
+                default:
+                    break;
+            }
+            return sb;
 
+        }
         private static String GetError(ErrorType error)
         {
             switch (error)
@@ -146,6 +174,27 @@ namespace System.Data.Extter
         public virtual IAlertMsg StopService()
         {
             return ExtterCaller.NetStop(Name);
+        }
+        /// <summary>
+        /// 安装服务
+        /// </summary>
+        public virtual void InstallService(Action<IAlertMsg> showMsg, Func<SystemServiceInfoModel, IAlertMsg> edit)
+        {
+            showMsg?.Invoke(Create());
+            if (edit != null)
+            { showMsg?.Invoke(edit?.Invoke(this)); }
+            showMsg?.Invoke(StartService());
+        }
+        /// <summary>
+        /// 卸载服务
+        /// </summary>
+        public virtual void UninstallService(Action<IAlertMsg> showMsg, Func<SystemServiceInfoModel, IAlertMsg> edit)
+        {
+            showMsg?.Invoke(StopService());
+            Thread.Sleep(1000); // 等一秒看看情况
+            if (edit != null)
+            { showMsg?.Invoke(edit.Invoke(this)); }
+            showMsg?.Invoke(Delete());
         }
         /// <summary>
         /// 错误类型
@@ -241,6 +290,10 @@ namespace System.Data.Extter
             /// 此类型必须与 type= own 或 type= shared (一起使用，例如 ，type= interacttype= own) 。 使用 type= 自行 交互将生成错误。
             /// </summary>
             Interact,
+            /// <summary>
+            /// localsystem+允许与桌面进行交互
+            /// </summary>
+            InteractOwn,
         }
     }
 }
