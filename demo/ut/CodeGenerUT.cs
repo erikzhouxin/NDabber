@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace NEamsUT.CodeGener
+namespace System.Data.DabberUT
 {
     /// <summary>
     /// GUID
@@ -31,7 +31,7 @@ namespace NEamsUT.CodeGener
         [TestMethod]
         public void CreateContextEntities()
         {
-            var jsonString = System.IO.File.ReadAllText(System.IO.Path.GetFullPath("CodeContextEntities.Json"));
+            var jsonString = File.ReadAllText(Path.GetFullPath("CodeContextEntities.Json"));
             var values = jsonString.GetJsonObject();
             foreach (dynamic item in values)
             {
@@ -41,6 +41,7 @@ namespace NEamsUT.CodeGener
                 var ignoreTables = ((string)item.IgnoreTables).Split(","); // 使用逗号(,)隔开表名
                 var sb = ContextEntitiesBuilder.Create(StoreType.MySQL)
                     .SetNamespace(nameSpace)
+                    .SetPreTable("")
                     .SetIgnoreTableOrColumn(ignoreTables)
                     .GetCodeSingle(new MySql.Data.MySqlClient.MySqlConnection(connString));
                 File.WriteAllText(Path.GetFullPath(fileName), sb.ToString());

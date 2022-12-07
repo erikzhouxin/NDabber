@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net40;net45;netstandard2.1;netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
+		<TargetFrameworks>net40;net45;netstandard2.1;netcoreapp3.1;net6.0;</TargetFrameworks>
 		<Description>兼容低版本.NET数据库ORM的Dapper为Dabber，常用帮助Cobber，扩展Extter，日志Logger等工具库内容</Description>
 		<AssemblyName>NSystem.Data.Dabber</AssemblyName>
 		<RootNamespace>System.Data</RootNamespace>
@@ -14,9 +14,9 @@
 		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>2022.8.8</Version>
-		<FileVersion>2022.8.8.688</FileVersion>
-		<AssemblyVersion>2022.8.8.688</AssemblyVersion>
+		<Version>2022.9.9</Version>
+		<FileVersion>2022.9.9.699</FileVersion>
+		<AssemblyVersion>2022.9.9.699</AssemblyVersion>
 		<RepositoryUrl>https://gitee.com/erikzhouxin/ndabber</RepositoryUrl>
 		<PackageProjectUrl>https://gitee.com/erikzhouxin/ndabber.git</PackageProjectUrl>
 		<RepositoryType>git</RepositoryType>

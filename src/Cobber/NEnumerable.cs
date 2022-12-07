@@ -57,7 +57,7 @@ namespace System.Data.Cobber
     /// 获取可枚举类型接口
     /// </summary>
     /// <typeparam name="TEnum"></typeparam>
-    public interface INEnumerable<TEnum> : INEnumerable where TEnum : struct, Enum
+    public interface INEnumerable<out TEnum> : INEnumerable where TEnum : struct, Enum
     {
         /// <summary>
         /// 枚举值

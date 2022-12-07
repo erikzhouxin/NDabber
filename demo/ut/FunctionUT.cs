@@ -9,8 +9,12 @@ using System.Data.Impeller;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace System.Data.DabberUT
 {
@@ -393,6 +397,55 @@ namespace System.Data.DabberUT
             _SW.Restart();
             Console.WriteLine("-------------------结束---------------------------");
         }
+        [TestMethod]
+        public void TestFiled()
+        {
+            Transform t = new Transform();
+            var v = t.v;
+            v.x = 1;
+            t.v = v;
+            t.ShowV();
+        }
+        struct Vector
+        {
+            public float x;
+            public float y;
+            public float z;
+        }
 
+        class Transform
+        {
+            public Vector v { get; set; }
+            public void ShowV()
+            {
+                Console.WriteLine(v.x + "..." + v.y + "..." + v.z);
+            }
+        }
+
+        [TestMethod]
+        public void TestSocket()
+        {
+            var tcpServer = new TcpClient(AddressFamily.InterNetwork);
+            tcpServer.Connect(IPAddress.Parse("192.168.1.110"), 4999);
+            var stream = tcpServer.GetStream();
+            var data = new
+            {
+                C = "Test",
+                M = "哈哈就是能玩",
+            }.GetJsonFormatString().GetUTF8Bytes();
+            stream.Write(data, 0, data.Length);
+        }
+        [TestMethod]
+        public void TestTaskAndFactory()
+        {
+            Task.Factory.StartNew((Func<Task>)TestTaskAndFactoryAsync);
+            Task.Run((Func<Task>)TestTaskAndFactoryAsync);
+            Thread.Sleep(1000);
+        }
+        private async Task TestTaskAndFactoryAsync()
+        {
+            await Task.Factory.StartNew(() => Console.WriteLine("我调用成功了"));
+
+        }
     }
 }

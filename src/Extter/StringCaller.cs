@@ -36,6 +36,14 @@ namespace System.Data.Cobber
         /// <returns></returns>
         public static String CreateGuidString<T>(this T _) => Guid.NewGuid().ToString("N");
         /// <summary>
+        /// 创建一个全新的Guid字符串,无连接符
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="_"></param>
+        /// <param name="fmt"></param>
+        /// <returns></returns>
+        public static String GetGuidString<T>(this T _, string fmt = "N") => Guid.NewGuid().ToString(fmt);
+        /// <summary>
         /// 转换成字符串唯一值
         /// </summary>
         /// <param name="guid"></param>
