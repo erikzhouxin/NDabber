@@ -482,6 +482,14 @@ namespace System.Data.Extter
         /// 默认启动域
         /// </summary>
         public static Int64 DefaultStartDomain { get; set; }
+        /// <summary>
+        /// 是默认加密
+        /// </summary>
+#if DEBUG
+        public static bool IsDefaultEncrypt { get; set; } = false;
+#else
+        public static bool IsDefaultEncrypt { get; set; } = true;
+#endif
         static AStartSettings()
         {
             try
@@ -540,6 +548,7 @@ namespace System.Data.Extter
             if (file == null || !file.Exists) { return AlertMsg.NotFound; }
             var text = File.ReadAllText(file.FullName, Encoding.UTF8);
             if (text.Length <= 32) { return AlertMsg.NotFound; }
+            if (IsDefaultEncrypt && text[0] == '{') { return AlertMsg.NotSupported; }
             _secret = secret + UserPassword.DefaultPasswordB;
             string content = text[0] == '{' ? text : UserCrypto.GetAesDecrypt(text, _secret);
             var model = content.GetJsonObject<T>();

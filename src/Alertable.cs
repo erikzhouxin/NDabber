@@ -107,6 +107,10 @@ namespace System
         /// 未找到可操作内容
         /// </summary>
         public static AlertMsg NotFound { get => new AlertMsg(false, "未找到可操作内容") { Code = 404 }; }
+        /// <summary>
+        /// 不支持可操作内容
+        /// </summary>
+        public static AlertMsg NotSupported { get => new AlertMsg(false, "不支持可操作内容") { Code = 404 }; }
     }
     /// <summary>
     /// 提示信息动态实现类

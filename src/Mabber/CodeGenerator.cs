@@ -95,14 +95,7 @@ namespace System.Data.Mabber
 
         private void EmitCall(MethodInfo method)
         {
-            if (method.IsVirtual)
-            {
-                _ilGenerator.Emit(OpCodes.Callvirt, method);
-            }
-            else
-            {
-                _ilGenerator.Emit(OpCodes.Call, method);
-            }
+            _ilGenerator.Emit(method.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, method);
         }
     }
 }

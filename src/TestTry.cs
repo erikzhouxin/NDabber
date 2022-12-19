@@ -2,6 +2,7 @@
 global using System.Collections.Generic;
 global using System.Linq;
 global using System.Text;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -22,6 +23,36 @@ namespace System
         /// 用户名称
         /// </summary>
         public static string AuthorUserName { get; } = "周鑫";
+        /// <summary>
+        /// 当前程序集
+        /// </summary>
+        public static Assembly CurrentAssembly { get; } = Assembly.GetExecutingAssembly();
+        private static Lazy<bool> _isDebugMode = new Lazy<bool>(IsProcessDebug, true);
+        /// <summary>
+        /// 当前进程是调试状态
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsProcessDebug()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            bool debug = false;
+            foreach (var attribute in assembly.GetCustomAttributes(false))
+            {
+                if (attribute is DebuggableAttribute debuggable)
+                {
+                    if (debuggable.IsJITTrackingEnabled)
+                    {
+                        debug = true;
+                        break;
+                    }
+                }
+            }
+            return debug;
+        }
+        /// <summary>
+        /// 当前是调试模式
+        /// </summary>
+        public static bool IsDebugMode { get => _isDebugMode.Value; }
         /// <summary>
         /// 调用
         /// </summary>

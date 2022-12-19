@@ -5,6 +5,7 @@
 		<AssemblyName>NSystem.Data.Dabber</AssemblyName>
 		<RootNamespace>System.Data</RootNamespace>
 		<AssemblyTitle>NSystem.Data.Dabber</AssemblyTitle>
+		<PackageId>NSystem.Data.Dabber</PackageId>
 		<Authors>ErikZhouXin</Authors>
 		<SignAssembly>true</SignAssembly>
 		<LangVersion>latest</LangVersion>
@@ -26,6 +27,8 @@
 		<AppConfig Condition="'$(TargetFramework)' == 'net40'">app.net40.config</AppConfig>
 		<AutoUnifyAssemblyReferences Condition="'$(TargetFramework)' == 'net40'">false</AutoUnifyAssemblyReferences>
 		<NoWarn>1701;1702;IDE0057;IDE0066;IDE0079;IDE0063</NoWarn>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|net40'">
 		<DefineConstants>TRACE;DEBUG;NETFrame;NET40</DefineConstants>

@@ -49,7 +49,7 @@ namespace System.Data.DabberUT
         [TestMethod]
         public void TestAssembly()
         {
-           var infoModel = new  AssemblyInfoModel(typeof(AssemblyUT));
+            var infoModel = new AssemblyInfoModel(typeof(AssemblyUT));
             Console.WriteLine(infoModel.Assembly.FullName);
             Console.WriteLine(Assembly.GetExecutingAssembly().FullName);
             Console.WriteLine(Assembly.GetEntryAssembly().FullName);
@@ -58,6 +58,18 @@ namespace System.Data.DabberUT
             Console.WriteLine(infoModel.ExecutingAssembly.FullName);
             Console.WriteLine(infoModel.EntryAssembly.FullName);
             Console.WriteLine(infoModel.CallingAssembly.FullName);
+            Console.WriteLine("================================================");
+            var infoModel2 = new AssemblyInfoModel(typeof(TestTry));
+            Console.WriteLine("================================================");
+            Console.WriteLine(infoModel2.Assembly.FullName);
+            Console.WriteLine(infoModel2.ExecutingAssembly.FullName);
+            Console.WriteLine(infoModel2.EntryAssembly.FullName);
+            Console.WriteLine(infoModel2.CallingAssembly.FullName);
+        }
+        [TestMethod]
+        public void TestDebugable()
+        {
+            Console.WriteLine(TestTry.IsDebugMode);
         }
     }
 }

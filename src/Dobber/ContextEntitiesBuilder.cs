@@ -63,6 +63,13 @@ namespace System.Data.Dobber
         /// <returns></returns>
         IContextEntitiesBuilder SetPreTable(string preTable);
         /// <summary>
+        /// 设置视图前置字符串
+        /// </summary>
+        /// <param name="preTable"></param>
+        /// <param name="preView"></param>
+        /// <returns></returns>
+        IContextEntitiesBuilder SetPreTable(string preTable, string preView);
+        /// <summary>
         /// 设置忽略表或列(列名请使用[表.列])
         /// </summary>
         /// <param name="ignoreList"></param>
@@ -122,6 +129,11 @@ namespace System.Data.Dobber
             throw new NotImplementedException();
         }
 
+        public IContextEntitiesBuilder SetPreTable(string preTable, string preView)
+        {
+            throw new NotImplementedException();
+        }
+
         public IContextEntitiesBuilder SetUsings(params string[] usings)
         {
             throw new NotImplementedException();
@@ -159,6 +171,11 @@ namespace System.Data.Dobber
             throw new NotImplementedException();
         }
 
+        public IContextEntitiesBuilder SetPreTable(string preTable, string preView)
+        {
+            throw new NotImplementedException();
+        }
+
         public IContextEntitiesBuilder SetUsings(params string[] usings)
         {
             throw new NotImplementedException();
@@ -180,6 +197,7 @@ namespace System.Data.Dobber
         private bool _ignoreDbName = false;
         private List<string> _ignoreList = new List<string>();
         private string _preTable = "T";
+        private String _preView = "V";
         /// <summary>
         /// 构造
         /// </summary>
@@ -198,6 +216,7 @@ namespace System.Data.Dobber
             var tables = conn.Query($"select * from information_schema.tables where table_schema='{_dbName}'").ToList();
             var columns = conn.Query($"select * from information_schema.columns where table_schema='{_dbName}'").ToList();
             Func<String, string> GetTableName = (s) => s.SnakeToPascalCase();
+            Func<string, String> GetViewName = (s) => s.SnakeToPascalCase();
             if (!String.IsNullOrEmpty(_preTable))
             {
                 GetTableName = (s) =>
@@ -210,6 +229,18 @@ namespace System.Data.Dobber
                     return _preTable + tableName;
                 };
             }
+            if (!String.IsNullOrEmpty(_preView))
+            {
+                GetViewName = (s) =>
+                {
+                    var tableName = s.SnakeToPascalCase();
+                    if (tableName.StartsWith(_preView, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return tableName;
+                    }
+                    return _preView + tableName;
+                };
+            }
             var tableModels = new List<TableModel>();
             var copyTableReg = new Regex(@"\w+(_copy)\d+$");
             foreach (var tabItem in tables)
@@ -219,6 +250,10 @@ namespace System.Data.Dobber
                 if (copyTableReg.IsMatch(tableName)) { continue; }
                 string tableComment = tabItem.TABLE_COMMENT;
                 var className = GetTableName(tableName);
+                if("VIEW".Equals(tabItem.TABLE_TYPE, StringComparison.OrdinalIgnoreCase))
+                {
+                    className = GetViewName(tableName);
+                }
                 var tableColumns = new List<ColumnModel>();
                 foreach (var colItem in columns.Where(s => tableName.Equals(s.TABLE_NAME)).OrderBy(s => s.ORDINAL_POSITION))
                 {
@@ -569,6 +604,13 @@ namespace System.Data.Dobber
             _preTable = preTable ?? String.Empty;
             return this;
         }
+
+        public IContextEntitiesBuilder SetPreTable(string preTable, string preView)
+        {
+            _preTable = preTable ?? String.Empty;
+            _preView = preView ?? string.Empty;
+            return this;
+        }
     }
     internal class ContextEntitiesOracleBuilder : IContextEntitiesBuilder
     {
@@ -598,6 +640,11 @@ namespace System.Data.Dobber
         }
 
         public IContextEntitiesBuilder SetPreTable(string preTable)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IContextEntitiesBuilder SetPreTable(string preTable, string preView)
         {
             throw new NotImplementedException();
         }
@@ -635,6 +682,11 @@ namespace System.Data.Dobber
         }
 
         public IContextEntitiesBuilder SetPreTable(string preTable)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IContextEntitiesBuilder SetPreTable(string preTable, string preView)
         {
             throw new NotImplementedException();
         }

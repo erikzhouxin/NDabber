@@ -381,20 +381,37 @@ namespace System.Data.Cobber
     public class EDisplayAttribute : Attribute
     {
         /// <summary>
+        /// 值内容
+        /// </summary>
+        public virtual object Value { get; set; }
+        /// <summary>
+        /// 分类
+        /// </summary>
+        public virtual String Category { get; set; }
+        /// <summary>
+        /// 名称(内部别名/Key名)
+        /// </summary>
+        public virtual string Name { get; set; }
+        /// <summary>
+        /// 显示名称
+        /// </summary>
+        public virtual string Display { get; set; }
+        /// <summary>
+        /// 描述内容
+        /// </summary>
+        public virtual string Description { get; set; }
+        /// <summary>
+        /// 类型
+        /// </summary>
+        public virtual Type Type { get; set; }
+        /// <summary>
         /// 构造函数
         /// </summary>
-        public EDisplayAttribute(string display, string name = null)
-        {
-            if (display == null)
-            {
-                Name = Display = name ?? String.Empty;
-            }
-            else
-            {
-                Display = display;
-                Name = name ?? display;
-            }
-        }
+        public EDisplayAttribute(string display) : this(nameof(Category), display, display) { }
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        public EDisplayAttribute(string display, string name) : this(nameof(Category), display, name) { }
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -405,21 +422,32 @@ namespace System.Data.Cobber
             Type = type;
         }
         /// <summary>
-        /// 名称(内部别名/Key名)
+        /// 分组构造
         /// </summary>
-        public string Name { get; set; }
+        /// <param name="group"></param>
+        /// <param name="display"></param>
+        /// <param name="name"></param>
+        public EDisplayAttribute(string group, string display, string name)
+        {
+            Category = group;
+            Display = display;
+            Name = name;
+        }
         /// <summary>
-        /// 显示名称
+        /// 分组构造
         /// </summary>
-        public string Display { get; set; }
-        /// <summary>
-        /// 描述内容
-        /// </summary>
-        public string Description { get; set; }
-        /// <summary>
-        /// 类型
-        /// </summary>
-        public Type Type { get; set; }
+        /// <param name="group"></param>
+        /// <param name="display"></param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public EDisplayAttribute(string group, string display, string name, object value)
+        {
+            Category = group;
+            Display = display;
+            Name = name;
+            Value = value;
+            if (value != null) { Type = value.GetType(); }
+        }
     }
     /// <summary>
     /// 默认SQL语句属性

@@ -426,14 +426,14 @@ namespace System.Data.DabberUT
         public void TestSocket()
         {
             var tcpServer = new TcpClient(AddressFamily.InterNetwork);
-            tcpServer.Connect(IPAddress.Parse("192.168.1.110"), 4999);
+            tcpServer.Connect(IPAddress.Any, 29988);
             var stream = tcpServer.GetStream();
-            var data = new
-            {
-                C = "Test",
-                M = "哈哈就是能玩",
-            }.GetJsonFormatString().GetUTF8Bytes();
+            var data = "{\"i\":1,\"c\":\"playOutsideVoice\",\"m\":\"与子米通数据交换异常，请检查网络情况。与子米通数据交换异常，请检查网络情况。与子米通数据交换异常，请检查网络情况。\",\"p\":\"{\\\"v\\\":\\\"3\\\"}\",\"t\":\"20221213083600\",\"l\":false}".GetUTF8Bytes();
             stream.Write(data, 0, data.Length);
+            var dataR = new byte[4096];
+            var res = stream.Read(dataR, 0, dataR.Length);
+            Console.WriteLine(dataR.GetUTF8String());
+            Thread.Sleep(30000);
         }
         [TestMethod]
         public void TestTaskAndFactory()
@@ -446,6 +446,23 @@ namespace System.Data.DabberUT
         {
             await Task.Factory.StartNew(() => Console.WriteLine("我调用成功了"));
 
+        }
+        [TestMethod]
+        public void TestCharSort()
+        {
+            var list = new List<String>()
+            {
+                "国","内"
+            };
+            Console.WriteLine(list.OrderBy(s => s).JoinString());
+            Console.WriteLine(list.OrderByDescending(s => s).JoinString());
+            Console.WriteLine("=================================================");
+            var list2 = new List<char>()
+            {
+                '国','内'
+            };
+            Console.WriteLine(list2.OrderBy(s => s).JoinString());
+            Console.WriteLine(list2.OrderByDescending(s => s).JoinString());
         }
     }
 }

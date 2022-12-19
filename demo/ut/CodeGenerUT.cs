@@ -41,7 +41,7 @@ namespace System.Data.DabberUT
                 var ignoreTables = ((string)item.IgnoreTables).Split(","); // 使用逗号(,)隔开表名
                 var sb = ContextEntitiesBuilder.Create(StoreType.MySQL)
                     .SetNamespace(nameSpace)
-                    .SetPreTable("")
+                    .SetPreTable("T","V")
                     .SetIgnoreTableOrColumn(ignoreTables)
                     .GetCodeSingle(new MySql.Data.MySqlClient.MySqlConnection(connString));
                 File.WriteAllText(Path.GetFullPath(fileName), sb.ToString());
