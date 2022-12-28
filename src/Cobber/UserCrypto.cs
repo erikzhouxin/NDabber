@@ -229,7 +229,7 @@ namespace System.Data.Cobber
 #if NETFx
             using (var rsa = RSA.Create())
 #else
-            using( var rsa = new RSACryptoServiceProvider())
+            using (var rsa = new RSACryptoServiceProvider())
 #endif
             {
                 rsa.FromXmlString(priKey);
@@ -249,7 +249,7 @@ namespace System.Data.Cobber
 #if NETFx
                         var enBytes = rsa.Decrypt(temp, RSAEncryptionPadding.OaepSHA1);
 #else
-                var enBytes = rsa.Decrypt(temp, true);
+                        var enBytes = rsa.Decrypt(temp, true);
 #endif
                         output.Write(enBytes, 0, enBytes.Length);
                     }
@@ -364,11 +364,8 @@ namespace System.Data.Cobber
         /// <returns></returns>
         private static byte[] GetFillBytes(byte[] key, int len)
         {
-            if (key == null || key.Length == 0)
-            {
-                return new byte[len];
-            }
-            else if (key.Length < len)
+            if (key == null || key.Length == 0) { return new byte[len]; }
+            if (key.Length < len)
             {
                 var newKey = new byte[len];
                 for (int i = 1; i < key.Length; i++)
@@ -377,10 +374,7 @@ namespace System.Data.Cobber
                 }
                 return newKey;
             }
-            else
-            {
-                return key.Take(len).ToArray();
-            }
+            return key.Take(len).ToArray();
         }
         /// <summary>
         ///  AES 解密

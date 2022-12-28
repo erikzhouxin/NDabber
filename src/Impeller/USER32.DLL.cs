@@ -61,6 +61,12 @@ namespace System.Data.Impeller
         #region // 公开类
         /// <summary>
         /// 最后一次输入信息
+        /// [StructLayout(LayoutKind.Sequential)]
+        /// public struct LASTINPUTINFO
+        /// {
+        ///     public uint cbSize;
+        ///     public uint dwTime;
+        /// }
         /// </summary>
         [StructLayout(LayoutKind.Sequential)]
         public struct PLASTINPUTINFO
@@ -68,12 +74,12 @@ namespace System.Data.Impeller
             /// <summary>
             /// 大小
             /// </summary>
-            [MarshalAs(UnmanagedType.U4)]
+            //[MarshalAs(UnmanagedType.U4)]
             public int CbSize;
             /// <summary>
             /// 时间
             /// </summary>
-            [MarshalAs(UnmanagedType.U4)]
+            //[MarshalAs(UnmanagedType.U4)]
             public uint DwTime;
         }
         /// <summary>

@@ -139,7 +139,11 @@ namespace System.Data.Cobber
             var type = typeof(TEnum);
             var values = System.Enum.GetValues(type);
             var allEnums = (TEnum[])values;
-            var allValues = (int[])values;
+            var allValues = new int[values.Length];
+            for (int i = 0; i < values.Length; i++)
+            {
+                allValues[i] = (int)values.GetValue(i);
+            }
             var allEnumNames = System.Enum.GetNames(type);
             AllEnums = new ReadOnlyCollection<TEnum>(allEnums);
             AllValues = new ReadOnlyCollection<int>(allValues);

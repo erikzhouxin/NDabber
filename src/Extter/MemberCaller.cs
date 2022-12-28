@@ -1978,5 +1978,27 @@ namespace System.Data.Extter
         #endregion
         #endregion
         #endregion
+
+        #region // 类型内容
+        /// <summary>
+        /// 从程序集中搜索类型(搜到就返回)
+        /// 完全匹配 不区分大小写
+        /// </summary>
+        /// <param name="fullName"></param>
+        /// <returns></returns>
+        public static Type SearchTypeFromAssembies(string fullName)
+        {
+            Type type = null;
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                var intype  = assembly.GetType(fullName, false, true);
+                if(intype != null)
+                {
+                    return intype;
+                }
+            }
+            return type;
+        }
+        #endregion
     }
 }

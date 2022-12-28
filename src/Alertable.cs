@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Cobber;
 using System.Dynamic;
 using System.Linq;
 using System.Text;
@@ -244,24 +245,18 @@ namespace System
         /// 错误消息构造
         /// </summary>
         /// <param name="message"></param>
-        public AlertMsg(string message) : this(false, message)
-        {
-        }
+        public AlertMsg(string message) : this(false, message) { }
         /// <summary>
         /// 错误消息格式化构造
         /// </summary>
-        public AlertMsg(string fmt, params object[] param) : this(false, fmt, param)
-        {
-        }
+        public AlertMsg(string fmt, params object[] param) : this(false, fmt, param) { }
         /// <summary>
         /// 格式化构造
         /// </summary>
         /// <param name="isSuccess"></param>
         /// <param name="fmt"></param>
         /// <param name="param"></param>
-        public AlertMsg(bool isSuccess, string fmt, params object[] param) : this(isSuccess, string.Format(fmt, param))
-        {
-        }
+        public AlertMsg(bool isSuccess, string fmt, params object[] param) : this(isSuccess, string.Format(fmt, param)) { }
         /// <summary>
         /// 是否成功
         /// </summary>
@@ -695,5 +690,45 @@ namespace System
         /// 异常信息
         /// </summary>
         public virtual Exception Exception { get; set; }
+    }
+    /// <summary>
+    /// 提示Json接口
+    /// </summary>
+    public interface IAlertJson : IAlertMsg<string> { }
+    /// <summary>
+    /// 提示Json信息
+    /// </summary>
+    public class AlertJson : AlertMsg<String>, IAlertJson
+    {
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        /// <param name="isSuccess"></param>
+        /// <param name="message"></param>
+        public AlertJson(bool isSuccess = false, string message = "") : base(isSuccess, message) { }
+        /// <summary>
+        /// 错误消息构造
+        /// </summary>
+        /// <param name="message"></param>
+        public AlertJson(string message) : this(false, message) { }
+        /// <summary>
+        /// 错误消息格式化构造
+        /// </summary>
+        public AlertJson(string fmt, params object[] param) : this(false, fmt, param) { }
+        /// <summary>
+        /// 格式化构造
+        /// </summary>
+        /// <param name="isSuccess"></param>
+        /// <param name="fmt"></param>
+        /// <param name="param"></param>
+        public AlertJson(bool isSuccess, string fmt, params object[] param) : this(isSuccess, String.Format(fmt, param)) { }
+        /// <summary>
+        /// 异常构造
+        /// </summary>
+        /// <param name="ex"></param>
+        public AlertJson(Exception ex) : this(false, ex.Message)
+        {
+            Data = ex.GetJsonString();
+        }
     }
 }
