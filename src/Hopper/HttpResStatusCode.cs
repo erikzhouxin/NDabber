@@ -88,322 +88,322 @@ namespace System.Data.Hopper
         /// 应用于当前实例的一个或多个实例操作的结果。
         /// </summary>
         IMUsed = 226,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 300. System.Net.HttpStatusCode.Ambiguous indicates
-        //     that the requested information has multiple representations. The default action
-        //     is to treat this status as a redirect and follow the contents of the Location
-        //     header associated with this response. Ambiguous is a synonym for MultipleChoices.
+        /// <summary>
+        /// 等价于HTTP状态300。System.Net.HttpStatusCode.Ambiguous表示
+        /// 所请求的信息具有多种表示。默认操作
+        /// 是将此状态视为重定向并跟随内容的位置吗
+        /// 与此响应关联的头信息。歧义是多项选择的同义词。
+        /// </summary>
         Ambiguous = 300,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 300. System.Net.HttpStatusCode.MultipleChoices indicates
-        //     that the requested information has multiple representations. The default action
-        //     is to treat this status as a redirect and follow the contents of the Location
-        //     header associated with this response. MultipleChoices is a synonym for Ambiguous.
+        /// <summary>
+        /// 等价于HTTP状态300。System.Net.HttpStatusCode.MultipleChoices表示
+        /// 所请求的信息具有多种表示。默认操作
+        /// 是将此状态视为重定向并跟随内容的位置吗
+        /// 与此响应关联的头信息。多项选择是歧义的同义词。
+        /// </summary>
         MultipleChoices = 300,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 301. System.Net.HttpStatusCode.Moved indicates that
-        //     the requested information has been moved to the URI specified in the Location
-        //     header. The default action when this status is received is to follow the Location
-        //     header associated with the response. When the original request method was POST,
-        //     the redirected request will use the GET method. Moved is a synonym for MovedPermanently.
+        /// <summary>
+        /// 等价于HTTP状态301。System.Net.HttpStatusCode.Moved表示
+        /// 请求的信息已经移动到位置中指定的URI
+        /// 头。接收到此状态时的默认操作是跟踪位置
+        /// 与响应相关联的首部。当原始的请求方法是POST时，
+        /// 重定向的请求将使用GET方法。Moved是Moved permanently的同义词。
+        /// </summary>
         Moved = 301,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 301. System.Net.HttpStatusCode.MovedPermanently indicates
-        //     that the requested information has been moved to the URI specified in the Location
-        //     header. The default action when this status is received is to follow the Location
-        //     header associated with the response. MovedPermanently is a synonym for Moved.
+        /// <summary>
+        /// 等价于HTTP状态301。System.Net.HttpStatusCode.MovedPermanently表示
+        /// 请求的信息已经移动到位置中指定的URI
+        /// 头。接收到此状态时的默认操作是跟踪位置
+        /// 与响应相关联的首部。MovedPermanently是Moved的同义词。
+        /// </summary>
         MovedPermanently = 301,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 302. System.Net.HttpStatusCode.Found indicates that
-        //     the requested information is located at the URI specified in the Location header.
-        //     The default action when this status is received is to follow the Location header
-        //     associated with the response. When the original request method was POST, the
-        //     redirected request will use the GET method. Found is a synonym for Redirect.
+        /// <summary>
+        /// 等价于HTTP状态302。System.Net.HttpStatusCode.Found指出
+        /// 请求的信息位于Location头中指定的URI中。
+        /// 接收到此状态时的默认操作是跟随Location头
+        /// 与响应相关联。当原始的请求方法是POST时
+        /// 重定向的请求将使用GET方法。Found是重定向的同义词。
+        /// </summary>
         Found = 302,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 302. System.Net.HttpStatusCode.Redirect indicates that
-        //     the requested information is located at the URI specified in the Location header.
-        //     The default action when this status is received is to follow the Location header
-        //     associated with the response. When the original request method was POST, the
-        //     redirected request will use the GET method. Redirect is a synonym for Found.
+        /// <summary>
+        /// 等价于HTTP状态302。System.Net.HttpStatusCode.Redirect表示
+        /// 请求的信息位于Location头中指定的URI中。
+        /// 接收到此状态时的默认操作是跟随Location头
+        /// 与响应相关联。当原始的请求方法是POST时
+        /// 重定向的请求将使用GET方法。Redirect是Found的同义词。
+        /// </summary>
         Redirect = 302,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 303. System.Net.HttpStatusCode.RedirectMethod automatically
-        //     redirects the client to the URI specified in the Location header as the result
-        //     of a POST. The request to the resource specified by the Location header will
-        //     be made with a GET. RedirectMethod is a synonym for SeeOther.
+        /// <summary>
+        /// 等价于HTTP状态303。System.Net.HttpStatusCode.RedirectMethod自动
+        /// 结果是将客户端重定向到Location首部中指定的URI
+        /// 指一个岗位。对Location首部指定的资源的请求将
+        /// 用一种方式获得。RedirectMethod是SeeOther的同义词。
+        /// </summary>
         RedirectMethod = 303,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 303. System.Net.HttpStatusCode.SeeOther automatically
-        //     redirects the client to the URI specified in the Location header as the result
-        //     of a POST. The request to the resource specified by the Location header will
-        //     be made with a GET. SeeOther is a synonym for RedirectMethod
+        /// <summary>
+        /// 等价于HTTP状态303。System.Net.HttpStatusCode.SeeOther自动
+        /// 结果是将客户端重定向到Location首部中指定的URI
+        /// 指一个岗位。对Location首部指定的资源的请求将
+        /// 用一种方式获得。SeeOther是RedirectMethod的同义词
+        /// </summary>
         SeeOther = 303,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 304. System.Net.HttpStatusCode.NotModified indicates
-        //     that the client's cached copy is up to date. The contents of the resource are
-        //     not transferred.
+        /// <summary>
+        /// 等价于HTTP状态304。System.Net.HttpStatusCode.NotModified表示
+        /// 客户端的缓存副本是最新的。资源的内容是
+        /// 不转移。
+        /// </summary>
         NotModified = 304,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 305. System.Net.HttpStatusCode.UseProxy indicates that
-        //     the request should use the proxy server at the URI specified in the Location
-        //     header.
+        /// <summary>
+        /// 等价于HTTP状态305。System.Net.HttpStatusCode.UseProxy表示
+        /// 请求应该使用位置中指定的URI的代理服务器
+        /// 头。
+        /// </summary>
         UseProxy = 305,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 306. System.Net.HttpStatusCode.Unused is a proposed
-        //     extension to the HTTP/1.1 specification that is not fully specified.
+        /// <summary>
+        /// 等价于HTTP状态306。建议使用System.Net.HttpStatusCode.Unused
+        /// 未完全指定的HTTP/1.1规范的扩展。
+        /// </summary>
         Unused = 306,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 307. System.Net.HttpStatusCode.RedirectKeepVerb indicates
-        //     that the request information is located at the URI specified in the Location
-        //     header. The default action when this status is received is to follow the Location
-        //     header associated with the response. When the original request method was POST,
-        //     the redirected request will also use the POST method. RedirectKeepVerb is a synonym
-        //     for TemporaryRedirect.
+        /// <summary>
+        /// 等价于HTTP状态307。System.Net.HttpStatusCode.RedirectKeepVerb表示
+        /// 请求信息位于该位置中指定的URI中
+        /// 头。接收到此状态时的默认操作是跟踪位置
+        /// 与响应相关联的首部。当原始的请求方法是POST时，
+        /// 重定向的请求也将使用POST方法。RedirectKeepVerb是一个同义词
+        /// TemporaryRedirect。
+        /// </summary>
         RedirectKeepVerb = 307,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 307. System.Net.HttpStatusCode.TemporaryRedirect indicates
-        //     that the request information is located at the URI specified in the Location
-        //     header. The default action when this status is received is to follow the Location
-        //     header associated with the response. When the original request method was POST,
-        //     the redirected request will also use the POST method. TemporaryRedirect is a
-        //     synonym for RedirectKeepVerb.
+        /// <summary>
+        /// 等价于HTTP状态307。System.Net.HttpStatusCode.TemporaryRedirect表示
+        /// 请求信息位于该位置中指定的URI中
+        /// 头。接收到此状态时的默认操作是跟踪位置
+        /// 与响应相关联的首部。当原始的请求方法是POST时，
+        /// 重定向的请求也将使用POST方法。TemporaryRedirect是一个
+        /// RedirectKeepVerb的同义词。
+        /// </summary>
         TemporaryRedirect = 307,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 308. System.Net.HttpStatusCode.PermanentRedirect indicates
-        //     that the request information is located at the URI specified in the Location
-        //     header. The default action when this status is received is to follow the Location
-        //     header associated with the response. When the original request method was POST,
-        //     the redirected request will also use the POST method.
+        /// <summary>
+        /// 等价于HTTP状态308。System.Net.HttpStatusCode.PermanentRedirect表示
+        /// 请求信息位于该位置中指定的URI中
+        /// 头。接收到此状态时的默认操作是跟踪位置
+        /// 与响应相关联的首部。当原始的请求方法是POST时，
+        /// 重定向的请求也将使用POST方法。
+        /// </summary>
         PermanentRedirect = 308,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 400. System.Net.HttpStatusCode.BadRequest indicates
-        //     that the request could not be understood by the server. System.Net.HttpStatusCode.BadRequest
-        //     is sent when no other error is applicable, or if the exact error is unknown or
-        //     does not have its own error code.
+        /// <summary>
+        /// 等价于HTTP状态400。System.Net.HttpStatusCode.BadRequest表示
+        /// 服务器无法理解该请求。System.Net.HttpStatusCode.BadRequest
+        /// 在没有其他错误时，或者确切的错误未知时，或者
+        /// 没有自己的错误码。
+        /// </summary>
         BadRequest = 400,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 401. System.Net.HttpStatusCode.Unauthorized indicates
-        //     that the requested resource requires authentication. The WWW-Authenticate header
-        //     contains the details of how to perform the authentication.
+        /// <summary>
+        /// 等价于HTTP状态401。System.Net.HttpStatusCode.Unauthorized表示
+        /// 请求的资源需要身份验证。WWW-Authenticate报头
+        /// 包含如何执行身份验证的详细信息。
+        /// </summary>
         Unauthorized = 401,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 402. System.Net.HttpStatusCode.PaymentRequired is reserved
-        //     for future use.
+        /// <summary>
+        /// 等价于HTTP状态402。System.Net.HttpStatusCode.PaymentRequired是保留的
+        /// 供将来使用。
+        /// </summary>
         PaymentRequired = 402,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 403. System.Net.HttpStatusCode.Forbidden indicates
-        //     that the server refuses to fulfill the request.
+        /// <summary>
+        /// 等价于HTTP status 403。System.Net.HttpStatusCode.Forbidden表示
+        /// 服务器拒绝完成请求。
+        /// </summary>
         Forbidden = 403,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 404. System.Net.HttpStatusCode.NotFound indicates that
-        //     the requested resource does not exist on the server.
+        /// <summary>
+        /// 等价于HTTP状态404。System.Net.HttpStatusCode.NotFound指出
+        /// 请求的资源在服务器上不存在。
+        /// </summary>
         NotFound = 404,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 405. System.Net.HttpStatusCode.MethodNotAllowed indicates
-        //     that the request method (POST or GET) is not allowed on the requested resource.
+        /// <summary>
+        /// 等价于HTTP状态405。System.Net.HttpStatusCode.MethodNotAllowed表示
+        /// 请求的资源不允许使用请求方法(POST或GET)。
+        /// </summary>
         MethodNotAllowed = 405,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 406. System.Net.HttpStatusCode.NotAcceptable indicates
-        //     that the client has indicated with Accept headers that it will not accept any
-        //     of the available representations of the resource.
+        /// <summary>
+        /// 等价于HTTP状态406。System.Net.HttpStatusCode.NotAcceptable表示
+        /// 客户端已经用Accept标头表示它不会接受任何标头
+        /// 资源的可用表示。
+        /// </summary>
         NotAcceptable = 406,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 407. System.Net.HttpStatusCode.ProxyAuthenticationRequired
-        //     indicates that the requested proxy requires authentication. The Proxy-authenticate
-        //     header contains the details of how to perform the authentication.
+        /// <summary>
+        /// 等价于HTTP状态407。System.Net.HttpStatusCode.ProxyAuthenticationRequired
+        /// 表示请求的代理需要验证。的Proxy-authenticate
+        /// Header包含如何执行身份验证的详细信息。
+        /// </summary>
         ProxyAuthenticationRequired = 407,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 408. System.Net.HttpStatusCode.RequestTimeout indicates
-        //     that the client did not send a request within the time the server was expecting
-        //     the request.
+        /// <summary>
+        /// 等价于HTTP状态408。System.Net.HttpStatusCode.RequestTimeout表示
+        /// 客户端没有在服务器期望的时间内发送请求
+        /// 请求。
+        /// </summary>
         RequestTimeout = 408,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 409. System.Net.HttpStatusCode.Conflict indicates that
-        //     the request could not be carried out because of a conflict on the server.
+        /// <summary>
+        /// 等价于HTTP状态409。System.Net.HttpStatusCode.Conflict表示
+        /// 由于服务器上的冲突，请求无法执行。
+        /// </summary>
         Conflict = 409,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 410. System.Net.HttpStatusCode.Gone indicates that
-        //     the requested resource is no longer available.
+        /// <summary>
+        /// 等同于HTTP状态410。System.Net.HttpStatusCode.Gone表示
+        /// 请求的资源不再可用。
+        /// </summary>
         Gone = 410,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 411. System.Net.HttpStatusCode.LengthRequired indicates
-        //     that the required Content-length header is missing.
+        /// <summary>
+        /// 等价于HTTP状态411。System.Net.HttpStatusCode.LengthRequired表示
+        /// 缺少所需的Content-length首部。
+        /// </summary>
         LengthRequired = 411,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 412. System.Net.HttpStatusCode.PreconditionFailed indicates
-        //     that a condition set for this request failed, and the request cannot be carried
-        //     out. Conditions are set with conditional request headers like If-Match, If-None-Match,
-        //     or If-Unmodified-Since.
+        /// <summary>
+        /// 等价于HTTP状态412。System.Net.HttpStatusCode.PreconditionFailed表示
+        /// 为此请求设置的条件失败，请求无法进行
+        /// 出去了。条件是用条件请求头设置的，如If-Match, If-None-Match，
+        /// 或If-Unmodified-Since。
+        /// </summary>
         PreconditionFailed = 412,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 413. System.Net.HttpStatusCode.RequestEntityTooLarge
-        //     indicates that the request is too large for the server to process.
+        /// <summary>
+        /// 等价于HTTP状态413System.Net.HttpStatusCode.RequestEntityTooLarge
+        /// 表示请求太大，服务器无法处理。
+        /// </summary>
         RequestEntityTooLarge = 413,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 414. System.Net.HttpStatusCode.RequestUriTooLong indicates
-        //     that the URI is too long.
+        /// <summary>
+        /// 等同于HTTP状态414。System.Net.HttpStatusCode.RequestUriTooLong表示
+        /// URI太长。
+        /// </summary>
         RequestUriTooLong = 414,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 415. System.Net.HttpStatusCode.UnsupportedMediaType
-        //     indicates that the request is an unsupported type.
+        /// <summary>
+        /// 等价于HTTP状态415System.Net.HttpStatusCode.UnsupportedMediaType
+        /// 表示请求是不支持的类型
+        /// </summary>
         UnsupportedMediaType = 415,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 416. System.Net.HttpStatusCode.RequestedRangeNotSatisfiable
-        //     indicates that the range of data requested from the resource cannot be returned,
-        //     either because the beginning of the range is before the beginning of the resource,
-        //     or the end of the range is after the end of the resource.
+        /// <summary>
+        /// 等价于HTTP状态416System.Net.HttpStatusCode.RequestedRangeNotSatisfiable
+        /// 表示无法返回请求资源的数据范围，
+        /// 要么是因为范围的起始位置在资源的起始位置之前，
+        /// 或者范围的终点在资源的终点之后
+        /// </summary>
         RequestedRangeNotSatisfiable = 416,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 417. System.Net.HttpStatusCode.ExpectationFailed indicates
-        //     that an expectation given in an Expect header could not be met by the server.
+        /// <summary>
+        /// 等价于HTTP状态417System.Net.HttpStatusCode.ExpectationFailed表示
+        /// 服务器无法满足Expect头信息中的期望
+        /// </summary>
         ExpectationFailed = 417,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 421. System.Net.HttpStatusCode.MisdirectedRequest indicates
-        //     that the request was directed at a server that is not able to produce a response.
+        /// <summary>
+        /// 等价于HTTP状态421System.Net.HttpStatusCode.MisdirectedRequest表示
+        /// 请求指向的服务器无法产生响应
+        /// </summary>
         MisdirectedRequest = 421,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 422. System.Net.HttpStatusCode.UnprocessableEntity
-        //     indicates that the request was well-formed but was unable to be followed due
-        //     to semantic errors.
+        /// <summary>
+        /// 等价于HTTP状态422System.Net.HttpStatusCode.UnprocessableEntity
+        /// 表示请求格式良好，但无法执行
+        /// 指向语义错误。
+        /// </summary>
         UnprocessableEntity = 422,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 423. System.Net.HttpStatusCode.Locked indicates that
-        //     the source or destination resource is locked.
+        /// <summary>
+        /// 等价于HTTP状态423System.Net.HttpStatusCode.Locked表示
+        /// 源或目的资源被锁定。
+        /// </summary>
         Locked = 423,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 424. System.Net.HttpStatusCode.FailedDependency indicates
-        //     that the method couldn't be performed on the resource because the requested action
-        //     depended on another action and that action failed.
+        /// <summary>
+        /// 等同于HTTP状态424。System.Net.HttpStatusCode.FailedDependency表示
+        /// 由于请求的操作，该方法无法在资源上执行
+        /// 依赖于另一个操作，但该操作失败。
+        /// </summary>
         FailedDependency = 424,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 426. System.Net.HttpStatusCode.UpgradeRequired indicates
-        //     that the client should switch to a different protocol such as TLS/1.0.
+        /// <summary>
+        /// 等价于HTTP状态426System.Net.HttpStatusCode.UpgradeRequired表示
+        /// 客户端应该切换到其他协议，例如TLS/1.0。
+        /// </summary>
         UpgradeRequired = 426,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 428. System.Net.HttpStatusCode.PreconditionRequired
-        //     indicates that the server requires the request to be conditional.
+        /// <summary>
+        /// 等价于HTTP状态428。System.Net.HttpStatusCode.PreconditionRequired
+        /// 表示，服务器要求该请求为条件请求。
+        /// </summary>
         PreconditionRequired = 428,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 429. System.Net.HttpStatusCode.TooManyRequests indicates
-        //     that the user has sent too many requests in a given amount of time.
+        /// <summary>
+        /// 等价于HTTP状态429。System.Net.HttpStatusCode.TooManyRequests表示
+        /// 用户在给定时间内发送了太多请求。
+        /// </summary>
         TooManyRequests = 429,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 431. System.Net.HttpStatusCode.RequestHeaderFieldsTooLarge
-        //     indicates that the server is unwilling to process the request because its header
-        //     fields (either an individual header field or all the header fields collectively)
-        //     are too large.
+        /// <summary>
+        /// 等价于HTTP状态431。System.Net.HttpStatusCode.RequestHeaderFieldsTooLarge
+        /// 表示服务器不愿意处理请求，因为它有首部
+        /// 字段(单个字段或所有字段的集合)
+        /// 都太大了
+        /// </summary>
         RequestHeaderFieldsTooLarge = 431,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 451. System.Net.HttpStatusCode.UnavailableForLegalReasons
-        //     indicates that the server is denying access to the resource as a consequence
-        //     of a legal demand.
+        /// <summary>
+        /// 等价于HTTP状态451。System.Net.HttpStatusCode.UnavailableForLegalReasons
+        /// 表示服务器拒绝访问该资源
+        /// 合法的请求
+        /// </summary>
         UnavailableForLegalReasons = 451,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 500. System.Net.HttpStatusCode.InternalServerError
-        //     indicates that a generic error has occurred on the server.
+        /// <summary>
+        /// 等价于HTTP状态500。System.Net.HttpStatusCode.InternalServerError
+        /// 表示服务器上发生了一般性错误。
+        /// </summary>
         InternalServerError = 500,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 501. System.Net.HttpStatusCode.NotImplemented indicates
-        //     that the server does not support the requested function.
+        /// <summary>
+        /// 等同于HTTP状态501。System.Net.HttpStatusCode.NotImplemented表示
+        /// 服务器不支持请求的函数
+        /// </summary>
         NotImplemented = 501,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 502. System.Net.HttpStatusCode.BadGateway indicates
-        //     that an intermediate proxy server received a bad response from another proxy
-        //     or the origin server.
+        /// <summary>
+        /// 等价于HTTP状态502。System.Net.HttpStatusCode.BadGateway表示
+        /// 中间代理服务器从另一个代理收到了错误的响应
+        /// 或者源服务器。
+        /// </summary>
         BadGateway = 502,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 503. System.Net.HttpStatusCode.ServiceUnavailable indicates
-        //     that the server is temporarily unavailable, usually due to high load or maintenance.
+        /// <summary>
+        /// 等价于HTTP状态503。System.Net.HttpStatusCode.ServiceUnavailable表示
+        /// 服务器暂时不可用，通常是由于高负载或维护。
+        /// </summary>
         ServiceUnavailable = 503,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 504. System.Net.HttpStatusCode.GatewayTimeout indicates
-        //     that an intermediate proxy server timed out while waiting for a response from
-        //     another proxy or the origin server.
+        /// <summary>
+        /// 等价于HTTP状态504。System.Net.HttpStatusCode.GatewayTimeout表示
+        /// 中间代理服务器在等待响应时超时
+        /// 另一个代理服务器或原始服务器。
+        /// </summary>
         GatewayTimeout = 504,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 505. System.Net.HttpStatusCode.HttpVersionNotSupported
-        //     indicates that the requested HTTP version is not supported by the server.
+        /// <summary>
+        /// 等价于HTTP状态505。System.Net.HttpStatusCode.HttpVersionNotSupported
+        /// 表示服务器不支持请求的HTTP版本。
+        /// </summary>
         HttpVersionNotSupported = 505,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 506. System.Net.HttpStatusCode.VariantAlsoNegotiates
-        //     indicates that the chosen variant resource is configured to engage in transparent
-        //     content negotiation itself and, therefore, isn't a proper endpoint in the negotiation
-        //     process.
+        /// <summary>
+        /// 等价于HTTP状态506。System.Net.HttpStatusCode.VariantAlsoNegotiates
+        /// 指示将选定的变体资源配置为启用透明
+        /// 因此，内容协商本身并不是协商的适当终点
+        /// 的过程。
+        /// </summary>
         VariantAlsoNegotiates = 506,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 507. System.Net.HttpStatusCode.InsufficientStorage
-        //     indicates that the server is unable to store the representation needed to complete
-        //     the request.
+        /// <summary>
+        /// 等价于HTTP状态507。System.Net.HttpStatusCode.InsufficientStorage
+        /// 指示服务器无法存储完成所需的表示
+        /// 请求。
+        /// </summary>
         InsufficientStorage = 507,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 508. System.Net.HttpStatusCode.LoopDetected indicates
-        //     that the server terminated an operation because it encountered an infinite loop
-        //     while processing a WebDAV request with "Depth: infinity". This status code is
-        //     meant for backward compatibility with clients not aware of the 208 status code
-        //     System.Net.HttpStatusCode.AlreadyReported appearing in multistatus response bodies.
+        /// <summary>
+        /// 等价于HTTP状态508。System.Net.HttpStatusCode.LoopDetected表示
+        /// 服务器因为遇到无限循环而终止操作
+        /// 处理一个“Depth: infinity”的WebDAV请求。此状态码为:
+        /// 旨在向后兼容不知道208状态码的客户端
+        /// 已经报告在多状态响应体中出现。
+        /// </summary>
         LoopDetected = 508,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 510. System.Net.HttpStatusCode.NotExtended indicates
-        //     that further extensions to the request are required for the server to fulfill
-        //     it.
+        /// <summary>
+        /// 相当于HTTP状态510。System.Net.HttpStatusCode.NotExtended表示
+        /// 请求的进一步扩展需要服务器来完成
+        /// 它。
+        /// </summary>
         NotExtended = 510,
-        //
-        // 摘要:
-        //     Equivalent to HTTP status 511. System.Net.HttpStatusCode.NetworkAuthenticationRequired
-        //     indicates that the client needs to authenticate to gain network access; it's
-        //     intended for use by intercepting proxies used to control access to the network.
+        /// <summary>
+        /// 等价于HTTP状态511。System.Net.HttpStatusCode.NetworkAuthenticationRequired
+        /// 表示客户端需要认证才能接入网络;这是
+        /// 用于拦截用于控制访问网络的代理。
+        /// </summary>
         NetworkAuthenticationRequired = 511
     }
 }
