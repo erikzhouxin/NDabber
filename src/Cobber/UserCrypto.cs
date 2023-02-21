@@ -13,6 +13,10 @@ namespace System.Data.Cobber
     /// </summary>
     public static class UserCrypto
     {
+        /// <summary>
+        /// 默认编码
+        /// </summary>
+        public static Encoding DefaultEncoding { get; set; } = Encoding.UTF8;
         #region // 16进制
         /// <summary>
         /// 将字节数组转换成16进制字符串
@@ -319,7 +323,7 @@ namespace System.Data.Cobber
         public static string GetAesEncrypt(string str, string key)
         {
             if (string.IsNullOrEmpty(str)) { return string.Empty; }
-            return Convert.ToBase64String(GetAesEncrypt(Encoding.UTF8.GetBytes(str), Encoding.UTF8.GetBytes(key)));
+            return Convert.ToBase64String(GetAesEncrypt(DefaultEncoding.GetBytes(str), DefaultEncoding.GetBytes(key)));
         }
         /// <summary>
         ///  AES 加密
@@ -330,7 +334,7 @@ namespace System.Data.Cobber
         public static string GetAesEncryptHex(string str, string key)
         {
             if (string.IsNullOrEmpty(str)) { return string.Empty; }
-            return GetHexString(GetAesEncrypt(Encoding.UTF8.GetBytes(str), Encoding.UTF8.GetBytes(key)));
+            return GetHexString(GetAesEncrypt(DefaultEncoding.GetBytes(str), DefaultEncoding.GetBytes(key)));
         }
         /// <summary>
         ///  AES 加密
@@ -385,7 +389,7 @@ namespace System.Data.Cobber
         public static string GetAesDecrypt(string str, string key)
         {
             if (string.IsNullOrEmpty(str)) { return string.Empty; }
-            return Encoding.UTF8.GetString(GetAesDecrypt(Convert.FromBase64String(str), Encoding.UTF8.GetBytes(key)));
+            return DefaultEncoding.GetString(GetAesDecrypt(Convert.FromBase64String(str), DefaultEncoding.GetBytes(key)));
         }
         /// <summary>
         ///  AES 解密
@@ -396,7 +400,7 @@ namespace System.Data.Cobber
         public static string GetAesDecryptHex(string str, string key)
         {
             if (string.IsNullOrEmpty(str)) { return string.Empty; }
-            return Encoding.UTF8.GetString(GetAesDecrypt(str.GetHexBytes(), Encoding.UTF8.GetBytes(key)));
+            return DefaultEncoding.GetString(GetAesDecrypt(str.GetHexBytes(), DefaultEncoding.GetBytes(key)));
         }
         /// <summary>
         ///  AES 解密
@@ -432,7 +436,7 @@ namespace System.Data.Cobber
         public static byte[] GetRightBytes(this string content, int length = 32)
         {
             if (string.IsNullOrEmpty(content)) { return new byte[length]; }
-            return content.GetBytes().PadInterceptRight(length); ;
+            return content.GetBytes(DefaultEncoding).PadInterceptRight(length); ;
         }
         /// <summary>
         /// 获取左边填充/截断字节
@@ -444,7 +448,7 @@ namespace System.Data.Cobber
         public static byte[] GetLeftBytes(this string content, int length = 32)
         {
             if (string.IsNullOrEmpty(content)) { return new byte[length]; }
-            return content.GetBytes().PadInterceptLeft(length); ;
+            return content.GetBytes(DefaultEncoding).PadInterceptLeft(length); ;
         }
         #endregion
         #region // DES

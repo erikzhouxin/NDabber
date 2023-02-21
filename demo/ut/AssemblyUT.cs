@@ -8,7 +8,15 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-
+/*************************************************************************************
+ * 使用其他程序集相同类:
+ * 首部引用别名 右击引用项目的属性中别名填写
+ * extern alias tester;
+ * 默认本程序集为global
+ * 此例中此类
+ * 本部使用 => using AppConfigJsonFile = global::System.Data.Cobber.AppConfigJsonFile;
+ * 测试使用 => using AppConfigJsonFile = tester::System.Data.Cobber.AppConfigJsonFile;
+ ************************************************************************************/
 namespace System.Data.DabberUT
 {
     /// <summary>

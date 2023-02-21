@@ -107,6 +107,47 @@ namespace System.Data.DabberUT
             Console.WriteLine((DateTime1970 - DateTime.MinValue).TotalSeconds);
             Console.WriteLine((DateTime1970 - new DateTime()).Ticks);
         }
+        [TestMethod]
+        public void TestCreateSameHashCode()
+        {
+            var lookup = new Dictionary<int, string>();
+
+            while (true)
+            {
+                var s = RandomString();
+                var h = s.GetHashCode();
+                string s2;
+                if (lookup.TryGetValue(h, out s2) && s2 != s)
+                {
+                    Console.WriteLine("MATCH FOUND!! {0} and {1} hash code {2}",
+                        lookup[h],
+                        s,
+                        h);
+                    break;
+                }
+                lookup[h] = s;
+
+                if (lookup.Count % 1000 == 0)
+                {
+                    //Console.WriteLine(lookup.Count);
+                }
+            }
+        }
+
+        static Random r = new Random();
+
+        // Define other methods and classes here
+        static string RandomString()
+        {
+            var s = ((char)r.Next((int)'A', ((int)'Z') + 1)).ToString() +
+                    ((char)r.Next((int)'A', ((int)'Z') + 1)).ToString() +
+                    ((char)r.Next((int)'A', ((int)'Z') + 1)).ToString() +
+                    ((char)r.Next((int)'A', ((int)'Z') + 1)).ToString() +
+                    ((char)r.Next((int)'A', ((int)'Z') + 1)).ToString() +
+                    ((char)r.Next((int)'A', ((int)'Z') + 1)).ToString();
+
+            return s;
+        }
         #region // 测试类
         /// <summary>
         /// 测试类
@@ -189,6 +230,16 @@ namespace System.Data.DabberUT
         private class TestMan100 : TestMan50
         {
             public TestMan100(string name) : base(name) { }
+            public string Aa { get; set; }
+            public string BB { get; set; }
+            public string Ba { get; set; }
+            public string CB { get; set; }
+            public string Ca { get; set; }
+            public string DB { get; set; }
+            public string xqzrbn { get; set; }
+            public string krumld { get; set; }
+            public string bvyfbj { get; set; }
+            public string vzgbyh { get; set; }
             public string Name50 { get; set; }
             public string Name51 { get; set; }
             public string Name52 { get; set; }

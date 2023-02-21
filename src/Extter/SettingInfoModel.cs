@@ -6,170 +6,99 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-
-namespace System.Data.Cobber
+/*************************************************************************************
+ * 使用其他程序集相同类:
+ * 首部引用别名 右击引用项目的属性中别名填写
+ * extern alias tester;
+ * 默认本程序集为global
+ * 此例中此类
+ * 本部使用 => using AppConfigJsonFile = global::System.Data.Cobber.AppConfigJsonFile;
+ * 测试使用 => using AppConfigJsonFile = tester::System.Data.Cobber.AppConfigJsonFile;
+ ************************************************************************************/
+namespace System.Data.Extter
 {
     /// <summary>
-    /// 应用文件配置
+    /// 设置Json文件
     /// </summary>
-    public abstract class AppConfigJsonFile
+    public class SettingJsonFile : SettingJsonFile<object>
     {
-        /// <summary>
-        /// 资源字典
-        /// </summary>
-        public ConcurrentDictionary<string, string> ResDic { get; } = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        /// <summary>
-        /// 文件监听
-        /// </summary>
-        protected FileSystemWatcher FileWatcher { get; }
+
+    }
+    /// <summary>
+    /// 设置Json文件
+    /// </summary>
+    public class SettingJsonFile<T>
+    {
+        // 资源字典
+        readonly ConcurrentDictionary<string, string> _resDic = new(StringComparer.OrdinalIgnoreCase);
+        // 文件监听
+        readonly FileSystemWatcher _fileWatcher;
+        readonly string _filePath;
+        readonly string _fileName;
+        readonly string _fileKey;
         /// <summary>
         /// 文件路径
         /// </summary>
-        protected string FilePath { get; }
+        public string FilePath { get => Path.Combine(_filePath, _fileName); }
         /// <summary>
-        /// 安全码
+        /// 加密密码
         /// </summary>
-        protected string SecurityKey { get; }
+        public string FileKey { get => _fileKey; }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public SettingJsonFile() : this($"{typeof(T).Name}.json") { }
         /// <summary>
         /// 不加密构造
         /// </summary>
         /// <param name="filePath"></param>
-        protected AppConfigJsonFile(string filePath) : this(filePath, string.Empty) { }
+        public SettingJsonFile(string filePath) : this(filePath, string.Empty) { }
         /// <summary>
         /// 构造
         /// </summary>
-        protected AppConfigJsonFile(string filePath, string securityKey)
+        public SettingJsonFile(string filePath, string securityKey)
         {
-            FilePath = filePath;
-            SecurityKey = securityKey;
-            var fileWatcher = new FileSystemWatcher();
+            _fileWatcher = new FileSystemWatcher();
+            _fileKey = securityKey ?? String.Empty;
             try
             {
+                _filePath = Path.GetFullPath(filePath);
                 //初始化监听
-                fileWatcher.BeginInit();
+                _fileWatcher.BeginInit();
                 //设置监听的路径
-                fileWatcher.Path = System.IO.Path.GetDirectoryName(filePath);
+                _fileWatcher.Path = System.IO.Path.GetDirectoryName(filePath);
                 //设置监听文件类型
-                fileWatcher.Filter = System.IO.Path.GetFileName(filePath);
+                _fileWatcher.Filter = System.IO.Path.GetFileName(filePath);
                 //设置是否监听子目录
-                fileWatcher.IncludeSubdirectories = false;
+                _fileWatcher.IncludeSubdirectories = false;
                 //设置是否启用监听?
-                fileWatcher.EnableRaisingEvents = true;
+                _fileWatcher.EnableRaisingEvents = true;
                 //设置需要监听的更改类型(如:文件或者文件夹的属性,文件或者文件夹的创建时间;NotifyFilters枚举的内容)
-                fileWatcher.NotifyFilter = NotifyFilters.Attributes | NotifyFilters.CreationTime | NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.Security | NotifyFilters.Size;
+                _fileWatcher.NotifyFilter = NotifyFilters.Attributes | NotifyFilters.CreationTime | NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.Security | NotifyFilters.Size;
                 //注册创建文件或目录时的监听事件
                 //watcher.Created += new FileSystemEventHandler(watch_created);
                 //注册当指定目录的文件或者目录发生改变的时候的监听事件
-                fileWatcher.Changed += new FileSystemEventHandler((sender, e) => LoadConfigFile());
+                //fileWatcher.Changed += new FileSystemEventHandler((sender, e) => LoadConfigFile());
                 //注册当删除目录的文件或者目录的时候的监听事件
-                fileWatcher.Deleted += new FileSystemEventHandler((sender, e) => TrySave());
+                //fileWatcher.Deleted += new FileSystemEventHandler((sender, e) => TrySave());
                 //当指定目录的文件或者目录发生重命名的时候的监听事件
                 //fileWatcher.Renamed += new RenamedEventHandler((sender, e) =>
                 //{
                 //    if (!File.Exists(FilePath)) { Save(); }
                 //});
                 //结束初始化
-                fileWatcher.EndInit();
+                _fileWatcher.EndInit();
             }
-            catch (Exception ex) { Console.WriteLine(ex); }
-            FileWatcher = fileWatcher;
-            LoadingDefault();
-            LoadConfigFile();
-        }
-        /// <summary>
-        /// 加载默认
-        /// </summary>
-        protected virtual void LoadingDefault()
-        {
-            var properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Static);
-            foreach (var prop in properties)
-            {
-                try
-                {
-                    ResDic[prop.Name] = prop.GetValue(null, null).ToString();
-                }
-                catch { }
-            }
-        }
-
-        /// <summary>
-        /// 加载配置
-        /// </summary>
-        protected virtual void LoadConfigFile()
-        {
-            if (!System.IO.File.Exists(FilePath))
-            {
-                TrySave();
-                return;
-            }
-            try
-            {
-                var fcontent = File.ReadAllText(FilePath);
-                var dic = fcontent.GetJsonObject<Dictionary<string, string>>();
-                var isEncrypt = !string.IsNullOrEmpty(SecurityKey);
-                var type = GetType();
-                foreach (var item in dic)
-                {
-                    try
-                    {
-                        var prop = type.GetProperty(item.Key);
-                        if (prop != null && prop.CanWrite)
-                        {
-                            var value = item.Value;
-                            if (isEncrypt)
-                            {
-                                value = UserCrypto.GetAesDecrypt(item.Value, SecurityKey);
-                            }
-                            prop.SetValue(null, value, null);
-                            ResDic[item.Key] = value;
-                        }
-                    }
-                    catch (Exception) { }
-                }
-            }
-            catch (Exception ex) { Console.WriteLine(ex); }
-        }
-        /// <summary>
-        /// 保存到文件
-        /// </summary>
-        public virtual void TrySave()
-        {
-            try
-            {
-                FileWatcher.EnableRaisingEvents = false;
-                File.WriteAllText(FilePath, ResDic.GetJsonFormatString());
-                FileWatcher.EnableRaisingEvents = true;
-            }
-            catch (Exception ex) { Console.WriteLine(ex); }
-        }
-        /// <summary>
-        /// 获取字典值
-        /// </summary>
-        /// <param name="property"></param>
-        /// <returns></returns>
-        protected virtual string Get(string property)
-        {
-            if (ResDic.TryGetValue(property, out string value))
-            {
-                return value;
-            }
-            return property ?? string.Empty;
-        }
-        /// <summary>
-        /// 获取字典值
-        /// </summary>
-        /// <param name="content"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        protected virtual String Get(string content, params string[] args)
-        {
-            return Get(string.Format(content, args));
+            catch (Exception ex) { Console.WriteLine(ex); throw ex; }
         }
     }
-}
+    /// <summary>
+    /// 设置Json文件多个对象
+    /// </summary>
+    public class SettingJsonFiles<T>
+    {
 
-namespace System.Data.Extter
-{
+    }
     /// <summary>
     /// 设置类型
     /// </summary>

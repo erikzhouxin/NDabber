@@ -21,9 +21,13 @@ namespace System.Data.Cobber
         /// </summary>
         Int32 Value { get; }
         /// <summary>
-        /// 名
+        /// 显示名(EDisplay?.Name)
         /// </summary>
-        String Name { get; }
+        string Name { get; }
+        /// <summary>
+        /// 显示描述名(EDisplay?.Display)
+        /// </summary>
+        String DName { get; }
         /// <summary>
         /// 枚举值
         /// </summary>
@@ -102,6 +106,10 @@ namespace System.Data.Cobber
         /// <summary>
         /// 枚举值列表
         /// </summary>
+        public static ReadOnlyCollection<long> AllVals { get; }
+        /// <summary>
+        /// 枚举值列表
+        /// </summary>
         public static ReadOnlyCollection<string> AllEnumNames { get; }
         /// <summary>
         /// 枚举值列表
@@ -140,94 +148,102 @@ namespace System.Data.Cobber
             var values = System.Enum.GetValues(type);
             var allEnums = (TEnum[])values;
             var allValues = new int[values.Length];
+            var allVals = new long[values.Length];
             for (int i = 0; i < values.Length; i++)
             {
-                allValues[i] = (int)values.GetValue(i);
+                allValues[i] = (int)Convert.ChangeType(values.GetValue(i), typeof(int));
+                allVals[i] = (long)Convert.ChangeType(values.GetValue(i), typeof(long));
             }
             var allEnumNames = System.Enum.GetNames(type);
             AllEnums = new ReadOnlyCollection<TEnum>(allEnums);
             AllValues = new ReadOnlyCollection<int>(allValues);
+            AllVals = new ReadOnlyCollection<long>(allVals);
             AllEnumNames = new ReadOnlyCollection<string>(allEnumNames);
             var allNames = new List<String>();
             var allAttrs = new List<NEnumerable<TEnum>>();
             var getEnumCases = new List<SwitchCase>();
-            var getNameCases = new List<SwitchCase>();
-            var getValueCases = new List<SwitchCase>();
-
+            var getEnumNameCases = new Dictionary<string, SwitchCase>();
+            var getNameCases = new Dictionary<string, SwitchCase>();
+            var getValueCases = new Dictionary<int, SwitchCase>();
+            var getValCases = new Dictionary<long, SwitchCase>();
+            var getNameCases2 = new Dictionary<string, SwitchCase>();
+            var getNameCases3 = new Dictionary<string, SwitchCase>();
             for (int i = 0; i < allEnumNames.Length; i++)
             {
                 var ename = allEnumNames[i];
                 var eval = allValues[i];
+                var eva = allVals[i];
                 var enumber = allEnums[i];
                 var prop = type.GetField(ename);
                 var attr = prop.GetCustomAttribute<EDisplayAttribute>();
                 var disp = prop.GetCustomAttribute<DisplayAttribute>();
                 var dispn = prop.GetCustomAttribute<DisplayNameAttribute>();
                 var descr = prop.GetCustomAttribute<DescriptionAttribute>();
-                if (attr == null)
-                {
-                    var dispName = ename;
-                    var descrName = ename;
-                    Type etype = null;
-                    if (disp == null)
-                    {
-                        if (dispn != null)
-                        {
-                            dispName = dispn.DisplayName;
-                        }
-                        if (descr != null)
-                        {
-                            descrName = descr.Description;
-                        }
-                    }
-                    else
-                    {
-                        dispName = disp.Name;
-                        descrName = disp.Description;
-                        etype = disp.ResourceType;
-                    }
-                    attr = new EDisplayAttribute(descrName, dispName) { Type = etype, };
-                }
-                if (disp == null)
-                {
-                    disp = new DisplayAttribute()
-                    {
-                        Name = attr.Name,
-                        Description = attr.Description,
-                        Order = i,
-                        ShortName = ename,
-                        Prompt = $"{ename}:{attr.Name}:{attr.Description}"
-                    };
-                }
-                if (descr == null)
-                {
-                    descr = new DescriptionAttribute(attr.Description);
-                }
-                if (dispn == null)
-                {
-                    dispn = new DisplayNameAttribute(attr.Name);
-                }
-                var model = new NEnumerable<TEnum>(enumber)
+                attr ??= (disp == null ?
+                    new EDisplayAttribute(descr == null ? ename : descr.Description, dispn == null ? ename : disp.Name) :
+                    new EDisplayAttribute(disp.Description, disp.Name) { Type = disp.ResourceType, });
+                disp ??= new DisplayAttribute()
                 {
                     Name = attr.Name,
+                    Description = attr.Description,
+                    Order = i,
+                    ShortName = ename,
+                    Prompt = $"{ename}:{attr.Name}:{attr.Description}"
+                };
+                descr ??= new DescriptionAttribute(attr.Description);
+                dispn ??= new DisplayNameAttribute(attr.Name);
+                var model = new NEnumerable<TEnum>(enumber)
+                {
                     Display = disp,
                     Value = eval,
+                    Val = eva,
                     EDisplay = attr,
                     DisplayName = dispn,
                     Description = descr,
                     EnumName = ename,
+                    Field = prop,
                 };
                 allAttrs.Add(model);
                 allNames.Add(attr.Name);
 
                 var resValue = Expression.Constant(model, typeof(NEnumerable<TEnum>));
-                var numValue = Expression.Constant(enumber, typeof(TEnum));
-                var intValue = Expression.Constant(eval, typeof(int));
-                var nameHashVal = Expression.Constant(prop.Name.GetHashCode(), typeof(int));
 
-                getEnumCases.Add(Expression.SwitchCase(resValue, numValue));
-                getNameCases.Add(Expression.SwitchCase(resValue, nameHashVal));
-                getValueCases.Add(Expression.SwitchCase(resValue, intValue));
+                getEnumCases.Add(Expression.SwitchCase(resValue, Expression.Constant(enumber, typeof(TEnum))));
+                getEnumNameCases.Add(prop.Name, Expression.SwitchCase(resValue, Expression.Constant(prop.Name, typeof(string))));
+                getNameCases.Add(prop.Name, Expression.SwitchCase(resValue, Expression.Constant(prop.Name, typeof(string))));
+                if (!getValueCases.ContainsKey(eval))
+                {
+                    getValueCases.Add(eval, Expression.SwitchCase(resValue, Expression.Constant(eval, typeof(int))));
+                    getNameCases.Add(eval.ToString(), Expression.SwitchCase(resValue, Expression.Constant(eval.ToString(), typeof(string))));
+                }
+                if (!getValCases.ContainsKey(eva))
+                {
+                    getValCases.Add(eva, Expression.SwitchCase(resValue, Expression.Constant(eva, typeof(long))));
+                    if (eva != eval)
+                    {
+                        getNameCases.Add(eva.ToString(), Expression.SwitchCase(resValue, Expression.Constant(eva.ToString(), typeof(string))));
+                    }
+                }
+                if (!getNameCases2.ContainsKey(prop.Name.ToLower()))
+                {
+                    getNameCases2.Add(prop.Name.ToLower(), Expression.SwitchCase(resValue, Expression.Constant(prop.Name.ToLower(), typeof(string))));
+                }
+                if (!getNameCases2.ContainsKey(prop.Name.ToUpper()))
+                {
+                    getNameCases2.Add(prop.Name.ToUpper(), Expression.SwitchCase(resValue, Expression.Constant(prop.Name.ToUpper(), typeof(string))));
+                }
+                if (!getNameCases3.ContainsKey(model.Name))
+                {
+                    getNameCases3.Add(model.Name, Expression.SwitchCase(resValue, Expression.Constant(model.Name, typeof(string))));
+                }
+            }
+            foreach (var item in getNameCases2)
+            {
+                if (!getNameCases.ContainsKey(item.Key)) { getNameCases.Add(item.Key, item.Value); }
+            }
+            foreach (var item in getNameCases3)
+            {
+                if (!getNameCases.ContainsKey(item.Key)) { getNameCases.Add(item.Key, item.Value); }
             }
             AllAttrs = new ReadOnlyCollection<NEnumerable<TEnum>>(allAttrs);
             AllNames = new ReadOnlyCollection<String>(allNames);
@@ -239,18 +255,20 @@ namespace System.Data.Cobber
             Attrs = new ReadOnlyCollection<NEnumerable<TEnum>>(allAttrs.Skip(1).ToList());
             Unknown = AllAttrs.First();
 
-            Expression expressBody;
             var enumVal = Expression.Parameter(typeof(TEnum), "enumVal");
             GetFromEnum = Expression.Lambda<Func<TEnum, NEnumerable<TEnum>>>(Expression.Switch(enumVal, Expression.Constant(Unknown), getEnumCases.ToArray()), enumVal).Compile();
 
             var enumName = Expression.Parameter(typeof(string), "enumName");
-            var nameHash = Expression.Variable(typeof(int), "nameHash");
-            var calHash = Expression.Assign(nameHash, Expression.Call(enumName, typeof(object).GetMethod("GetHashCode")));
-            expressBody = Expression.Block(typeof(NEnumerable<TEnum>), new[] { nameHash }, calHash, Expression.Switch(nameHash, Expression.Constant(Unknown), getNameCases.ToArray()));
-            GetFromEnumName = Expression.Lambda<Func<string, NEnumerable<TEnum>>>(expressBody, enumName).Compile();
+            GetFromEnumName = Expression.Lambda<Func<String, NEnumerable<TEnum>>>(Expression.Switch(enumName, Expression.Constant(Unknown), getEnumNameCases.Values.ToArray()), enumName).Compile();
 
             var enumValue = Expression.Parameter(typeof(int), "enumValue");
-            GetFromInt32 = Expression.Lambda<Func<Int32, NEnumerable<TEnum>>>(Expression.Switch(enumValue, Expression.Constant(Unknown), getValueCases.ToArray()), enumValue).Compile();
+            GetFromInt32 = Expression.Lambda<Func<Int32, NEnumerable<TEnum>>>(Expression.Switch(enumValue, Expression.Constant(Unknown), getValueCases.Values.ToArray()), enumValue).Compile();
+
+            var enumVal64 = Expression.Parameter(typeof(long), "enumValue");
+            GetFromInt64 = Expression.Lambda<Func<Int64, NEnumerable<TEnum>>>(Expression.Switch(enumVal64, Expression.Constant(Unknown), getValCases.Values.ToArray()), enumVal64).Compile();
+
+            var nameValue = Expression.Parameter(typeof(string), "nameValue");
+            GetFromName = Expression.Lambda<Func<string, NEnumerable<TEnum>>>(Expression.Switch(nameValue, Expression.Constant(Unknown), getNameCases.Values.ToArray()), nameValue).Compile();
         }
         #region // 实现接口
         /// <summary>
@@ -282,13 +300,21 @@ namespace System.Data.Cobber
         /// </summary>
         public int Value { get; private set; }
         /// <summary>
+        /// 值
+        /// </summary>
+        public long Val { get; private set; }
+        /// <summary>
         /// 枚举名
         /// </summary>
         public string EnumName { get; private set; }
         /// <summary>
-        /// 显示名
+        /// 显示名(EDisplay?.Name)
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get => EDisplay?.Name; }
+        /// <summary>
+        /// 显示描述名(EDisplay?.Display)
+        /// </summary>
+        public String DName { get => EDisplay?.Display; }
         /// <summary>
         /// 枚举值
         /// </summary>
@@ -296,7 +322,7 @@ namespace System.Data.Cobber
         /// <summary>
         /// 字段属性信息
         /// </summary>
-        public FieldInfo Field { get; }
+        public FieldInfo Field { get; private set; }
         #endregion
         /// <summary>
         /// 构造
@@ -334,6 +360,14 @@ namespace System.Data.Cobber
         /// 隐式转换
         /// </summary>
         /// <param name="enumValue"></param>
+        public static implicit operator long(NEnumerable<TEnum> enumValue)
+        {
+            return enumValue.Val;
+        }
+        /// <summary>
+        /// 隐式转换
+        /// </summary>
+        /// <param name="enumValue"></param>
         public static implicit operator NEnumerable<TEnum>(TEnum enumValue)
         {
             foreach (var item in Attrs)
@@ -348,11 +382,15 @@ namespace System.Data.Cobber
         /// <param name="enumValue"></param>
         public static implicit operator NEnumerable<TEnum>(int enumValue)
         {
-            foreach (var item in Attrs)
-            {
-                if (item.Value == enumValue) { return item; }
-            }
-            return Unknown;
+            return GetFromInt32(enumValue);
+        }
+        /// <summary>
+        /// 隐式转换
+        /// </summary>
+        /// <param name="enumValue"></param>
+        public static implicit operator NEnumerable<TEnum>(long enumValue)
+        {
+            return GetFromInt64(enumValue);
         }
         /// <summary>
         /// 隐式转换
@@ -360,25 +398,7 @@ namespace System.Data.Cobber
         /// <param name="enumValue"></param>
         public static implicit operator NEnumerable<TEnum>(String enumValue)
         {
-            // 枚举优先1
-            foreach (var item in Attrs)
-            {
-                if (item.EnumName == enumValue) { return item; }
-            }
-            // 枚举名称2
-            foreach (var item in Attrs)
-            {
-                if (item.Name == enumValue) { return item; }
-            }
-            // 枚举值3
-            if (int.TryParse(enumValue, out var value))
-            {
-                foreach (var item in Attrs)
-                {
-                    if (item.Value == value) { return item; }
-                }
-            }
-            return Unknown;
+            return GetFromName(enumValue);
         }
         #endregion
         #region // 转换方法
@@ -423,6 +443,14 @@ namespace System.Data.Cobber
         /// 获取值内容
         /// </summary>
         public static Func<Int32, NEnumerable<TEnum>> GetFromInt32 { get; }
+        /// <summary>
+        /// 获取值内容
+        /// </summary>
+        public static Func<Int64, NEnumerable<TEnum>> GetFromInt64 { get; }
+        /// <summary>
+        /// 获取内容
+        /// </summary>
+        public static Func<String, NEnumerable<TEnum>> GetFromName { get; }
         #endregion
     }
 }

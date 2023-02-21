@@ -10,254 +10,57 @@ using System.Text;
 
 namespace System.Data.Extter
 {
-    /// <summary>
-    /// Window操作系统调用
+    ///<summary>
+    /// 结构。硬盘信息
     /// </summary>
-    public static partial class ExtterCaller
+    public struct DiskSizeInfo
     {
         /// <summary>
-        /// C:\Windows
+        /// 根目录
         /// </summary>
-        public static String WindowDir => Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.Windows));
+        public string RootPathName;
         /// <summary>
-        /// 获取特殊目录全路径
+        /// 每簇的扇区数
         /// </summary>
-        /// <param name="special"></param>
-        /// <returns></returns>
-        public static String GetFullPath(this Environment.SpecialFolder special)
-        {
-            return Path.GetFullPath(Environment.GetFolderPath(special));
-        }
+        public uint SectorsPerCluster;
         /// <summary>
-        /// 获取特殊目录全路径
+        /// 每扇区字节
         /// </summary>
-        /// <param name="special"></param>
-        /// <returns></returns>
-        public static String GetFullPath(this WindowSpecialFolder special)
-        {
-            return Path.GetFullPath(Environment.GetFolderPath((Environment.SpecialFolder)special));
-        }
+        public uint BytesPerSector;
         /// <summary>
-        /// 执行命令行
+        /// 可用簇
         /// </summary>
-        /// <param name="exeFile"></param>
-        /// <param name="startDir"></param>
-        /// <param name="args"></param>
-        public static IAlertMsg ExecHidden(string exeFile, string startDir, string args)
-        {
-            var result = new AlertMsg(true, "");
-            var p = new Process()
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    FileName = exeFile,
-                    Arguments = args,
-                    WorkingDirectory = Path.GetFullPath(startDir),
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    CreateNoWindow = true,
-                }
-            };
-            p.OutputDataReceived += (sender, e) =>
-            {
-                if (e.Data == null) { return; }
-                result.AddMsg(e.Data);
-            };
-            p.ErrorDataReceived += (sender, e) =>
-            {
-                if (e.Data == null) { return; }
-                result.AddMsg(e.Data);
-            };
-            p.Start();
-            p.BeginOutputReadLine();
-            p.BeginErrorReadLine();
-            p.WaitForExit();
-
-            return result;
-        }
+        public uint NumberOfFreeClusters;
         /// <summary>
-        /// 执行命令行
+        /// 总簇数
         /// </summary>
-        public static IAlertMsg ExecHidden(string command) => ExecHidden("cmd.exe", WindowDir, $" /c {command}");
+        public uint TotalNumberOfClusters;
         /// <summary>
-        /// 执行命令行
+        /// 簇字节数=每簇扇区数*每扇区字节数
         /// </summary>
-        public static IAlertMsg ExecHidden(string exeFile, string command) => ExecHidden(exeFile, WindowDir, command);
+        public long ClusterSize { get => BytesPerSector * SectorsPerCluster; }
+    }
+    /// <summary>
+    /// 文件夹大小信息
+    /// </summary>
+    public class FolderSizeInfo
+    {
         /// <summary>
-        /// 启动服务
+        /// 文件计数
         /// </summary>
-        /// <param name="serviceName"></param>
-        /// <returns></returns>
-        public static IAlertMsg NetStart(string serviceName) => ExecHidden("net", WindowDir, $" start {serviceName}");
+        public int FileCount { get; set; }
         /// <summary>
-        /// 关闭服务
+        /// 文件夹计数
         /// </summary>
-        /// <param name="serviceName"></param>
-        /// <returns></returns>
-        public static IAlertMsg NetStop(string serviceName) => ExecHidden("net", WindowDir, $" stop {serviceName}");
+        public int FolderCount { get; set; }
         /// <summary>
-        /// 资源管理器打开目录(不重复打开)
+        /// 文件长度
         /// </summary>
-        /// <param name="dir"></param>
-        public static void StartExplorer(this DirectoryInfo dir) => ExecHidden("cmd", dir.FullName, $" /c start \"\" \"{dir.FullName}\"");
+        public long FileSize { get; set; }
         /// <summary>
-        /// 启动链接
+        /// 文件夹长度
         /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
-        public static IAlertMsg StartUrl(string url)
-        {
-            if (string.IsNullOrWhiteSpace(url)) { return AlertMsg.OperSuccess; }
-            url = url.Trim().Replace("&", "^&");
-            Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
-            return AlertMsg.OperSuccess;
-        }
-        /// <summary>
-        /// 启动链接
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
-        public static IAlertMsg TryStartUrl(string url)
-        {
-            try { return StartUrl(url); }
-            catch { return AlertMsg.OperError; }
-        }
-        #region // 快捷方式调用者
-        /// <summary>
-        /// 创建快捷方式
-        /// </summary>
-        /// <param name="directory">快捷方式所处的文件夹</param>
-        /// <param name="shortcutName">快捷方式名称</param>
-        /// <param name="targetPath">目标路径</param>
-        /// <param name="description">描述</param>
-        /// <param name="iconLocation">图标路径，格式为"可执行文件或DLL路径, 图标编号"，例如System.Environment.SystemDirectory + "\\" + "shell32.dll, 165"</param>
-        /// <param name="args">参数</param>
-        /// <remarks></remarks>
-        public static void CreateShortcut(string directory, string shortcutName, string targetPath, string description = null, string iconLocation = null, string args = null)
-        {
-            using var shellLink = CreateShortcut2(Path.Combine(directory, shortcutName), targetPath, description, iconLocation, args, null);
-        }
-        /// <summary>
-        /// 创建桌面快捷方式
-        /// </summary>
-        /// <param name="shortcutName">快捷方式名称,不包括扩展名</param>
-        /// <param name="targetPath">目标路径</param>
-        /// <param name="description">描述</param>
-        /// <param name="iconLocation">图标路径，格式为"可执行文件或DLL路径, 图标编号"，例如System.Environment.SystemDirectory + "\\" + "shell32.dll, 165"</param>
-        /// <param name="args">参数</param>
-        /// <remarks>参数</remarks>
-        public static void CreateShortcutDesktop(string shortcutName, string targetPath, string description = null, string iconLocation = null, string args = null)
-        {
-            string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory); //获取桌面文件夹路径
-            using var shellLink = CreateShortcut2(Path.Combine(desktop, shortcutName), targetPath, description, iconLocation, args, null);
-        }
-        /// <summary>
-        /// 创建桌面快捷方式
-        /// </summary>
-        /// <param name="shortcutName">快捷方式名称,不包括扩展名</param>
-        /// <param name="targetPath">目标路径</param>
-        /// <param name="description">描述</param>
-        /// <param name="icon">图标路径，格式为"可执行文件或DLL路径, 图标编号"，例如System.Environment.SystemDirectory + "\\" + "shell32.dll, 165"</param>
-        /// <param name="args">参数</param>
-        /// <remarks>参数</remarks>
-        public static void CreateShortcutStartup(string shortcutName, string targetPath, string description = null, string icon = null, string args = null)
-        {
-            string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Startup); //获取启动文件夹路径
-            using var shellLink = CreateShortcut2(Path.Combine(desktop, shortcutName), targetPath, description, icon, args, null);
-        }
-        /// <summary>
-        /// 创建桌面快捷方式
-        /// </summary>
-        /// <param name="model"></param>
-        /// <remarks>参数</remarks>
-        public static void Create(this WindowShortcutInfoModel model)
-        {
-            using var shellLink = CreateShortcut2(Path.Combine(model.SavePath, model.SaveName), model.SourceName, model.Description, model.Icon, model.Args, model.WorkDir);
-        }
-        /// <summary>
-        /// 创建快捷方式
-        /// </summary>
-        /// <param name="shortcutPath"></param>
-        /// <param name="targetPath"></param>
-        /// <param name="description"></param>
-        /// <param name="icon"></param>
-        /// <param name="workDir"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        public static ShellLink CreateShortcut2(string shortcutPath, string targetPath, string description = null, string icon = null, string args = null, string workDir = null)
-        {
-            shortcutPath = ShellLink.GetFullPath(shortcutPath);
-            targetPath = ShellLink.GetFullPath(targetPath);
-            if (!System.IO.Path.HasExtension(shortcutPath)) { shortcutPath += ShellLink.Extension; }
-            // if (File.Exists(shortcutPath)) { File.Delete(shortcutPath); }
-            var link = new ShellLink(shortcutPath);
-            link.Path = targetPath;
-            link.WorkingDirectory = workDir == null ? System.IO.Path.GetDirectoryName(targetPath) : Path.GetFullPath(workDir);
-            link.IconLocation = GetIconLocation(icon);
-            link.Description = description ?? Path.GetFileNameWithoutExtension(shortcutPath);
-            link.Arguments = args ?? String.Empty;
-            link.Save(shortcutPath);
-            return link;
-            static Tuble2StringInt GetIconLocation(string iconLocation)
-            {
-                if (string.IsNullOrWhiteSpace(iconLocation)) { return null; }
-                try
-                {
-                    if (File.Exists(Path.GetFullPath(iconLocation)))
-                    {
-                        return new Tuble2StringInt(iconLocation, 0);
-                    }
-                }
-                catch { }
-                var iconTag = iconLocation.LastIndexOf(',');
-                int index = 0;
-                var fileName = iconLocation;
-                if (iconTag > 0)
-                {
-                    index = iconLocation.Substring(iconTag + 1).ToPInt32();
-                    fileName = iconLocation.Substring(0, iconTag);
-                }
-                return new Tuble2StringInt(fileName, index);
-            }
-        }
-        /// <summary>
-        /// 是快捷方式路径
-        /// </summary>
-        /// <param name="shortcutPath"></param>
-        /// <returns></returns>
-        public static bool IsShortcutFile(string shortcutPath)
-        {
-            shortcutPath = ShellLink.GetFullPath(shortcutPath);
-            if (File.Exists(shortcutPath))
-            {
-                try
-                {
-                    using var shellLink = new ShellLink(shortcutPath);
-                    return true;
-                }
-                catch { }
-            }
-            return false;
-        }
-        /// <summary>
-        /// 是快捷方式指向路径
-        /// </summary>
-        /// <param name="shortcutPath"></param>
-        /// <param name="targetPath"></param>
-        /// <returns></returns>
-        public static bool IsShortcutPointTo(string shortcutPath, string targetPath)
-        {
-            try
-            {
-                using var shellLink = new ShellLink(shortcutPath);
-                return shellLink.IsPointTo(targetPath);
-            }
-            catch { }
-            return false;
-        }
-        #endregion 快捷方式调用者
+        public long FolderSize { get; set; }
     }
     /// <summary>
     /// Window快捷方式启动模型

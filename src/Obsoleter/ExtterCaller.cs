@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
@@ -3510,7 +3511,7 @@ namespace System.Data.Extter
         {
             using (var stream = new MemoryStream(bytes))
             {
-                return (T)SerialByteBinder<T>.Formatter.Deserialize(stream);
+                return (T)ExtterCaller.SerialByteBinder<T>.Formatter.Deserialize(stream);
             }
         }
 
@@ -3526,7 +3527,7 @@ namespace System.Data.Extter
         {
             using (var stream = new MemoryStream())
             {
-                SerialByteBinder<T>.Formatter.Serialize(stream, model);
+                ExtterCaller.SerialByteBinder<T>.Formatter.Serialize(stream, model);
                 return stream.ToArray();
             }
         }
@@ -3784,5 +3785,72 @@ namespace System.Data.Extter
         [Obsolete("替代方案:【Impeller.KERNEL32.GetDiskFreeSpace】")]
         public static bool GetDiskFreeSpace([MarshalAs(UnmanagedType.LPTStr)] string rootPathName, ref uint sectorsPerCluster, ref uint bytesPerSector, ref uint numberOfFreeClusters, ref uint totalNumbeOfClusters)
             => Impeller.KERNEL32.GetDiskFreeSpace(rootPathName, ref sectorsPerCluster, ref bytesPerSector, ref numberOfFreeClusters, ref totalNumbeOfClusters);
+
+        /// <summary>
+        /// 获取模型
+        /// </summary>
+        /// <see cref="SerializableAttribute"/>
+        /// <see cref="BinaryFormatter.Deserialize(Stream)"/>
+        /// <see cref="GetBytesModel"/>
+        /// <returns></returns>
+        [Obsolete("替代方案:GetBytesModel,原因:高版本.NET已弃用,请使用另外的方法代替,不相互兼容")]
+        public static T GetBinModel<T>(this byte[] bytes)
+        {
+            using (var stream = new MemoryStream(bytes))
+            {
+                return (T)SerialByteBinder<T>.Formatter.Deserialize(stream);
+            }
+        }
+
+        /// <summary>
+        /// 转换成字节数组
+        /// </summary>
+        /// <see cref="SerializableAttribute"/>
+        /// <see cref="BinaryFormatter.Serialize(Stream, object)"/>
+        /// <see cref="GetModelBytes"/>
+        /// <returns></returns>
+        [Obsolete("替代方案:GetModelBytes,原因:高版本.NET已弃用,请使用另外的方法代替,不相互兼容")]
+        public static byte[] GetBinBytes<T>(this T model)
+        {
+            using (var stream = new MemoryStream())
+            {
+                SerialByteBinder<T>.Formatter.Serialize(stream, model);
+                return stream.ToArray();
+            }
+        }
+        /// <summary>
+        /// 序列化绑定
+        /// </summary>
+        [Obsolete("BinaryFormatter不允许写入内存序列化后的二进制数据,所以此类已弃用,请使用其他方式代替,相互兼容")]
+        internal class SerialByteBinder<T> : SerializationBinder
+        {
+            /// <summary>
+            /// 实例
+            /// </summary>
+            public static SerializationBinder Instance { get; }
+            /// <summary>
+            /// 格式化
+            /// </summary>
+            public static BinaryFormatter Formatter { get; }
+            /// <summary>
+            /// 静态构造
+            /// </summary>
+            static SerialByteBinder()
+            {
+                Formatter = new BinaryFormatter();
+                Formatter.Binder = Instance = new SerialByteBinder<T>();
+            }
+            /// <summary>
+            /// 绑定到类型
+            /// </summary>
+            /// <param name="assemblyName"></param>
+            /// <param name="typeName"></param>
+            /// <returns></returns>
+            public override Type BindToType(string assemblyName, string typeName)
+            {
+                return typeof(T);
+            }
+        }
+
     }
 }

@@ -15,12 +15,16 @@ namespace System.Data.Impeller
     public static class USER32
     {
         /// <summary>
+        /// 文件名称
+        /// </summary>
+        public const String DllFileName = "user32.dll";
+        /// <summary>
         /// 设置由不同线程产生的窗口的显示状态
         /// </summary>
         /// <param name="hwnd">窗口句柄</param>
         /// <param name="cmdshow">指定窗口如何显示,查看允许值列表,请查阅showWindow函数的说明部分</param>
         /// <returns>如果函数原来可见,返回值为非零,如果函数原来被隐藏,返回值为零</returns>
-        [DllImport("user32.dll")]
+        [DllImport(DllFileName)]
         public static extern bool ShowWindowAsync(IntPtr hwnd, int cmdshow);
         /// <summary>
         /// 该函数将创建指定窗口线程设置到前台,并激活该窗口
@@ -29,7 +33,7 @@ namespace System.Data.Impeller
         /// </summary>
         /// <param name="hwnd">将被激活并被调入前台的窗口句柄</param>
         /// <returns>如果窗口设入了前台，返回值为非零；如果窗口未被设入前台，返回值为零</returns>
-        [DllImport("user32.dll")]
+        [DllImport(DllFileName)]
         public static extern bool SetForegroundWindow(IntPtr hwnd);
         /// <summary>
         /// 导出SendMessage函数
@@ -39,15 +43,25 @@ namespace System.Data.Impeller
         /// <param name="wParam"></param>
         /// <param name="IParam"></param>
         /// <returns></returns>
-        [DllImport("User32.dll", EntryPoint = "SendMessage")]
+        [DllImport(DllFileName, EntryPoint = nameof(SendMessage))]
         public static extern int SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, ref SendStruct IParam);
+        /// <summary>
+        /// 发送消息
+        /// </summary>
+        /// <param name="hWnd"></param>
+        /// <param name="Msg"></param>
+        /// <param name="wParam"></param>
+        /// <param name="lParam"></param>
+        /// <returns></returns>
+        [DllImport(DllFileName, EntryPoint = nameof(PostMessage))]
+        public static extern int PostMessage(IntPtr hWnd, int Msg, long wParam, long lParam);
         /// <summary>
         /// 导出FindWindow函数，用于找到目标窗口所在进程
         /// </summary>
         /// <param name="lpClassName"></param>
         /// <param name="lpWindowName"></param>
         /// <returns></returns>
-        [DllImport("User32.dll", EntryPoint = "FindWindow")]
+        [DllImport(DllFileName, EntryPoint = nameof(FindWindow))]
         public static extern int FindWindow(string lpClassName, string lpWindowName);
         #region // 输入输出
         /// <summary>
@@ -55,7 +69,7 @@ namespace System.Data.Impeller
         /// </summary>
         /// <param name="plii"></param>
         /// <returns></returns>
-        [DllImport("user32.dll")]
+        [DllImport(DllFileName)]
         public static extern bool GetLastInputInfo(ref PLASTINPUTINFO plii);
         #endregion
         #region // 公开类

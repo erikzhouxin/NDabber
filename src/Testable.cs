@@ -15,6 +15,15 @@ namespace System
     /// </summary>
     public static class TestTry
     {
+        #region // 定义内容
+        /// <summary>
+        /// 用户账号
+        /// </summary>
+        public const String Account = "erikzhouxin";
+        /// <summary>
+        /// 用户名称
+        /// </summary>
+        public const String UserName = "zhouxin";
         /// <summary>
         /// 用户账号
         /// </summary>
@@ -23,36 +32,94 @@ namespace System
         /// 用户名称
         /// </summary>
         public static string AuthorUserName { get; } = "周鑫";
+        #endregion 定义内容
+        #region // 缩减内容
+        /// <summary>
+        /// 创建数组
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="models"></param>
+        /// <returns></returns>
+        public static T[] CreateArray<T>(params T[] models) => models;
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try(this Delegate action, Action<Exception> excep)
+        {
+            try
+            {
+                action.DynamicInvoke();
+            }
+            catch (Exception ex)
+            {
+                excep?.Invoke(ex);
+            }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try(this Delegate action, Action<Exception> excep, params object[] args)
+        {
+            try
+            {
+                action.DynamicInvoke(args);
+            }
+            catch (Exception ex)
+            {
+                excep?.Invoke(ex);
+            }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        /// <param name="action"></param>
+        public static void Try(this Delegate action)
+        {
+            try
+            {
+                action.DynamicInvoke();
+            }
+            catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="args"></param>
+        public static void Try(this Delegate action, params object[] args)
+        {
+            try
+            {
+                action.DynamicInvoke(args);
+            }
+            catch { }
+        }
+        #endregion
+        #region // 反射内容 Reflection
         /// <summary>
         /// 当前程序集
         /// </summary>
         public static Assembly CurrentAssembly { get; } = Assembly.GetExecutingAssembly();
-        private static Lazy<bool> _isDebugMode = new Lazy<bool>(IsProcessDebug, true);
         /// <summary>
-        /// 当前进程是调试状态
+        /// 成员全称
+        /// </summary>
+        /// <param name="member"></param>
+        /// <returns></returns>
+        public static String GetMemberFullName(this MemberInfo member)
+        {
+            return $"{member.DeclaringType?.FullName}.{member.Name}";
+        }
+        #endregion 反射内容 Reflection
+        #region // 委托内容 Delegate
+        /// <summary>
+        /// 方法信息
         /// </summary>
         /// <returns></returns>
-        public static bool IsProcessDebug()
+        public static string GetMethodFullName(this Delegate expression)
         {
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            bool debug = false;
-            foreach (var attribute in assembly.GetCustomAttributes(false))
-            {
-                if (attribute is DebuggableAttribute debuggable)
-                {
-                    if (debuggable.IsJITTrackingEnabled)
-                    {
-                        debug = true;
-                        break;
-                    }
-                }
-            }
-            return debug;
+            var member = expression.Method;
+            return $"{member.DeclaringType?.FullName}.{member.Name}";
         }
-        /// <summary>
-        /// 当前是调试模式
-        /// </summary>
-        public static bool IsDebugMode { get => _isDebugMode.Value; }
         /// <summary>
         /// 调用
         /// </summary>
@@ -120,31 +187,8 @@ namespace System
             }
             catch (Exception ex) { return ex; }
         }
-        /// <summary>
-        /// 创建数组
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="models"></param>
-        /// <returns></returns>
-        public static T[] CreateArray<T>(params T[] models) => models;
-        /// <summary>
-        /// 方法信息
-        /// </summary>
-        /// <returns></returns>
-        public static string GetMethodFullName(this Delegate expression)
-        {
-            var member = expression.Method;
-            return $"{member.DeclaringType?.FullName}.{member.Name}";
-        }
-        /// <summary>
-        /// 成员全称
-        /// </summary>
-        /// <param name="member"></param>
-        /// <returns></returns>
-        public static String GetMemberFullName(this MemberInfo member)
-        {
-            return $"{member.DeclaringType?.FullName}.{member.Name}";
-        }
+        #endregion 委托内容 Delegate
+        #region // 任务内容 Task
         /// <summary>
         /// 演示调用
         /// </summary>
@@ -165,6 +209,8 @@ namespace System
                 }
             });
         }
+        #endregion 任务内容 Task
+        #region // 调试内容 Debug
         /// <summary>
         /// 调试输出
         /// </summary>
@@ -178,6 +224,32 @@ namespace System
 #endif
             return model;
         }
+        private static readonly Lazy<bool> _isDebugMode = new Lazy<bool>(IsProcessDebug, true);
+        /// <summary>
+        /// 当前进程是调试状态
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsProcessDebug()
+        {
+            bool debug = false;
+            foreach (var attribute in Assembly.GetExecutingAssembly().GetCustomAttributes(false))
+            {
+                if (attribute is DebuggableAttribute debuggable)
+                {
+                    if (debuggable.IsJITTrackingEnabled)
+                    {
+                        debug = true;
+                        break;
+                    }
+                }
+            }
+            return debug;
+        }
+        /// <summary>
+        /// 当前是调试模式
+        /// </summary>
+        public static bool IsDebugMode { get => _isDebugMode.Value; }
+        #endregion 调试内容 Debug
         #region // Task兼容内容
         /// <summary>
         /// 兼容性的 Task.FromResult(0)之类的内容

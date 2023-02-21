@@ -94,7 +94,7 @@ namespace System.Data.Extter
         }
     }
     /// <summary>
-    /// 
+    /// 类似UUID/GUID的标识生成类
     /// </summary>
     public static class Nanoid
     {

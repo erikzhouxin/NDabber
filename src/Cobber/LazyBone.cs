@@ -15,11 +15,26 @@ namespace System.Data.Cobber
     [DebuggerDisplay("IsValueCreated={IsValueCreated}, Value={Value}")]
     public class LazyBone<T>
     {
-        private object _lockObj = new object();
-        private Func<T> _factory;
-        private T _value;
-        private bool _isThreadSafe;
-        private bool _isCreated;
+        /// <summary>
+        /// 锁定对象
+        /// </summary>
+        protected object _lockObj = new object();
+        /// <summary>
+        /// 创建函数
+        /// </summary>
+        protected Func<T> _factory;
+        /// <summary>
+        /// 加载值
+        /// </summary>
+        protected T _value;
+        /// <summary>
+        /// 线程安全
+        /// </summary>
+        protected bool _isThreadSafe;
+        /// <summary>
+        /// 已经创建
+        /// </summary>
+        protected bool _isCreated;
         /// <summary>
         /// 构造
         /// </summary>
@@ -54,46 +69,58 @@ namespace System.Data.Cobber
         /// <summary>
         /// 是否已经创建
         /// </summary>
-        public bool IsValueCreated => _isCreated;
+        public virtual bool IsValueCreated => _isCreated;
         /// <summary>
         /// 是否已经创建
         /// </summary>
-        public bool IsThreadSafe => _isThreadSafe;
+        public virtual bool IsThreadSafe => _isThreadSafe;
         /// <summary>
         /// 加载值
         /// </summary>
-        public T Value => _isCreated ? _value : CreateValue();
-        private T CreateValue()
+        public virtual T Value => _isCreated ? _value : CreateValue();
+        /// <summary>
+        /// 创建值
+        /// </summary>
+        /// <returns></returns>
+        protected virtual T CreateValue()
         {
             if (!_isThreadSafe)
             {
                 _value = _factory();
                 _isCreated = true;
+                return _value;
             }
-            else
+            try
             {
-                try
+                lock (_lockObj)
                 {
-                    lock (_lockObj)
+                    if (!_isCreated)
                     {
-                        if (!_isCreated)
-                        {
-                            _value = _factory();
-                            _isCreated = true;
-                        }
+                        _value = _factory();
+                        _isCreated = true;
                     }
                 }
-                catch { }
             }
+            catch { }
             return _value;
         }
         /// <summary>
         /// 重新加载
         /// </summary>
-        public void Reload()
+        public virtual void Reload()
         {
             _value = default(T);
             _isCreated = false;
+        }
+        /// <summary>
+        /// 刷新后返回
+        /// </summary>
+        /// <returns></returns>
+        public virtual LazyBone<T> Refresh()
+        {
+            _value = default(T);
+            _isCreated = false;
+            return this;
         }
     }
     /// <summary>
@@ -105,11 +132,15 @@ namespace System.Data.Cobber
         /// <summary>
         /// 构造
         /// </summary>
-        public LazyBoneObservable(ObservableCollection<T> value) : base(value) { }
+        public LazyBoneObservable(ObservableCollection<T> value) : this(value, false) { }
         /// <summary>
         /// 构造
         /// </summary>
-        public LazyBoneObservable(Func<ObservableCollection<T>> factory) : base(factory) { }
+        public LazyBoneObservable(ObservableCollection<T> value, bool isThreadSafe) : base(value, isThreadSafe) { }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public LazyBoneObservable(Func<ObservableCollection<T>> factory) : this(factory, false) { }
         /// <summary>
         /// 构造
         /// </summary>
@@ -124,11 +155,15 @@ namespace System.Data.Cobber
         /// <summary>
         /// 构造
         /// </summary>
-        public LazyBones(IEnumerable<T> value) : base(value) { }
+        public LazyBones(IEnumerable<T> value) : this(value, false) { }
         /// <summary>
         /// 构造
         /// </summary>
-        public LazyBones(Func<IEnumerable<T>> factory) : base(factory) { }
+        public LazyBones(IEnumerable<T> value, bool isThreadSafe) : base(value, isThreadSafe) { }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public LazyBones(Func<IEnumerable<T>> factory) : this(factory, false) { }
         /// <summary>
         /// 构造
         /// </summary>
@@ -143,11 +178,15 @@ namespace System.Data.Cobber
         /// <summary>
         /// 构造
         /// </summary>
-        public LazyBoneList(List<T> value) : base(value) { }
+        public LazyBoneList(List<T> value) : this(value, false) { }
         /// <summary>
         /// 构造
         /// </summary>
-        public LazyBoneList(Func<List<T>> factory) : base(factory) { }
+        public LazyBoneList(List<T> value, bool isThreadSafe) : base(value, isThreadSafe) { }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public LazyBoneList(Func<List<T>> factory) : this(factory, false) { }
         /// <summary>
         /// 构造
         /// </summary>

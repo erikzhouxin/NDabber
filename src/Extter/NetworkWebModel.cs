@@ -9,13 +9,6 @@ using System.Text;
 namespace System.Data.Extter
 {
     /// <summary>
-    /// 网络调用
-    /// </summary>
-    public static partial class ExtterCaller
-    {
-
-    }
-    /// <summary>
     /// FTP请求模型
     /// </summary>
     public class FtpRequestModel

@@ -16,6 +16,7 @@ namespace System.Data.Extter
     /// </summary>
     public static class RegistryContainer
     {
+
     }
     /// <summary>
     /// 注册提供者
@@ -183,7 +184,7 @@ namespace System.Data.Extter
         /// <summary>
         /// 获取接口实例
         /// </summary>
-        public static T Get<T>(string domain, bool isNew = false) => Get<T>(domain, isNew, BuilderArray<object>.Empty);
+        public static T Get<T>(string domain, bool isNew = false) => Get<T>(domain, isNew, new object[0]);
         /// <summary>
         /// 获取数据访问接口实例
         /// </summary>
@@ -467,7 +468,7 @@ namespace System.Data.Extter
         /// <summary>
         /// 获取接口实例
         /// </summary>
-        public T GetService<T>(string domain, bool isNew = false) => RegistryProvider.Get<T>(domain, isNew, BuilderArray<object>.Empty);
+        public T GetService<T>(string domain, bool isNew = false) => RegistryProvider.Get<T>(domain, isNew, new object[0]);
         /// <summary>
         /// 初始化参数获取类型
         /// </summary>

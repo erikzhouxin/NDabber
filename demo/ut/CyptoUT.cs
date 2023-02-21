@@ -48,7 +48,7 @@ namespace System.Data.DabberUT.CheckerUT
         [TestMethod]
         public void TestCryptoProvider()
         {
-            var passSalt = Encoding.UTF8.GetBytes("Abc123!@#");
+            var passSalt = CobberCaller.DefaultEncoding.GetBytes("Abc123!@#");
 
             var md5Hash1 = MD5.Create().ComputeHash(passSalt);
             var md5Hash2 = new MD5CryptoServiceProvider().ComputeHash(passSalt);

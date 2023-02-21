@@ -10,6 +10,7 @@ namespace System.Data.Extter
     /// </summary>
     public static partial class Builder
     {
+        #region // 数组 Array
         /// <summary>
         /// 创建空数组(利用引用,相当于Array.Empty)
         /// </summary>
@@ -19,14 +20,14 @@ namespace System.Data.Extter
         {
             return BuilderArray<T>.Empty;
         }
-    }
-    internal class BuilderArray<T>
-    {
-        public static T[] Empty { get; }
-
-        static BuilderArray()
+        internal class BuilderArray<T>
         {
-            Empty = new T[0];
+            public static T[] Empty { get; }
+            static BuilderArray()
+            {
+                Empty = new T[0];
+            }
         }
+        #endregion 数组 Array
     }
 }

@@ -464,5 +464,107 @@ namespace System.Data.DabberUT
             Console.WriteLine(list2.OrderBy(s => s).JoinString());
             Console.WriteLine(list2.OrderByDescending(s => s).JoinString());
         }
+        [TestMethod]
+        public void TestRefAction()
+        {
+            var actions = new List<Action>();
+            for (int i = 0; i < 10; i++)
+            {
+                var ini = i;
+                Action Test = () =>
+                {
+                    var text = $"{i}";
+                    Thread.Sleep((ini % 2) * 1000);
+                    text = $"{text}={i}";
+                    Console.WriteLine($"{text}={i++}");
+                };
+                actions.Add(Test);
+                //Test.Invoke();
+            }
+            Parallel.For(0, actions.Count, new ParallelOptions { MaxDegreeOfParallelism = 15 }, i =>
+            {
+                Console.WriteLine(i);
+                actions[i].Invoke();
+            });
+        }
+        [TestMethod]
+        public void TestNumber()
+        {
+            bool isOption = false;
+            Parallel.For(0, 1000, new ParallelOptions { MaxDegreeOfParallelism = 100 }, i =>
+            {
+                if (isOption) { return; }
+                isOption = true;
+                Console.WriteLine(i);
+                Thread.Sleep(1000);
+                Console.WriteLine(i);
+                //actions[i].Invoke();
+            });
+        }
+        [TestMethod]
+        public void TestEnum()
+        {
+            var values = System.Enum.GetValues(typeof(StoreType));
+            var allEnums = (StoreType[])values;
+            var allValues = new int[values.Length];
+            for (int i = 0; i < values.Length; i++)
+            {
+                var val = values.GetValue(i);
+                allValues[i] = (int)Convert.ChangeType(val, typeof(int));
+            }
+            for (int i = 0; i < allEnums.Length; i++)
+            {
+                Console.WriteLine($"{allEnums[i]} => {allValues[i]}");
+            }
+        }
+        [TestMethod]
+        public void TestDateTime()
+        {
+            var sec = 1675907328;
+            var date = new DateTime(TimeSpan.TicksPerSecond * sec + ExtterCaller.TicksFrom1970, DateTimeKind.Utc);
+            Console.WriteLine(date.ToLocalTime().GetDateTimeString());
+        }
+        [TestMethod]
+        public void TestEncoding()
+        {
+            var x = Guid.NewGuid().GetString();
+            Console.WriteLine(x);
+            Console.WriteLine(x.GetUTF8Bytes().Length);
+            Console.WriteLine(x.GetASCIIBytes().Length);
+        }
+        [TestMethod]
+        public void TestFlags()
+        {
+            ConsoleTest(typeof(TestTry));
+            ConsoleTest(typeof(UserPassword));
+            ConsoleTest(typeof(SettingJsonFile));
+            ConsoleTest(typeof(PropertyAccess));
+            static void ConsoleTest(Type type)
+            {
+                foreach (var item in type.GetProperties(Reflection.BindingFlags.Instance | Reflection.BindingFlags.Public))
+                {
+                    Console.WriteLine($"实例公共成员 => {type.Name}.{item.Name}");
+                }
+                foreach (var item in type.GetProperties(Reflection.BindingFlags.Static | Reflection.BindingFlags.Public))
+                {
+                    Console.WriteLine($"静态公共成员 => {type.Name}.{item.Name}");
+                }
+            }
+        }
+        [TestMethod]
+        public void TestStructureBytes()
+        {
+            var model = new Tuple<string, bool, int, double, Tuple<string, object>>("123",true,123,123,new Tuple<string, object>("456", new { Test = 456 }));
+            var ms = new MemoryStream();
+            var writer = new StreamWriter(ms);
+            writer.Write(model);
+            writer.Flush();
+            ms.Position = 0;
+
+            var msr = new MemoryStream(ms.ToArray());
+            var reader = new StreamReader(msr);
+            var res = reader.ReadToEnd();
+        }
+
     }
 }

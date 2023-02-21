@@ -14,6 +14,10 @@ namespace System.Data.Impeller
     /// </summary>
     public class KERNEL32
     {
+        /// <summary>
+        /// kernel32.dll文件
+        /// </summary>
+        public const String DllFileName = "kernel32.dll";
         #region // 文件信息
         /// <summary>
         /// 用于获取盘信息的api
@@ -50,7 +54,7 @@ namespace System.Data.Impeller
         /// 获取最后的错误
         /// </summary>
         /// <returns></returns>
-        [DllImport("kernel32.dll")]
+        [DllImport(DllFileName)]
         public static extern uint GetLastError();
         #endregion
         #region // 动态加载
@@ -61,7 +65,7 @@ namespace System.Data.Impeller
         /// <param name="h"></param>
         /// <param name="flags"></param>
         /// <returns></returns>
-        [DllImport("kernel32.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport(DllFileName, CallingConvention = CallingConvention.StdCall)]
         public static extern IntPtr LoadLibrary(string lpFileName, int h, int flags);
         /// <summary>
         /// 加载库
@@ -70,7 +74,7 @@ namespace System.Data.Impeller
         /// <param name="hReservedNull"></param>
         /// <param name="dwFlags"></param>
         /// <returns></returns>
-        [DllImport("kernel32.dll", EntryPoint = "LoadLibraryEx", SetLastError = true)]
+        [DllImport(DllFileName, EntryPoint = nameof(LoadLibraryEx), SetLastError = true)]
         public static extern int LoadLibraryEx(string lpFileName, IntPtr hReservedNull, LoadLibraryFlags dwFlags);
         /// <summary>
         /// 获取处理地址
@@ -78,7 +82,7 @@ namespace System.Data.Impeller
         /// <param name="handle"></param>
         /// <param name="funcname"></param>
         /// <returns></returns>
-        [DllImport("Kernel32", EntryPoint = "GetProcAddress", SetLastError = true)]
+        [DllImport(DllFileName, EntryPoint = nameof(GetProcAddress), SetLastError = true)]
         public static extern int GetProcAddress(int handle, string funcname);
         /// <summary>
         /// 获取处理地址
@@ -86,14 +90,14 @@ namespace System.Data.Impeller
         /// <param name="hModule"></param>
         /// <param name="lProcName"></param>
         /// <returns></returns>
-        [DllImport("kernel32.dll", CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
+        [DllImport(DllFileName, CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
         public static extern IntPtr GetProcAddress(IntPtr hModule, string lProcName);
         /// <summary>
         ///  释放库
         /// </summary>
         /// <param name="handle"></param>
         /// <returns></returns>
-        [DllImport("Kernel32", EntryPoint = "FreeLibrary", SetLastError = true)]
+        [DllImport(DllFileName, EntryPoint = nameof(FreeLibrary), SetLastError = true)]
         public static extern int FreeLibrary(int handle);
         /// <summary>
         /// 释放库
@@ -101,7 +105,7 @@ namespace System.Data.Impeller
         /// <param name="hModule"></param>
         /// <returns></returns>
 
-        [DllImport("kernel32.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport(DllFileName, CallingConvention = CallingConvention.StdCall)]
         public static extern bool FreeLibrary(IntPtr hModule);
         #endregion
         #region // 公开类

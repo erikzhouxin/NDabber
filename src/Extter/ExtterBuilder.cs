@@ -11,6 +11,7 @@ namespace System.Data.Extter
     /// </summary>
     public static partial class ExtterBuilder
     {
+        #region // 创建参数字典 Dictionary
         /// <summary>
         /// 创建一个参数字典
         /// </summary>
@@ -19,10 +20,7 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static Dictionary<string, object> CreateParamDic(string key, object value)
         {
-            return new Dictionary<string, object>()
-            {
-                { key, value }
-            };
+            return new Dictionary<string, object>() { { key, value } };
         }
         /// <summary>
         /// 创建
@@ -42,11 +40,11 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static Dictionary<string, object> CPDic(string key, object value)
         {
-            return new Dictionary<string, object>()
-            {
-                { key, value }
-            };
+            return new Dictionary<string, object>() { { key, value } };
         }
+        #endregion // 创建参数字典 Dictionary
+
+        #region // 创建表达式类内容
         /// <summary>
         /// 创建内容
         /// </summary>
@@ -105,12 +103,6 @@ namespace System.Data.Extter
                 .Append(typeBuilder);
             return result;
         }
-        /// <summary>
-        /// 创建内容
-        /// </summary>
-        /// <param name="types"></param>
-        /// <returns></returns>
-        [Obsolete("替代方案:BuildExpressionClassContent")]
-        public static StringBuilder BuilderContent(params Type[] types) => BuildExpressionClassContent(types);
+        #endregion 创建表达式类内容
     }
 }
