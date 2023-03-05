@@ -97,7 +97,7 @@ namespace System
         #endregion
         #region // 反射内容 Reflection
         /// <summary>
-        /// 当前程序集
+        /// 当前程序集[NSystem.Data.Dabber]
         /// </summary>
         public static Assembly CurrentAssembly { get; } = Assembly.GetExecutingAssembly();
         /// <summary>
@@ -217,11 +217,12 @@ namespace System
         /// <typeparam name="T"></typeparam>
         /// <param name="model"></param>
         /// <returns></returns>
+#if !NET40 // 内联函数减少性能损耗
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static T DebugConsole<T>(this T model)
         {
-#if DEBUG
-            Console.WriteLine(model);
-#endif
+            if (IsDebugMode) { Console.WriteLine(model); }
             return model;
         }
         private static readonly Lazy<bool> _isDebugMode = new Lazy<bool>(IsProcessDebug, true);

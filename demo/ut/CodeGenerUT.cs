@@ -19,18 +19,6 @@ namespace System.Data.DabberUT
     [TestClass]
     public class CodeGenerUT
     {
-        /// <summary>
-        /// 创建
-        /// </summary>
-        [TestMethod]
-        public void Create()
-        {
-            var times = 10;
-            for (int i = 0; i < times; i++)
-            {
-                Console.WriteLine(Guid.NewGuid().GetString());
-            }
-        }
         [TestMethod]
         public void CreateContextEntities()
         {
@@ -53,122 +41,133 @@ namespace System.Data.DabberUT
         [TestMethod]
         public void CreateEnumFlags()
         {
-            // ConsoleEnumFlags(0, 32, (v) => $"DO_{v + 1}", (v) => $"DO-{v + 1}", (v) => $"{(ulong)Math.Pow(2, v)}U");
-            // ConsoleEnumFlags(32, 64, (v) => $"DI_{v - 31}", (v) => $"DI-{v - 31}", (v) => $"{(ulong)Math.Pow(2, v)}U");
-
-            var ticks1 = DateTime.Now.Ticks;
-            var nos = GetNoType(18446744073709551615U);
-            var ticks2 = DateTime.Now.Ticks;
-            var nos2 = GetNoType2(18446744073709551615U);
-            var ticks3 = DateTime.Now.Ticks;
-            var nos3 = GetNoType3(18446744073709551615U);
-            var ticks4 = DateTime.Now.Ticks;
-            for (int i = 0; i < 100; i++) { nos = GetNoType(18246744073709551625U); }
-            var ticks5 = DateTime.Now.Ticks;
-            for (int i = 0; i < 100; i++) { nos2 = GetNoType2(18246744073709551625U); }
-            var ticks6 = DateTime.Now.Ticks;
-            for (int i = 0; i < 100; i++) { nos3 = GetNoType(18246744073709551625U); }
-            var ticks7 = DateTime.Now.Ticks;
+            var ticks1 = DateTime.Now;
+            var nos = ExtterCaller.GetFlagNos(1023U);
+            var nofs = ExtterCaller.GetFlags(1023U);
+            var noes = ExtterCaller.GetFlags(SettingType.Hardware | SettingType.Temp | SettingType.App | SettingType.Settings);
+            var ticks2 = DateTime.Now;
             Console.WriteLine($"第一次:{ticks2 - ticks1}");
-            Console.WriteLine($"第二次:{ticks3 - ticks2}");
-            Console.WriteLine($"第三次:{ticks4 - ticks3}");
-            Console.WriteLine($"第一次:{ticks5 - ticks4}");
-            Console.WriteLine($"第二次:{ticks6 - ticks5}");
-            Console.WriteLine($"第三次:{ticks7 - ticks6}");
             Console.WriteLine(nos.GetJsonString());
-            Assert.AreEqual(nos.GetJsonString(), nos2.GetJsonString());
-            Assert.AreEqual(nos.GetJsonString(), nos3.GetJsonString());
+            Console.WriteLine(noes.GetJsonString());
+            Console.WriteLine(nofs.GetJsonString());
         }
 
-        private static void ConsoleEnumFlags(int start, int end, Func<int, string> enumName, Func<int, string> enumDesc, Func<int, string> enumValue)
-        {
-            var sb = new StringBuilder();
-            for (int i = start; i < end; i++)
-            {
-                sb.AppendLine("/// <summary>")
-                     .AppendLine($"/// {enumDesc(i)}")
-                     .AppendLine("/// </summary>")
-                     .AppendLine($"[EDisplay(\"{enumDesc(i)}\")]")
-                     .AppendLine($"{enumName(i)} = {enumValue(i)},");
-            }
-            Console.WriteLine(sb);
-        }
         /// <summary>
-        /// 获取序号值
+        /// 移除SQL中UTF8编码影响
         /// </summary>
-        /// <returns></returns>
-        public static Tuble<int[], int[]> GetNoType2(ulong typeVal)
+        [TestMethod]
+        public void RemoveSqlUtf8Encode()
         {
-            var outList = new List<int>(7);
-            for (int i = 0; i < 32; i++)
+            var filePath = Path.GetFullPath(@"F:\wezcs\.pubs\.bak");
+            var fileName = Path.Combine(filePath, "20220112.qms.sql");
+            var tempFileName = Path.Combine(filePath, @"qms.20220112.temp.sql");
+            var ireplaceList = new List<Tuble2String>()
             {
-                if (((typeVal >> i) & 1) == 1) { outList.Add(i); }
-            }
-            var inList = new List<int>(7);
-            for (int i = 32; i < 64; i++)
+                new Tuble2String("CHARACTER SET utf8 COLLATE utf8_bin ",""),
+                new Tuble2String("CHARACTER SET utf8 COLLATE utf8_general_ci ",""),
+                new Tuble2String("CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ",""),
+                new Tuble2String("CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ",""),
+
+                new Tuble2String("CHARACTER SET = utf8 COLLATE = utf8_bin ",""),
+                new Tuble2String("CHARACTER SET = utf8 COLLATE = utf8_general_ci ",""),
+                new Tuble2String("CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ",""),
+                new Tuble2String("CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ",""),
+
+                //new Tuble2String("DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin ",""),
+                //new Tuble2String("DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ",""),
+
+                new Tuble2String("ROW_FORMAT = COMPACT","ROW_FORMAT = Dynamic"),
+
+                new Tuble2String("varchar(2550)","TEXT"),
+                new Tuble2String("varchar(3000)","TEXT"),
+                new Tuble2String("varchar(4000)","TEXT"),
+                new Tuble2String("varchar(4096)","TEXT"),
+                new Tuble2String("varchar(5000)","TEXT"),
+                new Tuble2String("varchar(6000)","TEXT"),
+            };
+            var ignoretables = new List<String>()
             {
-                if (((typeVal >> i) & 1) == 1) { inList.Add(i - 32); }
-            }
-            return new Tuble<int[], int[]>(outList.ToArray(), inList.ToArray());
-        }
-        /// <summary>
-        /// 获取序号值
-        /// </summary>
-        /// <returns></returns>
-        public static Tuble<int[], int[]> GetNoType(ulong typeVal)
-        {
-            return new Tuble<int[], int[]>(InnerGetNoType((uint)typeVal), InnerGetNoType((uint)(typeVal >> 32)));
-            static int[] InnerGetNoType(uint outVal)
+                "t_dictionary_duty_copy1",
+                "t_menu_copy1",
+                "t_log",
+                "t_operation_log",
+                "t_product_category1",
+                "t_production_coal_washing_copy1",
+                "t_storage_product_copy1",
+                "t_storage_product1",
+                "t_sts_assay_copy1",
+                "t_sts_assay_extras_copy1",
+                "t_sts_assay_items_copy1",
+                "t_sts_assay_items_copy2",
+                "t_sts_assay_result_copy1",
+                "t_sts_assay_vad_copy1",
+                "t_sts_sampling_2022-2-23 11:56:52",
+                "t_sts_sampling_copy1",
+                "t_sts_sampling_copy2",
+                "t_sts_sampling_recorder_copy1",
+                "t_sts_sampling_recorder_copy2",
+                "t_sts_show_samp_copy1",
+                "t_truck_dayreport_ladingbill_copy1",
+                "t_truck_ladingbill_copy1",
+                "t_truck_ladingbill_copy2",
+                "t_truck_ladingbill_copy3",
+                "t_truck_ladingbill_sale11",
+                "t_truck_plan_copy1",
+                "t_user_copy1",
+                "t_user_copy2",
+                "t_v_plan_volume_copy1",
+                "t_v_plan_volume_copy2",
+            };
+            File.WriteAllText("CopySqlReplaceContent.json", new[] { new Tuble<string, string, List<Tuble<String, String>>, List<string>>(fileName, tempFileName, ireplaceList.AsList<Tuble<string, string>>(), ignoretables) }.GetJsonFormatString());
+            long lineCount = 0;
+            long lineReplace = 0;
+            long lineIgnore = 0;
+            using (var ofs = new StreamReader(fileName))
             {
-                var outList = new List<int>(7);
-                for (int i = 0; i < 32; i++)
+                using (var nfs = new StreamWriter(new FileStream(tempFileName, FileMode.OpenOrCreate, FileAccess.Write)))
                 {
-                    if (((outVal >> i) & 1) == 1) { outList.Add(i); }
+                    int tag = 0;
+                    while (true)
+                    {
+                        var line = ofs.ReadLine();
+                        lineCount++;
+                        if (line == null) { break; }
+                        if (line.StartsWith("INSERT"))
+                        {
+                            bool isIgnore = false;
+                            foreach (var item in ignoretables)
+                            {
+                                if (line.StartsWith($"INSERT INTO `{item}`"))
+                                {
+                                    isIgnore = true;
+                                    lineIgnore++;
+                                    break;
+                                }
+                            }
+                            if (isIgnore) { continue; }
+                        }
+                        else
+                        {
+                            foreach (var item in ireplaceList)
+                            {
+                                if (line.Contains(item.Item1))
+                                {
+                                    lineReplace++;
+                                    line = line.Replace(item.Item1, item.Item2);
+                                }
+                            }
+                        }
+                        nfs.WriteLine(line);
+                        if (tag++ > 1000)
+                        {
+                            tag = 0;
+                            nfs.Flush();
+                        }
+                    }
+                    nfs.Flush();
                 }
-                return outList.ToArray();
             }
+            Console.WriteLine($"文件总行数:{lineCount}行,已处理替换:{lineReplace}次,已忽略{lineIgnore}行");
         }
-        /// <summary>
-        /// 获取序号值 推荐使用
-        /// </summary>
-        /// <returns></returns>
-        public static Tuble<int[], int[]> GetNoType3(ulong typeVal)
-        {
-            var bitArray = new BitArray(typeVal.GetBytes());
-            var outList = new List<int>(7);
-            for (int i = 0; i < 32; i++)
-            {
-                if (bitArray[i]) { outList.Add(i); }
-            }
-            var inList = new List<int>(7);
-            for (int i = 32; i < 64; i++)
-            {
-                if (bitArray[i]) { inList.Add(i - 32); }
-            }
-            return new Tuble<int[], int[]>(outList.ToArray(), inList.ToArray());
-        }
-    }
-    /// <summary>
-    /// 表达式类:本地参数表
-    /// <see cref="TSysParams"/>
-    /// </summary>
-    public partial class ExpressionTSysParams
-    {
-        /// <summary>
-        /// 标识
-        /// </summary>
-        public static Expression<Func<TSysParams, Int32>> ID => m => m.ID;
-        /// <summary>
-        /// 键名
-        /// </summary>
-        public static Expression<Func<TSysParams, String>> Key => m => m.Key;
-        /// <summary>
-        /// 键值
-        /// </summary>
-        public static Expression<Func<TSysParams, String>> Value => m => m.Value;
-        /// <summary>
-        /// 备注
-        /// </summary>
-        public static Expression<Func<TSysParams, String>> Memo => m => m.Memo;
     }
 }

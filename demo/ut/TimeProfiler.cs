@@ -17,18 +17,14 @@ namespace System.Data.DabberUT
             this.action = action;
             this.name = name;
         }
+        public TimeProfiler(string name, Action action) : this(action, name) { }
 
         public TimeSpan Run(int times)
         {
             var watch = Stopwatch.StartNew();
-            while (times-- > 0)
-            {
-                action();
-            }
+            while (times-- > 0) { action(); }
             watch.Stop();
-
-            Trace.WriteLine(String.Format("{0}运行用时：{1}ms", name, watch.Elapsed.TotalMilliseconds));
-
+            Trace.WriteLine($"{name}运行用时：{watch.Elapsed:d.hh:mm:ss.fffffff}");
             return watch.Elapsed;
         }
     }

@@ -2199,18 +2199,6 @@ namespace System.Data.Extter
             }
         }
         /// <summary>
-        /// 读短整型数字
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        [Obsolete(nameof(GetInt16))]
-        public static Int16 ReadInt16(this byte[] bytes)
-        {
-            if (bytes == null || bytes.Length == 0) { return 0; }
-            if (bytes.Length == 1) { return bytes[0]; }
-            return (Int16)((bytes[0] << 8) + bytes[1]);
-        }
-        /// <summary>
         /// 读无符号短整型数字
         /// </summary>
         /// <returns></returns>
@@ -2222,18 +2210,6 @@ namespace System.Data.Extter
             {
                 return *(ushort*)ptr;
             }
-        }
-        /// <summary>
-        /// 读短整型数字
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        [Obsolete(nameof(GetUInt16))]
-        public static UInt16 ReadUInt16(this byte[] bytes)
-        {
-            if (bytes == null || bytes.Length == 0) { return 0; }
-            if (bytes.Length == 1) { return bytes[0]; }
-            return (UInt16)((bytes[0] << 8) + bytes[1]);
         }
         /// <summary>
         /// 读整型数字
@@ -2249,20 +2225,6 @@ namespace System.Data.Extter
             }
         }
         /// <summary>
-        /// 读整型数字
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        [Obsolete(nameof(GetInt32))]
-        public static Int32 ReadInt32(this byte[] bytes)
-        {
-            if (bytes == null || bytes.Length == 0) { return 0; }
-            if (bytes.Length == 1) { return bytes[0]; }
-            if (bytes.Length == 2) { return (bytes[0] << 8) + bytes[1]; }
-            if (bytes.Length == 3) { return (bytes[0] << 16) + (bytes[1] << 8) + bytes[2]; }
-            return (bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + bytes[3];
-        }
-        /// <summary>
         /// 读无符号整型数字
         /// </summary>
         /// <returns></returns>
@@ -2274,20 +2236,6 @@ namespace System.Data.Extter
             {
                 return *(uint*)ptr;
             }
-        }
-        /// <summary>
-        /// 读无符号整型数字
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        [Obsolete(nameof(GetUInt32))]
-        public static UInt32 ReadUInt32(this byte[] bytes)
-        {
-            if (bytes == null || bytes.Length == 0) { return 0; }
-            if (bytes.Length == 1) { return bytes[0]; }
-            if (bytes.Length == 2) { return ((uint)bytes[0] << 8) + bytes[1]; }
-            if (bytes.Length == 3) { return ((uint)bytes[0] << 16) + ((uint)bytes[1] << 8) + bytes[2]; }
-            return ((uint)bytes[0] << 24) + ((uint)bytes[1] << 16) + ((uint)bytes[2] << 8) + bytes[3];
         }
         /// <summary>
         /// 读长整型数字
@@ -2303,27 +2251,6 @@ namespace System.Data.Extter
             }
         }
         /// <summary>
-        /// 读长整型数字
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        [Obsolete(nameof(GetInt64))]
-        public static Int64 ReadInt64(this byte[] bytes)
-        {
-            if (bytes == null || bytes.Length == 0) { return 0; }
-            if (bytes.Length <= 4)
-            {
-                if (bytes.Length == 1) { return bytes[0]; }
-                if (bytes.Length == 2) { return ((uint)bytes[0] << 8) + bytes[1]; }
-                if (bytes.Length == 3) { return ((uint)bytes[0] << 16) + ((uint)bytes[1] << 8) + bytes[2]; }
-                return ((uint)bytes[0] << 24) + ((uint)bytes[1] << 16) + ((uint)bytes[2] << 8) + bytes[3];
-            }
-            if (bytes.Length == 5) { return ((long)bytes[0] << 32) + ((uint)bytes[1] << 24) + (bytes[2] << 16) + (bytes[3] << 8) + bytes[4]; }
-            if (bytes.Length == 6) { return ((long)bytes[0] << 40) + ((long)bytes[1] << 32) + ((uint)bytes[2] << 24) + (bytes[3] << 16) + (bytes[4] << 8) + bytes[5]; }
-            if (bytes.Length == 7) { return ((long)bytes[0] << 48) + ((long)bytes[1] << 40) + ((long)bytes[2] << 32) + ((uint)bytes[3] << 24) + (bytes[4] << 16) + (bytes[5] << 8) + bytes[6]; }
-            return ((long)bytes[0] << 56) + ((long)bytes[1] << 48) + ((long)bytes[2] << 40) + ((long)bytes[3] << 32) + ((uint)bytes[4] << 24) + (bytes[5] << 16) + (bytes[6] << 8) + bytes[7];
-        }
-        /// <summary>
         /// 读无符号长整型数字
         /// </summary>
         /// <returns></returns>
@@ -2335,27 +2262,6 @@ namespace System.Data.Extter
             {
                 return *(ulong*)ptr;
             }
-        }
-        /// <summary>
-        /// 读无符号长整型数字
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        [Obsolete(nameof(GetUInt64))]
-        public static UInt64 ReadUInt64(this byte[] bytes)
-        {
-            if (bytes == null || bytes.Length == 0) { return 0; }
-            if (bytes.Length <= 4)
-            {
-                if (bytes.Length == 1) { return bytes[0]; }
-                if (bytes.Length == 2) { return ((uint)bytes[0] << 8) + bytes[1]; }
-                if (bytes.Length == 3) { return ((uint)bytes[0] << 16) + ((uint)bytes[1] << 8) + bytes[2]; }
-                return ((uint)bytes[0] << 24) + ((uint)bytes[1] << 16) + ((uint)bytes[2] << 8) + bytes[3];
-            }
-            if (bytes.Length == 5) { return ((ulong)bytes[0] << 32) + ((uint)bytes[1] << 24) + ((uint)bytes[2] << 16) + ((uint)bytes[3] << 8) + bytes[4]; }
-            if (bytes.Length == 6) { return ((ulong)bytes[0] << 40) + ((ulong)bytes[1] << 32) + ((uint)bytes[2] << 24) + ((uint)bytes[3] << 16) + ((uint)bytes[4] << 8) + bytes[5]; }
-            if (bytes.Length == 7) { return ((ulong)bytes[0] << 48) + ((ulong)bytes[1] << 40) + ((ulong)bytes[2] << 32) + ((uint)bytes[3] << 24) + ((uint)bytes[4] << 16) + ((uint)bytes[5] << 8) + bytes[6]; }
-            return ((ulong)bytes[0] << 56) + ((ulong)bytes[1] << 48) + ((ulong)bytes[2] << 40) + ((ulong)bytes[3] << 32) + ((uint)bytes[4] << 24) + ((uint)bytes[5] << 16) + ((uint)bytes[6] << 8) + bytes[7];
         }
         /// <summary>
         /// 读短整型数字
@@ -2371,18 +2277,6 @@ namespace System.Data.Extter
             }
         }
         /// <summary>
-        /// 读短整型数字
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        [Obsolete(nameof(GetInt16))]
-        public static Int16 ReadInt16(this sbyte[] bytes)
-        {
-            if (bytes == null || bytes.Length == 0) { return 0; }
-            if (bytes.Length == 1) { return (Int16)((byte)bytes[0]); }
-            return (Int16)((((byte)bytes[0]) << 8) + ((byte)bytes[1]));
-        }
-        /// <summary>
         /// 读无符号短整型数字
         /// </summary>
         /// <returns></returns>
@@ -2394,18 +2288,6 @@ namespace System.Data.Extter
             {
                 return *(ushort*)ptr;
             }
-        }
-        /// <summary>
-        /// 读短整型数字
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        [Obsolete(nameof(GetUInt16))]
-        public static UInt16 ReadUInt16(this sbyte[] bytes)
-        {
-            if (bytes == null || bytes.Length == 0) { return 0; }
-            if (bytes.Length == 1) { return (UInt16)((byte)bytes[0]); }
-            return (UInt16)((((byte)bytes[0]) << 8) + ((byte)bytes[1]));
         }
         /// <summary>
         /// 读整型数字
@@ -2421,20 +2303,6 @@ namespace System.Data.Extter
             }
         }
         /// <summary>
-        /// 读整型数字
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        [Obsolete(nameof(GetInt32))]
-        public static Int32 ReadInt32(this sbyte[] bytes)
-        {
-            if (bytes == null || bytes.Length == 0) { return 0; }
-            if (bytes.Length == 1) { return (byte)bytes[0]; }
-            if (bytes.Length == 2) { return (((byte)bytes[0]) << 8) + ((byte)bytes[1]); }
-            if (bytes.Length == 3) { return (((byte)bytes[0]) << 16) + (((byte)bytes[1]) << 8) + ((byte)bytes[2]); }
-            return (((byte)bytes[0]) << 24) + (((byte)bytes[1]) << 16) + (((byte)bytes[2]) << 8) + ((byte)bytes[3]);
-        }
-        /// <summary>
         /// 读无符号整型数字
         /// </summary>
         /// <returns></returns>
@@ -2446,20 +2314,6 @@ namespace System.Data.Extter
             {
                 return *(uint*)ptr;
             }
-        }
-        /// <summary>
-        /// 读无符号整型数字
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        [Obsolete(nameof(GetUInt32))]
-        public static UInt32 ReadUInt32(this sbyte[] bytes)
-        {
-            if (bytes == null || bytes.Length == 0) { return 0; }
-            if (bytes.Length == 1) { return ((byte)bytes[0]); }
-            if (bytes.Length == 2) { return ((uint)((byte)bytes[0]) << 8) + ((byte)bytes[1]); }
-            if (bytes.Length == 3) { return ((uint)((byte)bytes[0]) << 16) + ((uint)((byte)bytes[1]) << 8) + ((byte)bytes[2]); }
-            return ((uint)((byte)bytes[0]) << 24) + ((uint)((byte)bytes[1]) << 16) + ((uint)((byte)bytes[2]) << 8) + ((byte)bytes[3]);
         }
         /// <summary>
         /// 读长整型数字
@@ -2475,27 +2329,6 @@ namespace System.Data.Extter
             }
         }
         /// <summary>
-        /// 读长整型数字
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        [Obsolete(nameof(GetInt64))]
-        public static Int64 ReadInt64(this sbyte[] bytes)
-        {
-            if (bytes == null || bytes.Length == 0) { return 0; }
-            if (bytes.Length <= 4)
-            {
-                if (bytes.Length == 1) { return ((byte)bytes[0]); }
-                if (bytes.Length == 2) { return ((uint)((byte)bytes[0]) << 8) + ((byte)bytes[1]); }
-                if (bytes.Length == 3) { return ((uint)((byte)bytes[0]) << 16) + ((uint)((byte)bytes[1]) << 8) + ((byte)bytes[2]); }
-                return ((uint)((byte)bytes[0]) << 24) + ((uint)((byte)bytes[1]) << 16) + ((uint)((byte)bytes[2]) << 8) + ((byte)bytes[3]);
-            }
-            if (bytes.Length == 5) { return ((long)((byte)bytes[0]) << 32) + ((uint)((byte)bytes[1]) << 24) + (((byte)bytes[2]) << 16) + (((byte)bytes[3]) << 8) + ((byte)bytes[4]); }
-            if (bytes.Length == 6) { return ((long)((byte)bytes[0]) << 40) + ((long)((byte)bytes[1]) << 32) + ((uint)((byte)bytes[2]) << 24) + (((byte)bytes[3]) << 16) + (((byte)bytes[4]) << 8) + ((byte)bytes[5]); }
-            if (bytes.Length == 7) { return ((long)((byte)bytes[0]) << 48) + ((long)((byte)bytes[1]) << 40) + ((long)((byte)bytes[2]) << 32) + ((uint)((byte)bytes[3]) << 24) + (((byte)bytes[4]) << 16) + (((byte)bytes[5]) << 8) + ((byte)bytes[6]); }
-            return ((long)((byte)bytes[0]) << 56) + ((long)((byte)bytes[1]) << 48) + ((long)((byte)bytes[2]) << 40) + ((long)((byte)bytes[3]) << 32) + ((uint)((byte)bytes[4]) << 24) + (((byte)bytes[5]) << 16) + (((byte)bytes[6]) << 8) + ((byte)bytes[7]);
-        }
-        /// <summary>
         /// 读无符号长整型数字
         /// </summary>
         /// <returns></returns>
@@ -2507,27 +2340,6 @@ namespace System.Data.Extter
             {
                 return *(ulong*)ptr;
             }
-        }
-        /// <summary>
-        /// 读无符号整型数字
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        [Obsolete(nameof(GetUInt64))]
-        public static UInt64 ReadUInt64(this sbyte[] bytes)
-        {
-            if (bytes == null || bytes.Length == 0) { return 0; }
-            if (bytes.Length <= 4)
-            {
-                if (bytes.Length == 1) { return ((byte)bytes[0]); }
-                if (bytes.Length == 2) { return ((uint)((byte)bytes[0]) << 8) + ((byte)bytes[1]); }
-                if (bytes.Length == 3) { return ((uint)((byte)bytes[0]) << 16) + ((uint)((byte)bytes[1]) << 8) + ((byte)bytes[2]); }
-                return ((uint)((byte)bytes[0]) << 24) + ((uint)((byte)bytes[1]) << 16) + ((uint)((byte)bytes[2]) << 8) + ((byte)bytes[3]);
-            }
-            if (bytes.Length == 5) { return ((ulong)((byte)bytes[0]) << 32) + ((uint)((byte)bytes[1]) << 24) + ((uint)((byte)bytes[2]) << 16) + ((uint)((byte)bytes[3]) << 8) + ((byte)bytes[4]); }
-            if (bytes.Length == 6) { return ((ulong)((byte)bytes[0]) << 40) + ((ulong)((byte)bytes[1]) << 32) + ((uint)((byte)bytes[2]) << 24) + ((uint)((byte)bytes[3]) << 16) + ((uint)((byte)bytes[4]) << 8) + ((byte)bytes[5]); }
-            if (bytes.Length == 7) { return ((ulong)((byte)bytes[0]) << 48) + ((ulong)((byte)bytes[1]) << 40) + ((ulong)((byte)bytes[2]) << 32) + ((uint)((byte)bytes[3]) << 24) + ((uint)((byte)bytes[4]) << 16) + ((uint)((byte)bytes[5]) << 8) + ((byte)bytes[6]); }
-            return ((ulong)((byte)bytes[0]) << 56) + ((ulong)((byte)bytes[1]) << 48) + ((ulong)((byte)bytes[2]) << 40) + ((ulong)((byte)bytes[3]) << 32) + ((uint)((byte)bytes[4]) << 24) + ((uint)((byte)bytes[5]) << 16) + ((uint)((byte)bytes[6]) << 8) + ((byte)bytes[7]);
         }
         #endregion
         #region // 压缩
@@ -2778,13 +2590,21 @@ namespace System.Data.Extter
 
         #region // 日期时间 DateTime
         /// <summary>
-        /// Unix时间起始 1970-1-1
+        /// Unix时间起始 1970-1-1,未知
         /// </summary>
         public static DateTime UnixTimeStart { get; } = new DateTime(1970, 1, 1);
         /// <summary>
-        /// 国庆节
+        /// 国庆节,本地时间
         /// </summary>
-        public static DateTime PRCNationalDay { get; } = new DateTime(1949, 10, 1);
+        public static DateTime PRCNationalDay { get; } = new DateTime(1949, 10, 1, 0, 0, 0, DateTimeKind.Local);
+        /// <summary>
+        /// Unix时间起始 1970-1-1,UTC时间
+        /// </summary>
+        public static DateTime UnixTimeStartUtc { get; } = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        /// <summary>
+        /// Unix时间起始 1970-1-1,UTC时间
+        /// </summary>
+        public static DateTimeOffset UnixTimeStartOffset { get; } = new DateTimeOffset(UnixTimeStartUtc);
         /// <summary>
         /// Unix时间起始 1970-1-1
         /// </summary>
@@ -2794,11 +2614,15 @@ namespace System.Data.Extter
         /// </summary>
         public static DateTime DateTime1970 { get => UnixTimeStart; }
         /// <summary>
-        /// 从1970-1-1的秒数
+        /// 1970-1-1 00:00:00
+        /// </summary>
+        public static DateTimeOffset DateTimeOffset1970 { get => UnixTimeStart; }
+        /// <summary>
+        /// 从1970-1-1的秒数,UTC时间
         /// </summary>
         public static Int64 SecondsFrom1970 => 62135596800L;
         /// <summary>
-        /// 从1970-1-1的秒数
+        /// 从1970-1-1的秒数,UTC时间
         /// </summary>
         public static Int64 TicksFrom1970 => 621355968000000000L;
         /// <summary>
@@ -2807,6 +2631,12 @@ namespace System.Data.Extter
         /// <param name="dateTime"></param>
         /// <returns></returns>
         public static Int64 DistanceFrom1970Seconds(this DateTime dateTime) => (Int64)(dateTime - DateTime1970).TotalSeconds;
+        /// <summary>
+        /// 距离1970年的秒数
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
+        public static Int64 DistanceFrom1970Seconds(this DateTimeOffset dateTime) => (Int64)(dateTime - DateTimeOffset1970).TotalSeconds;
         /// <summary>
         /// 从距离1970的秒数还原时间
         /// </summary>
@@ -2887,7 +2717,41 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static bool HasFlag(this int value, int tag)
         {
-            return (value & tag) != 0;
+            var temp = value & tag;
+            return temp != 0 && tag == temp;
+        }
+        /// <summary>
+        /// 有标记
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static bool HasFlag(this uint value, uint tag)
+        {
+            var temp = value & tag;
+            return temp != 0 && tag == temp;
+        }
+        /// <summary>
+        /// 有标记
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static bool HasFlag(this long value, long tag)
+        {
+            var temp = value & tag;
+            return temp != 0 && tag == temp;
+        }
+        /// <summary>
+        /// 有标记
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static bool HasFlag(this ulong value, ulong tag)
+        {
+            var temp = value & tag;
+            return temp != 0 && tag == temp;
         }
         /// <summary>
         /// 有标记
@@ -2897,7 +2761,230 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static bool HasFlag<T>(this T value, int tag) where T : struct, Enum
         {
-            return value.HasFlag((T)(object)tag);
+            var vale = (int)Convert.ChangeType(value, typeof(int));
+            return vale.HasFlag(tag);
+        }
+        /// <summary>
+        /// 有标记
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static bool HasFlag<T>(this T value, uint tag) where T : struct, Enum
+        {
+            var vale = (uint)Convert.ChangeType(value, typeof(uint));
+            return vale.HasFlag(tag);
+        }
+        /// <summary>
+        /// 有标记
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static bool HasFlag<T>(this T value, long tag) where T : struct, Enum
+        {
+            var vale = (long)Convert.ChangeType(value, typeof(long));
+            return vale.HasFlag(tag);
+        }
+        /// <summary>
+        /// 有标记
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static bool HasFlag<T>(this T value, ulong tag) where T : struct, Enum
+        {
+            var vale = (ulong)Convert.ChangeType(value, typeof(ulong));
+            return vale.HasFlag(tag);
+        }
+        /// <summary>
+        /// 获取逻辑序号值
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static int[] GetFlagNos(this uint val)
+        {
+            var outList = new List<int>();
+            for (int i = 0; i < 32; i++)
+            {
+                if (((val >> i) & 1) == 1) { outList.Add(i); }
+            }
+            return outList.ToArray();
+        }
+        /// <summary>
+        /// 获取逻辑序号值
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static int[] GetFlagNos(this int val)
+        {
+            var outList = new List<int>();
+            for (int i = 0; i < 32; i++)
+            {
+                if (((val >> i) & 1) == 1) { outList.Add(i); }
+            }
+            return outList.ToArray();
+        }
+        /// <summary>
+        /// 获取逻辑序号值
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static int[] GetFlagNos(this long val)
+        {
+            var outList = new List<int>();
+            for (int i = 0; i < 64; i++)
+            {
+                if (((val >> i) & 1) == 1) { outList.Add(i); }
+            }
+            return outList.ToArray();
+        }
+        /// <summary>
+        /// 获取逻辑序号值
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static int[] GetFlagNos(this ulong val)
+        {
+            var outList = new List<int>();
+            for (int i = 0; i < 64; i++)
+            {
+                if (((val >> i) & 1) == 1) { outList.Add(i); }
+            }
+            return outList.ToArray();
+            var bitArray = new BitArray(val.GetBytes());
+            for (int i = 0; i < 64; i++)
+            {
+                if (bitArray[i]) { outList.Add(i); }
+            }
+            return outList.ToArray();
+        }
+        /// <summary>
+        /// 获取逻辑值
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static uint[] GetFlags(this uint val)
+        {
+            var outList = new List<uint>();
+            for (int i = 0; i < 32; i++)
+            {
+                uint temp = 1U << i;
+                if ((val & temp) != 0) { outList.Add(temp); }
+            }
+            return outList.ToArray();
+        }
+        /// <summary>
+        /// 获取逻辑值
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static int[] GetFlags(this int val)
+        {
+            var outList = new List<int>();
+            for (int i = 0; i < 32; i++)
+            {
+                int temp = 1 << i;
+                if ((val & temp) != 0) { outList.Add(temp); }
+            }
+            return outList.ToArray();
+        }
+        /// <summary>
+        /// 获取逻辑值
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static long[] GetFlags(this long val)
+        {
+            var outList = new List<long>();
+            for (int i = 0; i < 64; i++)
+            {
+                long temp = 1L << i;
+                if ((val & temp) != 0) { outList.Add(temp); }
+            }
+            return outList.ToArray();
+        }
+        /// <summary>
+        /// 获取逻辑值
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static ulong[] GetFlags(this ulong val)
+        {
+            var outList = new List<ulong>();
+            for (int i = 0; i < 64; i++)
+            {
+                ulong temp = 1U << i;
+                if ((val & temp) != 0) { outList.Add(temp); }
+            }
+            return outList.ToArray();
+        }
+        /// <summary>
+        /// 获取逻辑值
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static T[] GetFlags<T>(this T val) where T : struct, Enum
+        {
+            var vale = (long)Convert.ChangeType(val, typeof(long));
+            if (vale == 0) { return new T[0]; }
+            var outList = new List<T>();
+            foreach (var item in NEnumerable<T>.AllAttrs)
+            {
+                if (vale.HasFlag(item.Val)) { outList.Add(item.Enum); }
+            }
+            return outList.ToArray();
+        }
+        /// <summary>
+        /// 获取逻辑值
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static NEnumerable<T>[] GetFlagsNEnumerable<T>(this T val) where T : struct, Enum
+        {
+            var vale = (long)Convert.ChangeType(val, typeof(long));
+            if (vale == 0) { return new NEnumerable<T>[0]; }
+            var outList = new List<NEnumerable<T>>();
+            foreach (var item in NEnumerable<T>.AllAttrs)
+            {
+                if (vale.HasFlag(item.Val)) { outList.Add(item); }
+            }
+            return outList.ToArray();
+        }
+        /// <summary>
+        /// 获取逻辑值
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static string[] GetFlagsName<T>(this T val) where T : struct, Enum
+        {
+            var vale = (long)Convert.ChangeType(val, typeof(long));
+            if (vale == 0) { return new string[0]; }
+            var outList = new List<string>();
+            foreach (var item in NEnumerable<T>.AllAttrs)
+            {
+                if (vale.HasFlag(item.Val)) { outList.Add(item.Name); }
+            }
+            return outList.ToArray();
+        }
+        /// <summary>
+        /// 获取逻辑值
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static string GetFlagString<T>(this T val) where T : struct, Enum
+        {
+            return GetFlagsName(val).JoinString();
+        }
+        /// <summary>
+        /// 获取逻辑值
+        /// </summary>
+        /// <param name="val"></param>
+        /// <param name="split"></param>
+        /// <returns></returns>
+        public static string GetFlagString<T>(this T val, string split) where T : struct, Enum
+        {
+            return GetFlagsName(val).JoinString(split);
         }
         #endregion 枚举调用 Enum NEnumerable
 

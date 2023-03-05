@@ -32,6 +32,10 @@ namespace System.Data.Logger
     public class TextConsoleWriter : TextWriter
     {
         /// <summary>
+        /// 内部获取日志目录
+        /// </summary>
+        public static Func<string> InternalGetLogPath { get; set; } = GetLogPath;
+        /// <summary>
         /// 老旧版本
         /// </summary>
         public TextWriter OldWriter { get; }
@@ -272,7 +276,8 @@ namespace System.Data.Logger
                 {
                     try
                     {
-                        var fileName = Path.Combine(GetLogPath(), $"{dt:yyyy-MM}.log");
+                        var logPath = InternalGetLogPath?.Invoke() ?? GetLogPath();
+                        var fileName = Path.Combine(logPath, $"{dt:yyyy-MM}.log");
                         using (var file = new FileStream(fileName, FileMode.Append, FileAccess.Write))
                         {
                             var contByte = Encoding.UTF8.GetBytes(consoleString + "\r\n");

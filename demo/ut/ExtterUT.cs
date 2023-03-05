@@ -3,8 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Data.Cobber;
 using System.Data.Extter;
+using System.Data.Logger;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace System.Data.DabberUT
@@ -135,20 +139,20 @@ namespace System.Data.DabberUT
         public void TestNumberTimes()
         {
             var times = 100000;
-            UnitTestCaller.TestFunc("地址反转=>{0}", () =>
+            ExtterCaller.TestFunc("地址反转=>{0}", () =>
             {
                 var intBytes = BitConverter.GetBytes(Int32.MaxValue);
                 Array.Reverse(intBytes);
                 return intBytes;
             }, times);
-            UnitTestCaller.TestFunc("地址反转=>{0}", () =>
+            ExtterCaller.TestFunc("地址反转=>{0}", () =>
             {
                 var intBytes = BitConverter.GetBytes(Int32.MaxValue);
                 Array.Reverse(intBytes);
                 return intBytes;
             }, times);
-            UnitTestCaller.TestFunc("逻辑强转=>{0}", () => NumberCaller.GetBytes(int.MaxValue), times);
-            UnitTestCaller.TestFunc("逻辑强转=>{0}", () => NumberCaller.GetBytes(int.MaxValue), times);
+            ExtterCaller.TestFunc("逻辑强转=>{0}", () => ExtterCaller.GetBytes(int.MaxValue), times);
+            ExtterCaller.TestFunc("逻辑强转=>{0}", () => ExtterCaller.GetBytes(int.MaxValue), times);
         }
 
         [TestMethod]
@@ -220,6 +224,24 @@ namespace System.Data.DabberUT
             Console.WriteLine($"【11.395】银行家F2    =>{11.395:f2}");
             Console.WriteLine($"【11.395】银行家ToEven=>{Math.Round(11.395, 2, MidpointRounding.ToEven)}");
 
+        }
+        [TestMethod]
+        public void DoubleAdd()
+        {
+            double n = 171.6;
+            double m = 28.17;
+            double k = n + m;
+            Console.WriteLine(k);
+        }
+        [TestMethod]
+        public void DoubleNAZero()
+        {
+            double n = 0;
+            double m = -0;
+            Console.WriteLine(n);
+            Console.WriteLine(-m);
+            Console.WriteLine(-n == 0);
+            Console.WriteLine(-m == 0);
         }
         #endregion
         #region // AssemblyTypeCaller
@@ -521,5 +543,287 @@ namespace System.Data.DabberUT
         }
         #endregion
         #endregion
+        #region // NEnumerable
+        /// <summary>
+        /// 生成测试
+        /// </summary>
+        [TestMethod]
+        public void Builder()
+        {
+            var saveFolder = Path.GetFullPath(Directory.GetCurrentDirectory());
+            var types = new Type[]
+            {
+                typeof(StoreType)
+            };
+
+            foreach (var item in types)
+            {
+                if (!item.IsEnum) { continue; }
+                var sb = JavaEnum.BuilderContent(item);
+                File.WriteAllText(Path.Combine(saveFolder, $"JEnum{item.Name}.cs"), sb.ToString());
+            }
+        }
+        /// <summary>
+        /// 生成测试
+        /// </summary>
+        [TestMethod]
+        public void BuilderSelf()
+        {
+            var saveFolder = Path.GetFullPath(Directory.GetCurrentDirectory());
+            var types = new Type[]
+            {
+                typeof(LoggerType)
+            };
+
+            foreach (var item in types)
+            {
+                if (!item.IsEnum) { continue; }
+                var sb = JavaEnum.BuildSelfContent(item);
+                File.WriteAllText(Path.Combine(saveFolder, $"JEnum{item.Name}.cs"), sb.ToString());
+            }
+        }
+
+        /// <summary>
+        /// 生成测试
+        /// </summary>
+        [TestMethod]
+        public void EDisplayAttr()
+        {
+            var attr = NEnumerable<LoggerType>.Attrs;
+            var attr2 = NEnumerable<LoggerType>.Attrs;
+            string name;
+            name = NEnumerable<LoggerType>.GetFromEnum(LoggerType.Access).Name;
+            Console.WriteLine(name);
+            name = NEnumerable<LoggerType>.GetFromEnumName(nameof(LoggerType.Access)).Name;
+            Console.WriteLine(name);
+            name = NEnumerable<LoggerType>.GetFromInt32((Int32)LoggerType.Access).Name;
+            Console.WriteLine(name);
+        }
+
+        [TestMethod]
+        public void GetEnumNamePerform()
+        {
+            var times = 1000000;
+            DateTime now;
+            now = DateTime.Now;
+            _ = NEnumerable<LoggerType>.GetFromEnum(LoggerType.Access).Name;
+            for (int i = 0; i < times; i++)
+            {
+                _ = NEnumerable<LoggerType>.GetFromEnum(LoggerType.Access).Name;
+                _ = NEnumerable<LoggerType>.GetFromEnum(LoggerType.Access).EnumName;
+            }
+            Console.WriteLine(DateTime.Now - now);
+            now = DateTime.Now;
+            _ = Enum.GetName(typeof(LoggerType), LoggerType.Access);
+            var filed = typeof(LoggerType).GetField(nameof(LoggerType.Access));
+            for (int i = 0; i < times; i++)
+            {
+                var edisp = filed.GetCustomAttribute<EDisplayAttribute>();
+                _ = edisp.Name;
+                _ = Enum.GetName(typeof(LoggerType), LoggerType.Access);
+            }
+            Console.WriteLine(DateTime.Now - now);
+        }
+        #endregion NEnumerable
+        #region // DateTime
+        [TestMethod]
+        public void TestDateTime()
+        {
+            var seconds1970 = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc) - DateTime.MinValue).TotalSeconds;
+            var ticks1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
+
+            Console.WriteLine(seconds1970.ToString());
+            Console.WriteLine(ticks1970);
+        }
+        #endregion DateTime
+        #region // 序列化
+        [TestMethod]
+        public void MyTestMethod()
+        {
+            new Dictionary<int, int[]> { { 209, new int[] { 209, 290 } } }.GetJsonString().DebugConsole();
+            int times = 10000;
+            var now = DateTime.Now;
+            TestJsonSerial(times, now);
+            TestJsonSerial(times, now);
+            TestBinSerial(times, now);
+            TestBinSerial(times, now);
+        }
+
+        private static void TestJsonSerial(int times, DateTime now)
+        {
+            now = DateTime.Now;
+            for (int i = 0; i < times; i++)
+            {
+                var model = new TestC
+                {
+                    ID = i,
+                    Name = $"名称{i}",
+                };
+                var json = model.GetJsonString();
+                var newModel = json.GetJsonObject<TestC>();
+                Assert.AreEqual(model.ID, newModel.ID);
+            }
+            Console.WriteLine("Json序列化:{0}", DateTime.Now - now);
+        }
+
+        private static void TestBinSerial(int times, DateTime now)
+        {
+            now = DateTime.Now;
+            for (int i = 0; i < times; i++)
+            {
+                var model = new TestC
+                {
+                    ID = i,
+                    Name = $"名称{i}",
+                };
+                var bytes = model.GetBinBytes();
+                var newModel = bytes.GetBinModel<TestC>();
+                Assert.AreEqual(model.ID, newModel.ID);
+            }
+            Console.WriteLine("BIN 序列化:{0}", DateTime.Now - now);
+        }
+
+        [Serializable]
+        private class TestC
+        {
+            public int ID { get; set; }
+            public string Name { get; set; }
+        }
+        [TestMethod]
+        public void StructToBytes()
+        {
+            People p1 = new People(10, 180, "李白");
+            byte[] buff = Struct2Bytes(p1);
+            foreach (var i in buff)
+            {
+                Console.Write(i + "\t");
+            }
+            People p2 = ByteToStruct<People>(buff);
+            Console.WriteLine();
+            Console.WriteLine(p2.Age + "\t" + p2.Name + "\t" + p2.Height);//输出10 李白 180
+            Console.ReadKey();
+        }
+
+        //结构体转换为byte数组
+        static byte[] Struct2Bytes(object o)
+        {
+            // create a new byte buffer the size of your struct
+            byte[] buffer = new byte[Marshal.SizeOf(o)];
+            // pin the buffer so we can copy data into it w/o GC collecting it
+            GCHandle bufferHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);//为指定的对象分配句柄，不通过GC回收,而是通过手动释放
+                                                                                // copy the struct data into the buffer 
+                                                                                //StructureToPtr参数1：托管对象，包含要封送的数据。该对象必须是格式化类的实例。
+                                                                                //StructureToPtr参数2：指向非托管内存块的指针，必须在调用此方法之前分配该指针。 
+                                                                                //StructureToPtr参数3：设置为 true 可在执行Marshal.DestroyStructure方法前对 ptr 参数调用此方法。请注意，传递 false 可导致内存泄漏。
+                                                                                // bufferHandle.AddrOfPinnedObject():检索对象的地址并返回
+            Marshal.StructureToPtr(o, bufferHandle.AddrOfPinnedObject(), false);//将数据从托管对象封送到非托管内存块。
+                                                                                // free the GC handle
+            bufferHandle.Free();
+            return buffer;
+        }
+
+        //将byte数组转换为结构体
+        static T ByteToStruct<T>(byte[] by) where T : struct
+        {
+            int objectSize = Marshal.SizeOf(typeof(T));
+            if (objectSize > by.Length) return default(T);
+            // 分配内存
+            IntPtr buffer = Marshal.AllocHGlobal(objectSize);
+            // 将数据复制到内存中
+            Marshal.Copy(by, 0, buffer, objectSize);
+            // Push the memory into a new struct of type (T).将数据封送到结构体T中
+            T returnStruct = (T)Marshal.PtrToStructure(buffer, typeof(T));
+            // Free the unmanaged memory block.释放内存
+            Marshal.FreeHGlobal(buffer);
+            return returnStruct;
+        }
+        struct People
+        {
+            public uint Age;
+            public ushort Height;
+            public string Name;
+            public People(uint age, ushort height, string name)
+            {
+                this.Age = age;
+                this.Height = height;
+                this.Name = name;
+            }
+        }
+        #endregion 序列化
+        #region // Encoding 编码
+        [TestMethod]
+        public void TestEncodingCodePage()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            // Print the header.
+            Console.Write("CodePage  ");
+            Console.Write("BodyName           ");
+            Console.Write("HeaderName         ");
+            Console.Write("WebName            ");
+            Console.WriteLine("Encoding.EncodingName");
+            var list = Encoding.GetEncodings().Select(s => s.GetEncoding()).ToList();
+            list.Add(Encoding.Default);
+            list.Add(Encoding.ASCII);
+            list.Add(Encoding.UTF7);
+            list.Add(Encoding.UTF8);
+            list.Add(Encoding.UTF32);
+            list.Add(Encoding.Unicode);
+            list.Add(Encoding.BigEndianUnicode);
+            list = list.Distinct().ToList();
+            list.Add(Encoding.GetEncoding("gb2312"));
+            list.Add(Encoding.GetEncoding("big5"));
+            list.Add(Encoding.GetEncoding("gbk"));
+            list.Add(Encoding.GetEncoding("GB18030"));
+            // For every encoding, compare the name properties with EncodingInfo.Name.
+            // Display only the encodings that have one or more different names.
+            foreach (var e in list)
+            {
+                //if ((ei.Name != e.BodyName) || (ei.Name != e.HeaderName) || (ei.Name != e.WebName))
+                //{
+                Console.Write("{0,-9} ", e.CodePage);
+                try
+                {
+                    Console.Write("{0,-18} ", e.BodyName);
+                }
+                catch
+                {
+                    Console.Write("{0,-18} ", "null");
+                }
+                try
+                {
+                    Console.Write("{0,-18} ", e.HeaderName);
+                }
+                catch
+                {
+                    Console.Write("{0,-18} ", "null");
+                }
+                Console.Write("{0,-18} ", e.WebName);
+                Console.WriteLine("{0} ", e.EncodingName);
+                //}
+            }
+            /*
+             
+    CodePage  BodyName           HeaderName         WebName            Encoding.EncodingName
+    1200      utf-16             utf-16             utf-16             Unicode 
+    1201      utf-16BE           utf-16BE           utf-16BE           Unicode (Big-Endian) 
+    12000     utf-32             utf-32             utf-32             Unicode (UTF-32) 
+    12001     utf-32BE           utf-32BE           utf-32BE           Unicode (UTF-32 Big-Endian) 
+    20127     us-ascii           us-ascii           us-ascii           US-ASCII 
+    28591     iso-8859-1         iso-8859-1         iso-8859-1         Western European (ISO) 
+    65000     utf-7              utf-7              utf-7              Unicode (UTF-7) 
+    65001     utf-8              utf-8              utf-8              Unicode (UTF-8) 
+    936       null               null               gb2312             Chinese Simplified (GB2312) 
+    950       null               null               big5               Chinese Traditional (Big5) 
+    54936     null               null               gb18030            Chinese Simplified (GB18030) 
+    
+             */
+
+            foreach (var item in new[] { 20127, 65001, 936, 54936 })
+            {
+                var encoding = Encoding.GetEncoding(item);
+                Console.WriteLine($"{item:D9} => {encoding.WebName}");
+            }
+        }
+        #endregion Encoding 编码
     }
 }

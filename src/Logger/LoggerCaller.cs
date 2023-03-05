@@ -21,6 +21,24 @@ namespace System.Data.Logger
             return new TextConsoleWriter();
         }
         /// <summary>
+        /// 使用文件
+        /// </summary>
+        /// <returns></returns>
+        public static TextWriter UseFile(string path)
+        {
+            TextConsoleWriter.InternalGetLogPath = () => path;
+            return new TextConsoleWriter();
+        }
+        /// <summary>
+        /// 使用文件
+        /// </summary>
+        /// <returns></returns>
+        public static TextWriter UseFile(Func<string> GetLogPath)
+        {
+            TextConsoleWriter.InternalGetLogPath = GetLogPath;
+            return new TextConsoleWriter();
+        }
+        /// <summary>
         /// 使用SQLite数据库存储内容
         /// </summary>
         /// <param name="GetConnection"></param>

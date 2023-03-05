@@ -5,6 +5,7 @@ using System.Data.Extter;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace System.Data.Cobber
@@ -459,12 +460,30 @@ namespace System.Data.Cobber
             {
 
             }
-
-            InternalGetValue = Expression.Lambda<Func<T, string, object>>(Expression.Switch(memberName, Expression.Constant(null), getCases.ToArray()), instance, memberName).Compile();
-
-            InternalGetType = Expression.Lambda<Func<string, Type>>(Expression.Switch(memberName, Expression.Constant(typeof(object)), getTypeCases.ToArray()), memberName).Compile();
-
-            InternalSetValue = Expression.Lambda<Action<T, string, object>>(Expression.Switch(typeof(void), memberName, Expression.Constant(null), null, setCases.ToArray()), instance, memberName, setNewValue).Compile();
+            if (getCases.Count() == 0)
+            {
+                InternalGetValue = (m, s) => null;
+            }
+            else
+            {
+                InternalGetValue = Expression.Lambda<Func<T, string, object>>(Expression.Switch(memberName, Expression.Constant(null), getCases.ToArray()), instance, memberName).Compile();
+            }
+            if (getTypeCases.Count() == 0)
+            {
+                InternalGetType = (s) => null;
+            }
+            else
+            {
+                InternalGetType = Expression.Lambda<Func<string, Type>>(Expression.Switch(memberName, Expression.Constant(typeof(object)), getTypeCases.ToArray()), memberName).Compile();
+            }
+            if (setCases.Count() == 0)
+            {
+                InternalSetValue = (m, s, o) => { };
+            }
+            else
+            {
+                InternalSetValue = Expression.Lambda<Action<T, string, object>>(Expression.Switch(typeof(void), memberName, Expression.Constant(null), null, setCases.ToArray()), instance, memberName, setNewValue).Compile();
+            }
 
             InternalGetDic = new(getDic);
             InternalSetDic = new(setDic);
@@ -499,7 +518,9 @@ namespace System.Data.Cobber
         /// <summary>
         /// 构造
         /// </summary>
-        public PropertyAccess() { }
+        public PropertyAccess()
+        {
+        }
         /// <summary>
         /// 静态单例
         /// </summary>

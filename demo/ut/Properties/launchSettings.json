@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "System.Data.DabberUT": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:51911;http://localhost:51912"
+    }
+  }
+}

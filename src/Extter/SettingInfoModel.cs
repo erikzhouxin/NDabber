@@ -414,13 +414,10 @@ namespace System.Data.Extter
         /// <summary>
         /// 是默认加密
         /// </summary>
-#if DEBUG
-        public static bool IsDefaultEncrypt { get; set; } = false;
-#else
-        public static bool IsDefaultEncrypt { get; set; } = true;
-#endif
+        public static bool IsDefaultEncrypt { get; set; }
         static AStartSettings()
         {
+            IsDefaultEncrypt = !TestTry.IsDebugMode;
             try
             {
                 var filePath = Path.GetFullPath(Path.Combine(StartSettingFolder, StartSettingResources));

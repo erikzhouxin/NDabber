@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data.Cobber;
 using System.Data.Extter;
 using System.Data.Impeller;
+using System.Data.SolutionCore;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -73,6 +74,18 @@ namespace System.Data.DabberUT
             for (int i = 0; i < 100; i++)
             {
                 Console.WriteLine(new Random().Next(1, 100));
+            }
+        }
+        /// <summary>
+        /// 创建
+        /// </summary>
+        [TestMethod]
+        public void CreateGuid()
+        {
+            var times = 10;
+            for (int i = 0; i < times; i++)
+            {
+                Console.WriteLine(Guid.NewGuid().GetString());
             }
         }
         /// <summary>
@@ -566,5 +579,11 @@ namespace System.Data.DabberUT
             var res = reader.ReadToEnd();
         }
 
+        [TestMethod]
+        public void TestJwtToken()
+        {
+            var token = ARequestWebComponent.CreateToken("xbcd54343223423423432324", 8, "ErikZhouXin", "erikzhouxin", "ezhouxin", "EZXA");
+            Console.WriteLine(token);
+        }
     }
 }
