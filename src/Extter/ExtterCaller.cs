@@ -1886,6 +1886,12 @@ namespace System.Data.Extter
     /// </summary>
     public static partial class ExtterCaller
     {
+        static ExtterCaller()
+        {
+#if NETFx
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // 注册编码格式
+#endif
+        }
         #region // 提示信息内容 AlertMsg
         /// <summary>
         /// 获取泛型实例提示信息
@@ -2850,12 +2856,6 @@ namespace System.Data.Extter
             for (int i = 0; i < 64; i++)
             {
                 if (((val >> i) & 1) == 1) { outList.Add(i); }
-            }
-            return outList.ToArray();
-            var bitArray = new BitArray(val.GetBytes());
-            for (int i = 0; i < 64; i++)
-            {
-                if (bitArray[i]) { outList.Add(i); }
             }
             return outList.ToArray();
         }

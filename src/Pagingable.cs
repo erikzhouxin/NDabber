@@ -30,9 +30,9 @@ namespace System
         new IPageResult<T> Clone();
     }
     /// <summary>
-    /// 分页结果接口
+    /// 分页结果构造接口
     /// </summary>
-    public interface IPageResult
+    public interface IPageResConstruct
     {
         /// <summary>
         /// 页面
@@ -42,6 +42,38 @@ namespace System
         /// 每页长度
         /// </summary>
         int Size { get; set; }
+        /// <summary>
+        /// 是客户端分页
+        /// </summary>
+        bool IsClient { get; set; }
+    }
+    /// <summary>
+    /// 分页结果构造接口
+    /// </summary>
+    public interface IPageResCtor : IPageResConstruct { }
+    /// <summary>
+    /// 分页结果构造泛型接口
+    /// </summary>
+    public class PagingResConstruct : IPageResCtor
+    {
+        /// <summary>
+        /// 页面
+        /// </summary>
+        public virtual int Page { get; set; }
+        /// <summary>
+        /// 每页长度
+        /// </summary>
+        public virtual int Size { get; set; }
+        /// <summary>
+        /// 是客户端分页
+        /// </summary>
+        public virtual bool IsClient { get; set; }
+    }
+    /// <summary>
+    /// 分页结果接口
+    /// </summary>
+    public interface IPageResult : IPageResCtor
+    {
         /// <summary>
         /// 总数
         /// </summary>
@@ -66,10 +98,6 @@ namespace System
         /// 获取
         /// </summary>
         int Take { get; }
-        /// <summary>
-        /// 是客户端分页
-        /// </summary>
-        bool IsClient { get; set; }
         /// <summary>
         /// 重置结果项
         /// </summary>
@@ -99,6 +127,10 @@ namespace System
         /// 构造
         /// </summary>
         public PagingResult(int page, int size) : base(page, size) { }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public PagingResult(IPageResConstruct page) : base(page) { }
         /// <summary>
         /// 隐式转换
         /// </summary>
@@ -131,6 +163,13 @@ namespace System
             Page = page;
             Size = size;
             Items = new List<T>();
+        }
+        /// <summary>
+        /// 模型构造
+        /// </summary>
+        public PagingResult(IPageResConstruct page) : this(page.Page, page.Size)
+        {
+            IsClient = page.IsClient;
         }
         /// <summary>
         /// 页面

@@ -60,36 +60,33 @@ namespace System.Data.Extter
         {
             _fileWatcher = new FileSystemWatcher();
             _fileKey = securityKey ?? String.Empty;
-            try
-            {
-                _filePath = Path.GetFullPath(filePath);
-                //初始化监听
-                _fileWatcher.BeginInit();
-                //设置监听的路径
-                _fileWatcher.Path = System.IO.Path.GetDirectoryName(filePath);
-                //设置监听文件类型
-                _fileWatcher.Filter = System.IO.Path.GetFileName(filePath);
-                //设置是否监听子目录
-                _fileWatcher.IncludeSubdirectories = false;
-                //设置是否启用监听?
-                _fileWatcher.EnableRaisingEvents = true;
-                //设置需要监听的更改类型(如:文件或者文件夹的属性,文件或者文件夹的创建时间;NotifyFilters枚举的内容)
-                _fileWatcher.NotifyFilter = NotifyFilters.Attributes | NotifyFilters.CreationTime | NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.Security | NotifyFilters.Size;
-                //注册创建文件或目录时的监听事件
-                //watcher.Created += new FileSystemEventHandler(watch_created);
-                //注册当指定目录的文件或者目录发生改变的时候的监听事件
-                //fileWatcher.Changed += new FileSystemEventHandler((sender, e) => LoadConfigFile());
-                //注册当删除目录的文件或者目录的时候的监听事件
-                //fileWatcher.Deleted += new FileSystemEventHandler((sender, e) => TrySave());
-                //当指定目录的文件或者目录发生重命名的时候的监听事件
-                //fileWatcher.Renamed += new RenamedEventHandler((sender, e) =>
-                //{
-                //    if (!File.Exists(FilePath)) { Save(); }
-                //});
-                //结束初始化
-                _fileWatcher.EndInit();
-            }
-            catch (Exception ex) { Console.WriteLine(ex); throw ex; }
+            _filePath = Path.GetFullPath(filePath);
+            _fileName = Path.GetFileName(filePath);
+            //初始化监听
+            _fileWatcher.BeginInit();
+            //设置监听的路径
+            _fileWatcher.Path = System.IO.Path.GetDirectoryName(filePath);
+            //设置监听文件类型
+            _fileWatcher.Filter = System.IO.Path.GetFileName(filePath);
+            //设置是否监听子目录
+            _fileWatcher.IncludeSubdirectories = false;
+            //设置是否启用监听?
+            _fileWatcher.EnableRaisingEvents = true;
+            //设置需要监听的更改类型(如:文件或者文件夹的属性,文件或者文件夹的创建时间;NotifyFilters枚举的内容)
+            _fileWatcher.NotifyFilter = NotifyFilters.Attributes | NotifyFilters.CreationTime | NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.Security | NotifyFilters.Size;
+            //注册创建文件或目录时的监听事件
+            //watcher.Created += new FileSystemEventHandler(watch_created);
+            //注册当指定目录的文件或者目录发生改变的时候的监听事件
+            //fileWatcher.Changed += new FileSystemEventHandler((sender, e) => LoadConfigFile());
+            //注册当删除目录的文件或者目录的时候的监听事件
+            //fileWatcher.Deleted += new FileSystemEventHandler((sender, e) => TrySave());
+            //当指定目录的文件或者目录发生重命名的时候的监听事件
+            //fileWatcher.Renamed += new RenamedEventHandler((sender, e) =>
+            //{
+            //    if (!File.Exists(FilePath)) { Save(); }
+            //});
+            //结束初始化
+            _fileWatcher.EndInit();
         }
     }
     /// <summary>
