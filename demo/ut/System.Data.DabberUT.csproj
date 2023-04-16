@@ -27,6 +27,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\ErikZhouXin.NSolutionUI-main\src\Core\System.Data.SolutionCore.csproj" />
+		<ProjectReference Include="..\..\..\ErikZhouXin.NSolutionUI-main\src\MaterialDesignUI\System.Data.MaterialDesignUI.Wpf.csproj" />
 		<ProjectReference Include="..\..\src\System.Data.Dabber.csproj" />
 	</ItemGroup>
 </Project>

@@ -369,13 +369,13 @@ namespace System.Data.Cobber
         private static byte[] GetFillBytes(byte[] key, int len)
         {
             if (key == null || key.Length == 0) { return new byte[len]; }
+            if (key.Length == len) { return key; }
             if (key.Length < len)
             {
+                Console.WriteLine($"注意：正在使用小于{len}位长度的字符进行AES加解密……");
                 var newKey = new byte[len];
                 for (int i = 1; i < key.Length; i++)
-                {
-                    newKey[len - i] = key[i];
-                }
+                { newKey[len - i] = key[i]; }
                 return newKey;
             }
             return key.Take(len).ToArray();

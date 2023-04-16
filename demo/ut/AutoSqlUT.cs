@@ -129,9 +129,10 @@ namespace System.Data.DabberUT
             var child = AutoSQLiteBuilder.Builder<TestAttrChild>();
             Console.WriteLine(parent.Select);
             Console.WriteLine(child.Select);
+            Console.WriteLine(parent.Replace);
 
             /* SELECT[id] AS[Id],[name] AS[name],[age] AS[age] FROM[TestAttrParent]
-     SELECT[Id] AS[Id],[Tester] AS[Tester],[age] AS[age] FROM[TestAttrChild]
+     SELECT[Id] AS[Id],[Tester] AS[Tester],[age] AS[age] FROM [TestAttrChild]
     SELECT [id] AS [Id],[name] AS [name],[age] AS [age] FROM [TestAttrParent]
     SELECT [Id] AS [Id],[Tester] AS [Tester],[age] AS [age] FROM [TestAttrChild]
 
@@ -142,21 +143,21 @@ namespace System.Data.DabberUT
         [DbCol("Test", Name = "TestAttrParent")]
         internal class TestAttrParent
         {
-            [DbCol("标识", Name = "id")]
-            public virtual string Id { get; set; }
+            [DbCol("标识", Name = "id", Key = DbIxType.APK)]
+            public virtual int Id { get; set; }
 
             [DbCol("标识", Name = "name")]
-            public virtual string name { get; set; }
+            public virtual string Name { get; set; }
             [DbCol("标识", Name = "age")]
-            public virtual int age { get; set; }
+            public virtual int Age { get; set; }
             public virtual DateTime Birthday { get; set; }
         }
         [DbCol("Test", Name = "TestAttrChild")]
         internal class TestAttrChild : TestAttrParent
         {
             [DbCol("id2", Name = "id2")]
-            public override string Id { get; set; }
-            public override string name { get; set; }
+            public override int Id { get; set; }
+            public override string Name { get; set; }
             [DbCol("tester")]
             public virtual string Tester { get; set; }
         }

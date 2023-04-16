@@ -14,7 +14,7 @@ namespace System.Data.Cobber
     /// 默认SQL语句属性
     /// 自动生成SQL语句标签
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct | AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
     public class DbColAttribute : Attribute, IDbColInfo
     {
         /// <summary>
@@ -23,6 +23,14 @@ namespace System.Data.Cobber
         public DbColAttribute(string display)
         {
             Display = display ?? string.Empty;
+        }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        public DbColAttribute(string display, string name)
+        {
+            Display = display ?? string.Empty;
+            Name = name ?? string.Empty;
         }
         /// <summary>
         /// 显示名默认类名

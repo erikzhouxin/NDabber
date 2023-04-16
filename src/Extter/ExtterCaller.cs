@@ -17,6 +17,8 @@ using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Data.Impeller;
+using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 namespace System.Data.Cobber
 {
@@ -1876,6 +1878,29 @@ namespace System.Data.Cobber
         {
             return string.Format(fmt, args);
         }
+#if NET40 || NET45
+        /// <summary>
+        /// 字符串包含字符
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static bool Contains(this string data, char key)
+        {
+            return !string.IsNullOrEmpty(data) && data.IndexOf(key) >= 0;
+        }
+        /// <summary>
+        /// 字符串包含字符
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="key"></param>
+        /// <param name="comparison"></param>
+        /// <returns></returns>
+        public static bool Contains(this string data, char key, StringComparison comparison)
+        {
+            return !string.IsNullOrEmpty(data) && data.IndexOf(key.ToString(), 0, data.Length, comparison) >= 0;
+        }
+#endif
         #endregion 字符串调用 String
     }
 }
@@ -3105,9 +3130,7 @@ namespace System.Data.Extter
             var tarr = new T[length];
             Array.Copy(list, 0, tarr, count, list.Length);
             for (int i = 0; i < count; i++)
-            {
-                tarr[i] = defVal;
-            }
+            { tarr[i] = defVal; }
             return tarr;
         }
         /// <summary>
@@ -3130,9 +3153,7 @@ namespace System.Data.Extter
             var tarr = new T[length];
             Array.Copy(list, tarr, list.Length);
             for (int i = 0; i < count; i++)
-            {
-                tarr[list.Length + i] = defVal;
-            }
+            { tarr[list.Length + i] = defVal; }
             return tarr;
         }
         /// <summary>

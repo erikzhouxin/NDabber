@@ -29,11 +29,15 @@ namespace System.Data.DabberUT
                 var connString = (string)item.ConnString;
                 var fileName = (string)item.FileName; // 相对路径或绝对路径
                 var nameSpace = (string)item.NameSpace;
+                var modelNamespace = (string)item.ModelNamespace;
                 var ignoreTables = ((string)item.IgnoreTables).Split(","); // 使用逗号(,)隔开表名
                 var sb = ContextEntitiesBuilder.Create(StoreType.MySQL)
                     .SetNamespace(nameSpace)
                     .SetPreTable("T", "V")
                     .SetIgnoreTableOrColumn(ignoreTables)
+                    .SetHasInterface()
+                    .SetHasModel(modelNamespace)
+                    .SetSpecialType(ContextEntitiesBuilder.SpecialTypeEnum.Char2Int32)
                     .GetCodeSingle(new MySql.Data.MySqlClient.MySqlConnection(connString));
                 File.WriteAllText(Path.GetFullPath(fileName), sb.ToString());
             }

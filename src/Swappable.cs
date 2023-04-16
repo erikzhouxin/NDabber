@@ -39,6 +39,10 @@ namespace System
         /// 返回数据
         /// </summary>
         string R { get; set; }
+        /// <summary>
+        /// 未知数X
+        /// </summary>
+        long X { get; set; }
     }
     /// <summary>
     /// 交换模型
@@ -101,17 +105,55 @@ namespace System
         /// 返回数据
         /// </summary>
         public virtual string R { get; set; }
+        /// <summary>
+        /// 未知数X
+        /// </summary>
+        public virtual long X { get; set; }
+    }
+    /// <summary>
+    /// 数据交换参数
+    /// </summary>
+    /// <typeparam name="TL"></typeparam>
+    /// <typeparam name="TV"></typeparam>
+    public class DataSwapParameter<TL, TV>
+    {
+        /// <summary>
+        /// 位置
+        /// </summary>
+        public virtual TL L { get; set; }
+        /// <summary>
+        /// 值
+        /// </summary>
+        public virtual TV V { get; set; }
     }
     /// <summary>
     /// 命名管道转换模型
     /// </summary>
     public class PiperSwapModel : DataSwapModel { }
     /// <summary>
+    /// Piper数据交换参数
+    /// </summary>
+    /// <typeparam name="TL"></typeparam>
+    /// <typeparam name="TV"></typeparam>
+    public class PiperSwapParameter<TL, TV> : DataSwapParameter<TL, TV> { }
+    /// <summary>
     /// Socket转换模型
     /// </summary>
     public class SocketSwapModel : DataSwapModel { }
     /// <summary>
+    /// Socket数据交换参数
+    /// </summary>
+    /// <typeparam name="TL"></typeparam>
+    /// <typeparam name="TV"></typeparam>
+    public class SocketSwapParameter<TL, TV> : DataSwapParameter<TL, TV> { }
+    /// <summary>
     /// Mqtt转换模型
     /// </summary>
     public class MqttSwapModel : DataSwapModel { }
+    /// <summary>
+    /// Mqtt数据交换参数
+    /// </summary>
+    /// <typeparam name="TL"></typeparam>
+    /// <typeparam name="TV"></typeparam>
+    public class MqttSwapParameter<TL, TV> : DataSwapParameter<TL, TV> { }
 }

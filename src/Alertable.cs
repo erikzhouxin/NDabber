@@ -7,6 +7,124 @@ using System.Text;
 
 namespace System
 {
+    #region // 接口定义
+    /// <summary>
+    /// 提示信息接口
+    /// 一级传递接口-无修改
+    /// 方法返回推荐使用IAlertResult
+    /// </summary>
+    public interface IAlert
+    {
+        /// <summary>
+        /// 是否成功
+        /// </summary>
+        bool IsSuccess { get; }
+        /// <summary>
+        /// 标识代码
+        /// </summary>
+        int Code { get; }
+        /// <summary>
+        /// 提示信息
+        /// </summary>
+        string Message { get; }
+        /// <summary>
+        /// 数据
+        /// </summary>
+        object Data { get; }
+    }
+    /// <summary>
+    /// 提示信息接口
+    /// 二级传递接口-无修改
+    /// </summary>
+    public interface IAlertResult : IAlert
+    {
+        /// <summary>
+        /// 数据
+        /// </summary>
+        new dynamic Data { get; }
+    }
+    /// <summary>
+    /// 提示信息泛型接口
+    /// 一级传递泛型接口-无修改
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IAlert<out T> : IAlert
+    {
+        /// <summary>
+        /// 数据
+        /// </summary>
+        new T Data { get; }
+    }
+    /// <summary>
+    /// 提示信息接口
+    /// 二级传递接口-有修改
+    /// 方法返回推荐使用IAlertResult
+    /// </summary>
+    public interface IAlertMsg : IAlert, IAlertResult
+    {
+        /// <summary>
+        /// 是否成功
+        /// </summary>
+        new bool IsSuccess { get; set; }
+        /// <summary>
+        /// 标识代码
+        /// </summary>
+        new int Code { get; set; }
+        /// <summary>
+        /// 提示信息
+        /// </summary>
+        new string Message { get; set; }
+        /// <summary>
+        /// 数据
+        /// </summary>
+        new dynamic Data { get; set; }
+        /// <summary>
+        /// 添加消息
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        IAlertMsg AddMsg(string msg);
+    }
+    /// <summary>
+    /// 提示信息泛型接口
+    /// 二级传递接口-有修改
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IAlertMsg<T> : IAlert<T>, IAlertMsg
+    {
+        /// <summary>
+        /// 数据
+        /// </summary>
+        new T Data { get; set; }
+    }
+    /// <summary>
+    /// 提示信息泛型接口
+    /// 二级传递接口-有修改
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IAlertMsgs<T> : IAlert<IEnumerable<T>>, IAlertMsg<IEnumerable<T>>, IAlertMsg
+    {
+        /// <summary>
+        /// 数据
+        /// </summary>
+        new IEnumerable<T> Data { get; set; }
+    }
+    /// <summary>
+    /// 异常提示接口
+    /// </summary>
+    public interface IAlertException : IAlertMsg
+    {
+        /// <summary>
+        /// 异常信息
+        /// </summary>
+        Exception Exception { get; set; }
+    }
+    /// <summary>
+    /// 提示Json接口
+    /// </summary>
+    public interface IAlertJson : IAlertMsg<string> { }
+    #endregion 接口定义
+    #region // 通用实现类
     /// <summary>
     /// 提示信息动态实现类
     /// 三级基础动态初始类(Data=>(dynamic)null)
@@ -20,41 +138,38 @@ namespace System
         /// <summary>
         /// 默认构造
         /// </summary>
+        public AlertMsg() : base(false, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        public AlertMsg(bool isSuccess) : base(isSuccess, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
         /// <param name="isSuccess"></param>
         /// <param name="message"></param>
-        public AlertMsg(bool isSuccess = false, string message = "") : base(isSuccess, message)
-        {
-        }
+        public AlertMsg(bool isSuccess, string message) : base(isSuccess, message) { }
         /// <summary>
         /// 错误消息构造
         /// </summary>
         /// <param name="message"></param>
-        public AlertMsg(string message) : base(false, message)
-        {
-        }
+        public AlertMsg(string message) : base(false, message) { }
         /// <summary>
         /// 错误消息格式化构造
         /// </summary>
-        public AlertMsg(string fmt, params object[] param) : base(false, fmt, param)
-        {
-        }
+        public AlertMsg(string fmt, params object[] param) : base(false, fmt, param) { }
         /// <summary>
         /// 错误消息构造
         /// </summary>
         /// <param name="ex"></param>
-        public AlertMsg(Exception ex) : base(false, ex.Message)
-        {
-            Data = ex;
-        }
+        public AlertMsg(Exception ex) : base(false, ex.Message) { Data = ex; }
         /// <summary>
         /// 格式化构造
         /// </summary>
         /// <param name="isSuccess"></param>
         /// <param name="fmt"></param>
         /// <param name="param"></param>
-        public AlertMsg(bool isSuccess, string fmt, params object[] param) : base(isSuccess, fmt, param)
-        {
-        }
+        public AlertMsg(bool isSuccess, string fmt, params object[] param) : base(isSuccess, fmt, param) { }
         /// <summary>
         /// 隐式转换
         /// </summary>
@@ -122,37 +237,33 @@ namespace System
         /// <summary>
         /// 默认构造
         /// </summary>
+        public AlertMessage() : base(false, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        public AlertMessage(bool isSuccess) : base(isSuccess, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
         /// <param name="isSuccess"></param>
         /// <param name="message"></param>
-        public AlertMessage(bool isSuccess = false, string message = "") : base(isSuccess, message)
-        {
-            Data = new ExpandoObject();
-        }
+        public AlertMessage(bool isSuccess, string message) : base(isSuccess, message) { Data = new ExpandoObject(); }
         /// <summary>
         /// 错误消息构造
         /// </summary>
         /// <param name="message"></param>
-        public AlertMessage(string message) : base(false, message)
-        {
-            Data = new ExpandoObject();
-        }
+        public AlertMessage(string message) : base(false, message) { Data = new ExpandoObject(); }
         /// <summary>
         /// 错误消息格式化构造
         /// </summary>
-        public AlertMessage(string fmt, params object[] param) : base(false, fmt, param)
-        {
-            Data = new ExpandoObject();
-        }
+        public AlertMessage(string fmt, params object[] param) : base(false, fmt, param) { Data = new ExpandoObject(); }
         /// <summary>
         /// 格式化构造
         /// </summary>
         /// <param name="isSuccess"></param>
         /// <param name="fmt"></param>
         /// <param name="param"></param>
-        public AlertMessage(bool isSuccess, string fmt, params object[] param) : base(isSuccess, fmt, param)
-        {
-            Data = new ExpandoObject();
-        }
+        public AlertMessage(bool isSuccess, string fmt, params object[] param) : base(isSuccess, fmt, param) { Data = new ExpandoObject(); }
         /// <summary>
         /// 异常信息构造
         /// </summary>
@@ -234,9 +345,17 @@ namespace System
         /// <summary>
         /// 默认构造
         /// </summary>
+        public AlertMsg() : this(false, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        public AlertMsg(bool isSuccess) : this(isSuccess, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
         /// <param name="isSuccess"></param>
         /// <param name="message"></param>
-        public AlertMsg(bool isSuccess = false, string message = "")
+        public AlertMsg(bool isSuccess, string message)
         {
             this.IsSuccess = isSuccess;
             this.Message = message;
@@ -425,152 +544,41 @@ namespace System
         /// <summary>
         /// 默认构造
         /// </summary>
+        public AlertMsgs() : this(false, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        public AlertMsgs(bool isSuccess) : this(isSuccess, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
         /// <param name="isSuccess"></param>
         /// <param name="message"></param>
-        public AlertMsgs(bool isSuccess = false, string message = "")
+        public AlertMsgs(bool isSuccess, string message) : base(isSuccess, message)
         {
-            this.IsSuccess = isSuccess;
-            this.Message = message;
             this.Data = new List<T>();
         }
         /// <summary>
         /// 错误消息构造
         /// </summary>
         /// <param name="message"></param>
-        public AlertMsgs(string message) : this(false, message)
-        {
-        }
+        public AlertMsgs(string message) : this(false, message) { }
         /// <summary>
         /// 错误消息格式化构造
         /// </summary>
-        public AlertMsgs(string fmt, params object[] param) : this(false, fmt, param)
-        {
-        }
+        public AlertMsgs(string fmt, params object[] param) : this(false, fmt, param) { }
         /// <summary>
         /// 格式化构造
         /// </summary>
         /// <param name="isSuccess"></param>
         /// <param name="fmt"></param>
         /// <param name="param"></param>
-        public AlertMsgs(bool isSuccess, string fmt, params object[] param) : this(isSuccess, string.Format(fmt, param))
-        {
-        }
+        public AlertMsgs(bool isSuccess, string fmt, params object[] param) : this(isSuccess, string.Format(fmt, param)) { }
         /// <summary>
         /// 操作未实现
         /// </summary>
         /// <returns></returns>
         public new static AlertMsgs<T> NotImplement => new AlertMsgs<T>(false, "操作未实现");
-    }
-    /// <summary>
-    /// 提示信息泛型接口
-    /// 二级传递接口-有修改
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IAlertMsg<T> : IAlert<T>, IAlertMsg
-    {
-        /// <summary>
-        /// 数据
-        /// </summary>
-        new T Data { get; set; }
-    }
-    /// <summary>
-    /// 提示信息泛型接口
-    /// 二级传递接口-有修改
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IAlertMsgs<T> : IAlert<IEnumerable<T>>, IAlertMsg
-    {
-        /// <summary>
-        /// 数据
-        /// </summary>
-        new IEnumerable<T> Data { get; set; }
-    }
-    /// <summary>
-    /// 提示信息接口
-    /// 二级传递接口-有修改
-    /// 方法返回推荐使用IAlertResult
-    /// </summary>
-    public interface IAlertMsg : IAlert, IAlertResult
-    {
-        /// <summary>
-        /// 是否成功
-        /// </summary>
-        new bool IsSuccess { get; set; }
-        /// <summary>
-        /// 标识代码
-        /// </summary>
-        new int Code { get; set; }
-        /// <summary>
-        /// 提示信息
-        /// </summary>
-        new string Message { get; set; }
-        /// <summary>
-        /// 数据
-        /// </summary>
-        new dynamic Data { get; set; }
-        /// <summary>
-        /// 添加消息
-        /// </summary>
-        /// <param name="msg"></param>
-        /// <returns></returns>
-        IAlertMsg AddMsg(string msg);
-    }
-    /// <summary>
-    /// 异常提示接口
-    /// </summary>
-    public interface IAlertException : IAlertMsg
-    {
-        /// <summary>
-        /// 异常信息
-        /// </summary>
-        Exception Exception { get; set; }
-    }
-    /// <summary>
-    /// 提示信息接口
-    /// 二级传递接口-无修改
-    /// </summary>
-    public interface IAlertResult : IAlert
-    {
-        /// <summary>
-        /// 数据
-        /// </summary>
-        new dynamic Data { get; }
-    }
-    /// <summary>
-    /// 提示信息泛型接口
-    /// 一级传递泛型接口-无修改
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IAlert<out T> : IAlert
-    {
-        /// <summary>
-        /// 数据
-        /// </summary>
-        new T Data { get; }
-    }
-    /// <summary>
-    /// 提示信息接口
-    /// 一级传递接口-无修改
-    /// 方法返回推荐使用IAlertResult
-    /// </summary>
-    public interface IAlert
-    {
-        /// <summary>
-        /// 是否成功
-        /// </summary>
-        bool IsSuccess { get; }
-        /// <summary>
-        /// 标识代码
-        /// </summary>
-        int Code { get; }
-        /// <summary>
-        /// 提示信息
-        /// </summary>
-        string Message { get; }
-        /// <summary>
-        /// 数据
-        /// </summary>
-        object Data { get; }
     }
     /// <summary>
     /// 提示异常信息
@@ -580,23 +588,29 @@ namespace System
         /// <summary>
         /// 默认构造
         /// </summary>
+        public AlertException() : base(false, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        public AlertException(bool isSuccess) : base(isSuccess, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        public AlertException(bool isSuccess, string message) : base(isSuccess, message) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
         /// <param name="message"></param>
-        public AlertException(string message = "") : base(false, message)
-        {
-        }
+        public AlertException(string message) : base(false, message) { }
         /// <summary>
         /// 错误消息格式化构造
         /// </summary>
-        public AlertException(string fmt, params object[] param) : base(false, fmt, param)
-        {
-        }
+        public AlertException(string fmt, params object[] param) : base(false, fmt, param) { }
         /// <summary>
         /// 错误消息构造
         /// </summary>
         /// <param name="ex"></param>
-        public AlertException(Exception ex) : this(ex.Message, ex)
-        {
-        }
+        public AlertException(Exception ex) : this(ex.Message, ex) { }
         /// <summary>
         /// 错误消息构造
         /// </summary>
@@ -620,23 +634,25 @@ namespace System
         /// <summary>
         /// 默认构造
         /// </summary>
+        public AlertException() : base(false, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        public AlertException(bool isSuccess) : base(isSuccess, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
         /// <param name="message"></param>
-        public AlertException(string message = "") : base(false, message)
-        {
-        }
+        public AlertException(string message) : base(false, message) { }
         /// <summary>
         /// 错误消息格式化构造
         /// </summary>
-        public AlertException(string fmt, params object[] param) : base(false, fmt, param)
-        {
-        }
+        public AlertException(string fmt, params object[] param) : base(false, fmt, param) { }
         /// <summary>
         /// 错误消息构造
         /// </summary>
         /// <param name="ex"></param>
-        public AlertException(Exception ex) : this(ex.Message, ex)
-        {
-        }
+        public AlertException(Exception ex) : this(ex.Message, ex) { }
         /// <summary>
         /// 错误消息构造
         /// </summary>
@@ -660,23 +676,31 @@ namespace System
         /// <summary>
         /// 默认构造
         /// </summary>
+        public AlertExceptions() : base(false, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        public AlertExceptions(bool isSuccess) : base(isSuccess, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        /// <param name="isSuccess"></param>
         /// <param name="message"></param>
-        public AlertExceptions(string message = "") : base(false, message)
-        {
-        }
+        public AlertExceptions(bool isSuccess, string message) : base(isSuccess, message) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        /// <param name="message"></param>
+        public AlertExceptions(string message) : base(false, message) { }
         /// <summary>
         /// 错误消息格式化构造
         /// </summary>
-        public AlertExceptions(string fmt, params object[] param) : base(false, fmt, param)
-        {
-        }
+        public AlertExceptions(string fmt, params object[] param) : base(false, fmt, param) { }
         /// <summary>
         /// 错误消息构造
         /// </summary>
         /// <param name="ex"></param>
-        public AlertExceptions(Exception ex) : this(ex.Message, ex)
-        {
-        }
+        public AlertExceptions(Exception ex) : this(ex.Message, ex) { }
         /// <summary>
         /// 错误消息构造
         /// </summary>
@@ -692,10 +716,6 @@ namespace System
         public virtual Exception Exception { get; set; }
     }
     /// <summary>
-    /// 提示Json接口
-    /// </summary>
-    public interface IAlertJson : IAlertMsg<string> { }
-    /// <summary>
     /// 提示Json信息
     /// </summary>
     public class AlertJson : AlertMsg<String>, IAlertJson
@@ -703,9 +723,17 @@ namespace System
         /// <summary>
         /// 默认构造
         /// </summary>
+        public AlertJson() : base(false, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        public AlertJson(bool isSuccess) : base(isSuccess, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
         /// <param name="isSuccess"></param>
         /// <param name="message"></param>
-        public AlertJson(bool isSuccess = false, string message = "") : base(isSuccess, message) { }
+        public AlertJson(bool isSuccess, string message) : base(isSuccess, message) { }
         /// <summary>
         /// 错误消息构造
         /// </summary>
@@ -731,4 +759,5 @@ namespace System
             Data = ex.GetJsonString();
         }
     }
+    #endregion 通用实现类
 }

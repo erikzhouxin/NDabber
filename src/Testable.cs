@@ -101,6 +101,10 @@ namespace System
         /// </summary>
         public static Assembly CurrentAssembly { get; } = Assembly.GetExecutingAssembly();
         /// <summary>
+        /// 入口程序集(运行程序*.exe)
+        /// </summary>
+        public static Assembly EntryAssembly { get; } = Assembly.GetEntryAssembly();
+        /// <summary>
         /// 成员全称
         /// </summary>
         /// <param name="member"></param>
@@ -209,48 +213,23 @@ namespace System
                 }
             });
         }
-        #endregion 任务内容 Task
-        #region // 调试内容 Debug
         /// <summary>
-        /// 调试输出
+        /// 启动新任务
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="model"></param>
-        /// <returns></returns>
-#if !NET40 // 内联函数减少性能损耗
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static T DebugConsole<T>(this T model)
+        /// <param name="method"></param>
+        public static void TaskStartNew(this Action method)
         {
-            if (IsDebugMode) { Console.WriteLine(model); }
-            return model;
-        }
-        private static readonly Lazy<bool> _isDebugMode = new Lazy<bool>(IsProcessDebug, true);
-        /// <summary>
-        /// 当前进程是调试状态
-        /// </summary>
-        /// <returns></returns>
-        public static bool IsProcessDebug()
-        {
-            bool debug = false;
-            foreach (var attribute in Assembly.GetExecutingAssembly().GetCustomAttributes(false))
-            {
-                if (attribute is DebuggableAttribute debuggable)
-                {
-                    if (debuggable.IsJITTrackingEnabled)
-                    {
-                        debug = true;
-                        break;
-                    }
-                }
-            }
-            return debug;
+            Task.Factory.StartNew(method);
         }
         /// <summary>
-        /// 当前是调试模式
+        /// 启动新任务
         /// </summary>
-        public static bool IsDebugMode { get => _isDebugMode.Value; }
-        #endregion 调试内容 Debug
+        /// <param name="method"></param>
+        /// <param name="cancellationToken"></param>
+        public static void TaskStartNew(this Action method, CancellationToken cancellationToken)
+        {
+            Task.Factory.StartNew(method);
+        }
         #region // Task兼容内容
         /// <summary>
         /// 兼容性的 Task.FromResult(0)之类的内容
@@ -263,7 +242,7 @@ namespace System
 #endif
         public static Task<TResult> TaskFromResult<TResult>(TResult result) =>
 #if NET40
-            Task.Factory.StartNew(() => result);
+            new Task<TResult>(() => result);
 #else
             Task.FromResult(result);
 #endif
@@ -511,6 +490,48 @@ namespace System
         }
 #endif
         #endregion
+        #endregion 任务内容 Task
+        #region // 调试内容 Debug
+        /// <summary>
+        /// 调试输出
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
+#if !NET40 // 内联函数减少性能损耗
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static T DebugConsole<T>(this T model)
+        {
+            if (IsDebugMode) { Console.WriteLine(model); }
+            return model;
+        }
+        private static readonly Lazy<bool> _isDebugMode = new Lazy<bool>(IsProcessDebug, true);
+        /// <summary>
+        /// 当前进程是调试状态
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsProcessDebug()
+        {
+            bool debug = false;
+            foreach (var attribute in Assembly.GetExecutingAssembly().GetCustomAttributes(false))
+            {
+                if (attribute is DebuggableAttribute debuggable)
+                {
+                    if (debuggable.IsJITTrackingEnabled)
+                    {
+                        debug = true;
+                        break;
+                    }
+                }
+            }
+            return debug;
+        }
+        /// <summary>
+        /// 当前是调试模式
+        /// </summary>
+        public static bool IsDebugMode { get => _isDebugMode.Value; }
+        #endregion 调试内容 Debug
     }
 }
 

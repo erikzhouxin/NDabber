@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Cobber;
@@ -709,7 +710,7 @@ namespace System.Data.Extter
         /// 保存
         /// </summary>
         /// <returns></returns>
-        void SaveSetAsync(string key, T2 model);
+        Task<ICacheSetDictModel<T1, T2>> SaveSetAsync(string key, T2 model);
         /// <summary>
         /// 清空内容
         /// </summary>
@@ -1456,9 +1457,9 @@ namespace System.Data.Extter
             /// 保存
             /// </summary>
             /// <returns></returns>
-            public async void SaveSetAsync(string key, TValue model)
+            public async Task<ICacheSetDictModel<TPage, TValue>> SaveSetAsync(string key, TValue model)
             {
-                await Task.Factory.StartNew(() =>
+                return await Task.Factory.StartNew(() =>
                 {
                     TrySet(key, model);
                     SaveDic<TValue>();

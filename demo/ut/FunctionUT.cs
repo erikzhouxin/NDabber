@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data.Cobber;
 using System.Data.Extter;
 using System.Data.Impeller;
+using System.Data.NWpfUI.ViewModels;
 using System.Data.SolutionCore;
 using System.Diagnostics;
 using System.IO;
@@ -567,7 +568,7 @@ namespace System.Data.DabberUT
         [TestMethod]
         public void TestStructureBytes()
         {
-            var model = new Tuple<string, bool, int, double, Tuple<string, object>>("123",true,123,123,new Tuple<string, object>("456", new { Test = 456 }));
+            var model = new Tuple<string, bool, int, double, Tuple<string, object>>("123", true, 123, 123, new Tuple<string, object>("456", new { Test = 456 }));
             var ms = new MemoryStream();
             var writer = new StreamWriter(ms);
             writer.Write(model);
@@ -584,6 +585,12 @@ namespace System.Data.DabberUT
         {
             var token = ARequestWebComponent.CreateToken("xbcd54343223423423432324", 8, "ErikZhouXin", "erikzhouxin", "ezhouxin", "EZXA");
             Console.WriteLine(token);
+        }
+        [TestMethod]
+        public void TestWindowAuth()
+        {
+            var res = ExecuteCommandViewModel.DefaultAuthCommand("ErikZhouXin");
+            Console.WriteLine(res);
         }
     }
 }

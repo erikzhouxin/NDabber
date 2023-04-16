@@ -7,6 +7,7 @@ using System.Data.Extter;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using static System.Data.Dobber.ContextEntitiesBuilder;
 
 namespace System.Data.Dobber
 {
@@ -37,6 +38,21 @@ namespace System.Data.Dobber
                 StoreType.Unknown => throw new NotSupportedException("不支持[Unknown]的创建方式"),
                 _ => throw new NotSupportedException("不支持[默认]的创建方式"),
             };
+        }
+        /// <summary>
+        /// 特殊类型枚举
+        /// </summary>
+        [Flags]
+        public enum SpecialTypeEnum
+        {
+            /// <summary>
+            /// 未知
+            /// </summary>
+            Unknown = 0,
+            /// <summary>
+            /// char(2)为int32
+            /// </summary>
+            Char2Int32 = 2,
         }
     }
     /// <summary>
@@ -76,11 +92,28 @@ namespace System.Data.Dobber
         /// <returns></returns>
         IContextEntitiesBuilder SetIgnoreTableOrColumn(params string[] ignoreList);
         /// <summary>
+        /// 添加接口定义
+        /// </summary>
+        /// <returns></returns>
+        IContextEntitiesBuilder SetHasInterface(bool hasInterface = true);
+        /// <summary>
+        /// 添加模型定义
+        /// </summary>
+        /// <param name="nameSpace">不为空时有此项</param>
+        /// <returns></returns>
+        IContextEntitiesBuilder SetHasModel(string nameSpace);
+        /// <summary>
         /// 设置忽略表或列(列名请使用[表.列])
         /// </summary>
         /// <param name="ignoreList"></param>
         /// <returns></returns>
         IContextEntitiesBuilder SetIgnoreTableOrColumn(IEnumerable<string> ignoreList);
+        /// <summary>
+        /// 设置特殊类型转换
+        /// </summary>
+        /// <param name="char2Int32"></param>
+        /// <returns></returns>
+        IContextEntitiesBuilder SetSpecialType(ContextEntitiesBuilder.SpecialTypeEnum char2Int32);
         /// <summary>
         /// 创建单个字符串文本
         /// </summary>
@@ -138,6 +171,21 @@ namespace System.Data.Dobber
         {
             throw new NotImplementedException();
         }
+
+        public IContextEntitiesBuilder SetHasInterface(bool hasInterface = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IContextEntitiesBuilder SetHasModel(string nameSpace)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IContextEntitiesBuilder SetSpecialType(ContextEntitiesBuilder.SpecialTypeEnum char2Int32)
+        {
+            throw new NotImplementedException();
+        }
     }
     internal class ContextEntitiesSqlServerBuilder : IContextEntitiesBuilder
     {
@@ -180,6 +228,21 @@ namespace System.Data.Dobber
         {
             throw new NotImplementedException();
         }
+
+        public IContextEntitiesBuilder SetHasInterface(bool hasInterface = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IContextEntitiesBuilder SetHasModel(string nameSpace)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IContextEntitiesBuilder SetSpecialType(SpecialTypeEnum char2Int32)
+        {
+            throw new NotImplementedException();
+        }
     }
     internal class ContextEntitiesMySQLBuilder : IContextEntitiesBuilder
     {
@@ -193,11 +256,15 @@ namespace System.Data.Dobber
             "using System.Text;",
         };
         private string _nameSpace = "System.Data.Entities";
+        private string _modelNamespace = "System.Data.Models";
         private string _dbName = "mysql";
         private bool _ignoreDbName = false;
+        private bool _hasInterface = false;
+        private bool _hasModel = false;
         private List<string> _ignoreList = new List<string>();
         private string _preTable = "T";
         private String _preView = "V";
+        private SpecialTypeEnum _spacialType = SpecialTypeEnum.Unknown;
         /// <summary>
         /// 构造
         /// </summary>
@@ -250,7 +317,7 @@ namespace System.Data.Dobber
                 if (copyTableReg.IsMatch(tableName)) { continue; }
                 string tableComment = tabItem.TABLE_COMMENT;
                 var className = GetTableName(tableName);
-                if("VIEW".Equals(tabItem.TABLE_TYPE, StringComparison.OrdinalIgnoreCase))
+                if ("VIEW".Equals(tabItem.TABLE_TYPE, StringComparison.OrdinalIgnoreCase))
                 {
                     className = GetViewName(tableName);
                 }
@@ -373,6 +440,11 @@ namespace System.Data.Dobber
                         cType = DbColType.String;
                         pType = "String";
                         colLen = Convert.ToInt32(Regex.Replace(colType, "char(\\(\\S+\\))", "$1").TrimStart('(').TrimEnd(')'));
+                        if (colLen <= 2 && _spacialType.HasFlag(SpecialTypeEnum.Char2Int32))
+                        {
+                            cType = DbColType.Int32;
+                            colType = "Int32";
+                        }
                     }
                     else
                     {
@@ -406,14 +478,14 @@ namespace System.Data.Dobber
                 sb.AppendLine(item);
             }
             sb
-            .AppendLine("/************************************************************")
-            .AppendLine($"* 本篇代码使用代码工具自动生成，手工修改内容可能会被覆盖")
+            .AppendLine($"/*********************************************************")
+            .AppendLine($"* 代码使用工具自动生成，手工修改会被覆盖，使用【partial】")
             .AppendLine($"* 创 建 人：周鑫")
             .AppendLine($"* 创建时间：{DateTime.Now:yyyy-MM-dd HH:mm:ss}")
             .AppendLine($"* 描    述：自动创建MySQL生成上下文实体代码内容")
             .AppendLine($"* 创 建 类：{nameof(IContextEntitiesBuilder)}")
-            .AppendLine($"* 本篇代码使用代码工具自动生成，手工修改内容可能会被覆盖")
-            .AppendLine("************************************************************/");
+            .AppendLine($"* 代码使用工具自动生成，手工修改会被覆盖，使用【partial】")
+            .AppendLine($"*********************************************************/");
             if (_ignoreDbName)
             {
                 sb.AppendLine($"namespace {_nameSpace}");
@@ -427,61 +499,210 @@ namespace System.Data.Dobber
             var black8 = "        ";
             foreach (var tabItem in tableModels)
             {
-                sb.AppendLine($"{black4}/// <summary>").AppendLine($"{black4}/// {tabItem.Comment}").AppendLine($"{black4}/// </summary>");
-                sb.AppendLine($"{black4}[Table(\"{tabItem.Name}\")]");
-                sb.AppendLine($"{black4}[DbCol(\"{tabItem.Comment}\", Name = \"{tabItem.Name}\")]");
-                sb.AppendLine($"{black4}public partial class {tabItem.Clazz} : ICloneable");
-                sb.AppendLine($"{black4}{{");
-                foreach (var colItem in tabItem.Columns)
-                {
-                    sb.AppendLine($"{black8}/// <summary>")
-                      .AppendLine($"{black8}/// {colItem.Display}")
-                      .AppendLine($"{black8}/// </summary>");
-                    if (colItem.Key == DbIxType.PK)
-                    {
-                        sb.AppendLine($"{black8}[Key]");
-                    }
-                    else if (colItem.Key == DbIxType.APK)
-                    {
-                        sb.AppendLine($"{black8}[Key]").AppendLine($"{black8}[DatabaseGenerated(DatabaseGeneratedOption.Identity)]");
-                    }
-                    sb.AppendLine($"{black8}[Display(Name = \"{colItem.Display}\")]");
-                    sb.AppendLine($"{black8}[Column(\"{colItem.Name}\")]");
-                    var colBuilder = new StringBuilder($"[DbCol(\"{colItem.Display}\"");
-                    colBuilder.Append($", Name = \"{colItem.Name}\"");
-                    if (colItem.Key == DbIxType.APK)
-                    {
-                        colBuilder.Append($", Key = DbIxType.APK");
-                    }
-                    else if (colItem.Key == DbIxType.PK)
-                    {
-                        colBuilder.Append($", Key = DbIxType.PK");
-                    }
-                    if (colItem.Type != DbColType.String)
-                    {
-                        colBuilder.Append($", Type = DbColType.{colItem.Type.GetEnumName()}");
-                    }
-                    if (colItem.Len != 64)
-                    {
-                        colBuilder.Append($", Len = {colItem.Len}");
-                    }
-                    if (!colItem.IsReq)
-                    {
-                        colBuilder.Append($", IsReq = false");
-                    }
-                    colBuilder.Append(")]");
-                    sb.AppendLine($"{black8}{colBuilder}");
-                    sb.AppendLine($"{black8}public virtual {colItem.PType} {colItem.Property} {{ get; set; }}");
-                }
-                sb.AppendLine($"{black8}object ICloneable.Clone() {{ return this.Clone(); }}");
-                sb.AppendLine($"{black8}/// <summary>")
-                  .AppendLine($"{black8}/// 浅表复制")
-                  .AppendLine($"{black8}/// </summary>");
-                sb.AppendLine($"{black8}public {tabItem.Clazz} Clone() {{ return ({tabItem.Clazz})this.MemberwiseClone(); }}");
-                sb.AppendLine($"{black4}}}");
+                if (_hasInterface) { AppendTableInterface(sb, black4, black8, tabItem); }
+                AppendTableClass(sb, black4, black8, tabItem, _hasInterface);
             }
             sb.AppendLine("#pragma warning restore CS1570 // XML 注释出现 XML 格式错误").AppendLine("}");
+            if (_hasModel)
+            {
+                if (_ignoreDbName)
+                {
+                    sb.AppendLine($"namespace {_modelNamespace}");
+                }
+                else
+                {
+                    sb.AppendLine($"namespace {_modelNamespace}.{_dbName.PascalToSnakeCase()}");
+                }
+                sb.AppendLine("{").AppendLine("#pragma warning disable CS1570 // XML 注释出现 XML 格式错误");
+                if (_modelNamespace != _nameSpace)
+                {
+                    sb.AppendLine($"{black4}using {_nameSpace};");
+                }
+                foreach (var tabItem in tableModels)
+                {
+                    AppendTableModel(sb, black4, black8, tabItem, _hasInterface);
+                }
+                sb.AppendLine("#pragma warning restore CS1570 // XML 注释出现 XML 格式错误").AppendLine("}");
+            }
             return sb;
+        }
+        private static void AppendTableInterface(StringBuilder sb, string black4, string black8, TableModel tabItem)
+        {
+            sb.AppendLine($"{black4}/// <summary>").AppendLine($"{black4}/// {tabItem.Comment}").AppendLine($"{black4}/// </summary>");
+            sb.AppendLine($"{black4}[DbCol(\"{tabItem.Comment}\", Name = \"{tabItem.Name}\")]");
+            sb.AppendLine($"{black4}public partial interface I{tabItem.Clazz} : ICloneable");
+            sb.AppendLine($"{black4}{{");
+            foreach (var colItem in tabItem.Columns)
+            {
+                sb.AppendLine($"{black8}/// <summary>")
+                  .AppendLine($"{black8}/// {colItem.Display}")
+                  .AppendLine($"{black8}/// </summary>");
+                if (colItem.Key == DbIxType.PK)
+                {
+                    sb.AppendLine($"{black8}[Key]");
+                }
+                else if (colItem.Key == DbIxType.APK)
+                {
+                    sb.AppendLine($"{black8}[Key]").AppendLine($"{black8}[DatabaseGenerated(DatabaseGeneratedOption.Identity)]");
+                }
+                sb.AppendLine($"{black8}[Display(Name = \"{colItem.Display}\")]");
+                sb.AppendLine($"{black8}[Column(\"{colItem.Name}\")]");
+                var colBuilder = new StringBuilder($"[DbCol(\"{colItem.Display}\"");
+                colBuilder.Append($", Name = \"{colItem.Name}\"");
+                if (colItem.Key == DbIxType.APK)
+                {
+                    colBuilder.Append($", Key = DbIxType.APK");
+                }
+                else if (colItem.Key == DbIxType.PK)
+                {
+                    colBuilder.Append($", Key = DbIxType.PK");
+                }
+                if (colItem.Type != DbColType.String)
+                {
+                    colBuilder.Append($", Type = DbColType.{colItem.Type.GetEnumName()}");
+                }
+                if (colItem.Len != 64)
+                {
+                    colBuilder.Append($", Len = {colItem.Len}");
+                }
+                if (!colItem.IsReq)
+                {
+                    colBuilder.Append($", IsReq = false");
+                }
+                colBuilder.Append(")]");
+                sb.AppendLine($"{black8}{colBuilder}");
+                sb.AppendLine($"{black8}{colItem.PType} {colItem.Property} {{ get; set; }}");
+            }
+            sb.AppendLine($"{black4}}}");
+        }
+
+        private static void AppendTableModel(StringBuilder sb, string black4, string black8, TableModel tabItem, bool hasInterface)
+        {
+            sb.AppendLine($"{black4}/// <summary>").AppendLine($"{black4}/// {tabItem.Comment}").AppendLine($"{black4}/// </summary>");
+            sb.AppendLine($"{black4}[EDisplay(\"{tabItem.Comment}\")]");
+            sb.AppendLine($"{black4}public partial class {tabItem.Clazz}Model : {(hasInterface ? "I" + tabItem.Clazz + ", " : "")}ICloneable");
+            sb.AppendLine($"{black4}{{");
+            foreach (var colItem in tabItem.Columns)
+            {
+                sb.AppendLine($"{black8}/// <summary>")
+                  .AppendLine($"{black8}/// {colItem.Display}")
+                  .AppendLine($"{black8}/// </summary>");
+                sb.AppendLine($"{black8}[EDisplay(\"{colItem.Display}\")]");
+                sb.AppendLine($"{black8}public virtual {colItem.PType} {colItem.Property} {{ get; set; }}");
+            }
+            sb.AppendLine($"{black8}/// <summary>")
+              .AppendLine($"{black8}/// 默认构造")
+              .AppendLine($"{black8}/// </summary>");
+            sb.AppendLine($"{black8}public {tabItem.Clazz}Model() {{ }}");
+            sb.AppendLine($"{black8}/// <summary>")
+              .AppendLine($"{black8}/// 实体构造")
+              .AppendLine($"{black8}/// </summary>");
+            sb.AppendLine($"{black8}public {tabItem.Clazz}Model({tabItem.Clazz} entity) {{ SetModel(entity); }}");
+            sb.AppendLine($"{black8}object ICloneable.Clone() {{ return this.Clone(); }}");
+            sb.AppendLine($"{black8}/// <summary>")
+              .AppendLine($"{black8}/// 浅表复制")
+              .AppendLine($"{black8}/// </summary>");
+            sb.AppendLine($"{black8}public virtual {tabItem.Clazz}Model Clone() {{ return ({tabItem.Clazz}Model)this.MemberwiseClone(); }}");
+            sb.AppendLine($"{black8}/// <summary>")
+              .AppendLine($"{black8}/// 获取实体类")
+              .AppendLine($"{black8}/// </summary>");
+            sb.AppendLine($"{black8}public virtual {tabItem.Clazz} GetEntity()");
+            sb.AppendLine($"{black8}{{ ");
+            sb.AppendLine($"{black8}{black4} return new {tabItem.Clazz}");
+            sb.AppendLine($"{black8}{black4}{{ ");
+            foreach (var colItem in tabItem.Columns)
+            {
+                sb.AppendLine($"{black8}{black8}{colItem.Property} = this.{colItem.Property},");
+            }
+            sb.AppendLine($"{black8}{black4}}};");
+            sb.AppendLine($"{black8}}}");
+
+            sb.AppendLine($"{black8}/// <summary>")
+              .AppendLine($"{black8}/// 设置模型")
+              .AppendLine($"{black8}/// </summary>");
+            if (hasInterface)
+            {
+                sb.AppendLine($"{black8}public virtual {tabItem.Clazz}Model SetModel(I{tabItem.Clazz} entity)");
+            }
+            else
+            {
+                sb.AppendLine($"{black8}public virtual {tabItem.Clazz}Model SetModel({tabItem.Clazz} entity)");
+            }
+            sb.AppendLine($"{black8}{{ ");
+            foreach (var colItem in tabItem.Columns)
+            {
+                sb.AppendLine($"{black8}{black4}this.{colItem.Property} = entity.{colItem.Property};");
+            }
+            sb.AppendLine($"{black8}{black4}return this;");
+            sb.AppendLine($"{black8}}}");
+
+            sb.AppendLine($"{black8}/// <summary>")
+              .AppendLine($"{black8}/// 隐式转换成模型")
+              .AppendLine($"{black8}/// </summary>");
+            sb.AppendLine($"{black8}public static implicit operator {tabItem.Clazz}Model({tabItem.Clazz} entity) => new {tabItem.Clazz}Model(entity);");
+
+            sb.AppendLine($"{black8}/// <summary>")
+              .AppendLine($"{black8}/// 隐式转换成实体")
+              .AppendLine($"{black8}/// </summary>");
+            sb.AppendLine($"{black8}public static implicit operator {tabItem.Clazz}({tabItem.Clazz}Model model) => model.GetEntity();");
+
+            sb.AppendLine($"{black4}}}");
+        }
+
+        private static void AppendTableClass(StringBuilder sb, string black4, string black8, TableModel tabItem, bool hasInterface)
+        {
+            sb.AppendLine($"{black4}/// <summary>").AppendLine($"{black4}/// {tabItem.Comment}").AppendLine($"{black4}/// </summary>");
+            sb.AppendLine($"{black4}[Table(\"{tabItem.Name}\")]");
+            sb.AppendLine($"{black4}[DbCol(\"{tabItem.Comment}\", Name = \"{tabItem.Name}\")]");
+            sb.AppendLine($"{black4}public partial class {tabItem.Clazz} : {(hasInterface ? "I" + tabItem.Clazz + ", " : "")}ICloneable");
+            sb.AppendLine($"{black4}{{");
+            foreach (var colItem in tabItem.Columns)
+            {
+                sb.AppendLine($"{black8}/// <summary>")
+                  .AppendLine($"{black8}/// {colItem.Display}")
+                  .AppendLine($"{black8}/// </summary>");
+                if (colItem.Key == DbIxType.PK)
+                {
+                    sb.AppendLine($"{black8}[Key]");
+                }
+                else if (colItem.Key == DbIxType.APK)
+                {
+                    sb.AppendLine($"{black8}[Key]").AppendLine($"{black8}[DatabaseGenerated(DatabaseGeneratedOption.Identity)]");
+                }
+                sb.AppendLine($"{black8}[Display(Name = \"{colItem.Display}\")]");
+                sb.AppendLine($"{black8}[Column(\"{colItem.Name}\")]");
+                var colBuilder = new StringBuilder($"[DbCol(\"{colItem.Display}\"");
+                colBuilder.Append($", Name = \"{colItem.Name}\"");
+                if (colItem.Key == DbIxType.APK)
+                {
+                    colBuilder.Append($", Key = DbIxType.APK");
+                }
+                else if (colItem.Key == DbIxType.PK)
+                {
+                    colBuilder.Append($", Key = DbIxType.PK");
+                }
+                if (colItem.Type != DbColType.String)
+                {
+                    colBuilder.Append($", Type = DbColType.{colItem.Type.GetEnumName()}");
+                }
+                if (colItem.Len != 64)
+                {
+                    colBuilder.Append($", Len = {colItem.Len}");
+                }
+                if (!colItem.IsReq)
+                {
+                    colBuilder.Append($", IsReq = false");
+                }
+                colBuilder.Append(")]");
+                sb.AppendLine($"{black8}{colBuilder}");
+                sb.AppendLine($"{black8}public virtual {colItem.PType} {colItem.Property} {{ get; set; }}");
+            }
+            sb.AppendLine($"{black8}object ICloneable.Clone() {{ return this.Clone(); }}");
+            sb.AppendLine($"{black8}/// <summary>")
+              .AppendLine($"{black8}/// 浅表复制")
+              .AppendLine($"{black8}/// </summary>");
+            sb.AppendLine($"{black8}public virtual {tabItem.Clazz} Clone() {{ return ({tabItem.Clazz})this.MemberwiseClone(); }}");
+            sb.AppendLine($"{black4}}}");
         }
 
         internal class TableModel
@@ -491,7 +712,6 @@ namespace System.Data.Dobber
             public String Comment { get; set; }
             public List<ColumnModel> Columns { get; set; }
         }
-
         internal class ColumnModel
         {
             public ColumnModel(string display)
@@ -611,6 +831,26 @@ namespace System.Data.Dobber
             _preView = preView ?? string.Empty;
             return this;
         }
+
+        public IContextEntitiesBuilder SetHasInterface(bool hasInterface = true)
+        {
+            _hasInterface = hasInterface;
+            return this;
+        }
+        public IContextEntitiesBuilder SetHasModel(string modelNameSpace)
+        {
+            _hasModel = !string.IsNullOrEmpty(modelNameSpace);
+            _modelNamespace = modelNameSpace;
+            return this;
+        }
+
+        public IContextEntitiesBuilder SetSpecialType(SpecialTypeEnum char2Int32)
+        {
+            if (char2Int32 == SpecialTypeEnum.Unknown)
+            { _spacialType = SpecialTypeEnum.Unknown; }
+            _spacialType |= char2Int32;
+            return this;
+        }
     }
     internal class ContextEntitiesOracleBuilder : IContextEntitiesBuilder
     {
@@ -653,6 +893,21 @@ namespace System.Data.Dobber
         {
             throw new NotImplementedException();
         }
+
+        public IContextEntitiesBuilder SetHasInterface(bool hasInterface = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IContextEntitiesBuilder SetHasModel(string nameSpace)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IContextEntitiesBuilder SetSpecialType(SpecialTypeEnum char2Int32)
+        {
+            throw new NotImplementedException();
+        }
     }
     internal class ContextEntitiesPostgreSQLBuilder : IContextEntitiesBuilder
     {
@@ -692,6 +947,21 @@ namespace System.Data.Dobber
         }
 
         public IContextEntitiesBuilder SetUsings(params string[] usings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IContextEntitiesBuilder SetHasInterface(bool hasInterface = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IContextEntitiesBuilder SetHasModel(string nameSpace)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IContextEntitiesBuilder SetSpecialType(SpecialTypeEnum char2Int32)
         {
             throw new NotImplementedException();
         }

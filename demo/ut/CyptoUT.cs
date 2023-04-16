@@ -6,6 +6,7 @@ using System.Data.Cobber;
 using System.Data.Extter;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 
 namespace System.Data.DabberUT.CheckerUT
 {
@@ -18,6 +19,7 @@ namespace System.Data.DabberUT.CheckerUT
         [TestMethod]
         public void TestEncoding()
         {
+            Thread.Sleep(TimeSpan.FromMinutes(0));
             var len = 27;
             var nor = 20;
             Console.WriteLine("{0}   {1}   {2}   {3}", "EncodingName".PadRight(len, ' '), "WebName".PadRight(nor, ' '), "HeaderName".PadRight(nor, ' '), "BodyName".PadRight(nor, ' '));
