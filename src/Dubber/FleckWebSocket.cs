@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Logger;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -151,7 +152,7 @@ namespace System.Data.Dubber
             if (!IsAvailable)
             {
                 const string errorMessage = "Data sent while closing or after close. Ignoring.";
-                FleckLog.Warn(errorMessage);
+                LoggerConsole.Warn(errorMessage);
 
                 var taskForException = new TaskCompletionSource<object>();
                 taskForException.SetException(new ConnectionNotAvailableException(errorMessage));
@@ -230,11 +231,11 @@ namespace System.Data.Dubber
             {
                 if (r <= 0)
                 {
-                    FleckLog.Debug("0 bytes read. Closing.");
+                    LoggerConsole.Debug("0 bytes read. Closing.");
                     CloseSocket();
                     return;
                 }
-                FleckLog.Debug(r + " bytes read");
+                LoggerConsole.Debug(r + " bytes read");
                 var readBytes = buffer.Take(r);
                 if (Handler != null)
                 {
@@ -262,7 +263,7 @@ namespace System.Data.Dubber
 
             if (e is ObjectDisposedException)
             {
-                FleckLog.Debug("Swallowing ObjectDisposedException", e);
+                LoggerConsole.Debug("Swallowing ObjectDisposedException", e);
                 return;
             }
 
@@ -270,26 +271,26 @@ namespace System.Data.Dubber
 
             if (e is HandshakeException)
             {
-                FleckLog.Debug("Error while reading", e);
+                LoggerConsole.Debug("Error while reading", e);
             }
             else if (e is WebSocketException)
             {
-                FleckLog.Debug("Error while reading", e);
+                LoggerConsole.Debug("Error while reading", e);
                 Close(((WebSocketException)e).StatusCode);
             }
             else if (e is SubProtocolNegotiationFailureException)
             {
-                FleckLog.Debug(e.Message);
+                LoggerConsole.Debug(e.Message);
                 Close(WebSocketStatusCodes.ProtocolError);
             }
             else if (e is IOException)
             {
-                FleckLog.Debug("Error while reading", e);
+                LoggerConsole.Debug("Error while reading", e);
                 Close(WebSocketStatusCodes.AbnormalClosure);
             }
             else
             {
-                FleckLog.Error("Application Error", e);
+                LoggerConsole.Error("Application Error", e);
                 Close(WebSocketStatusCodes.InternalServerError);
             }
         }
@@ -298,16 +299,16 @@ namespace System.Data.Dubber
         {
             return Socket.Send(bytes, () =>
             {
-                FleckLog.Debug("Sent " + bytes.Length + " bytes");
+                LoggerConsole.Debug("Sent " + bytes.Length + " bytes");
                 if (callback != null)
                     callback();
             },
                               e =>
                               {
                                   if (e is IOException)
-                                      FleckLog.Debug("Failed to send. Disconnecting.", e);
+                                      LoggerConsole.Debug("Failed to send. Disconnecting.", e);
                                   else
-                                      FleckLog.Info("Failed to send. Disconnecting.", e);
+                                      LoggerConsole.Info("Failed to send. Disconnecting.", e);
                                   CloseSocket();
                               });
         }
@@ -532,19 +533,19 @@ namespace System.Data.Dubber
             ListenerSocket.Bind(ipLocal);
             ListenerSocket.Listen(100);
             Port = ((IPEndPoint)ListenerSocket.LocalEndPoint).Port;
-            FleckLog.Info(string.Format("Server started at {0} (actual port {1})", Location, Port));
+            LoggerConsole.Info(string.Format("Server started at {0} (actual port {1})", Location, Port));
             if (_scheme == "wss")
             {
                 if (Certificate == null)
                 {
-                    FleckLog.Error("Scheme cannot be 'wss' without a Certificate");
+                    LoggerConsole.Error("Scheme cannot be 'wss' without a Certificate");
                     return;
                 }
 
                 if (EnabledSslProtocols == SslProtocols.None)
                 {
                     EnabledSslProtocols = SslProtocols.Tls;
-                    FleckLog.Debug("Using default TLS 1.0 security protocol.");
+                    LoggerConsole.Debug("Using default TLS 1.0 security protocol.");
                 }
             }
             ListenForClients();
@@ -554,21 +555,21 @@ namespace System.Data.Dubber
         private void ListenForClients()
         {
             ListenerSocket.Accept(OnClientConnect, e => {
-                FleckLog.Error("Listener socket is closed", e);
+                LoggerConsole.Error("Listener socket is closed", e);
                 if (RestartAfterListenError)
                 {
-                    FleckLog.Info("Listener socket restarting");
+                    LoggerConsole.Info("Listener socket restarting");
                     try
                     {
                         ListenerSocket.Dispose();
                         var socket = new Socket(_locationIP.AddressFamily, SocketType.Stream, ProtocolType.IP);
                         ListenerSocket = new SocketWrapper(socket);
                         Start(_config);
-                        FleckLog.Info("Listener socket restarted");
+                        LoggerConsole.Info("Listener socket restarted");
                     }
                     catch (Exception ex)
                     {
-                        FleckLog.Error("Listener could not be restarted", ex);
+                        LoggerConsole.Error("Listener could not be restarted", ex);
                     }
                 }
             });
@@ -578,7 +579,7 @@ namespace System.Data.Dubber
         {
             if (clientSocket == null) return; // socket closed
 
-            FleckLog.Debug(String.Format("Client connected from {0}:{1}", clientSocket.RemoteIpAddress, clientSocket.RemotePort.ToString()));
+            LoggerConsole.Debug(String.Format("Client connected from {0}:{1}", clientSocket.RemoteIpAddress, clientSocket.RemotePort.ToString()));
             ListenForClients();
 
             WebSocketConnection connection = null;
@@ -597,12 +598,12 @@ namespace System.Data.Dubber
 
             if (IsSecure)
             {
-                FleckLog.Debug("Authenticating Secure Connection");
+                LoggerConsole.Debug("Authenticating Secure Connection");
                 clientSocket
                     .Authenticate(Certificate,
                                   EnabledSslProtocols,
                                   connection.StartReceiving,
-                                  e => FleckLog.Warn("Failed to Authenticate", e));
+                                  e => LoggerConsole.Warn("Failed to Authenticate", e));
             }
             else
             {
@@ -914,7 +915,7 @@ namespace System.Data.Dubber
         /// <returns></returns>
         public static byte[] Handshake(WebSocketHttpRequest request, string subProtocol)
         {
-            FleckLog.Debug("Building Draft76 Response");
+            LoggerConsole.Debug("Building Draft76 Response");
 
             var builder = new StringBuilder();
             builder.Append("HTTP/1.1 101 WebSocket Protocol Handshake\r\n");
@@ -1009,7 +1010,7 @@ namespace System.Data.Dubber
         /// <returns></returns>
         public static byte[] Handshake(WebSocketHttpRequest request, string subProtocol)
         {
-            FleckLog.Debug("Building Flash Socket Policy Response");
+            LoggerConsole.Debug("Building Flash Socket Policy Response");
             return Encoding.UTF8.GetBytes(PolicyResponse);
         }
     }
@@ -1200,7 +1201,7 @@ namespace System.Data.Dubber
                     onMessage(ReadUTF8PayloadData(data));
                     break;
                 default:
-                    FleckLog.Debug("Received unhandled " + frameType);
+                    LoggerConsole.Debug("Received unhandled " + frameType);
                     break;
             }
         }
@@ -1212,7 +1213,7 @@ namespace System.Data.Dubber
         /// <returns></returns>
         public static byte[] BuildHandshake(WebSocketHttpRequest request, string subProtocol)
         {
-            FleckLog.Debug("Building Hybi-14 Response");
+            LoggerConsole.Debug("Building Hybi-14 Response");
 
             var builder = new StringBuilder();
 
@@ -1553,83 +1554,6 @@ namespace System.Data.Dubber
             : base(message, innerException)
         {
         }
-    }
-    /// <summary>
-    /// 
-    /// </summary>
-    public enum LogLevel
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        Debug,
-        /// <summary>
-        /// 
-        /// </summary>
-        Info,
-        /// <summary>
-        /// 
-        /// </summary>
-        Warn,
-        /// <summary>
-        /// 
-        /// </summary>
-        Error
-    }
-    /// <summary>
-    /// 
-    /// </summary>
-    public class FleckLog
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public static LogLevel Level = LogLevel.Info;
-        /// <summary>
-        /// 
-        /// </summary>
-        public static Action<LogLevel, string, Exception> LogAction = (level, message, ex) =>
-        {
-            if (level >= Level)
-                Console.WriteLine("{0} [{1}] {2} {3}", DateTime.Now, level, message, ex);
-        };
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="ex"></param>
-        public static void Warn(string message, Exception ex = null)
-        {
-            LogAction(LogLevel.Warn, message, ex);
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="ex"></param>
-        public static void Error(string message, Exception ex = null)
-        {
-            LogAction(LogLevel.Error, message, ex);
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="ex"></param>
-        public static void Debug(string message, Exception ex = null)
-        {
-            LogAction(LogLevel.Debug, message, ex);
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="ex"></param>
-        public static void Info(string message, Exception ex = null)
-        {
-            LogAction(LogLevel.Info, message, ex);
-        }
-
     }
     /// <summary>
     /// 

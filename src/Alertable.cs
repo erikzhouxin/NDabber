@@ -84,6 +84,13 @@ namespace System
         /// <param name="msg"></param>
         /// <returns></returns>
         IAlertMsg AddMsg(string msg);
+        /// <summary>
+        /// 添加错误信息
+        /// (设置IsSuccess为false)
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        IAlertMsg AddError(string msg);
     }
     /// <summary>
     /// 提示信息泛型接口
@@ -402,6 +409,13 @@ namespace System
         /// <returns></returns>
         public IAlertMsg AddMsg(string msg)
         {
+            AddMessage(msg);
+            return this;
+        }
+        /// <inheritdoc />
+        public IAlertMsg AddError(string msg)
+        {
+            this.IsSuccess = false;
             AddMessage(msg);
             return this;
         }

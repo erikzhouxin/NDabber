@@ -718,10 +718,227 @@ namespace System.Data.Extter
         ICacheSetDictModel<T1, T2> Clear();
     }
     /// <summary>
+    /// 页面缓存设置接口
+    /// </summary>
+    public interface ICacheSettingModel
+    {
+        #region // 模型内容
+        /// <summary>
+        /// 获取对象
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        TValue Get<TValue>(TValue defVal = default(TValue)) where TValue : class;
+        /// <summary>
+        /// 获取对象
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        TValue Get<TValue>(Func<TValue> defVal) where TValue : class;
+        /// <summary>
+        /// 保存对象
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        IAlertMsg<TValue> Save<TValue>() where TValue : class;
+        /// <summary>
+        /// 保存对象
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        IAlertMsg<TValue> Save<TValue>(TValue defVal) where TValue : class;
+        /// <summary>
+        /// 重置对象
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        IAlertMsg<TValue> Reset<TValue>(TValue defVal = default(TValue)) where TValue : class;
+        #endregion 模型内容
+        #region // 字典内容
+        /// <summary>
+        /// 获取字典
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        Dictionary<string, TValue> GetDic<TValue>() where TValue : class;
+        /// <summary>
+        /// 获取字典值
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        TValue GetDic<TValue>(string key, TValue value = null) where TValue : class;
+        /// <summary>
+        /// 获取字典值
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        TValue GetDic<TValue>(string key, Func<TValue> value) where TValue : class;
+        /// <summary>
+        /// 获取或添加字典值
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        TValue GetOrAdd<TValue>(string key, Lazy<TValue> value) where TValue : class;
+        /// <summary>
+        /// 保存字典值
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        IAlertMsg<Dictionary<string, TValue>> SaveDic<TValue>() where TValue : class;
+        /// <summary>
+        /// 保存字典值
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        IAlertMsg<TValue> SaveDic<TValue>(string key, TValue value) where TValue : class;
+        /// <summary>
+        /// 保存字典
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        IAlertMsg<Dictionary<string, TValue>> SaveDic<TValue>(Dictionary<string, TValue> defVal) where TValue : class;
+        /// <summary>
+        /// 重置字典
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        IAlertMsg<Dictionary<string, TValue>> ResetDic<TValue>(Dictionary<string, TValue> defVal = null) where TValue : class;
+        #endregion 字典内容
+    }
+    /// <summary>
+    /// 页面缓存设置接口
+    /// </summary>
+    /// <typeparam name="TPage"></typeparam>
+    public interface ICacheSettingModel<TPage>
+    {
+        #region // 模型内容
+        /// <summary>
+        /// 获取模型
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        ICacheSettingModel<TPage, TValue> GetModule<TValue>() where TValue : class;
+        /// <summary>
+        /// 获取对象
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        TValue Get<TValue>(TValue defVal = default(TValue)) where TValue : class;
+        /// <summary>
+        /// 获取对象
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        TValue Get<TValue>(Func<TValue> defVal) where TValue : class;
+        /// <summary>
+        /// 保存对象
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        IAlertMsg<TValue> Save<TValue>() where TValue : class;
+        /// <summary>
+        /// 保存对象
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        IAlertMsg<TValue> Save<TValue>(TValue defVal) where TValue : class;
+        /// <summary>
+        /// 重置对象
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        IAlertMsg<TValue> Reset<TValue>(TValue defVal = default(TValue)) where TValue : class;
+        #endregion 模型内容
+        #region // 字典内容
+        /// <summary>
+        /// 获取字典
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        ICacheSetDictModel<TPage, TValue> GetDict<TValue>() where TValue : class;
+        /// <summary>
+        /// 获取字典
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        Dictionary<string, TValue> GetDic<TValue>() where TValue : class;
+        /// <summary>
+        /// 获取字典值
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        TValue GetDic<TValue>(string key, TValue value = null) where TValue : class;
+        /// <summary>
+        /// 获取字典值
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        TValue GetDic<TValue>(string key, Func<TValue> value) where TValue : class;
+        /// <summary>
+        /// 获取或添加字典值
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        TValue GetOrAdd<TValue>(string key, Lazy<TValue> value) where TValue : class;
+        /// <summary>
+        /// 保存字典值
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        IAlertMsg<Dictionary<string, TValue>> SaveDic<TValue>() where TValue : class;
+        /// <summary>
+        /// 保存字典值
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        IAlertMsg<TValue> SaveDic<TValue>(string key, TValue value) where TValue : class;
+        /// <summary>
+        /// 保存字典
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        IAlertMsg<Dictionary<string, TValue>> SaveDic<TValue>(Dictionary<string, TValue> defVal) where TValue : class;
+        /// <summary>
+        /// 重置字典
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        IAlertMsg<Dictionary<string, TValue>> ResetDic<TValue>(Dictionary<string, TValue> defVal = null) where TValue : class;
+        #endregion 字典内容
+    }
+    /// <summary>
     /// 设置缓存
     /// </summary>
     /// <typeparam name="TPage"></typeparam>
-    public class CacheSettingModel<TPage>
+    public class CacheSettingModel<TPage> : ICacheSettingModel<TPage>, ICacheSettingModel
     {
         static readonly Dictionary<String, String> TypeDic = new Dictionary<string, string>();
         /// <summary>
@@ -776,6 +993,16 @@ namespace System.Data.Extter
         public static TValue Get<TValue>(TValue defVal = default(TValue)) where TValue : class
         {
             return Model<TValue>.InnerValue ?? defVal;
+        }
+        /// <summary>
+        /// 获取值
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        public static TValue Get<TValue>(Func<TValue> defVal) where TValue : class
+        {
+            return Model<TValue>.Instance.GetOrAdd(defVal);
         }
         /// <summary>
         /// 保存
@@ -926,9 +1153,33 @@ namespace System.Data.Extter
             /// 获取内容
             /// </summary>
             /// <returns></returns>
+            public TValue GetOrAdd(Lazy<TValue> defVal)
+            {
+                if (InnerValue == null)
+                {
+                    return defVal.Value;
+                }
+                return InnerValue;
+            }
+            /// <summary>
+            /// 获取内容
+            /// </summary>
+            /// <returns></returns>
+            public TValue GetOrAdd(Func<TValue> defVal)
+            {
+                if (InnerValue == null)
+                {
+                    return defVal();
+                }
+                return InnerValue;
+            }
+            /// <summary>
+            /// 获取内容
+            /// </summary>
+            /// <returns></returns>
             public TValue GetDefault(Lazy<TValue> defVal)
             {
-                if(InnerValue == null)
+                if (InnerValue == null)
                 {
                     return defVal.Value;
                 }
@@ -1069,6 +1320,15 @@ namespace System.Data.Extter
         /// </summary>
         /// <typeparam name="TValue"></typeparam>
         /// <returns></returns>
+        public static TValue GetDic<TValue>(string key, Func<TValue> value) where TValue : class
+        {
+            return Dic<TValue>.Instance.TryGet(key, value);
+        }
+        /// <summary>
+        /// 获取值
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
         public static TValue GetOrAdd<TValue>(string key, Lazy<TValue> value) where TValue : class
         {
             return Dic<TValue>.Instance.TryGetOrAdd(key, value);
@@ -1081,6 +1341,16 @@ namespace System.Data.Extter
         public static IAlertMsg<Dictionary<string, TValue>> SaveDic<TValue>() where TValue : class
         {
             return SaveDic(Dic<TValue>.InnerValue);
+        }
+        /// <summary>
+        /// 保存字典
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <returns></returns>
+        public static IAlertMsg<TValue> SaveDic<TValue>(string key, TValue value) where TValue : class
+        {
+            Dic<TValue>.Instance.SaveSet(key, value);
+            return new AlertMsg<TValue>(true) { Data = value };
         }
         /// <summary>
         /// 保存字典
@@ -1490,6 +1760,38 @@ namespace System.Data.Extter
         /// 构造
         /// </summary>
         protected CacheSettingModel() { }
+        #region // 显示实现 ICacheSettingModel<TPage>
+        TValue ICacheSettingModel<TPage>.Get<TValue>(TValue defVal) => Get<TValue>(defVal);
+        TValue ICacheSettingModel<TPage>.Get<TValue>(Func<TValue> defVal) => Get<TValue>(defVal);
+        Dictionary<string, TValue> ICacheSettingModel<TPage>.GetDic<TValue>() => GetDic<TValue>();
+        TValue ICacheSettingModel<TPage>.GetDic<TValue>(string key, TValue value) => GetDic<TValue>(key, value);
+        TValue ICacheSettingModel<TPage>.GetDic<TValue>(string key, Func<TValue> value) => GetDic<TValue>(key, value);
+        ICacheSetDictModel<TPage, TValue> ICacheSettingModel<TPage>.GetDict<TValue>() => GetDict<TValue>();
+        ICacheSettingModel<TPage, TValue> ICacheSettingModel<TPage>.GetModule<TValue>() => GetModule<TValue>();
+        TValue ICacheSettingModel<TPage>.GetOrAdd<TValue>(string key, Lazy<TValue> value) => GetOrAdd<TValue>(key, value);
+        IAlertMsg<TValue> ICacheSettingModel<TPage>.Reset<TValue>(TValue defVal) => Reset<TValue>(defVal);
+        IAlertMsg<Dictionary<string, TValue>> ICacheSettingModel<TPage>.ResetDic<TValue>(Dictionary<string, TValue> defVal) => ResetDic<TValue>(defVal);
+        IAlertMsg<TValue> ICacheSettingModel<TPage>.Save<TValue>() => Save<TValue>();
+        IAlertMsg<TValue> ICacheSettingModel<TPage>.Save<TValue>(TValue defVal) => Save<TValue>(defVal);
+        IAlertMsg<Dictionary<string, TValue>> ICacheSettingModel<TPage>.SaveDic<TValue>() => SaveDic<TValue>();
+        IAlertMsg<TValue> ICacheSettingModel<TPage>.SaveDic<TValue>(string key, TValue value) => SaveDic<TValue>(key, value);
+        IAlertMsg<Dictionary<string, TValue>> ICacheSettingModel<TPage>.SaveDic<TValue>(Dictionary<string, TValue> defVal) => SaveDic<TValue>(defVal);
+        #endregion 显示实现 ICacheSettingModel<TPage>
+        #region // 显示实现 ICacheSettingModel
+        TValue ICacheSettingModel.Get<TValue>(TValue defVal) => Get<TValue>(defVal);
+        TValue ICacheSettingModel.Get<TValue>(Func<TValue> defVal) => Get<TValue>(defVal);
+        Dictionary<string, TValue> ICacheSettingModel.GetDic<TValue>() => GetDic<TValue>();
+        TValue ICacheSettingModel.GetDic<TValue>(string key, TValue value) => GetDic<TValue>(key, value);
+        TValue ICacheSettingModel.GetDic<TValue>(string key, Func<TValue> value) => GetDic<TValue>(key, value);
+        TValue ICacheSettingModel.GetOrAdd<TValue>(string key, Lazy<TValue> value) => GetOrAdd<TValue>(key, value);
+        IAlertMsg<TValue> ICacheSettingModel.Reset<TValue>(TValue defVal) => Reset<TValue>(defVal);
+        IAlertMsg<Dictionary<string, TValue>> ICacheSettingModel.ResetDic<TValue>(Dictionary<string, TValue> defVal) => ResetDic<TValue>(defVal);
+        IAlertMsg<TValue> ICacheSettingModel.Save<TValue>() => Save<TValue>();
+        IAlertMsg<TValue> ICacheSettingModel.Save<TValue>(TValue defVal) => Save<TValue>(defVal);
+        IAlertMsg<Dictionary<string, TValue>> ICacheSettingModel.SaveDic<TValue>() => SaveDic<TValue>();
+        IAlertMsg<TValue> ICacheSettingModel.SaveDic<TValue>(string key, TValue value) => SaveDic<TValue>(key, value);
+        IAlertMsg<Dictionary<string, TValue>> ICacheSettingModel.SaveDic<TValue>(Dictionary<string, TValue> defVal) => SaveDic<TValue>(defVal);
+        #endregion 显示实现 ICacheSettingModel
     }
     /// <summary>
     /// 设置缓存

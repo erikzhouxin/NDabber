@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Cobber;
 using System.Data.Extter;
+using System.Data.Odbc;
 using System.Data.Sqller;
 using System.IO;
 using System.Linq.Expressions;
@@ -59,18 +60,23 @@ namespace System.Data.DabberUT
         [TestMethod]
         public void TestExpressionToSql()
         {
+            ITestNew newTest = CobberBuilder.CreateSampleInstance<ITestNew>();
             ITestClass model = CobberBuilder.CreateSampleInstance<ITestClass>();
-            model.ID = 1;
-            model.Name = "周鑫";
+            var access = PropertyAccess.GetAccess(model);
+            access.FuncSetValue(model, nameof(ITestClass.ID), 1);
+            access.FuncSetValue(model, nameof(ITestClass.Name), "周鑫");
+            access.FuncSetValue(model, nameof(ITestClass.DateTime), DateTime.Now);
             Console.WriteLine(model.GetJsonString());
         }
-
-        public interface ITestClass
+        public interface ITestNew
         {
-            string Name { get; set; }
-            int ID { get; set; }
-            int Age { get; set; }
-            DateTime DateTime { get; set; }
+            string Name { get; }
+            int ID { get; }
+        }
+        public interface ITestClass : ITestNew
+        {
+            int Age { get; }
+            DateTime DateTime { get; }
 
         }
         #endregion
@@ -162,5 +168,18 @@ namespace System.Data.DabberUT
             public virtual string Tester { get; set; }
         }
         #endregion 测试类
+        #region // 测试连接
+
+        [TestMethod]
+        public void TestOdbcMySql()
+        {
+            string MyConString = "DRIVER={MySQL ODBC 8.0 Unicode Driver};SERVER=localhost;DATABASE=c_qmsr;UID=root;PASSWORD=root;OPTION=3";
+
+            var MyConnection = new OdbcConnection(MyConString);
+            MyConnection.Open();
+            Console.WriteLine(" success, connected successfully ! ");
+        }
+
+        #endregion 测试连接
     }
 }

@@ -12,6 +12,10 @@ namespace System.Data.Impeller
     public class MPR
     {
         /// <summary>
+        /// mpr.dll文件
+        /// </summary>
+        public const String DllFileName = "mpr.dll";
+        /// <summary>
         /// WNetGetConnection函数可用于获取有关网络资源的信息，例如打印机。
         /// </summary>
         /// <param name="localName"></param>

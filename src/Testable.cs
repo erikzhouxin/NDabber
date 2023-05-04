@@ -41,59 +41,6 @@ namespace System
         /// <param name="models"></param>
         /// <returns></returns>
         public static T[] CreateArray<T>(params T[] models) => models;
-        /// <summary>
-        /// 简写try{action}catch{}
-        /// </summary>
-        public static void Try(this Delegate action, Action<Exception> excep)
-        {
-            try
-            {
-                action.DynamicInvoke();
-            }
-            catch (Exception ex)
-            {
-                excep?.Invoke(ex);
-            }
-        }
-        /// <summary>
-        /// 简写try{action}catch{}
-        /// </summary>
-        public static void Try(this Delegate action, Action<Exception> excep, params object[] args)
-        {
-            try
-            {
-                action.DynamicInvoke(args);
-            }
-            catch (Exception ex)
-            {
-                excep?.Invoke(ex);
-            }
-        }
-        /// <summary>
-        /// 简写try{action}catch{}
-        /// </summary>
-        /// <param name="action"></param>
-        public static void Try(this Delegate action)
-        {
-            try
-            {
-                action.DynamicInvoke();
-            }
-            catch { }
-        }
-        /// <summary>
-        /// 简写try{action}catch{}
-        /// </summary>
-        /// <param name="action"></param>
-        /// <param name="args"></param>
-        public static void Try(this Delegate action, params object[] args)
-        {
-            try
-            {
-                action.DynamicInvoke(args);
-            }
-            catch { }
-        }
         #endregion
         #region // 反射内容 Reflection
         /// <summary>
@@ -194,7 +141,7 @@ namespace System
         #endregion 委托内容 Delegate
         #region // 任务内容 Task
         /// <summary>
-        /// 演示调用
+        /// 演示调用(内有Try)
         /// </summary>
         /// <param name="timeSpan"></param>
         /// <param name="action"></param>
@@ -217,18 +164,68 @@ namespace System
         /// 启动新任务
         /// </summary>
         /// <param name="method"></param>
-        public static void TaskStartNew(this Action method)
+        public static Task TaskStartNew(this Delegate method)
         {
-            Task.Factory.StartNew(method);
+            return Task.Factory.StartNew(() => method?.DynamicInvoke());
+        }
+        /// <summary>
+        /// 启动新任务
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="args"></param>
+        public static Task TaskStartNew(this Delegate method, params object[] args)
+        {
+            return Task.Factory.StartNew(() => method?.DynamicInvoke(args));
         }
         /// <summary>
         /// 启动新任务
         /// </summary>
         /// <param name="method"></param>
         /// <param name="cancellationToken"></param>
-        public static void TaskStartNew(this Action method, CancellationToken cancellationToken)
+        public static Task TaskStartNew(this Delegate method, CancellationToken cancellationToken)
         {
-            Task.Factory.StartNew(method);
+            return Task.Factory.StartNew(() => method?.DynamicInvoke(), cancellationToken);
+        }
+        /// <summary>
+        /// 有TryCatch的启动新任务
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        public static Task TryTaskStartNew(this Delegate method)
+        {
+            return Task.Factory.StartNew(() => { try { method.DynamicInvoke(); } catch { } });
+        }
+        /// <summary>
+        /// 有TryCatch的启动新任务
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static Task TryTaskStartNew(this Delegate method, params object[] args)
+        {
+            return Task.Factory.StartNew(() => { try { method.DynamicInvoke(args); } catch { } });
+        }
+        /// <summary>
+        /// 有TryCatch的启动延时新任务
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="time"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static Task TryDelayTaskStartNew(this Delegate method, TimeSpan time, params object[] args)
+        {
+            return Task.Factory.StartNew(() => { Thread.Sleep(time); try { method.DynamicInvoke(args); } catch { } });
+        }
+        /// <summary>
+        /// 有TryCatch的启动延时新任务
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="milliseconds"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static Task TryDelayTaskStartNew(this Delegate method, int milliseconds, params object[] args)
+        {
+            return Task.Factory.StartNew(() => { Thread.Sleep(milliseconds); try { method.DynamicInvoke(args); } catch { } });
         }
         #region // Task兼容内容
         /// <summary>
@@ -532,6 +529,312 @@ namespace System
         /// </summary>
         public static bool IsDebugMode { get => _isDebugMode.Value; }
         #endregion 调试内容 Debug
+        #region // 常用方法
+        /// <summary>
+        /// 无所作为
+        /// </summary>
+        public static void DoNothing() { }
+        #endregion 常用方法
+
+        #region // 尝试执行 Action/Func
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try(this Action action)
+        {
+            try { action.Invoke(); } catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try<T1>(this Action<T1> action, T1 t1)
+        {
+            try { action.Invoke(t1); } catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try<T1, T2>(this Action<T1, T2> action, T1 t1, T2 t2)
+        {
+            try { action.Invoke(t1, t2); } catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try<T1, T2, T3>(this Action<T1, T2, T3> action, T1 t1, T2 t2, T3 t3)
+        {
+            try { action.Invoke(t1, t2, t3); } catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try<T1, T2, T3, T4>(this Action<T1, T2, T3, T4> action, T1 t1, T2 t2, T3 t3, T4 t4)
+        {
+            try { action.Invoke(t1, t2, t3, t4); } catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try<T1, T2, T3, T4, T5>(this Action<T1, T2, T3, T4, T5> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5)
+        {
+            try { action.Invoke(t1, t2, t3, t4, t5); } catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try<T1, T2, T3, T4, T5, T6>(this Action<T1, T2, T3, T4, T5, T6> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6)
+        {
+            try { action.Invoke(t1, t2, t3, t4, t5, t6); } catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try<T1, T2, T3, T4, T5, T6, T7>(this Action<T1, T2, T3, T4, T5, T6, T7> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7)
+        {
+            try { action.Invoke(t1, t2, t3, t4, t5, t6, t7); } catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try<T1, T2, T3, T4, T5, T6, T7, T8>(this Action<T1, T2, T3, T4, T5, T6, T7, T8> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8)
+        {
+            try { action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8); } catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9)
+        {
+            try { action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8, t9); } catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, TA ta)
+        {
+            try { action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8, t9, ta); } catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, TA ta, TB tb)
+        {
+            try { action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8, t9, ta, tb); } catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, TA ta, TB tb, TC tc)
+        {
+            try { action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8, t9, ta, tb, tc); } catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, TA ta, TB tb, TC tc, TD td)
+        {
+            try { action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8, t9, ta, tb, tc, td); } catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD, TE>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD, TE> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, TA ta, TB tb, TC tc, TD td, TE te)
+        {
+            try { action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8, t9, ta, tb, tc, td, te); } catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD, TE, TF>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD, TE, TF> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, TA ta, TB tb, TC tc, TD td, TE te, TF tf)
+        {
+            try { action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8, t9, ta, tb, tc, td, te, tf); } catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD, TE, TF, TG>(this Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD, TE, TF, TG> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, TA ta, TB tb, TC tc, TD td, TE te, TF tf, TG tg)
+        {
+            try { action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8, t9, ta, tb, tc, td, te, tf, tg); } catch { }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static T1 Try<T1>(this Func<T1> action, T1 t1 = default)
+        {
+            try { return action.Invoke(); } catch { return t1; }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static T2 Try<T1, T2>(this Func<T1, T2> action, T1 t1, T2 t2 = default)
+        {
+            try { return action.Invoke(t1); } catch { return t2; }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static T3 Try<T1, T2, T3>(this Func<T1, T2, T3> action, T1 t1, T2 t2, T3 t3 = default)
+        {
+            try { return action.Invoke(t1, t2); } catch { return t3; }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static T4 Try<T1, T2, T3, T4>(this Func<T1, T2, T3, T4> action, T1 t1, T2 t2, T3 t3, T4 t4 = default)
+        {
+            try { return action.Invoke(t1, t2, t3); } catch { return t4; }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static T5 Try<T1, T2, T3, T4, T5>(this Func<T1, T2, T3, T4, T5> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5 = default)
+        {
+            try { return action.Invoke(t1, t2, t3, t4); } catch { return t5; }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static T6 Try<T1, T2, T3, T4, T5, T6>(this Func<T1, T2, T3, T4, T5, T6> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6 = default)
+        {
+            try { return action.Invoke(t1, t2, t3, t4, t5); } catch { return t6; }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static T7 Try<T1, T2, T3, T4, T5, T6, T7>(this Func<T1, T2, T3, T4, T5, T6, T7> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7 = default)
+        {
+            try { return action.Invoke(t1, t2, t3, t4, t5, t6); } catch { return t7; }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static T8 Try<T1, T2, T3, T4, T5, T6, T7, T8>(this Func<T1, T2, T3, T4, T5, T6, T7, T8> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8 = default)
+        {
+            try { return action.Invoke(t1, t2, t3, t4, t5, t6, t7); } catch { return t8; }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static T9 Try<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9 = default)
+        {
+            try { return action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8); } catch { return t9; }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static TA Try<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, TA ta = default)
+        {
+            try { return action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8, t9); } catch { return ta; }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static TB Try<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, TA ta, TB tb = default)
+        {
+            try { return action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8, t9, ta); } catch { return tb; }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static TC Try<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, TA ta, TB tb, TC tc = default)
+        {
+            try { return action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8, t9, ta, tb); } catch { return tc; }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static TD Try<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, TA ta, TB tb, TC tc, TD td = default)
+        {
+            try { return action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8, t9, ta, tb, tc); } catch { return td; }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static TE Try<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD, TE>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD, TE> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, TA ta, TB tb, TC tc, TD td, TE te = default)
+        {
+            try { return action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8, t9, ta, tb, tc, td); } catch { return te; }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static TF Try<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD, TE, TF>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD, TE, TF> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, TA ta, TB tb, TC tc, TD td, TE te, TF tf = default)
+        {
+            try { return action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8, t9, ta, tb, tc, td, te); } catch { return tf; }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static TG Try<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD, TE, TF, TG>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD, TE, TF, TG> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, TA ta, TB tb, TC tc, TD td, TE te, TF tf, TG tg = default)
+        {
+            try { return action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8, t9, ta, tb, tc, td, te, tf); } catch { return tg; }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static TH Try<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD, TE, TF, TG, TH>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD, TE, TF, TG, TH> action, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, TA ta, TB tb, TC tc, TD td, TE te, TF tf, TG tg, TH th = default)
+        {
+            try { return action.Invoke(t1, t2, t3, t4, t5, t6, t7, t8, t9, ta, tb, tc, td, te, tf, tg); } catch { return th; }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try(this Action action, Action<Exception> excep)
+        {
+            try { action.Invoke(); }
+            catch (Exception ex) { excep?.Invoke(ex); }
+        }
+
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void Try(this Delegate action, Action<Exception> excep, params object[] args)
+        {
+            try { action.DynamicInvoke(args); }
+            catch (Exception ex) { excep?.Invoke(ex); }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="args"></param>
+        public static void Try(this Delegate action, params object[] args)
+        {
+            try { action.DynamicInvoke(args); } catch { }
+        }
+
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void TryCatch(this Delegate tryer)
+        {
+            try { tryer.DynamicInvoke(); }
+            catch { tryer.DynamicInvoke(); }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void TryCatch(this Delegate tryer, params object[] args)
+        {
+            try { tryer.DynamicInvoke(args); }
+            catch { tryer.DynamicInvoke(args); }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void TryCatch(this Delegate tryer, Delegate catcher)
+        {
+            try { tryer.DynamicInvoke(); }
+            catch { catcher.DynamicInvoke(); }
+        }
+        /// <summary>
+        /// 简写try{action}catch{}
+        /// </summary>
+        public static void TryTryCatch(this Delegate tryer)
+        {
+            try { tryer.DynamicInvoke(); }
+            catch { try { tryer.DynamicInvoke(); } catch { } }
+        }
+        #endregion 尝试执行 Action/Func
     }
 }
 

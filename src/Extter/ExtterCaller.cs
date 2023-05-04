@@ -831,6 +831,19 @@ namespace System.Data.Cobber
         /// <typeparam name="T"></typeparam>
         /// <param name="list"></param>
         /// <param name="action"></param>
+        public static void TryForEach<T>(this IEnumerable<T> list, Action<T> action)
+        {
+            foreach (var item in list)
+            {
+                try { action.Invoke(item); } catch { }
+            }
+        }
+        /// <summary>
+        /// 循环处理
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="action"></param>
         public static IEnumerable<T> ForEach<T>(this IEnumerable list, Func<object, T> action)
         {
             foreach (var item in list)
@@ -866,6 +879,20 @@ namespace System.Data.Cobber
             foreach (var item in list)
             {
                 action(item, index++);
+            }
+        }
+        /// <summary>
+        /// 循环处理
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="action"></param>
+        public static void TryForEach<T>(this IEnumerable<T> list, Action<T, int> action)
+        {
+            int index = 0;
+            foreach (var item in list)
+            {
+                try { action(item, index++); } catch { }
             }
         }
         /// <summary>
@@ -1505,6 +1532,31 @@ namespace System.Data.Cobber
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
         };
         /// <summary>
+        /// 当前应用设置
+        /// </summary>
+        public static JsonSerializerSettings CurrentAppNewtonsoftSetting { get; set; } = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        };
+        /// <summary>
+        /// 当前桌面设置
+        /// </summary>
+        public static JsonSerializerSettings CurrentPcNewtonsoftSetting { get; set; } = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            NullValueHandling = NullValueHandling.Ignore,
+        };
+        /// <summary>
+        /// 当前网站设置
+        /// </summary>
+        public static JsonSerializerSettings CurrentWebsiteNewtonsoftSetting { get; set; } = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            ContractResolver = new DefaultContractResolver(),
+            DateFormatString = "yyyy-MM-dd HH:mm:ss",
+            NullValueHandling = NullValueHandling.Ignore,
+        };
+        /// <summary>
         /// Web默认设置
         /// </summary>
         public static JsonSerializerSettings WebNewtonsoftSetting { get; } = new JsonSerializerSettings
@@ -1917,6 +1969,85 @@ namespace System.Data.Extter
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // 注册编码格式
 #endif
         }
+
+        #region // 序列化 Serialize Newtonsoft Json
+        /// <summary>
+        /// 获取桌面Json字符串
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static string GetJsonPcString<T>(this T model) => JsonConvert.SerializeObject(model, CobberCaller.CurrentPcNewtonsoftSetting);
+        /// <summary>
+        /// Json转换成桌面对象
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public static dynamic GetJsonPcObject(this string json) => JsonConvert.DeserializeObject(json, CobberCaller.CurrentPcNewtonsoftSetting);
+        /// <summary>
+        /// Json转换成桌面对象
+        /// </summary>
+        /// <returns></returns>
+        public static object GetJsonPcObject(this string json, Type type) => JsonConvert.DeserializeObject(json, type, CobberCaller.CurrentPcNewtonsoftSetting);
+        /// <summary>
+        /// Json转换成桌面对象
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public static T GetJsonPcObject<T>(this string json) => JsonConvert.DeserializeObject<T>(json, CobberCaller.CurrentPcNewtonsoftSetting);
+        /// <summary>
+        /// 获取应用Json字符串
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static String GetJsonAppString<T>(this T model) => JsonConvert.SerializeObject(model, CobberCaller.CurrentAppNewtonsoftSetting);
+        /// <summary>
+        /// Json转换成应用对象
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public static dynamic GetJsonAppObject(this string json) => JsonConvert.DeserializeObject(json, CobberCaller.CurrentAppNewtonsoftSetting);
+        /// <summary>
+        /// Json转换成应用对象
+        /// </summary>
+        /// <returns></returns>
+        public static object GetJsonAppObject(this string json, Type type) => JsonConvert.DeserializeObject(json, type, CobberCaller.CurrentAppNewtonsoftSetting);
+        /// <summary>
+        /// Json转换成应用对象
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public static T GetJsonAppObject<T>(this string json) => JsonConvert.DeserializeObject<T>(json, CobberCaller.CurrentAppNewtonsoftSetting);
+        /// <summary>
+        /// 获取网站Json字符串
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static String GetJsonWebsiteString<T>(this T model) => JsonConvert.SerializeObject(model, CobberCaller.CurrentWebsiteNewtonsoftSetting);
+        /// <summary>
+        /// Json转换成网站对象
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public static dynamic GetJsonWebsiteObject(this string json) => JsonConvert.DeserializeObject(json, CobberCaller.CurrentWebsiteNewtonsoftSetting);
+        /// <summary>
+        /// Json转换成网站对象
+        /// </summary>
+        /// <returns></returns>
+        public static object GetJsonWebsiteObject(this string json, Type type) => JsonConvert.DeserializeObject(json, type, CobberCaller.CurrentWebsiteNewtonsoftSetting);
+        /// <summary>
+        /// Json转换成网站对象
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public static T GetJsonWebsiteObject<T>(this string json) => JsonConvert.DeserializeObject<T>(json, CobberCaller.CurrentWebsiteNewtonsoftSetting);
+        #endregion 序列化 Serialize Newtonsoft Json
+
         #region // 提示信息内容 AlertMsg
         /// <summary>
         /// 获取泛型实例提示信息
@@ -3309,6 +3440,36 @@ namespace System.Data.Extter
         {
             return ie.GetEnumerator().MoveNext();
         }
+        /// <summary>
+        /// 转换成过滤数组,简写Where(fillter).ToArray()
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="fillter"></param>
+        /// <returns></returns>
+        public static T[] ToArray<T>(this IEnumerable<T> list, Func<T, bool> fillter)
+            => list?.Where(fillter).ToArray();
+        /// <summary>
+        /// 转换成过滤数组,简写Select(getter).ToArray()
+        /// </summary>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="getter"></param>
+        /// <returns></returns>
+        public static T2[] ToArray<T1, T2>(this IEnumerable<T1> list, Func<T1, T2> getter)
+            => list?.Select(getter).ToArray();
+        /// <summary>
+        /// 一次性调用where和select,减少调用
+        /// </summary>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="where"></param>
+        /// <param name="select"></param>
+        /// <returns></returns>
+        public static IEnumerable<T2> WhereSelect<T1, T2>(this IEnumerable<T1> list, Func<T1, bool> where, Func<T1, T2> select)
+            => list?.Where(where).Select(select);
         #endregion 集合列表 List IEnumerable
 
         #region // 异常类型 Exception

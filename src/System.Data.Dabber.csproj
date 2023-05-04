@@ -15,9 +15,9 @@
 		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>2022.11.11</Version>
-		<FileVersion>2022.11.11.711</FileVersion>
-		<AssemblyVersion>2022.11.11.711</AssemblyVersion>
+		<Version>2022.12.12</Version>
+		<FileVersion>2022.12.12.722</FileVersion>
+		<AssemblyVersion>2022.12.12.722</AssemblyVersion>
 		<RepositoryUrl>https://gitee.com/erikzhouxin/ndabber</RepositoryUrl>
 		<PackageProjectUrl>https://gitee.com/erikzhouxin/ndabber.git</PackageProjectUrl>
 		<RepositoryType>git</RepositoryType>

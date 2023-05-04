@@ -14,7 +14,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Security.Policy;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -591,6 +593,73 @@ namespace System.Data.DabberUT
         {
             var res = ExecuteCommandViewModel.DefaultAuthCommand("ErikZhouXin");
             Console.WriteLine(res);
+        }
+        [TestMethod]
+        public void TestRegex()
+        {
+            var reg = new Regex("^((?<protocal>\\w+):((//)|(\\\\)))?(?<host>((((\\w)+)\\.?)+))(:(?<port>\\d+))?(?<path>(((\\)|(/))?(\\w*))*))(\\?(?<args>((&?(([\\w]+)=([^&#]*))?)*)))?(#(?<anchor>([\\w\\W]*)))?$");
+            var urls = new List<string>()
+            {
+                "socket://localhost:80/test?length=4096&key=#gate",
+                "tcp://localhost:80/test/gate?length=4096&key=333#gate",
+                "localhost:80/test?length=4096&key=&#gate",
+                "localhost/test?length=4096#gate",
+                "socket://localhost/test?length=4096#gate",
+                "socket://192.168.1.110:80?length=4096#gate",
+                "socket://www.localhost.com:80/?length=4096#gate",
+                "socket://localhost:80/test?length=4096",
+                "socket://localhost:80/test?",
+                "socket://localhost:80/test",
+                "socket://localhost:80/test?length=4096#",
+                "socket://localhost:80/test#gate",
+                "socket://localhost:80/#gate",
+                "socket://localhost:80#gate",
+                "localhost:80",
+                "localhost",
+                "socket://192.168.1.27:29988",
+            };
+            foreach (var item in urls)
+            {
+                Assert.IsTrue(reg.IsMatch(item));
+                Console.WriteLine(GetUrlModel(item).GetJsonString());
+            }
+        }
+
+        private static Dictionary<string, Tuble<string, string, int, string, string, int, string, string>> ServerDic { get; } = new();
+        private Tuble<string, string, int, string, string, int, string, string> GetUrlModel(string url)
+        {
+            if (ServerDic.TryGetValue(url, out var server)) { return server; }
+            var reg = new Regex("^((?<protocal>\\w+):((//)|(\\\\)))?(?<host>((((\\w)+)\\.?)+))(:(?<port>\\d+))?(?<path>(((\\)|(/))?(\\w*))*))(\\?(?<args>((&?(([\\w]+)=([^&#]*))?)*)))?(#(?<anchor>([\\w\\W]*)))?$");
+            var match = reg.Match(url);
+            if (!match.Success)
+            {
+                return ServerDic[url] = new Tuble<string, string, int, string, string, int, string, string>("socket", "localhost", 80, "", "", 4096, "", "");
+            }
+            var protocal = GetDefaultString(match.Groups["protocal"].Value, "socket");
+            var host = GetDefaultString(match.Groups["host"].Value, "localhost");
+            var port = GetDefaultString(match.Groups["port"].Value, "80").ToPInt32(80);
+            var path = GetDefaultString(match.Groups["path"].Value, "");
+            var anchor = GetDefaultString(match.Groups["anchor"].Value, "");
+            var args = GetDefaultString(match.Groups["args"].Value, "");
+
+            var length = 4096;
+            var key = "";
+            var spliter = args.Split("&", StringSplitOptions.RemoveEmptyEntries);
+            var dic = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            foreach (var item in spliter)
+            {
+                var ix = item.IndexOf('=');
+                if (ix <= 0) { continue; }
+                var property = item.Substring(0, ix);
+                var value = string.Empty;
+                if (ix + 1 < length) { value = item.Substring(ix + 1); }
+                dic[property] = value;
+            }
+            return ServerDic[url] = new Tuble<string, string, int, string, string, int, string, string>(protocal, host, port, path, key, length, args, anchor);
+            static string GetDefaultString(string value, string defVal)
+            {
+                return string.IsNullOrWhiteSpace(value) ? defVal : value.Trim();
+            }
         }
     }
 }

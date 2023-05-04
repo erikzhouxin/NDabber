@@ -190,14 +190,19 @@ namespace System.Data.DabberUT.CheckerUT
         [TestMethod]
         public void MyTestMethod()
         {
-            var key = UserPassword.GetMd5Hash("0C9A3CAB88FD", true);
-            Console.WriteLine(key);
-            var secret = UserCrypto.GetAesEncrypt("admin123", key);
-            Console.WriteLine(secret);
+            //var key = UserPassword.GetMd5Hash("0C9A3CAB88FD", true);
+            //Console.WriteLine(key);
+            //var secret = UserCrypto.GetAesEncrypt("admin123", key);
+            //Console.WriteLine(secret);
 
-            key = UserPassword.GetMd5Hash("3C58C26F56E4", true);
+            //key = UserPassword.GetMd5Hash("3C58C26F56E4", true);
+            //Console.WriteLine(key);
+            //secret = UserCrypto.GetAesEncrypt("admin123", key);
+            //Console.WriteLine(secret);
+
+            var key = UserPassword.GetMd5Hash("00E04C986E4E", true);
             Console.WriteLine(key);
-            secret = UserCrypto.GetAesEncrypt("admin123", key);
+            var secret = UserCrypto.GetAesEncrypt("Abc123!@#", key);
             Console.WriteLine(secret);
         }
 

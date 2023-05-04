@@ -104,7 +104,7 @@ namespace System.Data.Cobber
                 var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
 #endif
                 var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name);
-                var typeBuilder = moduleBuilder.DefineType($"{baseType.FullName}SampleCIModel", TypeAttributes.Public | TypeAttributes.Class, null, new Type[] { baseType });
+                var typeBuilder = moduleBuilder.DefineType($"{baseType.FullName}ESCIModel", TypeAttributes.Public | TypeAttributes.Class, null, new Type[] { baseType });
                 typeBuilder.AddInterfaceImplementation(baseType);
 
                 ConstructorInfo objCtor = typeof(object).GetConstructor(new Type[0]);
@@ -113,27 +113,11 @@ namespace System.Data.Cobber
                 ilOfCtor.Emit(OpCodes.Ldarg_0);
                 ilOfCtor.Emit(OpCodes.Call, objCtor);
                 ilOfCtor.Emit(OpCodes.Ret);
-
-                foreach (var item in baseType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                var listProp = new List<string>();
+                AppendInterface(typeBuilder, listProp, baseType);
+                foreach (var iface in baseType.GetInterfaces() ?? new Type[0])
                 {
-                    var field = typeBuilder.DefineField($"_{item.Name}", item.PropertyType, FieldAttributes.Private);
-                    var getter = typeBuilder.DefineMethod($"get_{item.Name}", MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Final, item.PropertyType, null);
-                    var setter = typeBuilder.DefineMethod($"set_{item.Name}", MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Final, null, new Type[] { item.PropertyType });
-
-                    var ilOfGetId = getter.GetILGenerator();
-                    ilOfGetId.Emit(OpCodes.Ldarg_0); // this
-                    ilOfGetId.Emit(OpCodes.Ldfld, field);
-                    ilOfGetId.Emit(OpCodes.Ret);
-
-                    var ilOfSetId = setter.GetILGenerator();
-                    ilOfSetId.Emit(OpCodes.Ldarg_0); // this
-                    ilOfSetId.Emit(OpCodes.Ldarg_1); // the first one in arguments list
-                    ilOfSetId.Emit(OpCodes.Stfld, field);
-                    ilOfSetId.Emit(OpCodes.Ret);
-
-                    var propertyId = typeBuilder.DefineProperty(item.Name, Reflection.PropertyAttributes.None, item.PropertyType, null);
-                    propertyId.SetGetMethod(getter);
-                    propertyId.SetSetMethod(setter);
+                    AppendInterface(typeBuilder, listProp, iface);
                 }
 
                 var newType = typeBuilder.CreateType();
@@ -148,6 +132,33 @@ namespace System.Data.Cobber
                 CreateInstance = () => Extter.DefaultValue<T>.DefValue;
             }
             CreateDefault = () => Extter.DefaultValue<T>.DefValue;
+        }
+
+        private static void AppendInterface(TypeBuilder typeBuilder, List<string> listProp, Type iface)
+        {
+            foreach (var item in iface.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                if (listProp.Contains(item.Name)) { continue; }
+                listProp.Add(item.Name);
+                var field = typeBuilder.DefineField($"_{item.Name}", item.PropertyType, FieldAttributes.Private);
+                var getter = typeBuilder.DefineMethod($"get_{item.Name}", MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Final, item.PropertyType, null);
+                var setter = typeBuilder.DefineMethod($"set_{item.Name}", MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Final, null, new Type[] { item.PropertyType });
+
+                var ilOfGetId = getter.GetILGenerator();
+                ilOfGetId.Emit(OpCodes.Ldarg_0); // this
+                ilOfGetId.Emit(OpCodes.Ldfld, field);
+                ilOfGetId.Emit(OpCodes.Ret);
+
+                var ilOfSetId = setter.GetILGenerator();
+                ilOfSetId.Emit(OpCodes.Ldarg_0); // this
+                ilOfSetId.Emit(OpCodes.Ldarg_1); // the first one in arguments list
+                ilOfSetId.Emit(OpCodes.Stfld, field);
+                ilOfSetId.Emit(OpCodes.Ret);
+
+                var propertyId = typeBuilder.DefineProperty(item.Name, Reflection.PropertyAttributes.None, item.PropertyType, null);
+                propertyId.SetGetMethod(getter);
+                propertyId.SetSetMethod(setter);
+            }
         }
     }
     /// <summary>
