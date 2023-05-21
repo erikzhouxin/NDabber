@@ -546,6 +546,11 @@ namespace System
         /// </summary>
         /// <returns></returns>
         public static AlertMsg<T> NotImplement => new AlertMsg<T>(false, "操作未实现");
+        /// <summary>
+        /// 空提示
+        /// </summary>
+        /// <returns></returns>
+        public static AlertMsg<T> Nothing => new AlertMsg<T>(false, "空提示");
         #endregion
     }
     /// <summary>

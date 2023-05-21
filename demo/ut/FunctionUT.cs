@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Cobber;
 using System.Data.Extter;
+using System.Data.Hopper;
 using System.Data.Impeller;
 using System.Data.NWpfUI.ViewModels;
 using System.Data.SolutionCore;
@@ -660,6 +661,387 @@ namespace System.Data.DabberUT
             {
                 return string.IsNullOrWhiteSpace(value) ? defVal : value.Trim();
             }
+        }
+
+        private int _Sequence = 0;
+        [TestMethod]
+        public void TestTaskable()
+        {
+            TaskRevokable task = new TaskRevokable(ReadTask).Start();
+            List<Task> tasks = new List<Task>();
+            for (int i = 0; i < 10; i++)
+            {
+                int num = i;
+                tasks.Add(Task.Factory.StartNew(() =>
+                {
+                    Thread.Sleep(num * 100);
+                    _Sequence++;
+                }));
+            }
+            tasks.Add(Task.Factory.StartNew(() =>
+            {
+                Thread.Sleep(500);
+                task.Cancel();
+            }));
+            Task.WaitAll(tasks.ToArray());
+            void ReadTask()
+            {
+                Console.WriteLine(_Sequence);
+                Thread.Sleep(100);
+            }
+        }
+        [TestMethod]
+        public void 测试锁()
+        {
+            TestLockerAndTask();
+            Thread.Sleep(12000);
+            Console.WriteLine($"{DateTime.Now}我退出程序了");
+            //Task.WaitAll(task1, task2);
+        }
+        public void TestLockerAndTask()
+        {
+            var task1 = new Task(() =>
+            {
+                var locker = CacheLockModel<FunctionUT>.Get("123");
+                lock (locker)
+                {
+                    Console.WriteLine($"{DateTime.Now}我生成锁了");
+                    Thread.Sleep(10000);
+                    Console.WriteLine($"{DateTime.Now}我释放锁了");
+                }
+            });
+            task1.Start();
+            var task2 = new Task(() =>
+            {
+                Thread.Sleep(1000);
+                var lk = CacheLockModel<FunctionUT>.Get("123");
+                Console.WriteLine($"{DateTime.Now}我获取到对象了");
+                lock (lk)
+                {
+                    Console.WriteLine($"{DateTime.Now}我获取到锁了");
+                }
+                Console.WriteLine($"{DateTime.Now}我要抛出异常了");
+                throw new Exception();
+            });
+            task2.Start();
+        }
+        [TestMethod]
+        public void TestLocker()
+        {
+            ConcurrentDictionary<int, string> _CctDic = new ConcurrentDictionary<int, string>();
+            ConcurrentDictionary<int, Student> _CctDicClass = new ConcurrentDictionary<int, Student>();
+            Dictionary<int, string> _Dic = new Dictionary<int, string>();
+            Dictionary<int, Student> _DicClass = new Dictionary<int, Student>();
+            Hashtable _Ht = new Hashtable();
+            Hashtable _HtClass = new Hashtable();
+            string _CurrentItem = "";
+            const string _Item = "字符串";
+            const int _NUM = 10000000;//执行次数 
+            Student _CurrentStudent = null;
+            Student student = new Student { Name = _Item, Age = 23 };
+            Stopwatch _SW = new Stopwatch();
+
+            //字符串写入字典（无锁）
+            _SW.Start();
+
+            for (int i = 0; i < _NUM; i++)
+            {
+                _Dic[i] = _Item;
+            }
+            _SW.Stop();
+            Console.WriteLine("向字典写入【字符串】不添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //字符串写入字典（有锁）
+            _Dic = new Dictionary<int, string>();
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                lock (_Dic)
+                {
+                    _Dic[i] = _Item;
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("向字典写入【字符串】添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //字符串写入字典（有锁）
+            _Dic = new Dictionary<int, string>();
+            _SW.Restart();
+            lock (_Dic)
+            {
+                for (int i = 0; i < _NUM; i++)
+                {
+                    _Dic[i] = _Item;
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("向字典写入【字符串】添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //类写入字典（无锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _DicClass[i] = student;
+            }
+            _SW.Stop();
+            Console.WriteLine("向子典写入【学生类】不添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //类写入字典（有锁）
+            _DicClass = new Dictionary<int, Student>();
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                lock (_DicClass)
+                {
+                    _DicClass[i] = student;
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("向子典写入【学生类】添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+            _DicClass = new Dictionary<int, Student>();
+            _SW.Restart();
+            lock (_DicClass)
+            {
+                for (int i = 0; i < _NUM; i++)
+                {
+                    _DicClass[i] = student;
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("向子典写入【学生类】添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+            Console.WriteLine("----------------------------------------------------");
+
+            //字符串写入HashTable（无锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _Ht[i] = _Item;
+            }
+            _SW.Stop();
+            Console.WriteLine("向HashTable写入【字符串】不添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //字符串写入HashTable（有锁）
+            _Ht = new Hashtable();
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                lock (_Ht)
+                {
+                    _Ht[i] = _Item;
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("向HashTable写入【字符串】添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //类写入HashTable（无锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _HtClass[i] = student;
+            }
+            _SW.Stop();
+            Console.WriteLine("向HashTable写入【学生类】不添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //类写入HashTable（有锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                lock (_HtClass)
+                {
+                    _HtClass[i] = student;
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("向HashTable写入【学生类】添加锁（Lock）花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+            Console.WriteLine("----------------------------------------------------------");
+
+            //字符串写入ConcurrentDictionary
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _CctDic[i] = _Item;
+            }
+            _SW.Stop();
+            Console.WriteLine("向ConcurrentDictionary写入【字符串】 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //类写入ConcurrentDictionary
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _CctDicClass[i] = student;
+            }
+            _SW.Stop();
+            Console.WriteLine("向ConcurrentDictionary写入【学生类】 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+            Console.WriteLine("--------------------------------------------------------");
+
+            //遍历普通字典（无锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _CurrentItem = _Dic[i];
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【普通】字典（无锁） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //遍历普通字典（有锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                lock (_Dic)
+                {
+                    _CurrentItem = _Dic[i];
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【普通】字典（有锁） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //遍历类字典（无锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _CurrentStudent = _DicClass[i];
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【学生类】字典（无锁） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //遍历类字典（有锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                lock (_Dic)
+                {
+                    _CurrentStudent = _DicClass[i];
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【学生类】字典（有锁） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+            Console.WriteLine("--------------------------------------------------------");
+
+            //遍历HashTable（无锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _CurrentItem = _Ht[i].ToString();
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【HashTable】字典（无锁） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //遍历HashTable（有锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                lock (_Dic)
+                {
+                    _CurrentItem = _Ht[i].ToString();
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【HashTable】字典（有锁） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //遍历HashTable类（无锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _CurrentStudent = (Student)_HtClass[i];
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【HashTable学生类】字典（无锁） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //遍历HashTable类（有锁）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                lock (_Dic)
+                {
+                    _CurrentStudent = (Student)_HtClass[i];
+                }
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【HashTable学生类】字典（有锁） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+            Console.WriteLine("--------------------------------------------------------");
+
+            //遍历ConCurrent字典
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _CurrentItem = _CctDic[i];
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【ConCurrent字典】（字符串） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+
+            //遍历ConCurrent字典（类）
+            _SW.Restart();
+            for (int i = 0; i < _NUM; i++)
+            {
+                _CurrentStudent = _CctDicClass[i];
+            }
+            _SW.Stop();
+            Console.WriteLine("遍历【ConCurrent字典】（学生类） 花费时间为:{0} 毫秒", _SW.Elapsed.TotalMilliseconds);
+            Console.WriteLine("--------------------------------------------------------");
+            _SW.Restart();
+            Console.WriteLine("-------------------结束---------------------------");
+            Console.ReadLine();
+        }
+        public class Student
+        {
+            public string Name;
+            public int Age;
+        }
+        [TestMethod]
+        public void TestUrlModel()
+        {
+            Console.WriteLine(ConvertLprModel("vzlpr://192.168.1.100:80/test?account=test&password=test23!@#").GetJsonFormatString());
+            TestModel3333 ConvertLprModel(string lprLeft)
+            {
+                var defModel = CobberBuilder.CreateSampleInstance<TestModel3333>();
+                var urlModel = new HopperUrlModelV1(lprLeft);
+                var jsonObject = new Dictionary<string, object>
+                {
+                    { nameof(TestModel3333.Address), urlModel.Get(nameof(urlModel.Host),"192.168.1.1") },
+                    { nameof(TestModel3333.PortRate), urlModel.Get(nameof(urlModel.Port), 80) },
+                    { nameof(TestModel3333.Account), urlModel.Get(nameof(defModel.Account), "admin") },
+                    { nameof(TestModel3333.Password), urlModel.Get(nameof(defModel.Password), "admin") },
+                    { nameof(TestModel3333.IsIO1Reverse), urlModel.Get(nameof(defModel.IsIO1Reverse), false) },
+                    { nameof(TestModel3333.IsIO1Reset), urlModel.Get(nameof(defModel.IsIO1Reset), true) },
+                    { nameof(TestModel3333.IO1ResetInterval), urlModel.Get(nameof(defModel.IO1ResetInterval), -10) },
+                    { nameof(TestModel3333.IO1Number), urlModel.Get(nameof(defModel.IO1Number), 0) },
+                    { nameof(TestModel3333.IsIO2Reverse), urlModel.Get(nameof(defModel.IsIO2Reverse), false) },
+                    { nameof(TestModel3333.IsIO2Reset), urlModel.Get(nameof(defModel.IsIO2Reset), true) },
+                    { nameof(TestModel3333.IO2ResetInterval), urlModel.Get(nameof(defModel.IO2ResetInterval), "-10") },
+                    { nameof(TestModel3333.IO2Number), urlModel.Get(nameof(defModel.IO2Number), 1) },
+                };
+                var access = PropertyAccess.GetAccess(defModel);
+                foreach (var kv in jsonObject)
+                {
+                    TestTry.Try(access.FuncSetValue, defModel, kv.Key, kv.Value);
+                }
+                return defModel;
+            }
+
+        }
+        public interface TestModel3333
+        {
+            String Address { get; }
+            Int32 PortRate { get; }
+            String Account { get; }
+            String Password { get; }
+            int ConnType { get; }
+            bool IsEnableLog { get; }
+            String LogPath { get; }
+            bool HasBreakCallback { get; }
+            bool HasIOEvent { get; }
+            int SaveType { get; }
+            string[] CarNoIgnores { get; }
+            bool IsIO1Reverse { get; }
+            bool IsIO1Reset { get; }
+            int IO1ResetInterval { get; }
+            int IO1Number { get; }
+            bool IsIO2Reverse { get; }
+            bool IsIO2Reset { get; }
+            int IO2ResetInterval { get; }
+            int IO2Number { get; }
+            bool IsGPIO1Reverse { get; }
+            bool IsGPIO2Reverse { get; }
         }
     }
 }

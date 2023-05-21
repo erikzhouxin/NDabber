@@ -54,7 +54,14 @@ namespace System.Data.Cobber
         /// <param name="value">待转换字符串,是否,对错,真假等</param>
         /// <param name="defVal">出现其他值后返回值,默认为False</param>
         /// <returns></returns>
-        public static bool GetBoolean(this string value, bool defVal = false)
+        public static bool GetBoolean(this string value, bool defVal = false) => GetNBoolean(value, defVal) ?? defVal;
+        /// <summary>
+        /// 将字符串转换成布尔值
+        /// </summary>
+        /// <param name="value">待转换字符串,是否,对错,真假等</param>
+        /// <param name="defVal">出现其他值后返回值,默认为False</param>
+        /// <returns></returns>
+        public static bool? GetNBoolean(this string value, bool? defVal = null)
         {
             if (value == null) { return defVal; }
             switch (value.ToUpper())
@@ -2868,6 +2875,13 @@ namespace System.Data.Extter
         /// <param name="timeSpan"></param>
         /// <returns></returns>
         public static DateTimeOffset GetDateTimeOffset(this DateTime dateTime, TimeSpan timeSpan) => new DateTimeOffset(dateTime, timeSpan);
+        /// <summary>
+        /// 合并一个时分秒到当前日期
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public static DateTime CombineTime(this DateTime date, DateTime time) => new DateTime(date.Year, date.Month, date.Day, time.Hour, time.Minute, time.Second);
         #endregion 日期时间 DateTime
 
         #region // 枚举调用 Enum NEnumerable
