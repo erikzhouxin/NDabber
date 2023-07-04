@@ -211,7 +211,12 @@ namespace System.Data.DabberUT.CheckerUT
         {
             var str = "Q+QNNrYxzjYRUPvPJANSvpOMaDSeorByXgyzkhdIMW9w3SEwItKKhY/ABvTYfBAW9Xu0d4nk5RN79/Arc3Sy0WYvnYqCfisxkGRQiYRTk7vtdOiQQF9SyNtRLN5Z6gYMWrS3uSW8VLvbjuem//pY5+9zO+7TluR0VWBKR5G1nCzDNk6C9oFXwOU102vki0xSoRh9KDUmQU3/kv71+fT9MJzqK1umIsV/a4qVrpSASEfK63yb/p9F5p5AoeRaM4E04b8KOaJO1h0sWWbchKyILsMbcTwGDGyxFvYs3YyMm5NJawmF4KvqTgkf8WbDPbcJc6h1dUdlVCWtVIrbUi09J6sViJPtjJMOoRCYu+nredb4sLtSMVHYOQtUucokz+3fLgTuSZG3i18xYz8RtPimHeVlTP8e9yqTqP29stOgtVOTAFZjLWQA2ao4m0pYJqo/Kmj4SpSd74n/W3yhYOud8QlAr1Pe9cPoEKpvKHKHn/PmoufHnVrmNKHvqkMFo5g+R8ULJ+Hz3pQmWWAgrb4HykBnaFVieQiJe1LsCJSRknumjPysq3rd7Tyzv3Q22YXd8MAufzy4LTo+RAy7tBXrOb5UDAys1arlWkZmB/6FWuOxPGQTa9SY+FFOGyHkYL3sgD7kvCnqxXTqiLtnrsaWhJQpyhs+oecxWKufnN0bR3JrwHwrBeVEXmmQUAHtq9lp";
 
-            Console.WriteLine(UserCrypto.GetAesDecrypt(str, "Lngzms" + UserPassword.DefaultPasswordB));
+            Console.WriteLine(UserCrypto.GetAesDecrypt(str, "Qmsttwl" + UserPassword.DefaultPasswordB));
+        }
+        [TestMethod]
+        public void TestPxDb()
+        {
+            Console.WriteLine("==302=".GetDebase64());
         }
     }
 }

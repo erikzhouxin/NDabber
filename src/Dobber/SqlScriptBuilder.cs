@@ -50,6 +50,10 @@ namespace System.Data.Sqller
         {
             return SqlScriptSimpleSelectBuilder.Create(storeType);
         }
+        //public static ISqlScriptSingleTableBuilder<T> CreateSingleBuilder<T>(StoreType storeType)
+        //{
+        //    return SqlScriptSingleTableBuilder<T>.Create(storeType);
+        //}
         /// <summary>
         /// 创建更新语句
         /// </summary>
@@ -234,7 +238,7 @@ namespace System.Data.Sqller
         protected virtual void AddFromClause(string clause)
         {
             if (_fromClause == null) { _fromClause = new StringBuilder(clause); }
-            else { _fromClause.Append($", { clause}"); }
+            else { _fromClause.Append($", {clause}"); }
         }
         /// <summary>
         /// 添加From子句
@@ -2031,4 +2035,69 @@ namespace System.Data.Sqller
         #endregion // Group/ORDER
     }
     #endregion // SqlScriptSimpleSelectBuilder
+    #region // SqlScriptSingleTableBuilder<T>
+    /// <summary>
+    /// 单表创建者
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface ISqlScriptSingleTableBuilder<T>
+    {
+        /// <summary>
+        /// 查询所有列
+        /// </summary>
+        /// <returns></returns>
+        ISqlScriptSingleTableSelect<T> Select();
+        /// <summary>
+        /// 更新模型(按照主键)
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        ISqlScriptSingleTableUpdate<T> Update(T model);
+        /// <summary>
+        /// 更新模型及列(按照主键)
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="columns"></param>
+        /// <returns></returns>
+        ISqlScriptSingleTableUpdate<T> Update(T model, params string[] columns);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        ISqlScriptSingleTableInsert<T> Insert(T model);
+        /// <summary>
+        /// DUPLICATE KEY
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        ISqlScriptSingleTableReplace<T> InsertOrUpdate(T model);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        ISqlScriptSingleTableReplace<T> Replace(T model);
+    }
+    /// <summary>
+    /// 单表查询
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface ISqlScriptSingleTableSelect<T> { }
+    /// <summary>
+    /// 单表更新
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface ISqlScriptSingleTableUpdate<T> { }
+    /// <summary>
+    /// 单表插入
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface ISqlScriptSingleTableInsert<T> { }
+    /// <summary>
+    /// 单表替换
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface ISqlScriptSingleTableReplace<T> { }
+    #endregion SqlScriptSingleTableBuilder<T>
 }

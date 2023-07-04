@@ -2,6 +2,7 @@
 global using System.Collections.Generic;
 global using System.Linq;
 global using System.Text;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -552,6 +553,10 @@ namespace System
         /// </summary>
         public static TG DoNothing<T1, T2, T3, T4, T5, T6, T7, T8, T9, TA, TB, TC, TD, TE, TF, TG>(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, TA ta, TB tb, TC tc, TD td, TE te) { return default; }
 
+        /// <summary>
+        /// 无所作为
+        /// </summary>
+        public static IAlertMsg DoNothingAlert() { return AlertMsg.Nothing; }
         /// <summary>
         /// 无所作为
         /// </summary>
@@ -15841,6 +15846,92 @@ namespace System
             }, cancellation);
         }
         #endregion 异步尝试锁定执行 Action/Func
+        #region // 尝试执行数据库 TryDb
+        /// <summary>
+        /// 尝试连接
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="action"></param>
+        /// <param name="conn"></param>
+        /// <param name="excep"></param>
+        /// <returns></returns>
+        public static T TryDb<T>(Func<DbConnection, DbTransaction, T> action, DbConnection conn, Func<Exception, T> excep)
+        {
+            try
+            {
+                using (conn)
+                {
+                    var trans = conn.BeginTransaction();
+                    try { return action.Invoke(conn, trans); }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        return excep.Invoke(ex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return excep.Invoke(ex);
+            }
+        }
+        /// <summary>
+        /// 尝试连接
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="action"></param>
+        /// <param name="conn"></param>
+        /// <param name="excep"></param>
+        /// <returns></returns>
+        public static IAlertMsg<T> TryDb<T>(Func<DbConnection, DbTransaction, IAlertMsg<T>> action, DbConnection conn, Func<Exception, IAlertMsg<T>> excep)
+        {
+            try
+            {
+                using (conn)
+                {
+                    var trans = conn.BeginTransaction();
+                    try { return action.Invoke(conn, trans); }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        return excep.Invoke(ex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return excep.Invoke(ex);
+            }
+        }
+        /// <summary>
+        /// 尝试连接
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="action"></param>
+        /// <param name="conn"></param>
+        /// <param name="excep"></param>
+        /// <returns></returns>
+        public static IAlertMsgs<T> TryDb<T>(Func<DbConnection, DbTransaction, IAlertMsgs<T>> action, DbConnection conn, Func<Exception, IAlertMsgs<T>> excep)
+        {
+            try
+            {
+                using (conn)
+                {
+                    var trans = conn.BeginTransaction();
+                    try { return action.Invoke(conn, trans); }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        return excep.Invoke(ex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return excep.Invoke(ex);
+            }
+        }
+        #endregion 尝试执行数据库 TryDb
     }
 }
 

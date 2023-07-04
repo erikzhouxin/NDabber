@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using System.Data.Impeller;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
+using System.Runtime.InteropServices;
 
 namespace System.Data.Cobber
 {
@@ -1658,6 +1659,16 @@ namespace System.Data.Cobber
             return false;
         }
         /// <summary>
+        /// 获取对象的Json字符串
+        /// Newtonsoft.Json.JsonConvert
+        /// </summary>
+        public static string TryGetJsonString<T>(this T value, JsonSerializerSettings settings, string defVal = "")
+        {
+            try { return JsonConvert.SerializeObject(value, settings); }
+            catch (Exception ex) { Console.WriteLine(ex); }
+            return defVal;
+        }
+        /// <summary>
         /// 获取格式化的Json代码
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -1723,6 +1734,12 @@ namespace System.Data.Cobber
         /// <summary>
         /// 转换成对象
         /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public static dynamic TryGetJsonObject(this string json) => TestTry.Try(JsonConvert.DeserializeObject, json, CurrentNewtonsoftSetting, default(object));
+        /// <summary>
+        /// 转换成对象
+        /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="json"></param>
         /// <returns></returns>
@@ -1730,10 +1747,27 @@ namespace System.Data.Cobber
         /// <summary>
         /// 转换成对象
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        public static T TryGetJsonObject<T>(this string json) => TestTry.Try(JsonConvert.DeserializeObject<T>, json, CurrentNewtonsoftSetting, default(T));
+        /// <summary>
+        /// 转换成对象
+        /// </summary>
+        /// <returns></returns>
+        public static T TryGetJsonObject<T>(this string json, T model = default(T)) => TestTry.Try(JsonConvert.DeserializeObject<T>, json, CurrentNewtonsoftSetting, model);
+        /// <summary>
+        /// 转换成对象
+        /// </summary>
         /// <param name="json"></param>
         /// <param name="settings"></param>
         /// <returns></returns>
         public static dynamic GetJsonObject(this string json, JsonSerializerSettings settings) => JsonConvert.DeserializeObject(json, settings);
+        /// <summary>
+        /// 转换成对象
+        /// </summary>
+        /// <returns></returns>
+        public static dynamic TryGetJsonObject(this string json, JsonSerializerSettings settings, object model = default(object)) => TestTry.Try(JsonConvert.DeserializeObject, json, settings, model);
         /// <summary>
         /// 转换成对象
         /// </summary>
@@ -1746,17 +1780,37 @@ namespace System.Data.Cobber
         /// 转换成对象
         /// </summary>
         /// <returns></returns>
+        public static T TryGetJsonObject<T>(this string json, JsonSerializerSettings settings, T defVal = default(T)) => TestTry.Try(JsonConvert.DeserializeObject<T>, json, settings, defVal);
+        /// <summary>
+        /// 转换成对象
+        /// </summary>
+        /// <returns></returns>
         public static object GetJsonObject(this string json, Type type) => JsonConvert.DeserializeObject(json, type, CurrentNewtonsoftSetting);
+        /// <summary>
+        /// 转换成对象
+        /// </summary>
+        /// <returns></returns>
+        public static object TryGetJsonObject(this string json, Type type) => TestTry.Try(JsonConvert.DeserializeObject, json, type, CurrentNewtonsoftSetting, default(object));
         /// <summary>
         /// 转换成对象
         /// </summary>
         /// <returns></returns>
         public static object GetJsonObject(this string json, Type type, JsonSerializerSettings settings) => JsonConvert.DeserializeObject(json, type, settings);
         /// <summary>
+        /// 转换成对象
+        /// </summary>
+        /// <returns></returns>
+        public static object TryGetJsonObject(this string json, Type type, JsonSerializerSettings settings) => TestTry.Try(JsonConvert.DeserializeObject, json, type, settings, default(object));
+        /// <summary>
         /// 获取对象的Json字符串
         /// Newtonsoft.Json.JsonConvert
         /// </summary>
         public static string GetJsonWebString<T>(this T value) => JsonConvert.SerializeObject(value, WebNewtonsoftSetting);
+        /// <summary>
+        /// 获取对象的Json字符串
+        /// Newtonsoft.Json.JsonConvert
+        /// </summary>
+        public static string TryGetJsonWebString<T>(this T value, string defVal = "") => TryGetJsonString(value, WebNewtonsoftSetting, defVal);
         /// <summary>
         /// 获取对象的Json字符串(小写属性)
         /// </summary>
@@ -1765,6 +1819,11 @@ namespace System.Data.Cobber
         /// <returns></returns>
         public static string GetJsonLowerString<T>(this T value) => JsonConvert.SerializeObject(value, LowerNewtonsoftSetting);
         /// <summary>
+        /// 获取对象的Json字符串(小写属性)
+        /// </summary>
+        /// <returns></returns>
+        public static string GetJsonLowerString<T>(this T value, string defVal = "") => TryGetJsonString(value, LowerNewtonsoftSetting, defVal);
+        /// <summary>
         /// 获取对象的Json字符串(大写属性)
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -1772,12 +1831,22 @@ namespace System.Data.Cobber
         /// <returns></returns>
         public static string GetJsonUpperString<T>(this T value) => JsonConvert.SerializeObject(value, UpperNewtonsoftSetting);
         /// <summary>
+        /// 获取对象的Json字符串(大写属性)
+        /// </summary>
+        /// <returns></returns>
+        public static string TryGetJsonUpperString<T>(this T value, string defVal = "") => TryGetJsonString(value, UpperNewtonsoftSetting, defVal);
+        /// <summary>
         /// 获取对象的Json字符串(蛇形属性)
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="value"></param>
         /// <returns></returns>
         public static string GetJsonSnakeString<T>(this T value) => JsonConvert.SerializeObject(value, SnakeNewtonsoftSetting);
+        /// <summary>
+        /// 获取对象的Json字符串(蛇形属性)
+        /// </summary>
+        /// <returns></returns>
+        public static string TryGetJsonSnakeString<T>(this T value, string defVal = "") => TryGetJsonString(value, SnakeNewtonsoftSetting, defVal);
         #endregion 序列化 Serialize Newtonsoft Json
 
         #region // 字符串调用 String
@@ -2286,6 +2355,17 @@ namespace System.Data.Extter
                 returnBytes[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
             }
             return returnBytes;
+        }
+        /// <summary>
+        /// 获取字节数组的句柄
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static IntPtr GetIntPtr(this byte[] bytes)
+        {
+            var ptr = Marshal.AllocHGlobal(bytes.Length);
+            Marshal.Copy(bytes, 0, ptr, bytes.Length);
+            return ptr;
         }
         /// <summary>
         /// 将16进制字符串转换成字节数组
@@ -3484,6 +3564,23 @@ namespace System.Data.Extter
         /// <returns></returns>
         public static IEnumerable<T2> WhereSelect<T1, T2>(this IEnumerable<T1> list, Func<T1, bool> where, Func<T1, T2> select)
             => list?.Where(where).Select(select);
+        /// <summary>
+        /// 添加区域内容
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="hashSet"></param>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static HashSet<T> AddRange<T>(this HashSet<T> hashSet, IEnumerable<T> list)
+        {
+            if (hashSet == null) { return hashSet; }
+            if (list == null) { return hashSet; }
+            foreach (var item in list)
+            {
+                hashSet.Add(item);
+            }
+            return hashSet;
+        }
         #endregion 集合列表 List IEnumerable
 
         #region // 异常类型 Exception

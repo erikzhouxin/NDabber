@@ -163,6 +163,39 @@ namespace System.Data.Hopper
         /// 当字符串为null或为空时返回defVal
         /// </summary>
         /// <param name="property"></param>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        public virtual T[] GetArray<T>(string property, T[] defVal)
+        {
+            if (Dic.TryGetValue(property, out var val) && !string.IsNullOrEmpty(val))
+            {
+                return ConvertArray<T>(val, defVal);
+            }
+            return defVal;
+        }
+        /// <summary>
+        /// 转换字符串
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="val"></param>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        public static T[] ConvertArray<T>(string val, T[] defVal)
+        {
+            if (string.IsNullOrEmpty(val)) { return defVal; }
+            if (val.StartsWith("[")) { return CobberCaller.TryGetJsonObject<T[]>(val, defVal); }
+            var splits = val.Split(new char[] { ',', '|', '，', ' ', });
+            var resa = new T[splits.Length];
+            for (int i = 0; i < splits.Length; i++)
+            {
+                resa[i] = (T)TestTry.Try(System.Convert.ChangeType, splits[i], typeof(T), default(T));
+            }
+            return resa;
+        }
+        /// <summary>
+        /// 当字符串为null或为空时返回defVal
+        /// </summary>
+        /// <param name="property"></param>
         /// <param name="converter"></param>
         /// <param name="defVal"></param>
         /// <returns></returns>
@@ -212,7 +245,7 @@ namespace System.Data.Hopper
                 if (ix <= 0) { continue; }
                 var property = item.Substring(0, ix);
                 var value = string.Empty;
-                if (ix + 1 < item.Length) { value = item.Substring(ix + 1); }
+                if (ix + 1 < item.Length) { value = GetUrlArgs(item.Substring(ix + 1)); }
                 res.ArgsDic[property] = value;
                 res.Dic[property] = value;
             }
@@ -222,6 +255,45 @@ namespace System.Data.Hopper
             {
                 return string.IsNullOrWhiteSpace(value) ? defVal : value.Trim();
             }
+        }
+        /// <summary>
+        /// 还原参数内容(解码URL)
+        /// </summary>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        public static string GetUrlArgs(string v)
+        {
+            return Uri.UnescapeDataString(v);
+        }
+        /// <summary>
+        /// 设置参数内容(编码URL)
+        /// </summary>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        public static String SetUrlArgs(string v)
+        {
+            return Uri.EscapeDataString(v);
+        }
+        /// <summary>
+        /// 转换模型为一个参数字符串
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="properties"></param>
+        /// <returns></returns>
+        public static String GetModelArgs<T>(T model, params string[] properties)
+        {
+            if (model == null) { return string.Empty; }
+            if (properties == null) { properties = new string[0]; }
+            var sb = new StringBuilder();
+            foreach (var item in PropertyAccess.GetAccess(model).FuncInfoDic)
+            {
+                if (properties.Contains(item.Key)) { continue; }
+                var val = item.Value.GetValue(model)?.ToString();
+                sb.Append(item.Key).Append("=").Append(val == null ? "" : SetUrlArgs(val)).Append("&");
+            }
+            if (sb.Length > 0) { sb.Length--; }
+            return sb.ToString();
         }
         /// <summary>
         /// 转换成字符串

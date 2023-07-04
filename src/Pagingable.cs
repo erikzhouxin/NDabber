@@ -304,4 +304,31 @@ namespace System
         IPageResult IPageResult.Clone() => this.Clone();
         IPageResult<T> IPageResult<T>.Clone() => this.Clone();
     }
+    /// <summary>
+    /// 提示分页接口
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IAlertPaging<T> : IAlertMsg<IPageResult<T>> { }
+    /// <summary>
+    /// 提示分页
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class AlertPaging<T> : AlertMsg<IPageResult<T>>, IAlertPaging<T>
+    {
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public AlertPaging(bool isSuccess, String message) : base(isSuccess, message) { }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public AlertPaging(IPageResult<T> page) : this("", page) { }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public AlertPaging(string message, IPageResult<T> page) : base(true, message)
+        {
+            Data = page;
+        }
+    }
 }

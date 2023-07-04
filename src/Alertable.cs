@@ -130,6 +130,17 @@ namespace System
     /// 提示Json接口
     /// </summary>
     public interface IAlertJson : IAlertMsg<string> { }
+    /// <summary>
+    /// 提示Json接口及数据
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IAlertJson<T> : IAlertMsg<T>
+    {
+        /// <summary>
+        /// Json字符串
+        /// </summary>
+        String Json { get; set; }
+    }
     #endregion 接口定义
     #region // 通用实现类
     /// <summary>
@@ -777,6 +788,54 @@ namespace System
         {
             Data = ex.GetJsonString();
         }
+    }
+    /// <summary>
+    /// 提示Json信息
+    /// </summary>
+    public class AlertJson<T> : AlertMsg<T>, IAlertJson<T>
+    {
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        public AlertJson() : base(false, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        public AlertJson(bool isSuccess) : base(isSuccess, string.Empty) { }
+        /// <summary>
+        /// 默认构造
+        /// </summary>
+        /// <param name="isSuccess"></param>
+        /// <param name="message"></param>
+        public AlertJson(bool isSuccess, string message) : base(isSuccess, message) { }
+        /// <summary>
+        /// 错误消息构造
+        /// </summary>
+        /// <param name="message"></param>
+        public AlertJson(string message) : this(false, message) { }
+        /// <summary>
+        /// 错误消息格式化构造
+        /// </summary>
+        public AlertJson(string fmt, params object[] param) : this(false, fmt, param) { }
+        /// <summary>
+        /// 格式化构造
+        /// </summary>
+        /// <param name="isSuccess"></param>
+        /// <param name="fmt"></param>
+        /// <param name="param"></param>
+        public AlertJson(bool isSuccess, string fmt, params object[] param) : this(isSuccess, String.Format(fmt, param)) { }
+        /// <summary>
+        /// 异常构造
+        /// </summary>
+        /// <param name="ex"></param>
+        public AlertJson(Exception ex) : this(false, ex.Message)
+        {
+            Json = ex.GetJsonString();
+        }
+        /// <summary>
+        /// Json结果
+        /// </summary>
+        public virtual String Json { get; set; }
     }
     #endregion 通用实现类
 }

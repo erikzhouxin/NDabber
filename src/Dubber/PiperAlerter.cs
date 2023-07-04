@@ -205,7 +205,7 @@ namespace System.Data.Piper
                                 catch (Exception ex)
                                 {
                                     var exKey = UserPassword.GetMd5Hash(ex.Message, ex.StackTrace);
-                                    CacheModel.Dictionary.GetOrAdd($"EZhouXin:Exception:{exKey}", () => true, null, new DateTimeOffset(DateTime.Now.AddHours(1)));
+                                    CacheModel.Dictionary.GetOrAdd($"EZhouXin:Exception:{exKey}", () => true, null, DateTimeOffset.Now.AddHours(1));
                                 }
                             }
                             pipeServer.Disconnect();

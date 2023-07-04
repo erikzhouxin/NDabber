@@ -282,46 +282,23 @@ namespace System.Data.Dobber
             _dbName = conn.Database;
             var tables = conn.Query($"select * from information_schema.tables where table_schema='{_dbName}'").ToList();
             var columns = conn.Query($"select * from information_schema.columns where table_schema='{_dbName}'").ToList();
-            Func<String, string> GetTableName = (s) => s.SnakeToPascalCase();
-            Func<string, String> GetViewName = (s) => s.SnakeToPascalCase();
-            if (!String.IsNullOrEmpty(_preTable))
-            {
-                GetTableName = (s) =>
-                {
-                    var tableName = s.SnakeToPascalCase();
-                    if (tableName.StartsWith(_preTable, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return tableName;
-                    }
-                    return _preTable + tableName;
-                };
-            }
-            if (!String.IsNullOrEmpty(_preView))
-            {
-                GetViewName = (s) =>
-                {
-                    var tableName = s.SnakeToPascalCase();
-                    if (tableName.StartsWith(_preView, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return tableName;
-                    }
-                    return _preView + tableName;
-                };
-            }
+            Func<String, bool, string> GetClassName = (s, v) => GetPriName(s, v ? _preView : _preTable);
+            Func<String, bool, String> GetModelName = (s, v) => GetSubModelName(s, v ? _preView : _preTable);
             var tableModels = new List<TableModel>();
             var copyTableReg = new Regex(@"\w+(_copy)\d+$");
+            var eNameSpace = _ignoreDbName ? _nameSpace : $"{_nameSpace}.{_dbName.ToUpper()}";
+            var mNameSpace = _ignoreDbName ? _modelNamespace: $"{_modelNamespace}.{_dbName.ToUpper()}";
             foreach (var tabItem in tables)
             {
                 string tableName = tabItem.TABLE_NAME.ToLower();
                 if (_ignoreList.Contains(tableName)) { continue; }
                 if (copyTableReg.IsMatch(tableName)) { continue; }
                 string tableComment = tabItem.TABLE_COMMENT;
-                var className = GetTableName(tableName);
-                if ("VIEW".Equals(tabItem.TABLE_TYPE, StringComparison.OrdinalIgnoreCase))
-                {
-                    className = GetViewName(tableName);
-                }
+                var isView = "VIEW".Equals(tabItem.TABLE_TYPE, StringComparison.OrdinalIgnoreCase);
+                var originCName = tableName.SnakeToPascalCase();
+                var className = GetClassName(originCName, isView);
                 var tableColumns = new List<ColumnModel>();
+                var modelName = GetModelName(originCName, isView);
                 foreach (var colItem in columns.Where(s => tableName.Equals(s.TABLE_NAME)).OrderBy(s => s.ORDINAL_POSITION))
                 {
                     string colName = colItem.COLUMN_NAME;
@@ -470,6 +447,11 @@ namespace System.Data.Dobber
                     Clazz = className,
                     Comment = Regex.Replace(tableComment, "\\s+", "").Replace("\"", ""),
                     Columns = tableColumns,
+                    IsView = isView,
+                    OriginName = originCName,
+                    ModelName = modelName,
+                    EntityNamespace = eNameSpace,
+                    ModelNamespace = mNameSpace,
                 });
             }
             StringBuilder sb = new StringBuilder();
@@ -485,16 +467,9 @@ namespace System.Data.Dobber
             .AppendLine($"* 描    述：自动创建MySQL生成上下文实体代码内容")
             .AppendLine($"* 创 建 类：{nameof(IContextEntitiesBuilder)}")
             .AppendLine($"* 代码使用工具自动生成，手工修改会被覆盖，使用【partial】")
-            .AppendLine($"*********************************************************/");
-            if (_ignoreDbName)
-            {
-                sb.AppendLine($"namespace {_nameSpace}");
-            }
-            else
-            {
-                sb.AppendLine($"namespace {_nameSpace}.{_dbName.PascalToSnakeCase()}");
-            }
-            sb.AppendLine("{").AppendLine("#pragma warning disable CS1570 // XML 注释出现 XML 格式错误");
+            .AppendLine($"*********************************************************/")
+            .AppendLine($"namespace {eNameSpace}")
+            .AppendLine("{").AppendLine("#pragma warning disable CS1570 // XML 注释出现 XML 格式错误");
             var black4 = "    ";
             var black8 = "        ";
             foreach (var tabItem in tableModels)
@@ -505,15 +480,8 @@ namespace System.Data.Dobber
             sb.AppendLine("#pragma warning restore CS1570 // XML 注释出现 XML 格式错误").AppendLine("}");
             if (_hasModel)
             {
-                if (_ignoreDbName)
-                {
-                    sb.AppendLine($"namespace {_modelNamespace}");
-                }
-                else
-                {
-                    sb.AppendLine($"namespace {_modelNamespace}.{_dbName.PascalToSnakeCase()}");
-                }
-                sb.AppendLine("{").AppendLine("#pragma warning disable CS1570 // XML 注释出现 XML 格式错误");
+                sb.AppendLine($"namespace {mNameSpace}")
+                    .AppendLine("{").AppendLine("#pragma warning disable CS1570 // XML 注释出现 XML 格式错误");
                 if (_modelNamespace != _nameSpace)
                 {
                     sb.AppendLine($"{black4}using {_nameSpace};");
@@ -575,12 +543,34 @@ namespace System.Data.Dobber
             }
             sb.AppendLine($"{black4}}}");
         }
-
+        private static string GetPriName(string originName, string preName)
+        {
+            var tableName = originName.SnakeToPascalCase();
+            if (string.IsNullOrEmpty(preName)) { return tableName; }
+            if (tableName.StartsWith(preName, StringComparison.OrdinalIgnoreCase))
+            { return tableName; }
+            return preName + tableName;
+        }
+        private static string GetSubModelName(string originName, string preName)
+        {
+            //if (!string.IsNullOrEmpty(preName))
+            //{
+            //    if (originName.StartsWith(preName, StringComparison.OrdinalIgnoreCase))
+            //    {
+            //        var newOrigin = originName.Substring(preName.Length);
+            //        if (newOrigin.Length > 0 && Char.IsUpper(newOrigin[0]))
+            //        {
+            //            originName = newOrigin;
+            //        }
+            //    }
+            //}
+            return originName.EndsWith("Model") ? originName : $"{originName}Model";
+        }
         private static void AppendTableModel(StringBuilder sb, string black4, string black8, TableModel tabItem, bool hasInterface)
         {
             sb.AppendLine($"{black4}/// <summary>").AppendLine($"{black4}/// {tabItem.Comment}").AppendLine($"{black4}/// </summary>");
             sb.AppendLine($"{black4}[EDisplay(\"{tabItem.Comment}\")]");
-            sb.AppendLine($"{black4}public partial class {tabItem.Clazz}Model : {(hasInterface ? "I" + tabItem.Clazz + ", " : "")}ICloneable");
+            sb.AppendLine($"{black4}public partial class {tabItem.ModelName} : {(hasInterface ? "I" + tabItem.Clazz + ", " : "")}ICloneable");
             sb.AppendLine($"{black4}{{");
             foreach (var colItem in tabItem.Columns)
             {
@@ -593,16 +583,16 @@ namespace System.Data.Dobber
             sb.AppendLine($"{black8}/// <summary>")
               .AppendLine($"{black8}/// 默认构造")
               .AppendLine($"{black8}/// </summary>");
-            sb.AppendLine($"{black8}public {tabItem.Clazz}Model() {{ }}");
+            sb.AppendLine($"{black8}public {tabItem.ModelName}() {{ }}");
             sb.AppendLine($"{black8}/// <summary>")
               .AppendLine($"{black8}/// 实体构造")
               .AppendLine($"{black8}/// </summary>");
-            sb.AppendLine($"{black8}public {tabItem.Clazz}Model({tabItem.Clazz} entity) {{ SetModel(entity); }}");
+            sb.AppendLine($"{black8}public {tabItem.ModelName}({tabItem.Clazz} entity) {{ SetModel(entity); }}");
             sb.AppendLine($"{black8}object ICloneable.Clone() {{ return this.Clone(); }}");
             sb.AppendLine($"{black8}/// <summary>")
               .AppendLine($"{black8}/// 浅表复制")
               .AppendLine($"{black8}/// </summary>");
-            sb.AppendLine($"{black8}public virtual {tabItem.Clazz}Model Clone() {{ return ({tabItem.Clazz}Model)this.MemberwiseClone(); }}");
+            sb.AppendLine($"{black8}public virtual {tabItem.ModelName} Clone() {{ return ({tabItem.ModelName})this.MemberwiseClone(); }}");
             sb.AppendLine($"{black8}/// <summary>")
               .AppendLine($"{black8}/// 获取实体类")
               .AppendLine($"{black8}/// </summary>");
@@ -622,11 +612,11 @@ namespace System.Data.Dobber
               .AppendLine($"{black8}/// </summary>");
             if (hasInterface)
             {
-                sb.AppendLine($"{black8}public virtual {tabItem.Clazz}Model SetModel(I{tabItem.Clazz} entity)");
+                sb.AppendLine($"{black8}public virtual {tabItem.ModelName} SetModel(I{tabItem.Clazz} entity)");
             }
             else
             {
-                sb.AppendLine($"{black8}public virtual {tabItem.Clazz}Model SetModel({tabItem.Clazz} entity)");
+                sb.AppendLine($"{black8}public virtual {tabItem.ModelName} SetModel({tabItem.Clazz} entity)");
             }
             sb.AppendLine($"{black8}{{ ");
             foreach (var colItem in tabItem.Columns)
@@ -636,16 +626,30 @@ namespace System.Data.Dobber
             sb.AppendLine($"{black8}{black4}return this;");
             sb.AppendLine($"{black8}}}");
 
-            sb.AppendLine($"{black8}/// <summary>")
-              .AppendLine($"{black8}/// 隐式转换成模型")
-              .AppendLine($"{black8}/// </summary>");
-            sb.AppendLine($"{black8}public static implicit operator {tabItem.Clazz}Model({tabItem.Clazz} entity) => new {tabItem.Clazz}Model(entity);");
+            if(tabItem.ModelName != tabItem.Clazz)
+            {
+                sb.AppendLine($"{black8}/// <summary>")
+                  .AppendLine($"{black8}/// 隐式转换成模型")
+                  .AppendLine($"{black8}/// </summary>");
+                sb.AppendLine($"{black8}public static implicit operator {tabItem.ModelName}({tabItem.Clazz} entity) => new {tabItem.ModelName}(entity);");
 
-            sb.AppendLine($"{black8}/// <summary>")
-              .AppendLine($"{black8}/// 隐式转换成实体")
-              .AppendLine($"{black8}/// </summary>");
-            sb.AppendLine($"{black8}public static implicit operator {tabItem.Clazz}({tabItem.Clazz}Model model) => model.GetEntity();");
+                sb.AppendLine($"{black8}/// <summary>")
+                  .AppendLine($"{black8}/// 隐式转换成实体")
+                  .AppendLine($"{black8}/// </summary>");
+                sb.AppendLine($"{black8}public static implicit operator {tabItem.Clazz}({tabItem.ModelName} model) => model.GetEntity();");
+            }
+            else
+            {
+                sb.AppendLine($"{black8}/// <summary>")
+                  .AppendLine($"{black8}/// 隐式转换成模型")
+                  .AppendLine($"{black8}/// </summary>");
+                sb.AppendLine($"{black8}public static implicit operator {tabItem.ModelName}({tabItem.EntityNamespace}.{tabItem.Clazz} entity) => new {tabItem.ModelName}(entity);");
 
+                sb.AppendLine($"{black8}/// <summary>")
+                  .AppendLine($"{black8}/// 隐式转换成实体")
+                  .AppendLine($"{black8}/// </summary>");
+                sb.AppendLine($"{black8}public static implicit operator {tabItem.EntityNamespace}.{tabItem.Clazz}({tabItem.ModelName} model) => model.GetEntity();");
+            }
             sb.AppendLine($"{black4}}}");
         }
 
@@ -711,6 +715,11 @@ namespace System.Data.Dobber
             public string Clazz { get; set; }
             public String Comment { get; set; }
             public List<ColumnModel> Columns { get; set; }
+            public string OriginName { get; set; }
+            public String ModelName { get; set; }
+            public bool IsView { get; set; }
+            public string EntityNamespace { get; set; }
+            public String ModelNamespace { get; set; }
         }
         internal class ColumnModel
         {

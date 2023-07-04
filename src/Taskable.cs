@@ -120,6 +120,7 @@ namespace System
         public TaskTryEnterModel()
         {
             Locker = new object();
+            Unenter = TestTry.DoNothing;
         }
         /// <summary>
         /// 键构造
@@ -128,7 +129,8 @@ namespace System
         {
             Key = key;
             Timer = timer;
-            Locker = CacheConcurrentLockModel<TaskTryEnterModel>.Get(key);
+            Locker = CacheLockModel<TaskTryEnterModel>.Get(key);
+            Unenter = unenter ?? TestTry.DoNothing;
         }
         /// <summary>
         /// 对象构造
@@ -137,6 +139,7 @@ namespace System
         {
             Locker = locker;
             Timer = timer;
+            Unenter = unenter ?? TestTry.DoNothing;
         }
         /// <summary>
         /// 尝试获取锁
@@ -203,7 +206,7 @@ namespace System
         {
             Key = key;
             Timer = timer;
-            Locker = CacheConcurrentLockModel<TaskTryEnterModel>.Get(key);
+            Locker = CacheLockModel<TaskTryEnterModel>.Get(key);
             Unenter = unenter ?? GetDefault;
         }
         /// <summary>
@@ -213,6 +216,7 @@ namespace System
         {
             Locker = locker;
             Timer = timer;
+            Unenter = unenter ?? GetDefault;
         }
         /// <summary>
         /// 尝试获取锁

@@ -63,8 +63,8 @@ namespace System.Data.DabberUT
         public void RemoveSqlUtf8Encode()
         {
             var filePath = Path.GetFullPath(@"F:\wezcs\.pubs\.bak");
-            var fileName = Path.Combine(filePath, "20220112.qms.sql");
-            var tempFileName = Path.Combine(filePath, @"qms.20220112.temp.sql");
+            var fileName = Path.Combine(filePath, "qms.20230513.sql");
+            var tempFileName = Path.Combine(filePath, @"qms.20230513.temp.sql");
             var ireplaceList = new List<Tuble2String>()
             {
                 new Tuble2String("CHARACTER SET utf8 COLLATE utf8_bin ",""),

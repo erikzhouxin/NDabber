@@ -982,16 +982,30 @@ namespace System.Data.DabberUT
             Console.WriteLine("-------------------结束---------------------------");
             Console.ReadLine();
         }
+        [TestMethod]
+        public void TestTrim()
+        {
+            Console.WriteLine("this is \n 哈哈\n \0 ".Trim().Trim('\0').Trim());
+            Console.WriteLine("this is \n 哈哈\n ");
+        }
         public class Student
         {
             public string Name;
             public int Age;
         }
         [TestMethod]
+        public void TestVersion()
+        {
+            Console.WriteLine(Environment.OSVersion.Version.Major);
+        }
+        [TestMethod]
         public void TestUrlModel()
         {
-            Console.WriteLine(ConvertLprModel("vzlpr://192.168.1.100:80/test?account=test&password=test23!@#").GetJsonFormatString());
-            TestModel3333 ConvertLprModel(string lprLeft)
+            var model = ConvertModel("vzlpr://192.168.1.100:80/test?account=test&u=test%23U&password=test23!@%23");
+            var url = HopperUrlModelV1.GetModelArgs(model);
+            Console.WriteLine(model.GetJsonFormatString());
+            Console.WriteLine(url);
+            TestModel3333 ConvertModel(string lprLeft)
             {
                 var defModel = CobberBuilder.CreateSampleInstance<TestModel3333>();
                 var urlModel = new HopperUrlModelV1(lprLeft);
@@ -1001,14 +1015,7 @@ namespace System.Data.DabberUT
                     { nameof(TestModel3333.PortRate), urlModel.Get(nameof(urlModel.Port), 80) },
                     { nameof(TestModel3333.Account), urlModel.Get(nameof(defModel.Account), "admin") },
                     { nameof(TestModel3333.Password), urlModel.Get(nameof(defModel.Password), "admin") },
-                    { nameof(TestModel3333.IsIO1Reverse), urlModel.Get(nameof(defModel.IsIO1Reverse), false) },
-                    { nameof(TestModel3333.IsIO1Reset), urlModel.Get(nameof(defModel.IsIO1Reset), true) },
-                    { nameof(TestModel3333.IO1ResetInterval), urlModel.Get(nameof(defModel.IO1ResetInterval), -10) },
-                    { nameof(TestModel3333.IO1Number), urlModel.Get(nameof(defModel.IO1Number), 0) },
-                    { nameof(TestModel3333.IsIO2Reverse), urlModel.Get(nameof(defModel.IsIO2Reverse), false) },
-                    { nameof(TestModel3333.IsIO2Reset), urlModel.Get(nameof(defModel.IsIO2Reset), true) },
-                    { nameof(TestModel3333.IO2ResetInterval), urlModel.Get(nameof(defModel.IO2ResetInterval), "-10") },
-                    { nameof(TestModel3333.IO2Number), urlModel.Get(nameof(defModel.IO2Number), 1) },
+                    { nameof(TestModel3333.U), urlModel.Get(nameof(defModel.U), "admin") },
                 };
                 var access = PropertyAccess.GetAccess(defModel);
                 foreach (var kv in jsonObject)
@@ -1017,7 +1024,36 @@ namespace System.Data.DabberUT
                 }
                 return defModel;
             }
-
+            Console.WriteLine(Uri.EscapeDataString("socket://192.168.1.27:29988"));
+            Console.WriteLine(HopperUrlModelV1.ConvertArray<string>("无牌车,_无牌车_,无车牌", new string[0]).GetJsonString());
+        }
+        [TestMethod]
+        public void TestWMI()
+        {
+            if (AppSystem.TryGetWin32WmiDiskDriveID(out var test))
+            {
+                Console.WriteLine(test.ToString());
+            }
+            if (AppSystem.TryGetWin32WmiDiskDriveSerialNumber(out test))
+            {
+                Console.WriteLine(test.ToString());
+            }
+            if (AppSystem.TryGetWin32WmiMacAddress(out test))
+            {
+                Console.WriteLine(test.ToString());
+            }
+            if (AppSystem.TryGetWin32WmiMacsAddress(out var tests))
+            {
+                Console.WriteLine(tests.GetJsonString());
+            }
+            if (AppSystem.TryGetWin32WmiOperatingSystemID(out test))
+            {
+                Console.WriteLine(test.ToString());
+            }
+            if (AppSystem.TryGetWin32WmiProcessorID(out test))
+            {
+                Console.WriteLine(test.ToString());
+            }
         }
         public interface TestModel3333
         {
@@ -1025,23 +1061,8 @@ namespace System.Data.DabberUT
             Int32 PortRate { get; }
             String Account { get; }
             String Password { get; }
-            int ConnType { get; }
-            bool IsEnableLog { get; }
-            String LogPath { get; }
-            bool HasBreakCallback { get; }
-            bool HasIOEvent { get; }
-            int SaveType { get; }
-            string[] CarNoIgnores { get; }
-            bool IsIO1Reverse { get; }
-            bool IsIO1Reset { get; }
-            int IO1ResetInterval { get; }
-            int IO1Number { get; }
-            bool IsIO2Reverse { get; }
-            bool IsIO2Reset { get; }
-            int IO2ResetInterval { get; }
-            int IO2Number { get; }
-            bool IsGPIO1Reverse { get; }
-            bool IsGPIO2Reverse { get; }
+
+            String U { get; }
         }
     }
 }
