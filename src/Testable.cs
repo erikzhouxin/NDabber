@@ -15931,6 +15931,84 @@ namespace System
                 return excep.Invoke(ex);
             }
         }
+        /// <summary>
+        /// 尝试连接
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="action"></param>
+        /// <param name="conn"></param>
+        /// <param name="excep"></param>
+        /// <returns></returns>
+        public static T TryDb<T>(Func<DbConnection, T> action, DbConnection conn, Func<Exception, T> excep)
+        {
+            try
+            {
+                using (conn)
+                {
+                    try { return action.Invoke(conn); }
+                    catch (Exception ex)
+                    {
+                        return excep.Invoke(ex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return excep.Invoke(ex);
+            }
+        }
+        /// <summary>
+        /// 尝试连接
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="action"></param>
+        /// <param name="conn"></param>
+        /// <param name="excep"></param>
+        /// <returns></returns>
+        public static IAlertMsg<T> TryDb<T>(Func<DbConnection, IAlertMsg<T>> action, DbConnection conn, Func<Exception, IAlertMsg<T>> excep)
+        {
+            try
+            {
+                using (conn)
+                {
+                    try { return action.Invoke(conn); }
+                    catch (Exception ex)
+                    {
+                        return excep.Invoke(ex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return excep.Invoke(ex);
+            }
+        }
+        /// <summary>
+        /// 尝试连接
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="action"></param>
+        /// <param name="conn"></param>
+        /// <param name="excep"></param>
+        /// <returns></returns>
+        public static IAlertMsgs<T> TryDb<T>(Func<DbConnection, IAlertMsgs<T>> action, DbConnection conn, Func<Exception, IAlertMsgs<T>> excep)
+        {
+            try
+            {
+                using (conn)
+                {
+                    try { return action.Invoke(conn); }
+                    catch (Exception ex)
+                    {
+                        return excep.Invoke(ex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return excep.Invoke(ex);
+            }
+        }
         #endregion 尝试执行数据库 TryDb
     }
 }
