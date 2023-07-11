@@ -70,36 +70,23 @@ namespace System.Threading
 
         internal void SetLocalValue(IAsyncLocal local, object newValue, bool needChangeNotifications)
         {
-            ExecutionContext mutableExecutionContext = Thread.CurrentThread.ExecutionContext;
-            if (_value == newValue)
-            {
-                return;
-            }
-
-            IAsyncLocalValueMap localValues = _localValues;
-            localValues = (_localValues = ((localValues != null) ? localValues.Set(local, newValue, !needChangeNotifications) : AsyncLocalValueMap.Create(local, newValue, !needChangeNotifications)));
-            if (!needChangeNotifications)
-            {
-                return;
-            }
-
+            if (_value == newValue) { return; }
+            _localValues = _localValues != null
+                ? _localValues.Set(local, newValue, !needChangeNotifications)
+                : AsyncLocalValueMap.Create(local, newValue, !needChangeNotifications);
+            if (!needChangeNotifications) { return; }
             if (!_flag)
             {
                 IAsyncLocal[] array = _localChangeNotifications;
-                if (array == null)
-                {
-                    array = new IAsyncLocal[1] { local };
-                }
+                if (array == null) { array = new IAsyncLocal[1] { local }; }
                 else
                 {
                     int num = array.Length;
                     Array.Resize(ref array, num + 1);
                     array[num] = local;
                 }
-
                 _localChangeNotifications = array;
             }
-
             local.OnValueChanged(_value, newValue, contextChanged: false);
         }
         /// <summary>Instantiates an <see cref="AsyncLocal{T}"/> instance that receives change notifications.</summary>
