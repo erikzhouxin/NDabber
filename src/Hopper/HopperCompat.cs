@@ -8,7 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 
-namespace Flurl
+namespace System.Data.Hopper
 {
     internal static class HopperCompat
     {
