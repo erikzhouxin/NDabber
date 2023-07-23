@@ -88,7 +88,7 @@ namespace System.Collections.ObjectModel
         /// 构造
         /// </summary>
         /// <param name="list"></param>
-        public EReadOnlyCollection(IList<T> list):base(list) { }
+        public EReadOnlyCollection(IList<T> list) : base(list) { }
     }
     /// <summary>
     /// 表示元素的强类型化只读集合。
@@ -156,7 +156,7 @@ namespace System.Collections.ObjectModel
             }
         }
 
-#region IDictionary<TKey, TValue> Members
+        #region IDictionary<TKey, TValue> Members
         /// <summary>
         /// 包含键
         /// </summary>
@@ -227,9 +227,9 @@ namespace System.Collections.ObjectModel
             }
         }
 
-#endregion
+        #endregion
 
-#region ICollection<KeyValuePair<TKey, TValue>> Members
+        #region ICollection<KeyValuePair<TKey, TValue>> Members
         /// <summary>
         /// 计数
         /// </summary>
@@ -268,9 +268,9 @@ namespace System.Collections.ObjectModel
             throw new NotSupportedException("尝试修改只读字典");
         }
 
-#endregion
+        #endregion
 
-#region IEnumerable<KeyValuePair<TKey, TValue>> Members
+        #region IEnumerable<KeyValuePair<TKey, TValue>> Members
         /// <summary>
         /// 迭代器
         /// </summary>
@@ -280,18 +280,18 @@ namespace System.Collections.ObjectModel
             return m_dictionary.GetEnumerator();
         }
 
-#endregion
+        #endregion
 
-#region IEnumerable Members
+        #region IEnumerable Members
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return ((IEnumerable)m_dictionary).GetEnumerator();
         }
 
-#endregion
+        #endregion
 
-#region IDictionary Members
+        #region IDictionary Members
 
         private static bool IsCompatibleKey(object key)
         {
@@ -507,9 +507,9 @@ namespace System.Collections.ObjectModel
             }
         }
 
-#endregion
+        #endregion
 
-#region IReadOnlyDictionary members
+        #region IReadOnlyDictionary members
 
         IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys
         {
@@ -527,7 +527,7 @@ namespace System.Collections.ObjectModel
             }
         }
 
-#endregion IReadOnlyDictionary members
+        #endregion IReadOnlyDictionary members
         /// <summary>
         /// 键列表
         /// </summary>
@@ -547,7 +547,7 @@ namespace System.Collections.ObjectModel
                 m_collection = collection;
             }
 
-#region ICollection<T> Members
+            #region ICollection<T> Members
 
             void ICollection<TKey>.Add(TKey item)
             {
@@ -590,9 +590,9 @@ namespace System.Collections.ObjectModel
                 throw new NotSupportedException("尝试修改只读字典键");
             }
 
-#endregion
+            #endregion
 
-#region IEnumerable<T> Members
+            #region IEnumerable<T> Members
             /// <summary>
             /// 迭代器
             /// </summary>
@@ -602,18 +602,18 @@ namespace System.Collections.ObjectModel
                 return m_collection.GetEnumerator();
             }
 
-#endregion
+            #endregion
 
-#region IEnumerable Members
+            #region IEnumerable Members
 
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
             {
                 return ((IEnumerable)m_collection).GetEnumerator();
             }
 
-#endregion
+            #endregion
 
-#region ICollection Members
+            #region ICollection Members
 
             void ICollection.CopyTo(Array array, int index)
             {
@@ -645,7 +645,7 @@ namespace System.Collections.ObjectModel
                 }
             }
 
-#endregion
+            #endregion
         }
         /// <summary>
         /// 值列表
@@ -666,7 +666,7 @@ namespace System.Collections.ObjectModel
                 m_collection = collection;
             }
 
-#region ICollection<T> Members
+            #region ICollection<T> Members
 
             void ICollection<TValue>.Add(TValue item)
             {
@@ -709,9 +709,9 @@ namespace System.Collections.ObjectModel
                 throw new NotSupportedException("尝试修改只读字典值");
             }
 
-#endregion
+            #endregion
 
-#region IEnumerable<T> Members
+            #region IEnumerable<T> Members
             /// <summary>
             /// 迭代器
             /// </summary>
@@ -721,18 +721,18 @@ namespace System.Collections.ObjectModel
                 return m_collection.GetEnumerator();
             }
 
-#endregion
+            #endregion
 
-#region IEnumerable Members
+            #region IEnumerable Members
 
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
             {
                 return ((IEnumerable)m_collection).GetEnumerator();
             }
 
-#endregion
+            #endregion
 
-#region ICollection Members
+            #region ICollection Members
 
             void ICollection.CopyTo(Array array, int index)
             {
@@ -764,10 +764,10 @@ namespace System.Collections.ObjectModel
                 }
             }
 
-#endregion ICollection Members
+            #endregion ICollection Members
         }
 
-#region Helper method for our KeyCollection and ValueCollection
+        #region Helper method for our KeyCollection and ValueCollection
 
         // Abstracted away to avoid redundant implementations.
         internal static void CopyToNonGenericICollectionHelper<T>(ICollection<T> collection, Array array, int index)
@@ -849,7 +849,7 @@ namespace System.Collections.ObjectModel
             }
         }
 
-#endregion Helper method for our KeyCollection and ValueCollection
+        #endregion Helper method for our KeyCollection and ValueCollection
     }
 }
 #endif

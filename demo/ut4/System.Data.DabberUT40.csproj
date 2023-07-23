@@ -30,9 +30,10 @@
 		<PackageReference Include="coverlet.collector" Version="3.1.2" />
 		<Reference Include="Microsoft.CSharp" />
         <Reference Include="System.Web" />
-        <PackageReference Include="JWT" Version="10.0.2" />
+        <!--<PackageReference Include="JWT" Version="10.0.2" />-->
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\..\..\ErikZhouXin.NSolutionUI-main\src\Jwt\System.Data.JWT.csproj" />
 		<ProjectReference Include="..\..\src\System.Data.Dabber.csproj" />
 	</ItemGroup>
 </Project>

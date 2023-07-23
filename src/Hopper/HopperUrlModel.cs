@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Cobber;
+using System.Data.Extter;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -12,8 +14,17 @@ namespace System.Data.Hopper
     /// <summary>
     /// 压缩配置式方式(最新兼容式)
     /// </summary>
-    public class HopperUrlModel
+    public class HopperUrlModel : HopperUrlModelV1
     {
+        /// <summary>
+        /// 构造
+        /// </summary>
+        public HopperUrlModel() { }
+        /// <summary>
+        /// 构造
+        /// </summary>
+        /// <param name="url"></param>
+        public HopperUrlModel(String url) : base(url) { }
     }
 
     /// <summary>
@@ -174,6 +185,52 @@ namespace System.Data.Hopper
             return defVal;
         }
         /// <summary>
+        /// 获取Json对象
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="property"></param>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        public virtual T GetJson<T>(string property, T defVal)
+        {
+            return Get<T>(property, CobberCaller.GetJsonObject<T>, defVal);
+        }
+        /// <summary>
+        /// 获取Json对象
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="property"></param>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        public virtual T GetJson<T>(string property, Func<Exception, T> defVal)
+        {
+            return Get<T>(property, CobberCaller.GetJsonObject<T>, defVal);
+        }
+        /// <summary>
+        /// 获取Json对象
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="property"></param>
+        /// <param name="settings"></param>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        public virtual T GetJson<T>(string property, JsonSerializerSettings settings, T defVal)
+        {
+            return Get<T>(property, (s) => CobberCaller.GetJsonObject<T>(s, settings), defVal);
+        }
+        /// <summary>
+        /// 获取Json对象
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="property"></param>
+        /// <param name="settings"></param>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        public virtual T GetJson<T>(string property, JsonSerializerSettings settings, Func<Exception, T> defVal)
+        {
+            return Get<T>(property, (s) => CobberCaller.GetJsonObject<T>(s, settings), defVal);
+        }
+        /// <summary>
         /// 转换字符串
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -203,6 +260,18 @@ namespace System.Data.Hopper
         {
             Dic.TryGetValue(property, out var val);
             return TestTry.Try(converter, val, (ex) => defVal);
+        }
+        /// <summary>
+        /// 当字符串为null或为空时返回defVal
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="converter"></param>
+        /// <param name="defVal"></param>
+        /// <returns></returns>
+        public virtual T Get<T>(string property, Func<string, T> converter, Func<Exception, T> defVal)
+        {
+            Dic.TryGetValue(property, out var val);
+            return TestTry.Try(converter, val, defVal);
         }
         /// <summary>
         /// 当字符串为null或为空时返回defVal

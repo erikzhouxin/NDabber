@@ -3,10 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JWT.Algorithms;
-using JWT.Serializers;
-using JWT;
+//using JWT.Algorithms;
+//using JWT.Serializers;
+//using JWT;
 using System.Data.Extter;
+using System.Data.JWT;
 
 namespace System.Data.DabberUT
 {
