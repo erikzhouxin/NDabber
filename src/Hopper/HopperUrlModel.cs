@@ -179,9 +179,7 @@ namespace System.Data.Hopper
         public virtual T[] GetArray<T>(string property, T[] defVal)
         {
             if (Dic.TryGetValue(property, out var val) && !string.IsNullOrEmpty(val))
-            {
-                return ConvertArray<T>(val, defVal);
-            }
+            { return ConvertArray<T>(val, defVal); }
             return defVal;
         }
         /// <summary>

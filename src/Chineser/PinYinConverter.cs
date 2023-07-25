@@ -43,7 +43,7 @@ namespace System.Data.Chineser
 			internal static CharDictionary Deserialize(BinaryReader binaryReader)
 			{
 				CharDictionary charDictionary = new CharDictionary();
-				binaryReader.ReadInt32();
+				//binaryReader.ReadInt32();
 				charDictionary.Length = binaryReader.ReadInt32();
 				charDictionary.Count = binaryReader.ReadInt32();
 				charDictionary.Offset = binaryReader.ReadInt16();
@@ -151,7 +151,7 @@ namespace System.Data.Chineser
 			internal static HomophoneDictionary Deserialize(BinaryReader binaryReader)
 			{
 				HomophoneDictionary homophoneDictionary = new HomophoneDictionary();
-				binaryReader.ReadInt32();
+				// binaryReader.ReadInt32();
 				homophoneDictionary.Length = binaryReader.ReadInt32();
 				homophoneDictionary.Count = binaryReader.ReadInt16();
 				homophoneDictionary.Offset = binaryReader.ReadInt16();
@@ -236,7 +236,7 @@ namespace System.Data.Chineser
 			internal static PinyinDictionary Deserialize(BinaryReader binaryReader)
 			{
 				PinyinDictionary pinyinDictionary = new PinyinDictionary();
-				binaryReader.ReadInt32();
+				//_ = binaryReader.ReadInt32();
 				pinyinDictionary.Length = binaryReader.ReadInt16();
 				pinyinDictionary.Count = binaryReader.ReadInt16();
 				pinyinDictionary.Offset = binaryReader.ReadInt16();
@@ -339,7 +339,7 @@ namespace System.Data.Chineser
 			internal static StrokeDictionary Deserialize(BinaryReader binaryReader)
 			{
 				StrokeDictionary strokeDictionary = new StrokeDictionary();
-				binaryReader.ReadInt32();
+				// binaryReader.ReadInt32();
 				strokeDictionary.Length = binaryReader.ReadInt32();
 				strokeDictionary.Count = binaryReader.ReadInt32();
 				strokeDictionary.Offset = binaryReader.ReadInt16();

@@ -301,7 +301,10 @@ namespace System.Data.DabberUT
         [TestMethod]
         public void MyTestMethod()
         {
-            Assert.IsTrue(ChineseChar.IsValidPinyin("ni"));
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // 注册编码格式
+            var pinyin = new ChineseChar('得');
+            Console.WriteLine(pinyin.Pinyins.GetJsonString());
+            Assert.IsTrue(ChineseChar.IsValidPinyin(pinyin.Pinyins[0]));
             Assert.IsTrue(ChineseChar.IsValidChar('啊'));
         }
         [TestMethod]

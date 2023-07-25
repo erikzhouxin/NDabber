@@ -149,11 +149,19 @@
         <PackageReference Include="System.Runtime" Version="4.3.1" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Remove="Chineser\PinYinDictionary.cs" />
+      <Compile Remove="Chineser\PinYinDictionary.cs" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Remove="Resources\CharDictionary" />
+        <None Remove="Resources\HomophoneDictionary" />
+        <None Remove="Resources\PinyinDictionary" />
+        <None Remove="Resources\StrokeDictionary" />
         <None Include="..\Readme.md" Link="Resources\Readme.md" Pack="true" PackagePath="\" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Update="Properties\Resources.Designer.cs">
+        <Compile Remove="Properties\Resources.Designer.cs" />
+        <EmbeddedResource Remove="Properties\Resources.resx" />
+        <!--<Compile Update="Properties\Resources.Designer.cs">
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>Resources.resx</DependentUpon>
@@ -161,6 +169,18 @@
         <EmbeddedResource Update="Properties\Resources.resx">
             <Generator>ResXFileCodeGenerator</Generator>
             <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-        </EmbeddedResource>
+        </EmbeddedResource>-->
+    </ItemGroup>
+    <ItemGroup>
+        <None Include=".\..\AppBeans\system.data.chineser.csany">
+            <Visible>False</Visible>
+            <Link>plugins\system.data.chineser.csany</Link>
+            <TargetPath>plugins\system.data.chineser.csany</TargetPath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <Pack>True</Pack>
+            <PackagePath>contentFiles\any\any\plugins\system.data.chineser.csany</PackagePath>
+            <PackageCopyToOutput>True</PackageCopyToOutput>
+        </None>
     </ItemGroup>
 </Project>

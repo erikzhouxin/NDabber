@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.Extter;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -83,26 +84,48 @@ namespace System.Data.Chineser
                 return this.chineseCharacter;
             }
         }
-
         static ChineseChar()
         {
             Assembly executingAssembly = Assembly.GetExecutingAssembly();
-            using (BinaryReader binaryReader = new BinaryReader(new MemoryStream(System.Data.Properties.Resources.PinyinDictionary)))
+            ExtterCaller.FileGZipDecompress(Path.GetFullPath(".\\plugins\\system.data.chineser.csany"), (f, b) =>
             {
-                ChineseChar.pinyinDictionary = PinYinConverter.PinyinDictionary.Deserialize(binaryReader);
-            }
-            using (BinaryReader binaryReader2 = new BinaryReader(new MemoryStream(System.Data.Properties.Resources.CharDictionary)))
-            {
-                ChineseChar.charDictionary = PinYinConverter.CharDictionary.Deserialize(binaryReader2);
-            }
-            using (BinaryReader binaryReader3 = new BinaryReader(new MemoryStream(System.Data.Properties.Resources.HomophoneDictionary)))
-            {
-                ChineseChar.homophoneDictionary = PinYinConverter.HomophoneDictionary.Deserialize(binaryReader3);
-            }
-            using (BinaryReader binaryReader4 = new BinaryReader(new MemoryStream(System.Data.Properties.Resources.StrokeDictionary)))
-            {
-                ChineseChar.strokeDictionary = PinYinConverter.StrokeDictionary.Deserialize(binaryReader4);
-            }
+                switch (f)
+                {
+                    case "Resources\\PinyinDictionary":
+                        {
+                            using (BinaryReader binaryReader = new BinaryReader(new MemoryStream(b)))
+                            {
+                                ChineseChar.pinyinDictionary = PinYinConverter.PinyinDictionary.Deserialize(binaryReader);
+                            }
+                        }
+                        break;
+                    case "Resources\\CharDictionary":
+                        {
+                            using (BinaryReader binaryReader2 = new BinaryReader(new MemoryStream(b)))
+                            {
+                                ChineseChar.charDictionary = PinYinConverter.CharDictionary.Deserialize(binaryReader2);
+                            }
+                        }
+                        break;
+                    case "Resources\\HomophoneDictionary":
+                        {
+                            using (BinaryReader binaryReader3 = new BinaryReader(new MemoryStream(b)))
+                            {
+                                ChineseChar.homophoneDictionary = PinYinConverter.HomophoneDictionary.Deserialize(binaryReader3);
+                            }
+                        }
+                        break;
+                    case "Resources\\StrokeDictionary":
+                        {
+                            using (BinaryReader binaryReader4 = new BinaryReader(new MemoryStream(b)))
+                            {
+                                ChineseChar.strokeDictionary = PinYinConverter.StrokeDictionary.Deserialize(binaryReader4);
+                            }
+                        }
+                        break;
+                    default: break;
+                }
+            });
         }
         /// <summary>
         /// ChineseChar类的构造函数。

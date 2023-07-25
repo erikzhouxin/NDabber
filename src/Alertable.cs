@@ -485,7 +485,6 @@ namespace System
         /// (Data为空?NotFound|数据已加载)
         /// </summary>
         public static implicit operator AlertMsg<T>(T data) => data == null ? new AlertMsg<T>(false, "NotFound") { Code = 404 } : new AlertMsg<T>(true, "数据已加载") { Data = data };
-#if NETFrame
         /// <summary>
         /// 隐式转换
         /// (data.Item1为空?data.Item2|数据已加载)
@@ -511,8 +510,6 @@ namespace System
             }
             return new AlertMsg<T>(true, "数据已加载") { Data = res.Item1 };
         }
-#endif
-#if NETFx
         /// <summary>
         /// 隐式转换
         /// (data.Item1为空?data.Item2|数据已加载)
@@ -538,7 +535,6 @@ namespace System
             }
             return new AlertMsg<T>(true, "数据已加载") { Data = res.Data };
         }
-#endif
         /// <summary>
         /// 隐式转换
         /// </summary>

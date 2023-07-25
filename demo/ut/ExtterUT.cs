@@ -825,5 +825,27 @@ namespace System.Data.DabberUT
             }
         }
         #endregion Encoding 编码
+        #region // 压缩文件
+        [TestMethod]
+        public void CompressChineserResTest()
+        {
+            var fileName = Path.GetFullPath(".\\ChineserDictionary.csany");
+            var tagPath = Path.GetFullPath("..\\..\\..\\..\\src");
+            var map = new List<string>
+            {
+                "Resources\\CharDictionary",
+                "Resources\\HomophoneDictionary",
+                "Resources\\PinyinDictionary",
+                "Resources\\StrokeDictionary",
+            }.ToDictionary(s => s, s => Path.Combine(tagPath, s));
+            ExtterCaller.FileGZipCompress(map, fileName);
+            ExtterCaller.FileGZipDecompress(fileName, Path.GetFullPath("."), (f) => true);
+            foreach (var item in map)
+            {
+                var res = ExtterCaller.CompareFile(item.Value, Path.Combine(Path.GetFullPath("."), item.Key));
+                Assert.IsTrue(res);
+            }
+        }
+        #endregion 压缩文件
     }
 }

@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Data.Chineser;
 using System.Data.Cobber;
 using System.Data.Extter;
 using System.IO;
@@ -55,7 +56,7 @@ namespace System.Data.DabberUT
             var hashSet2 = new HashSet<object>()
             {
                 1,2,17,33
-            }; 
+            };
             var hashSet3 = new HashSet<int>();
             var hashSet4 = new HashSet<int>();
             HashSet<int> hashSet5 = new HashSet<int>();
@@ -75,7 +76,7 @@ namespace System.Data.DabberUT
             //hashSet2.Clear();
             hashSet3.Clear();
             hashSet4.Clear();
-            for (int i = times-1; i >= 0; i--)
+            for (int i = times - 1; i >= 0; i--)
             {
                 hashSet.Add(new Tuble<int, String>(i, UserPassword.GetMd5Hash(Path.GetRandomFileName())));
                 hashSet.Add(new Tuble<int, String>(i, ExtterCaller.GetRandomInt32().ToString("0000") + Path.GetRandomFileName()));
@@ -111,6 +112,15 @@ namespace System.Data.DabberUT
             {
                 Console.WriteLine(item);
             }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Test]
+        public void TestPinYinCovnerter()
+        {
+            Assert.IsTrue(ChineseChar.IsValidPinyin("ni"));
+            Assert.IsTrue(ChineseChar.IsValidChar('啊'));
         }
     }
 }
