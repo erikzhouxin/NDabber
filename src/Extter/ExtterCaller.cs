@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace System.Data.Cobber
 {
@@ -7646,6 +7647,40 @@ namespace System.Data.Extter
             }
             catch { }
             return false;
+        }
+        /// <summary>
+        /// 创建任务
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="name"></param>
+        public static void CreateTask(string file, string name)
+        {
+            //新建任务
+            var scheduler = new TaskScheduler.TaskSchedulerClass();
+            //连接
+            scheduler.Connect(null, null, null, null);
+            //获取创建任务的目录
+            var folder = scheduler.GetFolder("\\");
+            //设置参数
+            var task = scheduler.NewTask(0);
+            //task.RegistrationInfo.Author = author;//创建者
+            //task.RegistrationInfo.Description = desc;//描述
+            //设置触发机制（此处是 登陆后）
+            task.Triggers.Create(TaskScheduler._TASK_TRIGGER_TYPE2.TASK_TRIGGER_LOGON);
+            //设置动作（此处为运行exe程序）
+            var action = (TaskScheduler.IExecAction)task.Actions.Create(TaskScheduler._TASK_ACTION_TYPE.TASK_ACTION_EXEC);
+            action.Path = file;//设置文件目录
+            task.Settings.ExecutionTimeLimit = "PT0S"; //运行任务时间超时停止任务吗? PTOS 不开启超时
+            task.Settings.DisallowStartIfOnBatteries = false;//只有在交流电源下才执行
+            task.Settings.RunOnlyIfIdle = false;//仅当计算机空闲下才执行
+
+            var regTask =
+                folder.RegisterTaskDefinition(name, task,//此处需要设置任务的名称（name）
+                (int)TaskScheduler._TASK_CREATION.TASK_CREATE, null, //user
+                null, // password
+                TaskScheduler._TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN,
+                "");
+            var runTask = regTask.Run(null);
         }
         #endregion 快捷方式调用者
         #endregion Windows内容操作
