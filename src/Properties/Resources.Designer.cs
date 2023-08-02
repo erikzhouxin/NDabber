@@ -59,45 +59,5 @@ namespace System.Data.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] CharDictionary {
-            get {
-                object obj = ResourceManager.GetObject("CharDictionary", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] HomophoneDictionary {
-            get {
-                object obj = ResourceManager.GetObject("HomophoneDictionary", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] PinyinDictionary {
-            get {
-                object obj = ResourceManager.GetObject("PinyinDictionary", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
-        internal static byte[] StrokeDictionary {
-            get {
-                object obj = ResourceManager.GetObject("StrokeDictionary", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
     }
 }

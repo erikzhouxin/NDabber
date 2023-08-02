@@ -712,14 +712,14 @@ namespace System.Data.Hopper
 
             // no % characters, so avoid the regex overhead
             if (!s.OrdinalContains("%"))
-                return Uri.EscapeUriString(s);
+            { return HopperUrlModelV1.SetUrlArgs(s); }
 
             // pick out all %-hex-hex matches and avoid double-encoding
             return Regex.Replace(s, "(.*?)((%[0-9A-Fa-f]{2})|$)", c =>
             {
                 var a = c.Groups[1].Value; // group 1 is a sequence with no %-encoding - encode illegal characters
                 var b = c.Groups[2].Value; // group 2 is a valid 3-character %-encoded sequence - leave it alone!
-                return Uri.EscapeUriString(a) + b;
+                return HopperUrlModelV1.SetUrlArgs(a) + b;
             });
         }
 

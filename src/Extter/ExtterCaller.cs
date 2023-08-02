@@ -7653,22 +7653,55 @@ namespace System.Data.Extter
         /// </summary>
         /// <param name="file"></param>
         /// <param name="name"></param>
-        public static void CreateTask(string file, string name)
+        /// <param name="dirs"></param>
+        public static void CreateStartTask(string file, string name, params string[] dirs)
         {
             //新建任务
-            var scheduler = new TaskScheduler.TaskSchedulerClass();
+            var scheduler = new TaskSchedulerClass();
             //连接
             scheduler.Connect(null, null, null, null);
             //获取创建任务的目录
             var folder = scheduler.GetFolder("\\");
-            //设置参数
-            var task = scheduler.NewTask(0);
+            if(dirs != null && dirs.Length > 0)
+            {
+                foreach (var dir in dirs)
+                {
+                    folder = TestTry.Try(folder.CreateFolder, dir, (object)null, (ex) => folder.GetFolder(dir));
+                }
+            }
+            var tesks = folder.GetTasks(0);
+            IRegisteredTask tesk = null;
+            foreach (IRegisteredTask item in tesks)
+            {
+                if (item.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) { tesk = item; break; }
+            }
+            ITaskDefinition task;
+            if (tesk == null)
+            {
+                //设置参数
+                task = scheduler.NewTask(0);
+            }
+            else
+            {
+                task = tesk.Definition;
+                var hasTrigger = false;
+                foreach (ITrigger item in task.Triggers)
+                {
+                    if (item.Type == _TASK_TRIGGER_TYPE2.TASK_TRIGGER_LOGON)
+                    {
+                        hasTrigger = true;
+                        break;
+                    }
+                }
+                if (hasTrigger) { return; }
+            }
             //task.RegistrationInfo.Author = author;//创建者
             //task.RegistrationInfo.Description = desc;//描述
+            task.Principal.RunLevel = _TASK_RUNLEVEL.TASK_RUNLEVEL_HIGHEST;
             //设置触发机制（此处是 登陆后）
-            task.Triggers.Create(TaskScheduler._TASK_TRIGGER_TYPE2.TASK_TRIGGER_LOGON);
+            task.Triggers.Create(_TASK_TRIGGER_TYPE2.TASK_TRIGGER_LOGON);
             //设置动作（此处为运行exe程序）
-            var action = (TaskScheduler.IExecAction)task.Actions.Create(TaskScheduler._TASK_ACTION_TYPE.TASK_ACTION_EXEC);
+            var action = (IExecAction)task.Actions.Create(_TASK_ACTION_TYPE.TASK_ACTION_EXEC);
             action.Path = file;//设置文件目录
             task.Settings.ExecutionTimeLimit = "PT0S"; //运行任务时间超时停止任务吗? PTOS 不开启超时
             task.Settings.DisallowStartIfOnBatteries = false;//只有在交流电源下才执行
@@ -7676,11 +7709,11 @@ namespace System.Data.Extter
 
             var regTask =
                 folder.RegisterTaskDefinition(name, task,//此处需要设置任务的名称（name）
-                (int)TaskScheduler._TASK_CREATION.TASK_CREATE, null, //user
+                (int)_TASK_CREATION.TASK_CREATE, null, //user
                 null, // password
-                TaskScheduler._TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN,
+                _TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN,
                 "");
-            var runTask = regTask.Run(null);
+            _ = regTask.Run(null);
         }
         #endregion 快捷方式调用者
         #endregion Windows内容操作

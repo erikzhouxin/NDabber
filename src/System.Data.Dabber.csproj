@@ -152,16 +152,10 @@
       <Compile Remove="Chineser\PinYinDictionary.cs" />
     </ItemGroup>
     <ItemGroup>
-        <None Remove="Resources\CharDictionary" />
-        <None Remove="Resources\HomophoneDictionary" />
-        <None Remove="Resources\PinyinDictionary" />
-        <None Remove="Resources\StrokeDictionary" />
         <None Include="..\Readme.md" Link="Resources\Readme.md" Pack="true" PackagePath="\" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Remove="Properties\Resources.Designer.cs" />
-        <EmbeddedResource Remove="Properties\Resources.resx" />
-        <!--<Compile Update="Properties\Resources.Designer.cs">
+        <Compile Update="Properties\Resources.Designer.cs">
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>Resources.resx</DependentUpon>
@@ -169,18 +163,7 @@
         <EmbeddedResource Update="Properties\Resources.resx">
             <Generator>ResXFileCodeGenerator</Generator>
             <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-        </EmbeddedResource>-->
-    </ItemGroup>
-    <ItemGroup>
-      <COMReference Include="TaskScheduler">
-        <WrapperTool>tlbimp</WrapperTool>
-        <VersionMinor>0</VersionMinor>
-        <VersionMajor>1</VersionMajor>
-        <Guid>e34cb9f1-c7f7-424c-be29-027dcc09363a</Guid>
-        <Lcid>0</Lcid>
-        <Isolated>false</Isolated>
-        <EmbedInteropTypes>False</EmbedInteropTypes>
-      </COMReference>
+        </EmbeddedResource>
     </ItemGroup>
     <ItemGroup>
         <None Include=".\..\AppBeans\system.data.chineser.csany">
@@ -192,6 +175,7 @@
             <Pack>True</Pack>
             <PackagePath>contentFiles\any\any\plugins\system.data.chineser.csany</PackagePath>
             <PackageCopyToOutput>True</PackageCopyToOutput>
+            <PackageFlatten>False</PackageFlatten>
         </None>
     </ItemGroup>
 </Project>

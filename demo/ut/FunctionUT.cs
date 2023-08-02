@@ -1064,5 +1064,10 @@ namespace System.Data.DabberUT
 
             String U { get; }
         }
+        [TestMethod]
+        public void TestTaskScheduler()
+        {
+            ExtterCaller.CreateStartTask("C:\\Windows\\System32\\Cmd.exe", "cmd.start");
+        }
     }
 }

@@ -111,6 +111,7 @@ namespace System.Threading
         {
             T previousValue = previousValueObj is null ? default! : (T)previousValueObj;
             T currentValue = currentValueObj is null ? default! : (T)currentValueObj;
+            _value = currentValue;
             _valueChangedHandler(new AsyncLocalValueChangedArgs<T>(previousValue, currentValue, contextChanged));
         }
     }
