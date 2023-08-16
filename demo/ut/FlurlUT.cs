@@ -15,6 +15,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static NPOI.HSSF.UserModel.HeaderFooter;
 using NullValueHandling = System.Data.Hopper.NullValueHandling;
 
 namespace System.Data.DabberUT
@@ -600,7 +601,8 @@ namespace System.Data.DabberUT
             var fac = new DefaultFlurlClientFactory();
             var sequence = new List<int>();
 
-            var task1 = Task.Run(() => fac.ConfigureClient("http://api.com", c => {
+            var task1 = Task.Run(() => fac.ConfigureClient("http://api.com", c =>
+            {
                 sequence.Add(1);
                 Thread.Sleep(5000);
                 sequence.Add(3);
@@ -609,14 +611,16 @@ namespace System.Data.DabberUT
             await Task.Delay(200);
 
             // modifies same client as task1, should get blocked until task1 is done
-            var task2 = Task.Run(() => fac.ConfigureClient("http://api.com", c => {
+            var task2 = Task.Run(() => fac.ConfigureClient("http://api.com", c =>
+            {
                 sequence.Add(4);
             }));
 
             await Task.Delay(200);
 
             // modifies different client, should run immediately
-            var task3 = Task.Run(() => fac.ConfigureClient("http://api2.com", c => {
+            var task3 = Task.Run(() => fac.ConfigureClient("http://api2.com", c =>
+            {
                 sequence.Add(2);
             }));
 
@@ -938,7 +942,8 @@ namespace System.Data.DabberUT
         [Test]
         public async Task can_get_string_with_quoted_charset_header()
         {
-            HttpTest.RespondWith(() => {
+            HttpTest.RespondWith(() =>
+            {
                 var content = new StringContent("foo");
                 content.Headers.Clear();
                 content.Headers.Add("Content-Type", "text/javascript; charset=\"UTF-8\"");
@@ -1413,7 +1418,7 @@ namespace System.Data.DabberUT
                 var path = await url.SetQueryParam("Content-Disposition", contentDisposition).DownloadFileAsync(folder, suppliedFilename);
                 var expected = Path.Combine(folder, expectedFilename);
                 Assert.AreEqual(expected, path);
-                Assert.That(File.Exists(expected));
+                Assert.That(System.IO.File.Exists(expected));
             }
             finally
             {
@@ -1477,13 +1482,14 @@ namespace System.Data.DabberUT
             Directory.CreateDirectory(folder);
             try
             {
-                File.WriteAllText(path1, "file contents 1");
-                File.WriteAllText(path2, "file contents 2");
+                System.IO.File.WriteAllText(path1, "file contents 1");
+                System.IO.File.WriteAllText(path2, "file contents 2");
 
-                using (var stream = File.OpenRead(path2))
+                using (var stream = System.IO.File.OpenRead(path2))
                 {
                     var resp = await "https://httpbin.org/post"
-                        .PostMultipartAsync(content => {
+                        .PostMultipartAsync(content =>
+                        {
                             content
                                 .AddStringParts(new { a = 1, b = 2 })
                                 .AddString("DataField", "hello!")
@@ -1515,8 +1521,10 @@ namespace System.Data.DabberUT
 
             try
             {
-                await "https://httpbin.org/status/500".ConfigureRequest(c => {
-                    c.OnError = call => {
+                await "https://httpbin.org/status/500".ConfigureRequest(c =>
+                {
+                    c.OnError = call =>
+                    {
                         call.ExceptionHandled = true;
                         handlerCalled = true;
                     };
@@ -1536,8 +1544,10 @@ namespace System.Data.DabberUT
 
             try
             {
-                await "http://httpbin.org/image/jpeg".ConfigureRequest(c => {
-                    c.OnError = call => {
+                await "http://httpbin.org/image/jpeg".ConfigureRequest(c =>
+                {
+                    c.OnError = call =>
+                    {
                         ex = call.Exception;
                         call.ExceptionHandled = true;
                     };
@@ -1568,7 +1578,8 @@ namespace System.Data.DabberUT
         [Test]
         public void can_set_timeout()
         {
-            var ex = Assert.ThrowsAsync<FlurlHttpTimeoutException>(async () => {
+            var ex = Assert.ThrowsAsync<FlurlHttpTimeoutException>(async () =>
+            {
                 await "https://httpbin.org/delay/5"
                     .WithTimeout(TimeSpan.FromMilliseconds(50))
                     .HeadAsync();
@@ -1580,7 +1591,8 @@ namespace System.Data.DabberUT
         public void can_cancel_request()
         {
             var cts = new CancellationTokenSource();
-            var ex = Assert.ThrowsAsync<FlurlHttpException>(async () => {
+            var ex = Assert.ThrowsAsync<FlurlHttpException>(async () =>
+            {
                 var task = "https://httpbin.org/delay/5".GetAsync(cancellationToken: cts.Token);
                 cts.Cancel();
                 await task;
@@ -1593,7 +1605,8 @@ namespace System.Data.DabberUT
         {
             // cancellation with timeout value set
             var cts = new CancellationTokenSource();
-            var ex = Assert.ThrowsAsync<FlurlHttpException>(async () => {
+            var ex = Assert.ThrowsAsync<FlurlHttpException>(async () =>
+            {
                 var task = "https://httpbin.org/delay/5"
                     .WithTimeout(TimeSpan.FromMilliseconds(50))
                     .GetAsync(cancellationToken: cts.Token);
@@ -1605,7 +1618,8 @@ namespace System.Data.DabberUT
 
             // timeout with cancellation token set
             cts = new CancellationTokenSource();
-            ex = Assert.ThrowsAsync<FlurlHttpTimeoutException>(async () => {
+            ex = Assert.ThrowsAsync<FlurlHttpTimeoutException>(async () =>
+            {
                 await "https://httpbin.org/delay/5"
                     .WithTimeout(TimeSpan.FromMilliseconds(50))
                     .GetAsync(cancellationToken: cts.Token);
@@ -1689,7 +1703,8 @@ namespace System.Data.DabberUT
             // Flurl was auto-creating an empty HttpContent object in order to forward content-level headers,
             // and on .NET Framework a GET with a non-null HttpContent throws an exceptions (#583)
             var calls = new List<FlurlCall>();
-            var resp = await "http://httpbingo.org/redirect-to?url=http%3A%2F%2Fexample.com%2F".ConfigureRequest(c => {
+            var resp = await "http://httpbingo.org/redirect-to?url=http%3A%2F%2Fexample.com%2F".ConfigureRequest(c =>
+            {
                 c.Redirects.ForwardHeaders = true;
                 c.BeforeCall = call => calls.Add(call);
             }).PostUrlEncodedAsync("test=test");
@@ -1877,7 +1892,8 @@ namespace System.Data.DabberUT
                     Custom1 = "foo",
                     Custom2 = "bar"
                 })
-                .ConfigureRequest(settings => {
+                .ConfigureRequest(settings =>
+                {
                     settings.Redirects.ForwardAuthorizationHeader = fwdAuth;
                     settings.Redirects.ForwardHeaders = fwdOther;
                 })
@@ -1959,7 +1975,8 @@ namespace System.Data.DabberUT
                 .RespondWith("done!");
 
             var fc = new FlurlClient()
-                .OnRedirect(call => {
+                .OnRedirect(call =>
+                {
                     eventFired = true;
 
                     // assert all the properties of call.Redirect
@@ -2308,7 +2325,8 @@ namespace System.Data.DabberUT
             using (var test = new HttpTest())
             {
                 test.RespondWith("ok");
-                GetSettings().BeforeCall = call => {
+                GetSettings().BeforeCall = call =>
+                {
                     Assert.Null(call.Response); // verifies that callback is running before HTTP call is made
                     callbackCalled = true;
                 };
@@ -2325,7 +2343,8 @@ namespace System.Data.DabberUT
             using (var test = new HttpTest())
             {
                 test.RespondWith("ok");
-                GetSettings().AfterCall = call => {
+                GetSettings().AfterCall = call =>
+                {
                     Assert.NotNull(call.Response); // verifies that callback is running after HTTP call is made
                     callbackCalled = true;
                 };
@@ -2343,7 +2362,8 @@ namespace System.Data.DabberUT
             using (var test = new HttpTest())
             {
                 test.RespondWith("server error", 500);
-                GetSettings().OnError = call => {
+                GetSettings().OnError = call =>
+                {
                     Assert.NotNull(call.Response); // verifies that callback is running after HTTP call is made
                     callbackCalled = true;
                     call.ExceptionHandled = markExceptionHandled;
@@ -2368,7 +2388,8 @@ namespace System.Data.DabberUT
         {
             using (var test = new HttpTest())
             {
-                GetSettings().OnError = call => {
+                GetSettings().OnError = call =>
+                {
                     call.ExceptionHandled = true;
                 };
                 test.RespondWith("server error", 500);
@@ -3009,7 +3030,8 @@ namespace System.Data.DabberUT
             var exceptionCaught = false;
 
             var resp = await "http://api.com"
-                .ConfigureRequest(c => c.OnError = call => {
+                .ConfigureRequest(c => c.OnError = call =>
+                {
                     exceptionCaught = true;
                     var ex = call.Exception as TaskCanceledException;
                     Assert.NotNull(ex);
@@ -4351,6 +4373,58 @@ namespace System.Data.DabberUT
         {
             var url = new Flurl("  https://www.site.com \t");
             Assert.AreEqual("https://www.site.com", url.ToString());
+        }
+
+        [Test]
+        public void TestJiandaoyun()
+        {
+            var appKey = "Bearer cvS4jlk6hnzqwm8ftxHPJ1M0NpW6r4In";
+            var appId = "64b4e19969e9f400080278ca";
+            var entryId = "64b4e1d1dda1770007605e94";
+
+            var url = "https://api.jiandaoyun.com/api/v5/app/entry/data/list";
+            var result = new Flurl(url).WithHeader("Authorization", appKey)
+                .WithHeader("content-type", "application/json")
+                .PostJsonAsync(new
+                {
+                    app_id = appId,
+                    entry_id = entryId,
+                }).Result.GetStringAsync().Result;
+            Console.WriteLine(result);
+        }
+        [Test]
+        public void TestJiandaoyunCreate()
+        {
+            var appKey = "Bearer cvS4jlk6hnzqwm8ftxHPJ1M0NpW6r4In";
+            var appId = "64b4e19969e9f400080278ca";
+
+            var entryId = "64b51afb9bb6fc0008c06a5e";
+            var uuid = "8792206099964e7b9f034149240b538c";
+            var dateTime = DateTime.Now.ToUniversalTime();
+            Console.WriteLine(dateTime);
+            var url = "https://api.jiandaoyun.com/api/v5/app/entry/data/create";
+            var result = new Flurl(url).WithHeader("Authorization", appKey)
+                .WithHeader("content-type", "application/json")
+                .PostJsonAsync(new
+                {
+                    app_id = appId,
+                    entry_id = entryId,
+                    data = new
+                    {
+                        weighuuid = new { value = uuid },
+                        carno = new { value = "京A88888" },
+                        tare = new { value = 12.6 },
+                        firstdate = new { value = dateTime },
+                        gross = new { value = 52.3 },
+                        seconddate = new { value = dateTime },
+                        real = new { value = (52.3 - 12.6).GetDouble() },
+                        remark = new { value = "接口" },
+                    },
+                    is_start_workflow = false,
+                    is_start_trigger = true,
+                    transaction_id = (string)null,
+                }).Result.GetStringAsync().Result;
+            Console.WriteLine(result);
         }
     }
 }

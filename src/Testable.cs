@@ -205,10 +205,15 @@ namespace System
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Task TaskWhenAny(params Task[] tasks)
+        public static Task<Task> TaskWhenAny(params Task[] tasks)
         {
 #if NET40
-            return Task.Factory.ContinueWhenAny(tasks, TaskContinueDoNothing);
+            //foreach (var task in tasks)
+            //{
+            //    if (task.IsCompleted) { return TaskFromResult(task); }
+            //}
+            //return TaskFromResult<Task>(null);
+            return new Task<Task>(() => Task.Factory.ContinueWhenAny(tasks, TaskContinueDoNothing)).StartAsync();
 #else
             return Task.WhenAny(tasks);
 #endif

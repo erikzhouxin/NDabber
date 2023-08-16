@@ -59,7 +59,7 @@ namespace System.Data.Mabber
             {
                 return type.GetElementType();
             }
-            if (Helpers.IsGenericType(type) && type.IsIEnumerableOf())
+            if (TinyMapper.IsGenericType(type) && type.IsIEnumerableOf())
             {
                 return type.GetGenericArguments().First();
             }
@@ -95,7 +95,7 @@ namespace System.Data.Mabber
 
         public static bool IsDictionaryOf(this Type type)
         {
-            return Helpers.IsGenericType(type) &&
+            return TinyMapper.IsGenericType(type) &&
                    (type.GetGenericTypeDefinition() == typeof(Dictionary<,>) ||
                     type.GetGenericTypeDefinition() == typeof(IDictionary<,>));
         }
@@ -108,15 +108,15 @@ namespace System.Data.Mabber
         public static bool IsIEnumerableOf(this Type type)
         {
             return type.GetInterfaces()
-                       .Any(x => Helpers.IsGenericType(x) &&
+                       .Any(x => TinyMapper.IsGenericType(x) &&
                                  x.GetGenericTypeDefinition() == typeof(IEnumerable<>) ||
-                                 !Helpers.IsGenericType(x) && x == typeof(IEnumerable));
+                                 !TinyMapper.IsGenericType(x) && x == typeof(IEnumerable));
         }
 
         public static bool IsListOf(this Type type)
         {
             return
-                Helpers.IsGenericType(type) &&
+                TinyMapper.IsGenericType(type) &&
                 (type.GetGenericTypeDefinition() == typeof(List<>) ||
                  type.GetGenericTypeDefinition() == typeof(IList<>) ||
                  type.GetGenericTypeDefinition() == typeof(ICollection<>));
@@ -124,7 +124,7 @@ namespace System.Data.Mabber
 
         public static bool IsNullable(this Type type)
         {
-            return Helpers.IsGenericType(type) && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+            return TinyMapper.IsGenericType(type) && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
     }
 
@@ -228,7 +228,7 @@ namespace System.Data.Mabber
 
         public static Option<T> ToOption<T>(this T value)
         {
-            if (Helpers.IsValueType(typeof(T)) == false && ReferenceEquals(value, null))
+            if (TinyMapper.IsValueType(typeof(T)) == false && ReferenceEquals(value, null))
             {
                 return Option<T>.Empty;
             }

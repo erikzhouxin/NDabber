@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework.Internal;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -1068,6 +1069,19 @@ namespace System.Data.DabberUT
         public void TestTaskScheduler()
         {
             ExtterCaller.CreateStartTask("C:\\Windows\\System32\\Cmd.exe", "cmd.start");
+        }
+        [TestMethod]
+        public void TestSignCode()
+        {
+            long text = -1;
+            long min = long.MinValue;
+            Console.WriteLine((ulong)text);
+            Console.WriteLine(long.MaxValue);
+            Console.WriteLine((ulong)(-min) + long.MaxValue);
+            Console.WriteLine(((ulong)(-min)) + long.MaxValue);
+            Console.WriteLine(min ^ long.MaxValue);
+            Console.WriteLine(((ulong)(long.MaxValue)) * 2 + 1);
+            Console.WriteLine(ulong.MaxValue);
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data.Cobber;
 using System.Data.Extter;
 using System.Data.Logger;
+using System.Data.Mabber;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -847,5 +848,28 @@ namespace System.Data.DabberUT
             }
         }
         #endregion 压缩文件
+        #region // TinyMapper
+        [TestMethod]
+        public void TestMapper()
+        {
+            var model = new Tuple<int, string, int, DateTime>(123, "123", 32, DateTime.Now);
+            var res = model.Map<Tuple<int, string, int, DateTime>, Tuble<int, string, int, DateTime>>();
+            Console.WriteLine(res.GetJsonFormatString());
+        }
+        [TestMethod]
+        public void TestMapperConfig()
+        {
+            TinyMapper.Bind<Tuple<int, string, int, DateTime>, Tuble<int, string, int, DateTime>>(config =>
+            {
+                config.Ignore(x => x.Item1);
+                config.Ignore(x => x.Item2);
+                config.Bind(source => source.Item3, target => target.Item3);
+                config.Bind(target => target.Item4, typeof(DateTime));
+            });
+            var model = new Tuple<int, string, int, DateTime>(123, "123", 32, DateTime.Now);
+            var res = TinyMapper.Map<Tuble<int, string, int, DateTime>>(model);
+            Console.WriteLine(res.GetJsonFormatString());
+        }
+        #endregion TinyMapper
     }
 }
