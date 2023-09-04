@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>netcoreapp3.1</TargetFramework>
+		<TargetFrameworks>netcoreapp3.1;net6.0-windows</TargetFrameworks>
 		<AssemblyName>System.Data.DabberUT</AssemblyName>
 		<RootNamespace>System.Data.DabberUT</RootNamespace>
 		<SignAssembly>false</SignAssembly>
@@ -25,6 +25,7 @@
 		<PackageReference Include="MSTest.TestAdapter" Version="2.1.2" />
 		<PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
 		<PackageReference Include="MySql.Data" Version="8.0.23" />
+        <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\ErikZhouXin.NSolutionUI-main\src\Core\System.Data.SolutionCore.csproj" />

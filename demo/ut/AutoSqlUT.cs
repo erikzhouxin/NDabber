@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Cobber;
+using System.Data.Dabber;
 using System.Data.Extter;
 using System.Data.Odbc;
+using System.Data.SQLiteCipher;
 using System.Data.Sqller;
 using System.IO;
 using System.Linq.Expressions;
@@ -181,5 +183,39 @@ namespace System.Data.DabberUT
         }
 
         #endregion 测试连接
+    }
+    /// <summary>
+    /// 修改密码
+    /// </summary>
+    [TestClass]
+    public class ChangePasswordUT
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod]
+        public void MyTestMethod()
+        {
+            var sqliteConnString = $"DataSource={System.IO.Path.GetFullPath(DateTime.Now.Date.Ticks + @".sqlite;")};password=456";
+            using (var sqlite = new SqliteConnection(sqliteConnString))
+            {
+                sqlite.Open();
+                Tester(sqlite);
+                sqlite.ChangePassword();
+            }
+        }
+
+        private static void Tester(SqliteConnection sqlite)
+        {
+            try
+            {
+                sqlite.Execute($"CREATE TABLE IF NOT EXISTS [TestDate{DateTime.Now.Date:yyyyMMdd}]([ID] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,[Name] TEXT NOT NULL,[ETime] DATETIME NOT NULL DEFAULT (datetime(CURRENT_TIMESTAMP,'localtime')))", null);
+                sqlite.Execute($"INSERT INTO [TestDate{DateTime.Now.Date:yyyyMMdd}](Name) VALUES(@Name)", new List<Object> { new { Name = "二蛋" }, new { Name = "三蛋" }, });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
     }
 }

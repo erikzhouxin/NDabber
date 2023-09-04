@@ -2587,53 +2587,6 @@ namespace System.Data.Extter
             }
         }
         #endregion
-        #region // 压缩
-        /// <summary>
-        /// 压缩字节
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public static byte[] Compress(this byte[] data)
-        {
-            var ms = new MemoryStream();
-            var zip = new GZipStream(ms, CompressionMode.Compress, true);
-            zip.Write(data, 0, data.Length);
-            zip.Close();
-            var buffer = new byte[ms.Length];
-            ms.Position = 0;
-            ms.Read(buffer, 0, buffer.Length);
-            ms.Close();
-            return buffer;
-        }
-
-        /// <summary>
-        /// 解压字节
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public static byte[] Decompress(this byte[] data)
-        {
-            var ms = new MemoryStream(data);
-            var zip = new GZipStream(ms, CompressionMode.Decompress, true);
-            var msreader = new MemoryStream();
-            var buffer = new byte[0x1000];
-            while (true)
-            {
-                var reader = zip.Read(buffer, 0, buffer.Length);
-                if (reader <= 0)
-                {
-                    break;
-                }
-                msreader.Write(buffer, 0, reader);
-            }
-            zip.Close();
-            ms.Close();
-            msreader.Position = 0;
-            buffer = msreader.ToArray();
-            msreader.Close();
-            return buffer;
-        }
-        #endregion
         #region // 转编码
         private static LazyBone<Encoding> _asciiEncoding = new LazyBone<Encoding>(() => Encoding.ASCII, true);
         private static LazyBone<Encoding> _gb2312Encoding = new LazyBone<Encoding>(() => Encoding.GetEncoding("GB2312"), true);
@@ -4087,7 +4040,7 @@ namespace System.Data.Extter
             if (count != 1) { throw new ArgumentOutOfRangeException($"找到不唯一的'{name}'的资源文件"); }
             var ms = new MemoryStream();
             assembly.GetManifestResourceStream(res.First()).CopyTo(ms);
-            ms.Position = 0;
+            //ms.Position = 0;
             ms.Seek(0, SeekOrigin.Begin);
             return ms;
         }
@@ -4133,7 +4086,7 @@ namespace System.Data.Extter
             else { fileFullName = savePath; }
             using (var fs = File.Create(fileFullName))
             {
-                stream.Position = 0;
+                //stream.Position = 0;
                 stream.Seek(0, SeekOrigin.Begin);
                 stream.CopyTo(fs);
                 fs.Flush();
@@ -4144,20 +4097,17 @@ namespace System.Data.Extter
         /// <summary>
         /// 单文件压缩（生成的压缩包和第三方的解压软件兼容）
         /// </summary>
-        /// <param name="sourceFilePath"></param>
+        /// <param name="srcFilePath"></param>
         /// <returns></returns>
-        public static string FileGZipCompress(string sourceFilePath)
+        public static string FileGZipCompress(string srcFilePath)
         {
-            string zipFileName = sourceFilePath + ".gz";
-            if (!File.Exists(sourceFilePath)) { return zipFileName; }
-            using (FileStream zipFileStream = File.Create(zipFileName))
+            string zipFileName = srcFilePath + ".gz";
+            if (!File.Exists(srcFilePath)) { return zipFileName; }
+            using (var zipStream = new GZipStream(File.Create(zipFileName), CompressionMode.Compress, true))
             {
-                using (GZipStream zipStream = new GZipStream(zipFileStream, CompressionMode.Compress))
+                using (var srcFileStream = File.OpenRead(srcFilePath))
                 {
-                    using (FileStream sourceFileStream = File.OpenRead(sourceFilePath))
-                    {
-                        sourceFileStream.CopyTo(zipStream);
-                    }
+                    srcFileStream.CopyTo(zipStream);
                 }
             }
             return zipFileName;
@@ -4165,20 +4115,17 @@ namespace System.Data.Extter
         /// <summary>
         /// 单文件解压缩（生成的压缩包和第三方的解压软件兼容）
         /// </summary>
-        /// <param name="sourceFilePath"></param>
+        /// <param name="srcFilePath"></param>
         /// <param name="savePath"></param>
         /// <returns></returns>
-        public static string FileGZipDecompress(string sourceFilePath, string savePath)
+        public static string FileGZipDecompress(string srcFilePath, string savePath)
         {
-            if (!File.Exists(sourceFilePath)) { return savePath; }
-            using (FileStream sourceFileStream = File.OpenRead(sourceFilePath))
+            if (!File.Exists(srcFilePath)) { return savePath; }
+            using (var zipStream = new GZipStream(File.OpenRead(srcFilePath), CompressionMode.Decompress, true))
             {
-                using (GZipStream zipStream = new GZipStream(sourceFileStream, CompressionMode.Decompress))
+                using (var zipFileStream = File.Create(savePath))
                 {
-                    using (FileStream zipFileStream = File.Create(savePath))
-                    {
-                        zipStream.CopyTo(zipFileStream);
-                    }
+                    zipStream.CopyTo(zipFileStream);
                 }
             }
             return savePath;
@@ -4193,34 +4140,30 @@ namespace System.Data.Extter
         {
             try
             {
-                using (var zipFileStream = File.Create(savePath))
+                using (var zipStream = new GZipStream(File.Create(savePath), CompressionMode.Compress, true))
                 {
-                    using (var zipStream = new GZipStream(zipFileStream, CompressionMode.Compress))
+                    byte[] readBytes = new byte[4096];
+                    foreach (var kv in map)
                     {
-                        byte[] readBytes = new byte[4096];
-                        foreach (var kv in map)
+                        var filePath = kv.Value;
+                        var fileName = kv.Key;
+                        if (File.Exists(filePath))
                         {
-                            var filePath = kv.Value;
-                            var fileName = kv.Key;
-                            if (File.Exists(filePath))
+                            byte[] fileNameBytes = System.Text.Encoding.UTF8.GetBytes(fileName);
+                            byte[] sizeBytes = BitConverter.GetBytes(fileNameBytes.Length);
+                            zipStream.Write(sizeBytes, 0, sizeBytes.Length);
+                            zipStream.Write(fileNameBytes, 0, fileNameBytes.Length);
+                            using (var fsRead = File.OpenRead(filePath))
                             {
-                                byte[] fileNameBytes = System.Text.Encoding.UTF8.GetBytes(fileName);
-                                byte[] sizeBytes = BitConverter.GetBytes(fileNameBytes.Length);
-                                zipStream.Write(sizeBytes, 0, sizeBytes.Length);
-                                zipStream.Write(fileNameBytes, 0, fileNameBytes.Length);
-                                using (var fsRead = File.OpenRead(filePath))
+                                zipStream.Write(BitConverter.GetBytes(fsRead.Length), 0, 8);
+                                int len = 0;
+                                //4.通过读取文件流读取数据
+                                while ((len = fsRead.Read(readBytes, 0, readBytes.Length)) > 0)
                                 {
-                                    zipStream.Write(BitConverter.GetBytes(fsRead.Length), 0, 8);
-                                    int len = 0;
-                                    //4.通过读取文件流读取数据
-                                    while ((len = fsRead.Read(readBytes, 0, readBytes.Length)) > 0)
-                                    {
-                                        //通过压缩流写入数据
-                                        zipStream.Write(readBytes, 0, len);
-                                    }
+                                    //通过压缩流写入数据
+                                    zipStream.Write(readBytes, 0, len);
                                 }
                             }
-                            zipStream.Flush();
                         }
                     }
                 }
@@ -4243,58 +4186,57 @@ namespace System.Data.Extter
             Fillter ??= (s) => true;
             try
             {
-                using (FileStream fStream = File.OpenRead(zipFile))
+                using var ms = new MemoryStream();
+                using (var zipStream = new GZipStream(File.OpenRead(zipFile), CompressionMode.Decompress, true))
+                { zipStream.CopyTo(ms); }
+                //ms.Position = 0;
+                ms.Seek(0, SeekOrigin.Begin);
+                var readBytes = new byte[4096];
+                while (true)
                 {
-                    using (GZipStream zipStream = new GZipStream(fStream, CompressionMode.Decompress))
+                    byte[] fileNameSize = new byte[4];
+                    var readRes = ms.Read(fileNameSize, 0, 4);
+                    if (readRes == 0) { break; }
+                    int fileNameLength = BitConverter.ToInt32(fileNameSize, 0);
+                    byte[] fileNameBytes = new byte[fileNameLength];
+                    ms.Read(fileNameBytes, 0, fileNameLength);
+                    string fileName = System.Text.Encoding.UTF8.GetString(fileNameBytes);
+                    var fileSize = new byte[8];
+                    ms.Read(fileSize, 0, 8);
+                    var fileContentLength = BitConverter.ToInt64(fileSize, 0);
+                    if (!Fillter.Invoke(fileName))
                     {
-                        var readBytes = new byte[4096];
-                        while (true)
+                        long readLen = 0;
+                        while (readLen < fileContentLength)
                         {
-                            byte[] fileNameSize = new byte[4];
-                            var readRes = zipStream.Read(fileNameSize, 0, fileNameSize.Length);
-                            if (readRes == 0) { break; }
-                            int fileNameLength = BitConverter.ToInt32(fileNameSize, 0);
-                            byte[] fileNameBytes = new byte[fileNameLength];
-                            zipStream.Read(fileNameBytes, 0, fileNameBytes.Length);
-                            string fileName = System.Text.Encoding.UTF8.GetString(fileNameBytes);
-                            var fileSize = new byte[8];
-                            zipStream.Read(fileSize, 0, fileSize.Length);
-                            var fileContentLength = BitConverter.ToInt64(fileSize, 0);
-                            if (!Fillter.Invoke(fileName))
-                            {
-                                long readLen = 0;
-                                while (readLen < fileContentLength)
-                                {
-                                    var takeLen = fileContentLength - readLen;
-                                    if (takeLen > readBytes.Length) { takeLen = readBytes.Length; }
-                                    readLen += takeLen;
-                                    var res = zipStream.Read(readBytes, 0, (int)takeLen);
-                                    if (res <= 0) { break; }
-                                }
-                                continue;
-                            }
-                            string fileFullName = System.IO.Path.Combine(tagDir, fileName);
-                            var currDir = Path.GetDirectoryName(fileFullName);
-                            if (!Directory.Exists(currDir)) { Directory.CreateDirectory(currDir); }
-                            using (FileStream childFileStream = File.Create(fileFullName))
-                            {
-                                long readLen = 0;
-                                while (readLen < fileContentLength)
-                                {
-                                    var takeLen = fileContentLength - readLen;
-                                    if (takeLen > readBytes.Length) { takeLen = readBytes.Length; }
-                                    readLen += takeLen;
-                                    var res = zipStream.Read(readBytes, 0, (int)takeLen);
-                                    if (res > 0)
-                                    {
-                                        //通过文件流写入文件
-                                        childFileStream.Write(readBytes, 0, res);//读取的长度为len，这样不会造成数据的错误
-                                    }
-                                    else { break; }
-                                }
-                                childFileStream.Flush();
-                            }
+                            var takeLen = fileContentLength - readLen;
+                            if (takeLen > readBytes.Length) { takeLen = readBytes.Length; }
+                            readLen += takeLen;
+                            var res = ms.Read(readBytes, 0, (int)takeLen);
+                            if (res <= 0) { break; }
                         }
+                        continue;
+                    }
+                    string fileFullName = System.IO.Path.Combine(tagDir, fileName);
+                    var currDir = Path.GetDirectoryName(fileFullName);
+                    if (!Directory.Exists(currDir)) { Directory.CreateDirectory(currDir); }
+                    using (var childFileStream = File.Create(fileFullName))
+                    {
+                        long readLen = 0;
+                        while (readLen < fileContentLength)
+                        {
+                            var takeLen = fileContentLength - readLen;
+                            if (takeLen > readBytes.Length) { takeLen = readBytes.Length; }
+                            readLen += takeLen;
+                            var res = ms.Read(readBytes, 0, (int)takeLen);
+                            if (res > 0)
+                            {
+                                //通过文件流写入文件
+                                childFileStream.Write(readBytes, 0, res);//读取的长度为len，这样不会造成数据的错误
+                            }
+                            else { break; }
+                        }
+                        childFileStream.Flush();
                     }
                 }
                 return (AlertMsg<String>)(true, "操作成功", tagDir);
@@ -4314,29 +4256,28 @@ namespace System.Data.Extter
             if (!File.Exists(zipFile)) { return AlertMsg.NotFound; }
             try
             {
-                using (FileStream fStream = File.OpenRead(zipFile))
+                using var ms = new MemoryStream();
+                using (var zipStream = new GZipStream(File.OpenRead(zipFile), CompressionMode.Decompress, true))
+                { zipStream.CopyTo(ms); }
+                //ms.Position = 0;
+                ms.Seek(0, SeekOrigin.Begin);
+                while (true)
                 {
-                    using (GZipStream zipStream = new GZipStream(fStream, CompressionMode.Decompress))
-                    {
-                        while (true)
-                        {
-                            byte[] fileNameSize = new byte[4];
-                            var readRes = zipStream.Read(fileNameSize, 0, fileNameSize.Length);
-                            if (readRes == 0) { break; }
-                            int fileNameLength = BitConverter.ToInt32(fileNameSize, 0);
-                            byte[] fileNameBytes = new byte[fileNameLength];
-                            zipStream.Read(fileNameBytes, 0, fileNameBytes.Length);
-                            string fileName = System.Text.Encoding.UTF8.GetString(fileNameBytes);
-                            var fileSize = new byte[8];
-                            zipStream.Read(fileSize, 0, fileSize.Length);
-                            var fileContentLength = BitConverter.ToInt64(fileSize, 0);
-                            var readBytes = new byte[fileContentLength];
-                            var res = zipStream.Read(readBytes, 0, readBytes.Length);
-                            Converter?.Invoke(fileName, readBytes);
-                        }
-                    }
+                    byte[] fileNameSize = new byte[4];
+                    var readRes = ms.Read(fileNameSize, 0, fileNameSize.Length);
+                    if (readRes == 0) { break; }
+                    int fileNameLength = BitConverter.ToInt32(fileNameSize, 0);
+                    byte[] fileNameBytes = new byte[fileNameLength];
+                    ms.Read(fileNameBytes, 0, fileNameBytes.Length);
+                    string fileName = System.Text.Encoding.UTF8.GetString(fileNameBytes);
+                    var fileSize = new byte[8];
+                    ms.Read(fileSize, 0, fileSize.Length);
+                    var fileContentLength = BitConverter.ToInt64(fileSize, 0);
+                    var readBytes = new byte[fileContentLength];
+                    var res = ms.Read(readBytes, 0, readBytes.Length);
+                    Converter?.Invoke(fileName, readBytes);
                 }
-                return (AlertMsg)(true, "操作成功");
+                return new AlertMsg(true, "操作成功");
             }
             catch (Exception ex)
             {
@@ -7293,7 +7234,9 @@ namespace System.Data.Extter
         /// <returns>转换完成后的对象</returns>
         public static object GetBytesModel(this byte[] bytes, Type type) => bytes.GetString().GetJsonObject(type);
         #endregion
-        #region // 压缩
+        #endregion 字符串调用 String
+
+        #region // 压缩解压 GZipStream
         /// <summary>
         /// 压缩字符串
         /// </summary>
@@ -7356,8 +7299,52 @@ namespace System.Data.Extter
 
             return encoding.GetString(buffer);
         }
-        #endregion
-        #endregion 字符串调用 String
+        /// <summary>
+        /// 压缩字节
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static byte[] Compress(this byte[] data)
+        {
+            var ms = new MemoryStream();
+            var zip = new GZipStream(ms, CompressionMode.Compress, true);
+            zip.Write(data, 0, data.Length);
+            zip.Close();
+            var buffer = new byte[ms.Length];
+            ms.Position = 0;
+            ms.Read(buffer, 0, buffer.Length);
+            ms.Close();
+            return buffer;
+        }
+
+        /// <summary>
+        /// 解压字节
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static byte[] Decompress(this byte[] data)
+        {
+            var ms = new MemoryStream(data);
+            var zip = new GZipStream(ms, CompressionMode.Decompress, true);
+            var msreader = new MemoryStream();
+            var buffer = new byte[0x1000];
+            while (true)
+            {
+                var reader = zip.Read(buffer, 0, buffer.Length);
+                if (reader <= 0)
+                {
+                    break;
+                }
+                msreader.Write(buffer, 0, reader);
+            }
+            zip.Close();
+            ms.Close();
+            msreader.Position = 0;
+            buffer = msreader.ToArray();
+            msreader.Close();
+            return buffer;
+        }
+        #endregion 压缩解压 GZipStream
 
         #region // 单元测试调用 Test
         /// <summary>
@@ -7662,7 +7649,7 @@ namespace System.Data.Extter
             scheduler.Connect(null, null, null, null);
             //获取创建任务的目录
             var folder = scheduler.GetFolder("\\");
-            if(dirs != null && dirs.Length > 0)
+            if (dirs != null && dirs.Length > 0)
             {
                 foreach (var dir in dirs)
                 {

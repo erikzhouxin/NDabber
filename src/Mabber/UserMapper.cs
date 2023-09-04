@@ -232,5 +232,10 @@ namespace System.Data.Mabber
         /// 什么也不做
         /// </summary>
         public static void DoNoting() { }
+        /*
+         * todo: 
+         * 1.多重接口集成时映射当前接口内容，没有追溯接口链
+         * 
+         */
     }
 }
