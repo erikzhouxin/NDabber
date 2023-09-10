@@ -10,6 +10,7 @@ using System.Data.Sqller;
 using System.IO;
 using System.Linq.Expressions;
 using System.Text;
+using System.Threading;
 
 namespace System.Data.DabberUT
 {
@@ -216,6 +217,39 @@ namespace System.Data.DabberUT
             {
                 Console.WriteLine(ex);
             }
+        }
+        [TestMethod]
+        public void TestDbTrans()
+        {
+            TestTry.TryAsync(() =>
+            {
+                var conn = new SqliteConnection($"DataSource={System.IO.Path.GetFullPath("System.Data.sqlite3")}");
+
+                conn.Open();
+                var trans = conn.BeginTransaction();
+                conn.Execute("Create table if not exists test (id integer,name text)", null, trans);
+                conn.Execute("insert into test(id,name)values(1,'zhouxin')", null, trans);
+                var res = conn.Query("select * from test", null, trans);
+                Console.WriteLine(res.GetJsonString());
+                //trans.Rollback();
+                //trans.Commit();
+                Thread.Sleep(10000);
+            }, (ex) => Console.WriteLine(ex));
+            TestTry.TryAsync(() =>
+            {
+                var conn = new SqliteConnection($"DataSource={System.IO.Path.GetFullPath("System.Data.sqlite3")}");
+
+                conn.Open();
+                var trans = conn.BeginTransaction();
+                conn.Execute("Create table if not exists test (id integer,name text)", null, trans);
+                conn.Execute("insert into test(id,name)values(1,'zhouxin')", null, trans);
+                var res = conn.Query("select * from test", null, trans);
+                Console.WriteLine(res.GetJsonString());
+                //trans.Rollback();
+                //trans.Commit();
+                Thread.Sleep(10000);
+            }, (ex) => Console.WriteLine(ex));
+            Thread.Sleep(31111);
         }
     }
 }
