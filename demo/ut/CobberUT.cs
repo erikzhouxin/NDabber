@@ -302,6 +302,7 @@ namespace System.Data.DabberUT
         public void MyTestMethod()
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // 注册编码格式
+            Console.WriteLine(Environment.Is64BitProcess);
             var pinyin = new ChineseChar('得');
             Console.WriteLine(pinyin.Pinyins.GetJsonString());
             Assert.IsTrue(ChineseChar.IsValidPinyin(pinyin.Pinyins[0]));
@@ -339,7 +340,6 @@ namespace System.Data.DabberUT
             {
                 Console.WriteLine($"{item.PadRight(10, ' ')} => {regex.IsMatch(item)}");
             }
-
         }
         #endregion Chinese PinYin
     }
